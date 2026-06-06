@@ -22,6 +22,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , m_pAppBarBtnGroup(new QButtonGroup(this))
     , m_pCtlBtnGroup(new QButtonGroup(this))
     , m_pTimer(new QTimer(this))
+    , m_pProcManagerInst(ProcManager::GetProcManagerInst())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
     , m_pSettingPageWgtInst(SettingPageWidget::GetMainSettingPageInst())
     , m_pAudioPageWgtInst(AudioPageWidget::GetAudioPageWidgetInst())
@@ -32,6 +33,8 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     ui->setupUi(this);
     setAttribute(Qt::WA_StyledBackground, true);
 
+    m_pProcManagerInst->init();
+
     _initAppBar();
     _initControlBar();
     _initStackedWidget();
@@ -41,6 +44,9 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
 
 FrameworkWidget::~FrameworkWidget()
 {
+    m_pProcManagerInst->destroy();
+    delete m_pProcManagerInst;
+
     delete m_pHomePageWgtInst;
     delete m_pTextPageWgtInst;
     delete m_pImagePageWgtInst;
@@ -61,6 +67,7 @@ void FrameworkWidget::closeEvent(QCloseEvent *event)
 void FrameworkWidget::_slotBtnExitClicked()
 {
     qDebug() << "Exit button clicked.";
+    m_pProcManagerInst->destroy();
     this->close();
 }
 

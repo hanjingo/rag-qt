@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
-
+# ----------------------------------------------------------------------------
+# Qt
+# ----------------------------------------------------------------------------
 project(rag-qt VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -50,6 +52,39 @@ elseif(ANDROID)
 elseif(LINUX)
     #include(Linux)
 endif()
+
+# ----------------------------------------------------------------------------
+# Build Configuration
+# ----------------------------------------------------------------------------
+# Build Type
+if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type config" FORCE)
+endif()
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
+endif()
+
+# set output path
+if (NOT EXECUTABLE_OUTPUT_PATH)
+    set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+endif()
+
+# print build info
+message(STATUS "Build type:                                       ${CMAKE_BUILD_TYPE}")
+message(STATUS "C flags, Debug configuration:                     ${CMAKE_C_FLAGS_DEBUG}")
+message(STATUS "C flags, Release configuration:                   ${CMAKE_C_FLAGS_RELEASE}")
+message(STATUS "C flags, Release configuration with Debug info:   ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+message(STATUS "C flags, minimal Release configuration:           ${CMAKE_C_FLAGS_MINSIZEREL}")
+message(STATUS "C++ flags, Debug configuration:                   ${CMAKE_CXX_FLAGS_DEBUG}")
+message(STATUS "C++ flags, Release configuration:                 ${CMAKE_CXX_FLAGS_RELEASE}")
+message(STATUS "C++ flags, Release configuration with Debug info: ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+message(STATUS "C++ flags, minimal Release configuration:         ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+
+# ----------------------------------------------------------------------------
+# submodules
+# ----------------------------------------------------------------------------
+add_subdirectory(3rd/rag-core)
+add_subdirectory(3rd/libqt)
 
 # ----------------------------------------------------------------------------
 # Source Code
@@ -102,4 +137,24 @@ install(TARGETS ${CMAKE_PROJECT_NAME}
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(${CMAKE_PROJECT_NAME})
+endif()
+
+# ----------------------------------------------------------------------------
+# deploy Qt
+# ----------------------------------------------------------------------------
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    message("install to ${EXECUTABLE_OUTPUT_PATH}")
+
+    install(TARGETS ${PROJECT_NAME}
+        DESTINATION "${EXECUTABLE_OUTPUT_PATH}"
+    )
+
+    include(3rd/libqt/cmakes/deployqt.cmake)
+    if(WIN32)
+        windeployqt(${PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH})
+    elseif(APPLE)
+        macdeployqt(${PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH})
+    elseif(ANDROID)
+    elseif(LINUX)
+    endif()
 endif()

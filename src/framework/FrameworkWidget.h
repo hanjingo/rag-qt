@@ -12,6 +12,8 @@
 #include "ImagePageWidget.h"
 #include "TextPageWidget.h"
 
+#include "ProcManager.h"
+
 QT_BEGIN_NAMESPACE
 class QButtonGroup;
 class QStackedWidget;
@@ -62,6 +64,8 @@ class FrameworkWidget : public QWidget
     QTimer       *m_pTimer;
 
   private:
+    ProcManager *m_pProcManagerInst;
+
     HomePageWidget    *m_pHomePageWgtInst;
     TextPageWidget    *m_pTextPageWgtInst;
     ImagePageWidget   *m_pImagePageWgtInst;
