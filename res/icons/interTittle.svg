@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400px" height="72px" viewBox="0 0 400 72" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>矩形</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="7.试剂盘16" transform="translate(-1143.000000, 0.000000)" fill="#12222F">
+            <g id="顶部按钮" transform="translate(1140.000000, 0.000000)">
+                <path d="M3.07344633,0 L0,0 L0,0 L404,0 L402.926554,0 C394.089998,3.30170024e-14 386.926554,7.163444 386.926554,16 L386.926554,48 C386.926554,61.254834 376.181388,72 362.926554,72 L43.0734463,72 C29.8186123,72 19.0734463,61.254834 19.0734463,48 L19.0734463,16 C19.0734463,7.163444 11.9100023,-3.39960584e-15 3.07344633,0 Z" id="矩形"></path>
+            </g>
+        </g>
+    </g>
+</svg>

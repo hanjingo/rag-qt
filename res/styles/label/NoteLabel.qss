@@ -1,0 +1,6 @@
+QLabel
+{
+    background:transparent;
+    color: rgb(102, 102, 102);
+    font: 12pt "微软雅黑";  
+}

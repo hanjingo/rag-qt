@@ -1,0 +1,107 @@
+QDateEdit
+{
+    font: 16px "微软雅黑";
+    padding-left:5px;
+    background-color:rgb(255, 255, 255);
+    color:rgb(102, 102, 102);
+    border-color:rgb(240, 240, 240);
+    border-radius:5px;
+}
+
+QAbstractItemView
+{
+    padding-left:5px;
+    color: black;
+    selection-color:white;
+    selection-background-color:#57698C;
+    height:30px;
+    width:30px;
+    border-top-right-radius:5px;
+    border-top-left-radius:5px;
+    border-bottom-left-radius:5px;
+    border-bottom-right-radius:5px;
+}
+
+QDateEdit::drop-down
+{
+    width:35px;
+    border-left: 1px solid #ffffff;
+}
+
+QCalendarWidget QSpinBox
+{
+    background-color:rgb(255, 255, 255);
+    font:14px "微软雅黑";
+    color:#ffffff;
+}
+
+QCalendarWidget QMenu
+{
+    color:#ffffff;
+    font:14px "微软雅黑";
+    selection-color:rgb(245,251,251);
+    background-color:rgb(255, 255, 255);
+    selection-background-color:#57698C;
+}
+
+QDateEdit::down-arrow
+{
+    image:url(:/SVG/date.svg);
+    height:17px;
+    width:18px;
+}
+
+QDateEdit QCalendarWidget QWidget
+{
+    width:68px;
+    background-color:#00467a;
+    alternate-background-color: rgb(255, 255, 255);
+    border-top-right-radius:5px;
+    border-top-left-radius:5px;
+    border-bottom-left-radius:0px;
+    border-bottom-right-radius:0px;
+}
+
+QDateEdit QToolButton
+{
+    font:18px "微软雅黑";
+    height:38px;
+    background-color:#57698C;
+}
+
+QDateEdit QCalendarWidget QTableView
+{
+    height:100px;
+    background-color:#FFFFFF;
+    font:14px "微软雅黑";
+    border-bottom-right-radius:5px;
+    border-bottom-left-radius:5px;
+}
+
+#qt_calendar_navigationbar
+{
+    background:#57698C;
+}
+
+QCalendarWidget QToolButton#qt_calendar_prevmonth
+{
+    qproperty-icon:url(:/SVG/Arrow_left.svg);
+    background:#57698C;
+}
+
+QCalendarWidget QToolButton#qt_calendar_nextmonth
+{
+    qproperty-icon: url(:/SVG/Arrow_right.svg);
+    background: #57698C;
+}
+
+QCalendarWidget QToolButton#qt_calendar_monthbutton
+{
+    background: #57698C;
+}
+
+QCalendarWidget QToolButton#qt_calendar_yearbutton
+{
+    background: #57698C;
+}
+

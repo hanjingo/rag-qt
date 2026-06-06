@@ -1,0 +1,21 @@
+QPushButton
+{
+    background-color:#008273;
+    color:rgb(255, 255, 255);
+    border-radius:10px;
+    border-style:outset;
+    font-family:"微软雅黑";
+    font-size: 22px;
+}
+
+QPushButton:pressed
+{
+    background-color:#57698C;
+    border-style: inset;
+}
+
+QPushButton:!enabled
+{
+    background-color:rgb(204, 204, 204);
+    border-style: inset;
+}

@@ -1,0 +1,18 @@
+QTableView
+{
+    color:#2D3238;                          /*表格内文字颜色*/
+    font-family: '微软雅黑';
+    font-size:18px;
+    background-color:#D1D8DF;               /*表格内背景色*/
+    selection-color:white;                  /*选中区域的文字颜色*/
+    selection-background-color:#57698C;     /*选中区域的背景色*/
+    border:0px groove gray;
+    border-radius:10px;
+    padding:0px 0px;
+}
+
+QTableView::item:selected
+{
+    color:rgb(255,255,255);
+    background-color:#57698C;
+}

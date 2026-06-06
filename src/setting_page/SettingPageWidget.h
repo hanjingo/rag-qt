@@ -1,0 +1,30 @@
+#ifndef SETTINGPAGEWIDGET_H
+#define SETTINGPAGEWIDGET_H
+
+#include <QMap>
+#include <QWidget>
+
+namespace Ui
+{
+class SettingPageWidget;
+}
+
+class SettingPageWidget : public QWidget
+{
+    Q_OBJECT
+
+  public:
+    static SettingPageWidget *GetMainSettingPageInst();
+    explicit SettingPageWidget(QWidget *parent = nullptr);
+    ~SettingPageWidget();
+
+  signals:
+
+  private slots:
+
+  private:
+    Ui::SettingPageWidget    *ui;
+    static SettingPageWidget *m_stMainSettingPageInst;
+};
+
+#endif // SETTINGPAGEWIDGET_H

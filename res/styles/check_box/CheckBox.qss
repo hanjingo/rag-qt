@@ -1,0 +1,25 @@
+QCheckBox
+{
+    color:#333333;
+    font:16px "微软雅黑";
+}
+
+QCheckBox::indicator:unchecked
+{
+    width: 20px;
+    height: 20px;
+    background-color: rgb(255, 255, 255);
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(240, 240, 240);
+}
+
+QCheckBox::indicator:checked
+{
+    width: 20px;
+    height: 20px;
+    background-color: rgb(163, 200, 93);
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(163, 200, 93);
+}

@@ -1,0 +1,12 @@
+
+QLabel
+{
+    font: 16px;
+    color:#333333 ;
+    background-color:#F7F7F7;
+    font-family: '微软雅黑';
+    border-top-left-radius:0px;
+    border-top-right-radius:8px;
+    border-bottom-left-radius:0px;
+    border-bottom-right-radius:8px;
+}

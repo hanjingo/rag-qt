@@ -1,0 +1,62 @@
+QDateTimeEdit
+{
+    border-radius: 10px;
+    background-color: rgb(218, 221, 224);
+    font: 20px "微软雅黑";
+    padding-left: 5px;
+}
+
+QDateTimeEdit QAbstractItemView
+{
+    background-color: rgb(85, 255, 255);
+    padding-left: 5px;
+}
+
+QDateTimeEdit::drop-down
+{
+    width: 35px;
+    border-left: 1px solid #ffffff;
+}
+
+QDateTimeEdit::down-arrow
+{
+    image: url(:/SVG/date.svg);
+    height: 17px;
+    width: 18px;
+}
+
+QDateTimeEdit QCalendarWidget QWidget
+{
+    width: 68px;
+    background-color: #00467a;
+    alternate-background-color: rgb(255, 255, 255);
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+QDateTimeEdit QToolButton
+{
+    font: 18px "微软雅黑";
+    height: 38px;
+}
+
+QDateTimeEdit QCalendarWidget QTableView
+{
+    height: 100px;
+    background-color: #FFFFFF;
+    font: 14px "微软雅黑";
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+QCalendarWidget QToolButton#qt_calendar_prevmonth
+{
+    qproperty-icon: url(:/SVG/Arrow_left.svg);
+}
+
+QCalendarWidget QToolButton#qt_calendar_nextmonth
+{
+    qproperty-icon: url(:/SVG/Arrow_right.svg);
+}

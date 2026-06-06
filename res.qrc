@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="start_usual">res/icons/strt_usual.svg</file>
+        <file alias="start_unable">res/icons/strt_unable.svg</file>
+        <file alias="start_check">res/icons/strt_check.svg</file>
+        <file alias="close">res/icons/close.svg</file>
+        <file alias="pause_usual">res/icons/puse_usual.svg</file>
+        <file alias="pause_unable">res/icons/puse_unable.svg</file>
+        <file alias="pause_check">res/icons/puse_check.svg</file>
+        <file alias="stop_unable">res/icons/stop_unable.svg</file>
+        <file alias="stop_usual">res/icons/stop_usual.svg</file>
+        <file alias="stop_check">res/icons/stop_check.svg</file>
+        <file alias="quit_usual">res/icons/quit_usual.png</file>
+        <file alias="box_check">res/icons/box_check.svg</file>
+        <file alias="box_empty">res/icons/box_empty.svg</file>
+        <file alias="box_open">res/icons/box_open.svg</file>
+        <file alias="icon_apply">res/icons/icon-apply.png</file>
+        <file alias="icon_home">res/icons/icon-home.png</file>
+        <file alias="icon_printer">res/icons/icon-printer.png</file>
+        <file alias="icon_setting">res/icons/icon-setting.png</file>
+        <file alias="icon_warn">res/icons/icon-warn.png</file>
+        <file alias="inter_tittle">res/icons/interTittle.svg</file>
+        <file alias="light_busy">res/icons/light_busy.svg</file>
+        <file alias="light_err">res/icons/light_err.svg</file>
+        <file alias="light_free">res/icons/light_free.svg</file>
+        <file alias="light_path">res/icons/light_path.png</file>
+        <file alias="light_warn">res/icons/light_warn.svg</file>
+        <file alias="progress_back">res/icons/progress_back.png</file>
+        <file alias="progress_front">res/icons/progress_front.png</file>
+        <file alias="promntn">res/icons/promntn.png</file>
+        <file alias="radius_back">res/icons/radius_back.png</file>
+        <file alias="sequence_animate">res/icons/sequence_animate.png</file>
+    </qresource>
+</RCC>

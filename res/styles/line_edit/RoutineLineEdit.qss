@@ -1,0 +1,8 @@
+QLineEdit
+{
+    font: 16px;
+    font-family: '微软雅黑';
+    color:#333333;
+    background-color:#F7F7F7;
+    border:none;
+}

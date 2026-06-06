@@ -1,0 +1,133 @@
+QTabWidget::pane
+{
+    border-width:0px;
+    background-color:#C1CCD6;
+    border-top-right-radius:12px;
+    border-bottom-left-radius:12px;
+    border-bottom-right-radius:12px;
+}
+
+QTabWidget::tab-bar
+{
+    border-width: 0px;
+    font-family: '微软雅黑';
+    font-size: 22px;
+    color: #00467a;
+}
+
+QTabBar::tab
+{
+    font:18px;
+    padding:0px;
+    color:#808080;
+    font-size:18px;
+    max-width: 160px;
+    min-width: 160px;
+    min-height: 64px;
+    max-height: 64px;
+    font-family: '微软雅黑';
+    border-bottom-color:#C1CCD6;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+
+}
+
+QTabBar::scroller
+{
+    width: 64px;
+    border: 2px;
+    padding: 0px;
+}
+
+QTabBar::tab:first:selected
+{
+    color: #2D3238;
+    margin-left: 0px;
+    margin-right: 0px;
+    position: absolute;
+    background-color:#C1CCD6;
+}
+
+QTabBar::tab:first:!selected
+{
+    color: #2D3238;
+    margin-right: 0px;
+    background-color:#909AA7;
+    position: absolute;margin-left: 0px;
+}
+
+QTabBar::tab:middle:selected
+{
+    color: #2D3238;
+    margin-top: 0px;
+    margin-left: 8px;
+    max-width: 160px;
+    min-width: 160px;
+    min-height: 64px;
+    max-height: 64px;
+    margin-right: 0px;
+    position: absolute;
+    background-color:#C1CCD6;
+}
+
+QTabBar::tab:middle:!selected
+{
+    color:#2D3238;
+    margin-top:0px;
+    margin-left:8px;
+    max-width:160px;
+    min-width:160px;
+    min-height:64px;
+    max-height:64px;
+    margin-right:0px;
+    position:absolute;
+    background-color:#909AA7;
+}
+
+QTabBar::tab:last:selected
+{
+    color:#2D3238;
+    margin-top:0px;
+    margin-left:8px;
+    max-width:160px;
+    min-width:160px;
+    min-height:64px;
+    max-height:64px;
+    margin-right:0px;
+    background-color:#C1CCD6;
+}
+
+QTabBar::tab:last:!selected
+{
+    color:#2D3238;
+    max-width:160px;
+    min-width:160px;
+    min-height:64px;
+    max-height:64px;
+    margin-top:0px;
+    margin-left:8px;
+    margin-right:0px;
+    background-color:#909AA7;
+}
+
+QTabBar::tab:only-one
+{
+
+    margin-left:-48px;
+    color:#000000;
+    background:transparent;
+}
+
+QTabBar QToolButton::right-arrow
+{
+    border-width:2px;
+    background-position:center;
+    background-image: url(:/SVG/btn_right_press.png);
+}
+
+QTabBar QToolButton::left-arrow
+{
+    border-width: 2px;
+    background-image:url(:/SVG/btn_left_press.png);
+    background-position:center;
+}

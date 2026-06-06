@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="20px" viewBox="0 0 32 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>开键</title>
+    <g id="开键" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组-42">
+            <path d="M10,0 L22,0 C27.5228475,-1.01453063e-15 32,4.4771525 32,10 C32,15.5228475 27.5228475,20 22,20 L10,20 C4.4771525,20 6.76353751e-16,15.5228475 0,10 C-6.76353751e-16,4.4771525 4.4771525,1.01453063e-15 10,0 Z" id="矩形" fill="#46B8F4"></path>
+            <rect id="矩形" fill="#FFFFFF" x="15" y="3" width="14" height="14" rx="7"></rect>
+        </g>
+    </g>
+</svg>
