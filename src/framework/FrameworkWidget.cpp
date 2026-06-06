@@ -27,7 +27,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , m_pAudioPageWgtInst(AudioPageWidget::GetAudioPageWidgetInst())
     , m_pImagePageWgtInst(ImagePageWidget::GetImagePageWidgetInst())
     , m_pTextPageWgtInst(TextPageWidget::GetTextPageWidgetInst())
-    , m_pChatPageWgtInst(ChatPageWidget::GetChatPageWidgetInst())
+    , m_pVideoPageWgtInst(VideoPageWidget::GetVideoPageWidgetInst())
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_StyledBackground, true);
@@ -45,7 +45,7 @@ FrameworkWidget::~FrameworkWidget()
     delete m_pTextPageWgtInst;
     delete m_pImagePageWgtInst;
     delete m_pAudioPageWgtInst;
-    delete m_pChatPageWgtInst;
+    delete m_pVideoPageWgtInst;
     delete m_pSettingPageWgtInst;
     delete m_pAppBarBtnGroup;
     delete m_pCtlBtnGroup;
@@ -83,7 +83,7 @@ void FrameworkWidget::_slotAppBarBtnGroupClicked(int id)
             ui->stackedWidget->setCurrentWidget(m_pAudioPageWgtInst);
             break;
         case 4:
-            ui->stackedWidget->setCurrentWidget(m_pChatPageWgtInst);
+            ui->stackedWidget->setCurrentWidget(m_pVideoPageWgtInst);
             break;
         case 5:
             ui->stackedWidget->setCurrentWidget(m_pSettingPageWgtInst);
@@ -107,7 +107,7 @@ void FrameworkWidget::_initAppBar()
     m_pAppBarBtnGroup->addButton(ui->btnText, 1);
     m_pAppBarBtnGroup->addButton(ui->btnImage, 2);
     m_pAppBarBtnGroup->addButton(ui->btnAudio, 3);
-    m_pAppBarBtnGroup->addButton(ui->btnChat, 4);
+    m_pAppBarBtnGroup->addButton(ui->btnVideo, 4);
     m_pAppBarBtnGroup->addButton(ui->btnSetting, 5);
 }
 
@@ -122,7 +122,7 @@ void FrameworkWidget::_initStackedWidget()
     ui->stackedWidget->addWidget(m_pTextPageWgtInst);
     ui->stackedWidget->addWidget(m_pImagePageWgtInst);
     ui->stackedWidget->addWidget(m_pAudioPageWgtInst);
-    ui->stackedWidget->addWidget(m_pChatPageWgtInst);
+    ui->stackedWidget->addWidget(m_pVideoPageWgtInst);
     ui->stackedWidget->addWidget(m_pSettingPageWgtInst);
 
     ui->stackedWidget->setCurrentWidget(m_pHomePageWgtInst);

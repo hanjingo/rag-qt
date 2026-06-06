@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ChatPageWidget</class>
- <widget class="QWidget" name="ChatPageWidget">
+ <class>VideoPageWidget</class>
+ <widget class="QWidget" name="VideoPageWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,7 +20,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget#ChatPageWidget{background-color:#C1CCD6;}</string>
+   <string notr="true">QWidget#VideoPageWidget{background-color:#C1CCD6;}</string>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">

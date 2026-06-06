@@ -6,35 +6,33 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1808</width>
-    <height>1056</height>
+    <width>1009</width>
+    <height>615</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget#SettingPageWidget{background-color:#C1CCD6;}</string>
+   <string notr="true">QWidget#MaintainCtrlWgt{background-color:#C1CCD6;}</string>
   </property>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>460</x>
-     <y>230</y>
-     <width>241</width>
-     <height>111</height>
-    </rect>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
    </property>
-   <property name="text">
-    <string>SettingPage!!!</string>
+   <property name="topMargin">
+    <number>0</number>
    </property>
-  </widget>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget"/>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

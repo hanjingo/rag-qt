@@ -313,7 +313,7 @@ QToolButton:checked
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="btnChat">
+       <widget class="QToolButton" name="btnVideo">
         <property name="minimumSize">
          <size>
           <width>72</width>
@@ -342,7 +342,7 @@ QToolButton:checked
 }</string>
         </property>
         <property name="text">
-         <string>Chat</string>
+         <string>Video</string>
         </property>
         <property name="icon">
          <iconset>

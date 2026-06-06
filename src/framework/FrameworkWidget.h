@@ -8,7 +8,7 @@
 #include "HomePageWidget.h"
 #include "SettingPageWidget.h"
 #include "AudioPageWidget.h"
-#include "ChatPageWidget.h"
+#include "VideoPageWidget.h"
 #include "ImagePageWidget.h"
 #include "TextPageWidget.h"
 
@@ -18,7 +18,7 @@ class QStackedWidget;
 class HomePageWidget;
 class TextPageWidget;
 class AudioPageWidget;
-class ChatPageWidget;
+class VideoPageWidget;
 class ImagePageWidget;
 class SettingPageWidget;
 QT_END_NAMESPACE
@@ -66,7 +66,7 @@ class FrameworkWidget : public QWidget
     TextPageWidget    *m_pTextPageWgtInst;
     ImagePageWidget   *m_pImagePageWgtInst;
     AudioPageWidget   *m_pAudioPageWgtInst;
-    ChatPageWidget    *m_pChatPageWgtInst;
+    VideoPageWidget   *m_pVideoPageWgtInst;
     SettingPageWidget *m_pSettingPageWgtInst;
 };
 

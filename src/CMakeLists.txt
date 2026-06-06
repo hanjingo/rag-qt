@@ -1,12 +1,12 @@
 # ============================================================================
 # Subdirectories
 # ============================================================================
-add_subdirectory(util)
+add_subdirectory(ui)
 # add_subdirectory(login_page)
 add_subdirectory(framework)
 add_subdirectory(home_page)
 add_subdirectory(audio_page)
-add_subdirectory(chat_page)
+add_subdirectory(video_page)
 add_subdirectory(image_page)
 add_subdirectory(setting_page)
 add_subdirectory(text_page)

@@ -29,20 +29,8 @@ class MainLoginWgt : public QWidget
     void _SlotBtnCancleClicked();
 
   private:
-    /***********************************************
-    * 	@ Author	: RJie
-    *	@ Date  	: 2021-09-17
-    *	@ Describe	: 初始化用户名下拉框
-    *	@ Paramters	:
-    ************************************************/
     void _InitUserNameCombBox();
 
-    /***********************************************
-    * 	@ Author	: RJie
-    *	@ Date  	: 2021-09-17
-    *	@ Describe	: 初始化信号和曹的链接
-    *	@ Paramters	:
-    ************************************************/
     void _InitFuncBtnConnect();
 
   protected:

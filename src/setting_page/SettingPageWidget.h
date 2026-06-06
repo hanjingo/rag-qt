@@ -21,6 +21,7 @@ class SettingPageWidget : public QWidget
   signals:
 
   private slots:
+    void _slotTabCurrentChanged(int iIndex);
 
   private:
     Ui::SettingPageWidget    *ui;
