@@ -228,7 +228,7 @@ background-color:#DCE1E6;
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap>:/SVG/logo_User.svg</pixmap>
+                   <pixmap>:/icons/login_user</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>false</bool>
@@ -353,7 +353,7 @@ background-color:#DCE1E6;
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap>:/SVG/logo_Password.svg</pixmap>
+                   <pixmap>:/icons/login_password</pixmap>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>

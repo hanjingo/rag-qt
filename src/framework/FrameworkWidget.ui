@@ -10,8 +10,11 @@
     <x>0</x>
     <y>0</y>
     <width>1141</width>
-    <height>675</height>
+    <height>738</height>
    </rect>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>RAT-Qt</string>
@@ -71,14 +74,14 @@ border-bottom-right-radius:8px;}</string>
        <widget class="QToolButton" name="btnHome">
         <property name="minimumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="font">
@@ -96,7 +99,8 @@ border-bottom-right-radius:8px;}</string>
 	background:rgba(70,184,244,0.40);	
 	border-radius:8px;
 	color:rgb(255, 255, 255);
-	padding-top:-9px;
+	padding-top:-3px;
+	padding-bottom:0px;
 	font:11pt &quot;微软雅黑&quot;;
 }
 
@@ -109,13 +113,13 @@ QToolButton:checked
          <string>Home</string>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/NewImg/icon-home.png</normaloff>:/NewImg/icon-home.png</iconset>
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/home</normaloff>:/icons/home</iconset>
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>54</width>
+          <height>54</height>
          </size>
         </property>
         <property name="checkable">
@@ -139,14 +143,14 @@ QToolButton:checked
        <widget class="QToolButton" name="btnText">
         <property name="minimumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="font">
@@ -164,7 +168,8 @@ QToolButton:checked
 	background:rgba(70,184,244,0.40);	
 	border-radius:8px;
 	color:rgb(255, 255, 255);
-	padding-top:-9px;
+	padding-top:-3px;
+	padding-bottom:0px;
 	font:11pt &quot;微软雅黑&quot;;
 }
 
@@ -177,13 +182,13 @@ QToolButton:checked
          <string>Text</string>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/NewImg/icon-apply.png</normaloff>:/NewImg/icon-apply.png</iconset>
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/text</normaloff>:/icons/text</iconset>
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>54</width>
+          <height>54</height>
          </size>
         </property>
         <property name="checkable">
@@ -198,14 +203,14 @@ QToolButton:checked
        <widget class="QToolButton" name="btnImage">
         <property name="minimumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="font">
@@ -223,7 +228,8 @@ QToolButton:checked
 	background:rgba(70,184,244,0.40);	
 	border-radius:8px;
 	color:rgb(255, 255, 255);
-	padding-top:-9px;
+	padding-top:-3px;
+	padding-bottom:0px;
 	font:11pt &quot;微软雅黑&quot;;
 }
 
@@ -236,13 +242,13 @@ QToolButton:checked
          <string>Image</string>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/NewImg/icon-apply.png</normaloff>:/NewImg/icon-apply.png</iconset>
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/image</normaloff>:/icons/image</iconset>
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>54</width>
+          <height>54</height>
          </size>
         </property>
         <property name="checkable">
@@ -257,14 +263,14 @@ QToolButton:checked
        <widget class="QToolButton" name="btnAudio">
         <property name="minimumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="font">
@@ -282,7 +288,8 @@ QToolButton:checked
 	background:rgba(70,184,244,0.40);	
 	border-radius:8px;
 	color:rgb(255, 255, 255);
-	padding-top:-9px;
+	padding-top:-3px;
+	padding-bottom:0px;
 	font:11pt &quot;微软雅黑&quot;;
 }
 
@@ -295,13 +302,13 @@ QToolButton:checked
          <string>Audio</string>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/NewImg/icon-apply.png</normaloff>:/NewImg/icon-apply.png</iconset>
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/audio</normaloff>:/icons/audio</iconset>
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>54</width>
+          <height>54</height>
          </size>
         </property>
         <property name="checkable">
@@ -316,14 +323,14 @@ QToolButton:checked
        <widget class="QToolButton" name="btnVideo">
         <property name="minimumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -332,7 +339,8 @@ QToolButton:checked
 	background:rgba(70,184,244,0.40);	
 	border-radius:8px;
 	color:rgb(255, 255, 255);
-	padding-top:-9px;
+	padding-top:-3px;
+	padding-bottom:0px;
 	font:11pt &quot;微软雅黑&quot;;
 }
 
@@ -345,13 +353,13 @@ QToolButton:checked
          <string>Video</string>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/NewImg/icon-calc.png</normaloff>:/NewImg/icon-calc.png</iconset>
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/video</normaloff>:/icons/video</iconset>
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>54</width>
+          <height>54</height>
          </size>
         </property>
         <property name="checkable">
@@ -366,14 +374,14 @@ QToolButton:checked
        <widget class="QToolButton" name="btnSetting">
         <property name="minimumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>75</width>
+          <height>75</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -382,7 +390,8 @@ QToolButton:checked
 	background:rgba(70,184,244,0.40);	
 	border-radius:8px;
 	color:rgb(255, 255, 255);
-	padding-top:-9px;
+	padding-top:-3px;
+	padding-bottom:0px;
 	font:11pt &quot;微软雅黑&quot;;
 }
 
@@ -395,13 +404,64 @@ QToolButton:checked
          <string>Setting</string>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/NewImg/icon-mntn.png</normaloff>:/NewImg/icon-mntn.png</iconset>
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/settings</normaloff>:/icons/settings</iconset>
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>54</width>
+          <height>54</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btnTool">
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>75</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>75</width>
+          <height>75</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QToolButton
+{
+	background:rgba(70,184,244,0.40);	
+	border-radius:8px;
+	color:rgb(255, 255, 255);
+	padding-top:-3px;
+	padding-bottom:0px;
+	font:11pt &quot;微软雅黑&quot;;
+}
+
+QToolButton:checked
+{
+	background-color:#46B8F4;
+}</string>
+        </property>
+        <property name="text">
+         <string>Tool</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/tool</normaloff>:/icons/tool</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>54</width>
+          <height>54</height>
          </size>
         </property>
         <property name="checkable">
@@ -453,8 +513,8 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <string/>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/NewImg/user.svg</normaloff>:/NewImg/user.svg</iconset>
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/user</normaloff>:/icons/user</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -474,355 +534,313 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
     </widget>
    </item>
    <item row="0" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QWidget" name="widget" native="true">
-       <property name="minimumSize">
-        <size>
-         <width>422</width>
-         <height>72</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>422</width>
-         <height>72</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QWidget#widget{border-image:url(:/NewImg/interTittle.svg);}</string>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>411</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cmboLang">
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
         <item>
-         <widget class="QPushButton" name="btnStart">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../res.qrc">
+           <normaloff>:/icons/flag_cn</normaloff>:/icons/flag_cn</iconset>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../res.qrc">
+           <normaloff>:/icons/flag_en</normaloff>:/icons/flag_en</iconset>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../res.qrc">
+           <normaloff>:/icons/flag_ge</normaloff>:/icons/flag_ge</iconset>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnMinimize">
+        <property name="minimumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{border-image:url(:/icons/minimize);}
+
+
+</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/minimize</normaloff>:/icons/minimize</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnSelectScreen">
+        <property name="minimumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{border-image:url(:/icons/quit_usual);}</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/select_screen</normaloff>:/icons/select_screen</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAlarm">
+        <property name="minimumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{border-image:url(:/icons/icon_warn);}
+
+
+</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnExit">
+        <property name="minimumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{border-image:url(:/icons/quit_usual);}</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblNetStatus">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel#label_2{color: rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;;font:16px;}</string>
+        </property>
+        <property name="text">
+         <string>Disconnected</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLabel" name="lblDate">
           <property name="minimumSize">
            <size>
-            <width>56</width>
-            <height>56</height>
+            <width>120</width>
+            <height>20</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>56</width>
-            <height>56</height>
+            <width>120</width>
+            <height>20</height>
            </size>
           </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
+          <property name="font">
+           <font>
+            <family>微软雅黑</family>
+            <weight>50</weight>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
           </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton
-{
-border-image:url(:/icons/start_usual);
-}
-QPushButton:pressed{
-
-border-image:url(:/icons/start_check);}
-
-QPushButton:!enabled{
-border-image:url(:/icons/start_unable);
-
-}
-
-
-</string>
+           <string notr="true">QLabel#lbl_Date{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
           </property>
           <property name="text">
-           <string/>
+           <string>2021-11-03</string>
           </property>
-          <property name="iconSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btnPuse">
+         <widget class="QLabel" name="lblTime">
           <property name="minimumSize">
            <size>
-            <width>56</width>
-            <height>56</height>
+            <width>120</width>
+            <height>25</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>56</width>
-            <height>56</height>
+            <width>120</width>
+            <height>25</height>
            </size>
           </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
+          <property name="font">
+           <font>
+            <family>微软雅黑</family>
+            <weight>50</weight>
+            <italic>false</italic>
+            <bold>false</bold>
+            <kerning>true</kerning>
+           </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton
-{
-border-image:url(:/icons/pause_usual);
-}
-QPushButton:pressed{
-
-border-image:url(:/icons/pause_check);}
-
-QPushButton:!enabled{
-border-image:url(:/icons/pause_unable);
-
-}
-
-
-</string>
+           <string notr="true">QLabel#lbl_Time{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
           </property>
           <property name="text">
-           <string/>
+           <string>11:16:12</string>
           </property>
-          <property name="iconSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnStop">
-          <property name="minimumSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QPushButton
-{
-border-image:url(:/icons/stop_usual);
-}
-QPushButton:pressed{
-
-border-image:url(:/icons/stop_check);}
-
-QPushButton:!enabled{
-border-image:url(:/icons/stop_unable);
-
-}
-
-
-</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnAlram">
-          <property name="minimumSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QPushButton{border-image:url(:/icons/icon_warn);}
-
-
-</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnExit">
-          <property name="minimumSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QPushButton{border-image:url(:/icons/quit_usual);}</string>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>56</width>
-            <height>56</height>
-           </size>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
        </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="lbl_InstStus">
-       <property name="minimumSize">
-        <size>
-         <width>120</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QLabel#label_2{color: rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;;font:16px;}</string>
-       </property>
-       <property name="text">
-        <string>Disconnected</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="lblDate">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>微软雅黑</family>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QLabel#lbl_Date{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
-         </property>
-         <property name="text">
-          <string>2021-11-03</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblTime">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>微软雅黑</family>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-           <kerning>true</kerning>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QLabel#lbl_Time{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
-         </property>
-         <property name="text">
-          <string>11:16:12</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
-   <item row="1" column="1">
+   <item row="0" column="2">
+    <widget class="QWidget" name="topWidget" native="true">
+     <property name="styleSheet">
+      <string notr="true">QWidget#widget{border-image:url(:/NewImg/interTittle.svg);}</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout"/>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="3">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="styleSheet">
       <string notr="true"/>
@@ -833,9 +851,13 @@ border-image:url(:/icons/stop_unable);
     </widget>
    </item>
   </layout>
+  <zorder>layoutWidget</zorder>
   <zorder>stackedWidget</zorder>
   <zorder>AppBarWidget</zorder>
+  <zorder>widget</zorder>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../res.qrc"/>
+ </resources>
  <connections/>
 </ui>

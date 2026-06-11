@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QTimer>
 #include <QCloseEvent>
+#include <QString>
+#include <QPoint>
 
 #include "HomePageWidget.h"
 #include "SettingPageWidget.h"
@@ -11,8 +13,10 @@
 #include "VideoPageWidget.h"
 #include "ImagePageWidget.h"
 #include "TextPageWidget.h"
+#include "ToolPageWidget.h"
 
 #include "ProcManager.h"
+#include "GrpcClient.h"
 
 QT_BEGIN_NAMESPACE
 class QButtonGroup;
@@ -23,6 +27,7 @@ class AudioPageWidget;
 class VideoPageWidget;
 class ImagePageWidget;
 class SettingPageWidget;
+class ToolPageWidget;
 QT_END_NAMESPACE
 
 namespace Ui
@@ -41,18 +46,44 @@ class FrameworkWidget : public QWidget
 
   protected:
     void closeEvent(QCloseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
   private slots:
-    void _slotBtnExitClicked();
+    void _slotCtlBtnGroupClicked(int);
     void _slotAppBarBtnGroupClicked(int);
     void _slotUpdateRealTime();
+    void _slotGrpcConnected(const QString &address);
+    void _slotGrpcConnectFailed(const QString &address);
+    void _slotQueryResp(const QString &resp);
 
   private:
+    enum ResizeRegion
+    {
+        ResizeNone   = 0,
+        ResizeLeft   = 0x01,
+        ResizeRight  = 0x02,
+        ResizeTop    = 0x04,
+        ResizeBottom = 0x08,
+    };
+
+    int  _hitTestResizeRegion(const QPoint &globalPos) const;
+    void _updateResizeCursor(int region);
+
+    void _initProcMgr();
     void _initAppBar();
     void _initControlBar();
     void _initStackedWidget();
     void _initConnections();
     void _initTimer();
+    void _initServer();
+
+    void _minimizeWindow();
+    void _selectScreen();
+    void _showAlarmDialog();
+    void _exit();
 
   private:
     Ui::FrameworkWidget    *ui;
@@ -63,8 +94,14 @@ class FrameworkWidget : public QWidget
     QButtonGroup *m_pCtlBtnGroup;
     QTimer       *m_pTimer;
 
+    bool   m_isResizing   = false;
+    int    m_resizeRegion = ResizeNone;
+    QPoint m_pressGlobalPos;
+    QRect  m_pressGeometry;
+
   private:
     ProcManager *m_pProcManagerInst;
+    GrpcClient  *m_pGrpcClient;
 
     HomePageWidget    *m_pHomePageWgtInst;
     TextPageWidget    *m_pTextPageWgtInst;
@@ -72,6 +109,7 @@ class FrameworkWidget : public QWidget
     AudioPageWidget   *m_pAudioPageWgtInst;
     VideoPageWidget   *m_pVideoPageWgtInst;
     SettingPageWidget *m_pSettingPageWgtInst;
+    ToolPageWidget    *m_pToolPageWgtInst;
 };
 
 #endif // FRAMEWORKWIDGET_H

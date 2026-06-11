@@ -3,6 +3,12 @@
 
 #include <QMap>
 #include <QWidget>
+#include <QPushButton>
+#include <QButtonGroup>
+#include <QResizeEvent>
+#include <QStandardItemModel>
+
+#include "GrpcClient.h"
 
 namespace Ui
 {
@@ -21,10 +27,24 @@ class HomePageWidget : public QWidget
   signals:
 
   private slots:
+    void _slotSkillBtnClicked(QAbstractButton *);
+    void _slotGrpcConnected(const QString &address);
+    void _slotGetHistoryResp(const QVector<GrpcClient::History> &resp);
+
+  private:
+    void _initSkillsArea();
+    void _drawSkillsArea();
+    void _initHistoryArea();
+    void _initConnections();
 
   private:
     Ui::HomePageWidget    *ui;
     static HomePageWidget *m_stMainHomePageInst;
+
+    QVector<QString>    m_skillsInfo;
+    QButtonGroup       *m_pSkillsBtnGroup;
+    QStandardItemModel *m_pHistoryModel;
+    int                 m_colNum;
 };
 
 #endif // HomePageWidget_H

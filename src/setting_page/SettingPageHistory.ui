@@ -162,7 +162,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="AllRadiusTableView" name="tbviewItem">
+      <widget class="QTableView" name="tbviewItem">
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
@@ -208,7 +208,7 @@
       </widget>
      </item>
      <item>
-      <widget class="AllRadiusTableView" name="tbviewDetail">
+      <widget class="QTableView" name="tbviewDetail">
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
@@ -310,13 +310,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>AllRadiusTableView</class>
-   <extends>QTableView</extends>
-   <header location="global">AllRadiusTableView.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

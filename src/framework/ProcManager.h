@@ -8,12 +8,12 @@ class ProcManager : public QObject
     Q_OBJECT
 
   public:
-    static ProcManager *GetProcManagerInst();
     explicit ProcManager(QObject *parent = nullptr);
     ~ProcManager();
 
-    void init();
-    void destroy();
+    static ProcManager *GetProcManagerInst();
+    void                init();
+    void                destroy();
 
   private:
     void _connectCore();

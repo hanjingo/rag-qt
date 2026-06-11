@@ -21,6 +21,12 @@ class TextPageWidget : public QWidget
   signals:
 
   private slots:
+    void _slotBtnStartClicked();
+    void _slotQueryResp(const QString &resp);
+
+  private:
+    void _init();
+    void _initConnections();
 
   private:
     Ui::TextPageWidget    *ui;

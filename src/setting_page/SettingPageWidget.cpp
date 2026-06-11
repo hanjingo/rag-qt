@@ -6,6 +6,7 @@
 #include "ui_SettingPageWidget.h"
 #include "SettingPageNetwork.h"
 #include "SettingPageHistory.h"
+#include "SettingPageVersion.h"
 
 SettingPageWidget *SettingPageWidget::m_stMainSettingPageInst = nullptr;
 
@@ -29,6 +30,8 @@ SettingPageWidget::SettingPageWidget(QWidget *parent)
                           tr("History Settings"));
     ui->tabWidget->addTab(SettingPageNetwork::GetSettingPageNetworkInst(),
                           tr("Network Settings"));
+    ui->tabWidget->addTab(SettingPageVersion::GetSettingPageVersionInst(),
+                          tr("Version Info"));
 
     connect(ui->tabWidget,
             SIGNAL(currentChanged(int)),
@@ -51,6 +54,10 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
 
         case 1:
             SettingPageNetwork::GetSettingPageNetworkInst();
+            break;
+
+        case 2:
+            SettingPageVersion::GetSettingPageVersionInst();
             break;
 
         default:
