@@ -30,6 +30,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , m_pCtlBtnGroup(new QButtonGroup(this))
     , m_pTimer(new QTimer(this))
     , m_pProcManagerInst(ProcManager::GetProcManagerInst())
+    , m_pTranslator(new QTranslator(this))
     , m_pGrpcClient(GrpcClient::GetGrpcClientInst())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
     , m_pSettingPageWgtInst(SettingPageWidget::GetMainSettingPageInst())
@@ -51,6 +52,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     _initStackedWidget();
     _initTimer();
     _initServer();
+    _initLanguage();
 }
 
 FrameworkWidget::~FrameworkWidget()
@@ -164,6 +166,14 @@ void FrameworkWidget::leaveEvent(QEvent *event)
     QWidget::leaveEvent(event);
 }
 
+void FrameworkWidget::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::LanguageChange)
+    {
+        ui->retranslateUi(this);
+    }
+}
+
 void FrameworkWidget::_slotCtlBtnGroupClicked(int id)
 {
     qDebug() << "Control bar button clicked, id:" << id;
@@ -248,6 +258,31 @@ void FrameworkWidget::_slotQueryResp(const QString &resp)
     qDebug() << "Query Response with " << resp;
 }
 
+void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
+{
+    qDebug() << "Language combo box current index changed: " << iIndex;
+    QApplication::removeTranslator(m_pTranslator);
+    switch(iIndex)
+    {
+        case 0: // Chinese
+            qDebug() << "Switching to Chinese.";
+            m_pTranslator->load(":/languages/zh_CN");
+            break;
+        case 1: // English
+            qDebug() << "Switching to English.";
+            m_pTranslator->load(":/languages/en_UK");
+            break;
+        case 2: // German
+            qDebug() << "Switching to German.";
+            m_pTranslator->load(":/languages/de_DE");
+            break;
+        default:
+            qDebug() << "Unknown language index: " << iIndex;
+            return;
+    }
+    QApplication::installTranslator(m_pTranslator);
+}
+
 void FrameworkWidget::_initProcMgr()
 {
     m_pProcManagerInst->init();
@@ -302,6 +337,14 @@ void FrameworkWidget::_updateResizeCursor(int region)
 
 void FrameworkWidget::_initAppBar()
 {
+    ui->btnHome->setText(tr("Home"));
+    ui->btnText->setText(tr("Text"));
+    ui->btnImage->setText(tr("Image"));
+    ui->btnAudio->setText(tr("Audio"));
+    ui->btnVideo->setText(tr("Video"));
+    ui->btnSetting->setText(tr("Setting"));
+    ui->btnTool->setText(tr("Tool"));
+
     m_pAppBarBtnGroup->addButton(ui->btnHome, 0);
     m_pAppBarBtnGroup->addButton(ui->btnText, 1);
     m_pAppBarBtnGroup->addButton(ui->btnImage, 2);
@@ -360,6 +403,11 @@ void FrameworkWidget::_initConnections()
             &GrpcClient::SignalQueryResp,
             this,
             &FrameworkWidget::_slotQueryResp);
+
+    connect(ui->comboLang,
+            SIGNAL(currentIndexChanged(int)),
+            this,
+            SLOT(_slotComboLangCurrentChanged(int)));
 }
 
 void FrameworkWidget::_initTimer()
@@ -370,6 +418,11 @@ void FrameworkWidget::_initTimer()
 void FrameworkWidget::_initServer()
 {
     m_pGrpcClient->connect("127.0.0.1:50051");
+}
+
+void FrameworkWidget::_initLanguage()
+{
+    ui->comboLang->setCurrentIndex(1); // Default to English
 }
 
 void FrameworkWidget::_minimizeWindow()

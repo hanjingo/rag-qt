@@ -45,4 +45,9 @@
         <file alias="user">res/icons/user.svg</file>
         <file alias="download">res/icons/download.png</file>
     </qresource>
+    <qresource prefix="/languages">
+        <file alias="de_DE">res/languages/rag-qt_de_DE.qm</file>
+        <file alias="en_UK">res/languages/rag-qt_en_UK.qm</file>
+        <file alias="zh_CN">res/languages/rag-qt_zh_CN.qm</file>
+    </qresource>
 </RCC>

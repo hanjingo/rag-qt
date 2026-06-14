@@ -6,6 +6,7 @@
 #include <QCloseEvent>
 #include <QString>
 #include <QPoint>
+#include <QTranslator>
 
 #include "HomePageWidget.h"
 #include "SettingPageWidget.h"
@@ -45,11 +46,12 @@ class FrameworkWidget : public QWidget
     ~FrameworkWidget();
 
   protected:
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
   private slots:
     void _slotCtlBtnGroupClicked(int);
@@ -58,6 +60,7 @@ class FrameworkWidget : public QWidget
     void _slotGrpcConnected(const QString &address);
     void _slotGrpcConnectFailed(const QString &address);
     void _slotQueryResp(const QString &resp);
+    void _slotComboLangCurrentChanged(int iIndex);
 
   private:
     enum ResizeRegion
@@ -79,6 +82,7 @@ class FrameworkWidget : public QWidget
     void _initConnections();
     void _initTimer();
     void _initServer();
+    void _initLanguage();
 
     void _minimizeWindow();
     void _selectScreen();
@@ -101,6 +105,7 @@ class FrameworkWidget : public QWidget
 
   private:
     ProcManager *m_pProcManagerInst;
+    QTranslator *m_pTranslator;
     GrpcClient  *m_pGrpcClient;
 
     HomePageWidget    *m_pHomePageWgtInst;

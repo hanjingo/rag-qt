@@ -14,8 +14,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(hj REQUIRED)
 
 # ----------------------------------------------------------------------------
@@ -40,6 +40,43 @@ if(POLICY CMP0194)
     cmake_policy(SET CMP0194 NEW)
     set(CMAKE_POLICY_DEFAULT_CMP0194 NEW)
 endif()
+
+# ----------------------------------------------------------------------------
+# translation
+# ----------------------------------------------------------------------------
+file(GLOB TS_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/res/languages/*.ts")
+
+if(TARGET Qt${QT_VERSION_MAJOR}::lrelease)
+    set(LRELEASE_EXECUTABLE "$<TARGET_FILE:Qt${QT_VERSION_MAJOR}::lrelease>")
+else()
+    find_program(LRELEASE_EXECUTABLE NAMES lrelease-qt6 lrelease-qt5 lrelease)
+    if(NOT LRELEASE_EXECUTABLE)
+        message(FATAL_ERROR "Could not find Qt lrelease executable")
+    endif()
+endif()
+
+set(QM_FILES)
+foreach(TS_FILE IN LISTS TS_FILES)
+    get_filename_component(TS_DIR "${TS_FILE}" DIRECTORY)
+    get_filename_component(TS_NAME_WE "${TS_FILE}" NAME_WE)
+    set(QM_BUILD_FILE "${CMAKE_CURRENT_BINARY_DIR}/res/languages/${TS_NAME_WE}.qm")
+    set(QM_FILE "${TS_DIR}/${TS_NAME_WE}.qm")
+
+    add_custom_command(
+        OUTPUT "${QM_FILE}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/res/languages"
+        COMMAND "${LRELEASE_EXECUTABLE}" "${TS_FILE}" -qm "${QM_BUILD_FILE}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${QM_BUILD_FILE}" "${QM_FILE}"
+        DEPENDS "${TS_FILE}"
+        COMMENT "Generating ${TS_NAME_WE}.qm"
+        BYPRODUCTS "${QM_BUILD_FILE}"
+        VERBATIM
+    )
+
+    list(APPEND QM_FILES "${QM_FILE}")
+endforeach()
+
+add_custom_target(release_translations ALL DEPENDS ${QM_FILES})
 
 # ----------------------------------------------------------------------------
 # Platform-Specific Configuration
@@ -137,6 +174,8 @@ set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+add_dependencies(${CMAKE_PROJECT_NAME} release_translations)
 
 install(TARGETS ${CMAKE_PROJECT_NAME}
     BUNDLE DESTINATION .

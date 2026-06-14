@@ -53,6 +53,7 @@ HomePageWidget::HomePageWidget(QWidget *parent)
 
     _initSkillsArea();
     _initHistoryArea();
+    _retranslateTexts();
     _initConnections();
 }
 
@@ -62,6 +63,17 @@ HomePageWidget::~HomePageWidget()
     m_pSkillsBtnGroup = nullptr;
 
     delete ui;
+}
+
+void HomePageWidget::changeEvent(QEvent *event)
+{
+    QWidget::changeEvent(event);
+    if(event->type() == QEvent::LanguageChange)
+    {
+        qDebug() << "HomePageWidget language change event received.";
+        ui->retranslateUi(this);
+        _retranslateTexts();
+    }
 }
 
 void HomePageWidget::_initSkillsArea()
@@ -109,6 +121,17 @@ void HomePageWidget::_drawSkillsArea()
 
         pBtn->setFixedSize(width, height);
         ui->grid_ProScroll->addWidget(pBtn, i / m_colNum, i % m_colNum);
+    }
+}
+
+void HomePageWidget::_retranslateTexts()
+{
+    ui->lblSkillsTitle->setText(tr("Skills"));
+    ui->lblHistoryTitle->setText(tr("History"));
+    if(m_pHistoryModel)
+    {
+        m_pHistoryModel->setHeaderData(0, Qt::Horizontal, tr("Date Time"));
+        m_pHistoryModel->setHeaderData(1, Qt::Horizontal, tr("Content"));
     }
 }
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="zh_CN">
+<context>
+    <name>FrameworkWidget</name>
+    <message>
+        <source>Disconnected</source>
+        <translation>未连接</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>已连接</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation>首页</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>文本</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>图片</translation>
+    </message>
+    <message>
+        <source>Audio</source>
+        <translation>音频</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>视频</translation>
+    </message>
+    <message>
+        <source>Setting</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <source>Tool</source>
+        <translation>工具</translation>
+    </message>
+</context>
+
+<context>
+    <name>HomePageWidget</name>
+    <message>
+        <source>History</source>
+        <translation>历史</translation>
+    </message>
+    <message>
+        <source>Skills</source>
+        <translation>技能</translation>
+    </message>
+    <message>
+        <source>Date Time</source>
+        <translation>日期时间</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>内容</translation>
+    </message>
+</context>
+</TS>

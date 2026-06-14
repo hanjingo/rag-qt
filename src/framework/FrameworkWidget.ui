@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1141</width>
-    <height>738</height>
+    <height>757</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -333,6 +333,15 @@ QToolButton:checked
           <height>75</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>11</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">QToolButton
 {
@@ -384,6 +393,15 @@ QToolButton:checked
           <height>75</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>11</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">QToolButton
 {
@@ -434,6 +452,15 @@ QToolButton:checked
           <width>75</width>
           <height>75</height>
          </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>11</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
         </property>
         <property name="styleSheet">
          <string notr="true">QToolButton
@@ -550,7 +577,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
        </spacer>
       </item>
       <item>
-       <widget class="QComboBox" name="cmboLang">
+       <widget class="QComboBox" name="comboLang">
         <property name="iconSize">
          <size>
           <width>20</width>
@@ -851,7 +878,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
     </widget>
    </item>
   </layout>
-  <zorder>layoutWidget</zorder>
+  <zorder>topWidget</zorder>
   <zorder>stackedWidget</zorder>
   <zorder>AppBarWidget</zorder>
   <zorder>widget</zorder>

@@ -24,6 +24,9 @@ class HomePageWidget : public QWidget
     explicit HomePageWidget(QWidget *parent = nullptr);
     ~HomePageWidget();
 
+  protected:
+    void changeEvent(QEvent *event) override;
+
   signals:
 
   private slots:
@@ -36,6 +39,7 @@ class HomePageWidget : public QWidget
     void _drawSkillsArea();
     void _initHistoryArea();
     void _initConnections();
+    void _retranslateTexts();
 
   private:
     Ui::HomePageWidget    *ui;
