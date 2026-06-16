@@ -557,6 +557,19 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
+       <widget class="QLabel" name="lblNotice">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>WELCOME!!!</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>
@@ -719,6 +732,40 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
         </property>
         <property name="checkable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnSwitch">
+        <property name="minimumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::FocusPolicy::NoFocus</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{border-image:url(:/icons/logout) 0 0 60% 60%;}</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>56</width>
+          <height>56</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
         </property>
        </widget>
       </item>

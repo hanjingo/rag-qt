@@ -39,6 +39,10 @@
         <source>Tool</source>
         <translation>Tool</translation>
     </message>
+    <message>
+        <source>Welcome!!!</source>
+        <translation>Welcome!!!</translation>
+    </message>
 </context>
 
 <context>

@@ -8,6 +8,7 @@
 #include <QPoint>
 #include <QTranslator>
 
+#include "LoginWidget.h"
 #include "HomePageWidget.h"
 #include "SettingPageWidget.h"
 #include "AudioPageWidget.h"
@@ -22,6 +23,7 @@
 QT_BEGIN_NAMESPACE
 class QButtonGroup;
 class QStackedWidget;
+class LoginWidget;
 class HomePageWidget;
 class TextPageWidget;
 class AudioPageWidget;
@@ -54,6 +56,9 @@ class FrameworkWidget : public QWidget
     void changeEvent(QEvent *event) override;
 
   private slots:
+    void _slotLogin(const QString &username, const QString &password);
+    void _slotRegister(const QString &username, const QString &password);
+    void _slotLogout();
     void _slotCtlBtnGroupClicked(int);
     void _slotAppBarBtnGroupClicked(int);
     void _slotUpdateRealTime();
@@ -87,6 +92,7 @@ class FrameworkWidget : public QWidget
     void _selectScreen();
     void _showAlarmDialog();
     void _exit();
+    void _switchAccount();
 
   private:
     Ui::FrameworkWidget    *ui;
@@ -107,6 +113,7 @@ class FrameworkWidget : public QWidget
     QTranslator *m_pTranslator;
     GrpcClient  *m_pGrpcClient;
 
+    LoginWidget       *m_pLoginWgtInst;
     HomePageWidget    *m_pHomePageWgtInst;
     TextPageWidget    *m_pTextPageWgtInst;
     ImagePageWidget   *m_pImagePageWgtInst;

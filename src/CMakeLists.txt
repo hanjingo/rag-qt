@@ -1,7 +1,7 @@
 # ============================================================================
 # Subdirectories
 # ============================================================================
-# add_subdirectory(login_page)
+add_subdirectory(login_page)
 add_subdirectory(framework)
 add_subdirectory(home_page)
 add_subdirectory(audio_page)

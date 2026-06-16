@@ -39,6 +39,10 @@
         <source>Tool</source>
         <translation>工具</translation>
     </message>
+    <message>
+        <source>Welcome!!!</source>
+        <translation>欢迎!!!</translation>
+    </message>
 </context>
 
 <context>

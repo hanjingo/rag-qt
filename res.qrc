@@ -46,6 +46,7 @@
         <file alias="settings">res/icons/settings.png</file>
         <file alias="user">res/icons/user.svg</file>
         <file alias="download">res/icons/download.png</file>
+        <file alias="logout">res/icons/logout.png</file>
     </qresource>
     <qresource prefix="/languages">
         <file alias="de_DE">res/languages/rag-qt_de_DE.qm</file>

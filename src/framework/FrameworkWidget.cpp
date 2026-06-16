@@ -32,6 +32,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , m_pProcManagerInst(ProcManager::GetProcManagerInst())
     , m_pTranslator(new QTranslator(this))
     , m_pGrpcClient(GrpcClient::GetGrpcClientInst())
+    , m_pLoginWgtInst(LoginWidget::GetLoginWgtInst())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
     , m_pSettingPageWgtInst(SettingPageWidget::GetMainSettingPageInst())
     , m_pAudioPageWgtInst(AudioPageWidget::GetAudioPageWidgetInst())
@@ -174,6 +175,38 @@ void FrameworkWidget::changeEvent(QEvent *event)
     }
 }
 
+void FrameworkWidget::_slotLogin(const QString &username,
+                                 const QString &password)
+{
+#ifdef DEBUG
+    qDebug() << "Login attempt with username:" << username
+             << "and password:" << password;
+    m_pLoginWgtInst->hide();
+    this->show();
+    return;
+#endif
+}
+
+void FrameworkWidget::_slotRegister(const QString &username,
+                                    const QString &password)
+{
+    qDebug() << "Register attempt with username:" << username
+             << "and password:" << password;
+// Handle registration logic here
+// TODO
+#if DEBUG
+    m_pLoginWgtInst->hide();
+    this->show();
+#endif
+}
+
+void FrameworkWidget::_slotLogout()
+{
+    qDebug() << "Logout signal received.";
+    m_pLoginWgtInst->close();
+    _exit();
+}
+
 void FrameworkWidget::_slotCtlBtnGroupClicked(int id)
 {
     qDebug() << "Control bar button clicked, id:" << id;
@@ -192,7 +225,11 @@ void FrameworkWidget::_slotCtlBtnGroupClicked(int id)
             qDebug() << "Alarm button clicked.";
             _showAlarmDialog();
             break;
-        case 3: // Exit
+        case 3: // switch account
+            qDebug() << "Switch account button clicked.";
+            _switchAccount();
+            break;
+        case 4: // Exit
             qDebug() << "Exit button clicked.";
             _exit();
             break;
@@ -354,7 +391,10 @@ void FrameworkWidget::_initControlBar()
     m_pCtlBtnGroup->addButton(ui->btnMinimize, 0);
     m_pCtlBtnGroup->addButton(ui->btnSelectScreen, 1);
     m_pCtlBtnGroup->addButton(ui->btnAlarm, 2);
-    m_pCtlBtnGroup->addButton(ui->btnExit, 3);
+    m_pCtlBtnGroup->addButton(ui->btnSwitch, 3);
+    m_pCtlBtnGroup->addButton(ui->btnExit, 4);
+
+    ui->lblNotice->setText(tr("Welcome!!!"));
 }
 
 void FrameworkWidget::_initStackedWidget()
@@ -372,6 +412,21 @@ void FrameworkWidget::_initStackedWidget()
 
 void FrameworkWidget::_initConnections()
 {
+    connect(m_pLoginWgtInst,
+            &LoginWidget::SignalLogin,
+            this,
+            &FrameworkWidget::_slotLogin);
+
+    connect(m_pLoginWgtInst,
+            &LoginWidget::SignalRegister,
+            this,
+            &FrameworkWidget::_slotRegister);
+
+    connect(m_pLoginWgtInst,
+            &LoginWidget::SignalLogout,
+            this,
+            &FrameworkWidget::_slotLogout);
+
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(_slotUpdateRealTime()));
 
     connect(m_pCtlBtnGroup,
@@ -463,4 +518,10 @@ void FrameworkWidget::_exit()
 {
     m_pProcManagerInst->destroy();
     this->close();
+}
+
+void FrameworkWidget::_switchAccount()
+{
+    m_pLoginWgtInst->show();
+    this->hide();
 }
