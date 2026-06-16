@@ -56,8 +56,44 @@
         <translation>日期时间</translation>
     </message>
     <message>
-        <source>Content</source>
-        <translation>内容</translation>
+        <source>Title</source>
+        <translation>标题</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>筛选</translation>
+    </message>
+</context>
+
+<context>
+    <name>NewSessionDialog</name>
+    <message>
+        <source>Session Configuration</source>
+        <translation>会话配置</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>标题</translation>
+    </message>
+    <message>
+        <source>Skill</source>
+        <translation>技能</translation>
+    </message>
+    <message>
+        <source>Local Server</source>
+        <translation>本地服务器</translation>
+    </message>
+    <message>
+        <source>Remote Server</source>
+        <translation>远程服务器</translation>
+    </message>
+    <message>
+        <source>Remote IP</source>
+        <translation>远程IP</translation>
+    </message>
+    <message>
+        <source>Remote Port</source>
+        <translation>远程端口</translation>
     </message>
 </context>
 </TS>

@@ -39,7 +39,17 @@ void TextPageWidget::_slotBtnStartClicked()
     {
         qDebug() << "Start query.";
         QString content = ui->editInput->text();
-        GrpcClient::GetGrpcClientInst()->query(content);
+        int64_t id;
+        int32_t user_id;
+        QString auth;
+
+#ifdef DEBUG
+        id = 1;
+        user_id = 1;
+        auth    = "";
+#endif // DEBUG
+
+        GrpcClient::GetGrpcClientInst()->Query(id, user_id, auth, content);
     } else
     {
         qDebug() << "Stop query.";
@@ -69,7 +79,10 @@ void TextPageWidget::_initConnections()
             &TextPageWidget::_slotQueryResp);
 }
 
-void TextPageWidget::_slotQueryResp(const QString &resp)
+void TextPageWidget::_slotQueryResp(const int      errorCode,
+                                    const int64_t  id,
+                                    const QString &content)
 {
-    qDebug() << "Query Respn with " << resp;
+    qDebug() << "Query Response with errorCode:" << errorCode << ", id:" << id
+             << ", content:" << content;
 }

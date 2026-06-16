@@ -22,7 +22,9 @@ class TextPageWidget : public QWidget
 
   private slots:
     void _slotBtnStartClicked();
-    void _slotQueryResp(const QString &resp);
+    void _slotQueryResp(const int      errorCode,
+                        const int64_t  id,
+                        const QString &content);
 
   private:
     void _init();

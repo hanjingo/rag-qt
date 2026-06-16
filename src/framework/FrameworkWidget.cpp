@@ -253,11 +253,6 @@ void FrameworkWidget::_slotGrpcConnectFailed(const QString &address)
     ui->lblNetStatus->setText(tr("Disconnected"));
 }
 
-void FrameworkWidget::_slotQueryResp(const QString &resp)
-{
-    qDebug() << "Query Response with " << resp;
-}
-
 void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
 {
     qDebug() << "Language combo box current index changed: " << iIndex;
@@ -399,11 +394,6 @@ void FrameworkWidget::_initConnections()
             this,
             &FrameworkWidget::_slotGrpcConnectFailed);
 
-    connect(m_pGrpcClient,
-            &GrpcClient::SignalQueryResp,
-            this,
-            &FrameworkWidget::_slotQueryResp);
-
     connect(ui->comboLang,
             SIGNAL(currentIndexChanged(int)),
             this,
@@ -417,7 +407,7 @@ void FrameworkWidget::_initTimer()
 
 void FrameworkWidget::_initServer()
 {
-    m_pGrpcClient->connect("127.0.0.1:50051");
+    m_pGrpcClient->Connect("127.0.0.1:50051");
 }
 
 void FrameworkWidget::_initLanguage()

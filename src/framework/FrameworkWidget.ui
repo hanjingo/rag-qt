@@ -3,7 +3,7 @@
  <class>FrameworkWidget</class>
  <widget class="QWidget" name="FrameworkWidget">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModality::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -66,7 +66,7 @@ border-bottom-right-radius:8px;}</string>
          <bool>true</bool>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -88,7 +88,6 @@ border-bottom-right-radius:8px;}</string>
          <font>
           <family>微软雅黑</family>
           <pointsize>11</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -129,10 +128,10 @@ QToolButton:checked
          <bool>true</bool>
         </property>
         <property name="popupMode">
-         <enum>QToolButton::DelayedPopup</enum>
+         <enum>QToolButton::ToolButtonPopupMode::DelayedPopup</enum>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
         </property>
         <property name="autoRaise">
          <bool>false</bool>
@@ -157,7 +156,6 @@ QToolButton:checked
          <font>
           <family>微软雅黑</family>
           <pointsize>11</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -195,7 +193,7 @@ QToolButton:checked
          <bool>true</bool>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
         </property>
        </widget>
       </item>
@@ -217,7 +215,6 @@ QToolButton:checked
          <font>
           <family>微软雅黑</family>
           <pointsize>11</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -255,7 +252,7 @@ QToolButton:checked
          <bool>true</bool>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
         </property>
        </widget>
       </item>
@@ -277,7 +274,6 @@ QToolButton:checked
          <font>
           <family>微软雅黑</family>
           <pointsize>11</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -315,7 +311,7 @@ QToolButton:checked
          <bool>true</bool>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
         </property>
        </widget>
       </item>
@@ -337,7 +333,6 @@ QToolButton:checked
          <font>
           <family>微软雅黑</family>
           <pointsize>11</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -375,7 +370,7 @@ QToolButton:checked
          <bool>true</bool>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
         </property>
        </widget>
       </item>
@@ -397,7 +392,6 @@ QToolButton:checked
          <font>
           <family>微软雅黑</family>
           <pointsize>11</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -435,7 +429,7 @@ QToolButton:checked
          <bool>true</bool>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
         </property>
        </widget>
       </item>
@@ -457,7 +451,6 @@ QToolButton:checked
          <font>
           <family>微软雅黑</family>
           <pointsize>11</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -495,14 +488,14 @@ QToolButton:checked
          <bool>true</bool>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
         </property>
        </widget>
       </item>
       <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Orientation::Vertical</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -553,7 +546,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <bool>true</bool>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
         </property>
        </widget>
       </item>
@@ -566,7 +559,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -628,7 +621,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton{border-image:url(:/icons/minimize);}
@@ -645,7 +638,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
+          <width>45</width>
           <height>56</height>
          </size>
         </property>
@@ -669,7 +662,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton{border-image:url(:/icons/quit_usual);}</string>
@@ -680,7 +673,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
+          <width>45</width>
           <height>56</height>
          </size>
         </property>
@@ -707,7 +700,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton{border-image:url(:/icons/icon_warn);}
@@ -744,7 +737,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton{border-image:url(:/icons/quit_usual);}</string>
@@ -778,7 +771,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <string>Disconnected</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -801,13 +794,12 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
           <property name="font">
            <font>
             <family>微软雅黑</family>
-            <weight>50</weight>
             <italic>false</italic>
             <bold>false</bold>
            </font>
           </property>
           <property name="layoutDirection">
-           <enum>Qt::RightToLeft</enum>
+           <enum>Qt::LayoutDirection::RightToLeft</enum>
           </property>
           <property name="styleSheet">
            <string notr="true">QLabel#lbl_Date{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
@@ -816,7 +808,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
            <string>2021-11-03</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <set>Qt::AlignmentFlag::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -837,7 +829,6 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
           <property name="font">
            <font>
             <family>微软雅黑</family>
-            <weight>50</weight>
             <italic>false</italic>
             <bold>false</bold>
             <kerning>true</kerning>
@@ -850,7 +841,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
            <string>11:16:12</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <set>Qt::AlignmentFlag::AlignCenter</set>
           </property>
          </widget>
         </item>

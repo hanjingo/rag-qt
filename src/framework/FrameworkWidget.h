@@ -59,7 +59,6 @@ class FrameworkWidget : public QWidget
     void _slotUpdateRealTime();
     void _slotGrpcConnected(const QString &address);
     void _slotGrpcConnectFailed(const QString &address);
-    void _slotQueryResp(const QString &resp);
     void _slotComboLangCurrentChanged(int iIndex);
 
   private:

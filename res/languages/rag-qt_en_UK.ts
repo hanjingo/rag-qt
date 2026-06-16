@@ -56,8 +56,48 @@
         <translation>Date Time</translation>
     </message>
     <message>
-        <source>Content</source>
-        <translation>Content</translation>
+        <source>Title</source>
+        <translation>Title</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filter</translation>
+    </message>
+</context>
+
+<context>
+    <name>NewSessionDialog</name>
+    <message>
+        <source>Session Configuration</source>
+        <translation>Session Configuration</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Title</translation>
+    </message>
+    <message>
+        <source>Please input session title</source>
+        <translation>Please input session title</translation>
+    </message>
+    <message>
+        <source>Skill</source>
+        <translation>Skill</translation>
+    </message>
+    <message>
+        <source>Local Server</source>
+        <translation>Local Server</translation>
+    </message>
+    <message>
+        <source>Remote Server</source>
+        <translation>Remote Server</translation>
+    </message>
+    <message>
+        <source>Remote IP</source>
+        <translation>Remote IP</translation>
+    </message>
+    <message>
+        <source>Remote Port</source>
+        <translation>Remote Port</translation>
     </message>
 </context>
 </TS>

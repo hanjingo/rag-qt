@@ -1,0 +1,14 @@
+#ifndef ERROR_H
+#define ERROR_H
+
+enum ErrorCode
+{
+    OK = 0,
+
+    ERR_SQLITE_EXEC_FAIL = 1000,
+
+    // FOR CLIENT ERROR [10000, 19999]
+    ERR_SERVER_DISCONNECTED = 10000,
+};
+
+#endif

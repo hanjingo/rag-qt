@@ -41,6 +41,8 @@
         <file alias="flag_ge">res/icons/flag_ge.png</file>
         <file alias="login_user">res/icons/logo_User.svg</file>
         <file alias="login_passwd">res/icons/logo_Password.svg</file>
+        <file alias="add">res/icons/add.png</file>
+        <file alias="del">res/icons/del.png</file>
         <file alias="settings">res/icons/settings.png</file>
         <file alias="user">res/icons/user.svg</file>
         <file alias="download">res/icons/download.png</file>
