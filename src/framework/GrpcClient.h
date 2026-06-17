@@ -35,6 +35,11 @@ class GrpcClient : public QObject
                             const int64_t  id,
                             const QString &title);
 
+    void GetSkillInfo(const int64_t id = -1, int limit = 50);
+
+    void
+    Download(const QString &hash, const int32_t user_id, const QString &auth);
+
   signals:
     void SignalGrpcConnected(const QString &address);
     void SignalGrpcConnectFailed(const QString &address);
@@ -48,6 +53,13 @@ class GrpcClient : public QObject
     void SignalModifySessionTitleResp(const int      errorCode,
                                       const int64_t  id,
                                       const QString &title);
+
+    void SignalGetSkillInfoResp(const int                            errorCode,
+                                const QVector<::GrpcLibrary::Skill> &skills);
+    void SignalDownloadResp(const int      errorCode,
+                            const QString &hash,
+                            const QString &addr,
+                            const int64_t  size_kb);
 
   private:
     static GrpcClient *m_stGrpcClientInst;

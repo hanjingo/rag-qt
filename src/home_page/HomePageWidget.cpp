@@ -3,6 +3,7 @@
 #include <QAction>
 #include <QTimer>
 #include <QThread>
+#include <QtConcurrent/QtConcurrent>
 #include <QHeaderView>
 
 #include "HomePageWidget.h"
@@ -36,26 +37,6 @@ HomePageWidget::HomePageWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-#ifdef DEBUG
-    m_skillsInfo = {"Skill1",
-                    "Skill2",
-                    "Skill3",
-                    "Skill4",
-                    "Skill5",
-                    "Skill6",
-                    "Skill7",
-                    "Skill8",
-                    "Skill9",
-                    "Skill10",
-                    "Skill11",
-                    "Skill12",
-                    "Skill13",
-                    "Skill14",
-                    "Skill15",
-                    "Skill16",
-                    "Skill17"};
-#endif
-
     _initSkillsArea();
     _initHistoryArea();
     _retranslate();
@@ -86,16 +67,7 @@ void HomePageWidget::changeEvent(QEvent *event)
 
 void HomePageWidget::_initSkillsArea()
 {
-    m_pSkillsBtnGroup->setExclusive(false);
-    int idx = 0;
-    foreach(QString skill, m_skillsInfo)
-    {
-        SkillBtn *pBtn = new SkillBtn(ui->scrollAreaSkills);
-        pBtn->setText(skill);
-        m_pSkillsBtnGroup->addButton(pBtn);
-        idx++;
-    }
-
+    _clearSkills();
     _drawSkillsArea();
 }
 
@@ -133,21 +105,6 @@ void HomePageWidget::_initHistoryArea()
     ui->tbviewHistory->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->tbviewHistory->setSelectionBehavior(QAbstractItemView::SelectRows);
     _refreshSessionTable(true);
-}
-
-void HomePageWidget::_drawSkillsArea()
-{
-    int width  = 100;
-    int height = width; // make skill button square
-    for(int i = 0; i < m_pSkillsBtnGroup->buttons().count(); i++)
-    {
-        QAbstractButton *pBtn = m_pSkillsBtnGroup->buttons().at(i);
-        if(!pBtn)
-            continue;
-
-        pBtn->setFixedSize(width, height);
-        ui->grid_ProScroll->addWidget(pBtn, i / m_colNum, i % m_colNum);
-    }
 }
 
 void HomePageWidget::_retranslate()
@@ -195,6 +152,16 @@ void HomePageWidget::_initConnections()
             &GrpcClient::SignalModifySessionTitleResp,
             this,
             &HomePageWidget::_slotModifySessionTitleResp);
+
+    connect(GrpcClient::GetGrpcClientInst(),
+            &GrpcClient::SignalGetSkillInfoResp,
+            this,
+            &HomePageWidget::_slotGetSkillInfoResp);
+
+    connect(GrpcClient::GetGrpcClientInst(),
+            &GrpcClient::SignalDownloadResp,
+            this,
+            &HomePageWidget::_slotDownloadResp);
 }
 
 void HomePageWidget::_slotSkillBtnClicked(QAbstractButton *pBtn)
@@ -204,10 +171,20 @@ void HomePageWidget::_slotSkillBtnClicked(QAbstractButton *pBtn)
         return;
 
     SkillBtn *pSkillBtn = qobject_cast<SkillBtn *>(pBtn);
+    if(!pSkillBtn)
+        return;
+
+    QString hash = pSkillBtn->Hash();
+    int     user_id;
+    QString auth;
 
 #ifdef DEBUG
-    emit pSkillBtn->SignalUpdateProgress(50);
+    // For testing, use a hardcoded hash value
+    user_id = 1;
+    auth    = "";
 #endif
+
+    GrpcClient::GetGrpcClientInst()->Download(hash, user_id, auth);
 }
 
 void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
@@ -253,6 +230,9 @@ void HomePageWidget::_slotGrpcConnected(const QString &address)
 #ifdef DEBUG
     // For testing, query history after connected
     GrpcClient::GetGrpcClientInst()->GetSession(-1, 1, "", 10);
+
+    // For testing, query skill info after connected
+    GrpcClient::GetGrpcClientInst()->GetSkillInfo();
 #endif
 }
 
@@ -300,6 +280,43 @@ void HomePageWidget::_slotModifySessionTitleResp(const int      errorCode,
     _refreshSessionTable();
 }
 
+void HomePageWidget::_slotGetSkillInfoResp(
+    const int errorCode, const QVector<::GrpcLibrary::Skill> &skills)
+{
+    qDebug() << "Get skill info response received with " << skills.size()
+             << " items.";
+    _addSkills(skills);
+}
+
+void HomePageWidget::_slotDownloadResp(const int      errorCode,
+                                       const QString &hash,
+                                       const QString &addr,
+                                       const int64_t  size_kb)
+{
+    qDebug() << "Download response received, hash: " << hash
+             << ", address: " << addr << ", size: " << size_kb << " KB";
+
+// TODO handle downloaded skill content, e.g. save to file and load into UI
+#ifdef DEBUG
+    for(auto item : m_pSkillsBtnGroup->buttons())
+    {
+        SkillBtn *btn = qobject_cast<SkillBtn *>(item);
+        if(btn && btn->Hash() == hash)
+        {
+            // Update skill button state to indicate download success
+            QtConcurrent::run([btn]() {
+                for(int i = 0; i <= 100; i += 20)
+                {
+                    QThread::msleep(20);
+                    emit btn->SignalUpdateProgress(i);
+                }
+            });
+            break;
+        }
+    }
+#endif
+}
+
 void HomePageWidget::_addSessions(
     const QVector<::GrpcLibrary::Session> &sessions)
 {
@@ -310,7 +327,9 @@ void HomePageWidget::_addSessions(
     for(int i = 0; i < sessions.size(); i++)
     {
         const auto &item = sessions.at(i);
-        m_pHistoryModel->setItem(n_row, 0, new QStandardItem(item.id()));
+        m_pHistoryModel->setItem(n_row,
+                                 0,
+                                 new QStandardItem(QString::number(item.id())));
         m_pHistoryModel->setItem(
             n_row,
             1,
@@ -371,5 +390,57 @@ void HomePageWidget::_filterSessionTable(const QString &filterText)
         bool match =
             pTitleItem->text().contains(filterText, Qt::CaseInsensitive);
         ui->tbviewHistory->setRowHidden(i, !match);
+    }
+}
+
+void HomePageWidget::_addSkills(const QVector<::GrpcLibrary::Skill> &skills)
+{
+    int idx = 0;
+    foreach(const ::GrpcLibrary::Skill &skill, skills)
+    {
+        SkillBtn *btn = new SkillBtn(ui->scrollAreaSkills);
+        btn->SetId(skill.id());
+        btn->SetName(skill.name().c_str());
+        btn->SetDesc(skill.desc().c_str());
+        btn->SetPublisher(skill.publisher().c_str());
+        btn->SetVersion(skill.version().c_str());
+        btn->SetTimestamp(skill.timestamp().c_str());
+        btn->SetHash(skill.hash().c_str());
+        m_pSkillsBtnGroup->addButton(btn);
+        idx++;
+    }
+
+    _drawSkillsArea();
+}
+
+void HomePageWidget::_clearSkills()
+{
+    foreach(QAbstractButton *btn, m_pSkillsBtnGroup->buttons())
+    {
+        ui->grid_ProScroll->removeWidget(btn);
+        btn->deleteLater();
+    }
+    m_pSkillsBtnGroup->buttons().clear();
+
+    _drawSkillsArea();
+}
+
+void HomePageWidget::_drawSkillsArea()
+{
+    int width  = 150;
+    width      = qMax(width, ui->scrollAreaSkills->width() / m_colNum - 20);
+    int height = width; // make skill button square
+    for(int i = 0; i < m_pSkillsBtnGroup->buttons().count(); i++)
+    {
+        QAbstractButton *item = m_pSkillsBtnGroup->buttons().at(i);
+        if(!item)
+            continue;
+
+        SkillBtn *pBtn = qobject_cast<SkillBtn *>(item);
+        if(!pBtn)
+            continue;
+
+        pBtn->Resize(width, height);
+        ui->grid_ProScroll->addWidget(pBtn, i / m_colNum, i % m_colNum);
     }
 }

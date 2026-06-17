@@ -67,7 +67,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>15</height>
+          <height>45</height>
          </size>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -227,7 +227,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>15</height>
+          <height>45</height>
          </size>
         </property>
         <property name="text">
@@ -258,7 +258,7 @@
            <x>0</x>
            <y>0</y>
            <width>519</width>
-           <height>703</height>
+           <height>683</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="grid_ProScroll"/>

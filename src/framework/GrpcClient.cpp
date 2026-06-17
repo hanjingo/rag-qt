@@ -160,7 +160,7 @@ void GrpcClient::NewSession(const int32_t  user_id,
 
 void GrpcClient::ModifySessionTitle(const int32_t  user_id,
                                     const QString &auth,
-                                    const int64_t id,
+                                    const int64_t  id,
                                     const QString &title)
 {
     if(!m_pChannel)
@@ -196,4 +196,83 @@ void GrpcClient::ModifySessionTitle(const int32_t  user_id,
     }
 
     emit SignalModifySessionTitleResp(ErrorCode::OK, id, title);
+}
+
+void GrpcClient::GetSkillInfo(const int64_t id, int limit)
+{
+    if(!m_pChannel)
+    {
+        emit SignalGetSkillInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, {});
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::GetSkillInfoReq req;
+    req.set_id(id);
+    req.set_limit(limit);
+
+    // Prepare the response and context
+    GrpcLibrary::GetSkillInfoResp resp;
+    grpc::ClientContext           context;
+
+    // Make the RPC call
+    grpc::Status status = stub->GetSkillInfo(&context, req, &resp);
+
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit SignalGetSkillInfoResp(ec, {});
+        return;
+    }
+
+    QVector<::GrpcLibrary::Skill> ret;
+    for(int i = 0; i < resp.skills_size(); i++)
+    {
+        const auto &h = resp.skills(i);
+        ret.append(h);
+    }
+    emit SignalGetSkillInfoResp(ErrorCode::OK, ret);
+}
+
+void GrpcClient::Download(const QString &hash,
+                          const int32_t  user_id,
+                          const QString &auth)
+{
+    if(!m_pChannel)
+    {
+        emit SignalDownloadResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                hash,
+                                "",
+                                0);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::DownloadReq req;
+    req.set_hash(hash.toStdString());
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+
+    // Prepare the response and context
+    GrpcLibrary::DownloadResp resp;
+    grpc::ClientContext       context;
+
+    // Make the RPC call
+    grpc::Status status = stub->Download(&context, req, &resp);
+
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit SignalDownloadResp(ec, hash, "", 0);
+        return;
+    }
+
+    QString addr = QString::fromStdString(resp.addr());
+    emit    SignalDownloadResp(ErrorCode::OK, hash, addr, resp.size_kb());
 }
