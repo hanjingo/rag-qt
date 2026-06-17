@@ -40,6 +40,95 @@ void GrpcClient::Connect(const QString &address)
         emit SignalGrpcConnectFailed(address);
 }
 
+void GrpcClient::Login(const QString &username, const QString &password)
+{
+    if(!m_pChannel)
+    {
+        emit SignalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1, "");
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::LoginReq req;
+    req.set_account(username.toStdString());
+    req.set_passwd(password.toStdString());
+
+    // Prepare the response and context
+    GrpcLibrary::LoginResp resp;
+    grpc::ClientContext    context;
+
+    // Make the RPC call
+    grpc::Status status = stub->Login(&context, req, &resp);
+
+    if(status.ok())
+        emit SignalLoginResp(resp.error_code(),
+                             resp.user_id(),
+                             QString::fromStdString(resp.auth()));
+    else
+        emit SignalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1, "");
+}
+
+void GrpcClient::Logout(const int32_t user_id, const QString &auth)
+{
+    if(!m_pChannel)
+    {
+        emit SignalLogoutResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::LogoutReq req;
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+
+    // Prepare the response and context
+    GrpcLibrary::LogoutResp resp;
+    grpc::ClientContext     context;
+
+    // Make the RPC call
+    grpc::Status status = stub->Logout(&context, req, &resp);
+
+    if(status.ok())
+        emit SignalLogoutResp(resp.error_code(), resp.user_id());
+    else
+        emit SignalLogoutResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
+}
+
+void GrpcClient::RegAccount(const QString &username, const QString &password)
+{
+    if(!m_pChannel)
+    {
+        emit SignalRegAccountResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::RegAccountReq req;
+    req.set_account(username.toStdString());
+    req.set_passwd(password.toStdString());
+
+    // Prepare the response and context
+    GrpcLibrary::RegAccountResp resp;
+    grpc::ClientContext         context;
+
+    // Make the RPC call
+    grpc::Status status = stub->RegAccount(&context, req, &resp);
+
+    if(status.ok())
+        emit SignalRegAccountResp(resp.error_code(), resp.user_id());
+    else
+        emit SignalRegAccountResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
+}
+
 void GrpcClient::Query(const int64_t  id,
                        const int32_t  user_id,
                        const QString &auth,
@@ -69,7 +158,7 @@ void GrpcClient::Query(const int64_t  id,
     grpc::Status status = stub->Query(&context, req, &resp);
 
     if(status.ok())
-        emit SignalQueryResp(ErrorCode::OK,
+        emit SignalQueryResp(resp.error_code(),
                              id,
                              QString::fromStdString(resp.content()));
     else
@@ -119,7 +208,7 @@ void GrpcClient::GetSession(const int64_t  id,
         const auto &h = resp.sessions(i);
         ret.append(h);
     }
-    emit SignalGetSessionResp(ErrorCode::OK, ret);
+    emit SignalGetSessionResp(resp.error_code(), ret);
 }
 
 void GrpcClient::NewSession(const int32_t  user_id,
@@ -155,7 +244,7 @@ void GrpcClient::NewSession(const int32_t  user_id,
         return;
     }
 
-    emit SignalNewSessionResp(ErrorCode::OK, resp.session());
+    emit SignalNewSessionResp(resp.error_code(), resp.session());
 }
 
 void GrpcClient::ModifySessionTitle(const int32_t  user_id,
@@ -195,7 +284,7 @@ void GrpcClient::ModifySessionTitle(const int32_t  user_id,
         return;
     }
 
-    emit SignalModifySessionTitleResp(ErrorCode::OK, id, title);
+    emit SignalModifySessionTitleResp(resp.error_code(), id, title);
 }
 
 void GrpcClient::GetSkillInfo(const int64_t id, int limit)
@@ -234,7 +323,7 @@ void GrpcClient::GetSkillInfo(const int64_t id, int limit)
         const auto &h = resp.skills(i);
         ret.append(h);
     }
-    emit SignalGetSkillInfoResp(ErrorCode::OK, ret);
+    emit SignalGetSkillInfoResp(resp.error_code(), ret);
 }
 
 void GrpcClient::Download(const QString &hash,
@@ -274,5 +363,5 @@ void GrpcClient::Download(const QString &hash,
     }
 
     QString addr = QString::fromStdString(resp.addr());
-    emit    SignalDownloadResp(ErrorCode::OK, hash, addr, resp.size_kb());
+    emit    SignalDownloadResp(resp.error_code(), hash, addr, resp.size_kb());
 }

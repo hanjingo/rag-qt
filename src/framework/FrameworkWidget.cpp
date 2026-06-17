@@ -12,6 +12,7 @@
 
 #include "FrameworkWidget.h"
 #include "ui_FrameworkWidget.h"
+#include "Error.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -32,6 +33,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , m_pProcManagerInst(ProcManager::GetProcManagerInst())
     , m_pTranslator(new QTranslator(this))
     , m_pGrpcClient(GrpcClient::GetGrpcClientInst())
+    , m_pAccount(new Account(this))
     , m_pLoginWgtInst(LoginWidget::GetLoginWgtInst())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
     , m_pSettingPageWgtInst(SettingPageWidget::GetMainSettingPageInst())
@@ -178,13 +180,30 @@ void FrameworkWidget::changeEvent(QEvent *event)
 void FrameworkWidget::_slotLogin(const QString &username,
                                  const QString &password)
 {
-#ifdef DEBUG
-    qDebug() << "Login attempt with username:" << username
-             << "and password:" << password;
+    GrpcClient::GetGrpcClientInst()->Login(username, password);
+}
+
+void FrameworkWidget::_slotLoginResp(const int      errorCode,
+                                     const int32_t  id,
+                                     const QString &auth)
+{
+    qDebug() << "Login response received. Error code:" << errorCode
+             << "ID:" << id << "Auth:" << auth;
+
+    if(errorCode != ErrorCode::OK)
+    {
+        QMessageBox::critical(
+            this,
+            tr("Login Failed"),
+            tr("Login failed with error code: %1").arg(errorCode));
+        return;
+    }
+
+    m_pAccount->SetId(id);
+    m_pAccount->SetAuth(auth);
     m_pLoginWgtInst->hide();
     this->show();
     return;
-#endif
 }
 
 void FrameworkWidget::_slotRegister(const QString &username,
@@ -192,17 +211,47 @@ void FrameworkWidget::_slotRegister(const QString &username,
 {
     qDebug() << "Register attempt with username:" << username
              << "and password:" << password;
-// Handle registration logic here
-// TODO
-#if DEBUG
-    m_pLoginWgtInst->hide();
-    this->show();
-#endif
+    GrpcClient::GetGrpcClientInst()->RegAccount(username, password);
+}
+
+void FrameworkWidget::_slotRegisterResp(const int     errorCode,
+                                        const int32_t user_id)
+{
+    qDebug() << "Register response received. Error code:" << errorCode
+             << "User ID:" << user_id;
+
+    if(errorCode != ErrorCode::OK)
+    {
+        QMessageBox::critical(
+            this,
+            tr("Register Failed"),
+            tr("Register failed with error code: %1").arg(errorCode));
+        return;
+    }
+
+    m_pAccount->SetId(user_id);
 }
 
 void FrameworkWidget::_slotLogout()
 {
     qDebug() << "Logout signal received.";
+    GrpcClient::GetGrpcClientInst()->Logout(m_pAccount->Id(),
+                                            m_pAccount->Auth());
+}
+
+void FrameworkWidget::_slotLogoutResp(const int errorCode, const int user_id)
+{
+    qDebug() << "Logout response received. Error code:" << errorCode
+             << "User ID:" << user_id;
+
+    if(errorCode != ErrorCode::OK)
+    {
+        QMessageBox::critical(
+            nullptr,
+            tr("Logout Failed"),
+            tr("Logout failed with error code: %1").arg(errorCode));
+    }
+
     m_pLoginWgtInst->close();
     _exit();
 }
@@ -448,6 +497,21 @@ void FrameworkWidget::_initConnections()
             &GrpcClient::SignalGrpcConnectFailed,
             this,
             &FrameworkWidget::_slotGrpcConnectFailed);
+
+    connect(m_pGrpcClient,
+            &GrpcClient::SignalLoginResp,
+            this,
+            &FrameworkWidget::_slotLoginResp);
+
+    connect(m_pGrpcClient,
+            &GrpcClient::SignalRegAccountResp,
+            this,
+            &FrameworkWidget::_slotRegisterResp);
+
+    connect(m_pGrpcClient,
+            &GrpcClient::SignalLogoutResp,
+            this,
+            &FrameworkWidget::_slotLogoutResp);
 
     connect(ui->comboLang,
             SIGNAL(currentIndexChanged(int)),

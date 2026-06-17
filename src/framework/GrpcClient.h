@@ -19,6 +19,9 @@ class GrpcClient : public QObject
     static GrpcClient *GetGrpcClientInst();
 
     void Connect(const QString &address);
+    void Login(const QString &username, const QString &password);
+    void Logout(const int32_t user_id, const QString &auth);
+    void RegAccount(const QString &username, const QString &password);
     void Query(const int64_t  id,
                const int32_t  user_id,
                const QString &auth,
@@ -43,9 +46,13 @@ class GrpcClient : public QObject
   signals:
     void SignalGrpcConnected(const QString &address);
     void SignalGrpcConnectFailed(const QString &address);
+    void
+    SignalLoginResp(const int errorCode, const int32_t id, const QString &auth);
+    void SignalRegAccountResp(const int errorCode, const int32_t user_id);
     void SignalQueryResp(const int      errorCode,
                          const int64_t  id,
                          const QString &content);
+    void SignalLogoutResp(const int errorCode, const int user_id);
     void SignalGetSessionResp(const int                              errorCode,
                               const QVector<::GrpcLibrary::Session> &sessions);
     void SignalNewSessionResp(const int                     errorCode,

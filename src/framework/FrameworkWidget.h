@@ -8,6 +8,7 @@
 #include <QPoint>
 #include <QTranslator>
 
+#include "Account.h"
 #include "LoginWidget.h"
 #include "HomePageWidget.h"
 #include "SettingPageWidget.h"
@@ -57,8 +58,13 @@ class FrameworkWidget : public QWidget
 
   private slots:
     void _slotLogin(const QString &username, const QString &password);
+    void
+    _slotLoginResp(const int errorCode, const int32_t id, const QString &auth);
     void _slotRegister(const QString &username, const QString &password);
+    void _slotRegisterResp(const int errorCode, const int32_t user_id);
     void _slotLogout();
+    void _slotLogoutResp(const int errorCode, const int user_id);
+
     void _slotCtlBtnGroupClicked(int);
     void _slotAppBarBtnGroupClicked(int);
     void _slotUpdateRealTime();
@@ -112,6 +118,7 @@ class FrameworkWidget : public QWidget
     ProcManager *m_pProcManagerInst;
     QTranslator *m_pTranslator;
     GrpcClient  *m_pGrpcClient;
+    Account     *m_pAccount;
 
     LoginWidget       *m_pLoginWgtInst;
     HomePageWidget    *m_pHomePageWgtInst;
