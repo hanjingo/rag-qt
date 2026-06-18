@@ -5,15 +5,17 @@
 #include <QString>
 #include <QWidget>
 
+#include "Bus.h"
+
 class PluginInterface
 {
   public:
-    virtual ~PluginInterface()                       = default;
-    virtual QString  Id()                            = 0;
-    virtual QString  Name()                          = 0;
-    virtual QString  Icon()                          = 0;
-    virtual QString  Version()                       = 0;
-    virtual QWidget *Init(QWidget *parent = nullptr) = 0;
+    virtual ~PluginInterface()                   = default;
+    virtual QString  Id()                        = 0;
+    virtual QString  Name()                      = 0;
+    virtual QString  Icon()                      = 0;
+    virtual QString  Version()                   = 0;
+    virtual QWidget *Init(Bus *parent = nullptr) = 0;
 };
 
 QT_BEGIN_NAMESPACE

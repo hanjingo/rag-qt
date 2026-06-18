@@ -34,6 +34,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , m_pPluginMgrInst(PluginMgr::GetPluginMgrInst())
     , m_pTranslator(new QTranslator(this))
     , m_pGrpcClient(GrpcClient::GetGrpcClientInst())
+    , m_pBus(Bus::Instance())
     , m_pAccount(new Account(this))
     , m_pLoginWgtInst(LoginWidget::GetLoginWgtInst())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
@@ -331,6 +332,11 @@ void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
     QApplication::installTranslator(m_pTranslator);
 }
 
+void FrameworkWidget::_slotPong()
+{
+    qDebug() << "Received Pong signal from Bus.";
+}
+
 void FrameworkWidget::_initProcMgr()
 {
     m_pProcManagerInst->init();
@@ -509,6 +515,11 @@ void FrameworkWidget::_initConnections()
             SIGNAL(currentIndexChanged(int)),
             this,
             SLOT(_slotComboLangCurrentChanged(int)));
+
+    connect(Bus::Instance(),
+            &Bus::SignalPong,
+            this,
+            &FrameworkWidget::_slotPong);
 }
 
 void FrameworkWidget::_initTimer()
@@ -627,7 +638,8 @@ void FrameworkWidget::_addPlugin(const QFileInfo &fileInfo, int index)
 
     qDebug() << "Successfully loaded plugin: " << plugin->Name()
              << " (ID: " << plugin->Id() << ")";
-    auto wgt = plugin->Init(this);
+    auto wgt = plugin->Init(Bus::Instance());
+    emit Bus::Instance() -> SignalPing();
     if(wgt)
     {
         index         = (index < 0 || index > ui->stackedWidget->count())

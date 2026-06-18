@@ -5,6 +5,7 @@
 #include <QtPlugin>
 #include <QWidget>
 
+#include "Bus.h"
 #include "PluginInterface.h"
 
 namespace Ui
@@ -26,10 +27,14 @@ class ChatBox : public QObject, PluginInterface
     QString  Name() override { return "chatbox"; }
     QString  Icon() override { return "ChatBoxIcon.png"; }
     QString  Version() override { return "0.0.1"; }
-    QWidget *Init(QWidget *parent = nullptr) override;
+    QWidget *Init(Bus *parent = nullptr) override;
+
+  private slots:
+    void _slotPing();
 
   private:
     Ui::ChatBox *ui;
+    Bus         *m_pBus;
 };
 
 #endif

@@ -18,6 +18,7 @@
 #include "PluginMgr.h"
 #include "GrpcClient.h"
 #include "StyleMgr.h"
+#include "Bus.h"
 
 QT_BEGIN_NAMESPACE
 class QButtonGroup;
@@ -49,6 +50,9 @@ class FrameworkWidget : public QWidget
     void leaveEvent(QEvent *event) override;
     void changeEvent(QEvent *event) override;
 
+  signals:
+    void SignalPing();
+
   private slots:
     void _slotLogin(const QString &username, const QString &password);
     void
@@ -63,6 +67,9 @@ class FrameworkWidget : public QWidget
     void _slotGrpcConnected(const QString &address);
     void _slotGrpcConnectFailed(const QString &address);
     void _slotComboLangCurrentChanged(int iIndex);
+
+    // for BUS signals
+    void _slotPong();
 
   private:
     enum ResizeRegion
@@ -115,6 +122,7 @@ class FrameworkWidget : public QWidget
     PluginMgr   *m_pPluginMgrInst;
     QTranslator *m_pTranslator;
     GrpcClient  *m_pGrpcClient;
+    Bus         *m_pBus;
     Account     *m_pAccount;
 
     LoginWidget       *m_pLoginWgtInst;

@@ -48,6 +48,8 @@ add_library(chatbox MODULE
   ChatBox.h
   ChatBox.cpp
   ChatBox.ui
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/../Bus.cpp
 )
 
 target_link_libraries(chatbox PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)
