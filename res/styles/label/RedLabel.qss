@@ -1,0 +1,8 @@
+
+QLabel
+{
+    background:transparent;
+    color:red;
+    font: 10pt "微软雅黑";
+    text-decoration:underline;
+}

@@ -82,9 +82,8 @@ add_custom_target(release_translations ALL DEPENDS ${QM_FILES})
 # Platform-Specific Configuration
 # ----------------------------------------------------------------------------
 if(WIN32)
-    #include(Windows)
+    set(logo_resource "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.rc")
 elseif(APPLE)
-    #include(Apple)
 elseif(ANDROID)
     #include(Android)
 elseif(LINUX)
@@ -138,7 +137,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         ${CMAKE_CURRENT_SOURCE_DIR}/3rd/rag-core/src/api.grpc.pb.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/3rd/rag-core/src/api.pb.cc
-        src/home_page/NewSessionDialog.h src/home_page/NewSessionDialog.cpp src/home_page/NewSessionDialog.ui
+        ${logo_resource}
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ${CMAKE_PROJECT_NAME} APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

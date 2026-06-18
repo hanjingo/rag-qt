@@ -3,9 +3,11 @@
 
 #include "StyleMgr.h"
 
-NewSessionDialog::NewSessionDialog(QWidget *parent)
+NewSessionDialog::NewSessionDialog(const QVector<::GrpcLibrary::Skill> &skills,
+                                   QWidget                             *parent)
     : QDialog(parent)
     , ui(new Ui::NewSessionDialog)
+    , m_skills(skills)
 {
     ui->setupUi(this);
 
@@ -36,12 +38,14 @@ void NewSessionDialog::_retranslate()
 
 void NewSessionDialog::_initUI()
 {
-#ifdef DEBUG
-    ui->comboSkill->addItem("Skill1");
-    ui->comboSkill->addItem("Skill2");
-    ui->comboSkill->addItem("Skill3");
-    ui->comboSkill->addItem("Skill4");
-#endif
+    ui->editTitle->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
+
+    for(const auto &skill : m_skills)
+    {
+        ui->comboSkill->addItem(QString::fromStdString(skill.name()));
+    }
+
+    // ui->comboSkill->setStyleSheet(StyleMgr::ParseFile(":/styles/combo_box"));
 
     ui->checkLocal->setStyleSheet(StyleMgr::ParseFile(":/styles/check_box"));
     ui->checkRemote->setStyleSheet(StyleMgr::ParseFile(":/styles/check_box"));

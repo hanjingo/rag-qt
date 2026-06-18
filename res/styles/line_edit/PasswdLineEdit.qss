@@ -1,0 +1,11 @@
+QLineEdit
+{
+    border-style:none;
+    border-top-right-radius:5px;
+    border-bottom-right-radius:5px;
+    font: 16px "微软雅黑";
+    background-color:#DCE1E6;
+    color:rgb(88, 88, 88);
+    text-align: right;
+    padding-left:20px;
+}

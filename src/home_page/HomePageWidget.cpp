@@ -196,7 +196,30 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
     {
         case 0: {
             qDebug() << "Add session button clicked.";
-            NewSessionDialog(this).exec();
+            QVector<::GrpcLibrary::Skill> skills;
+            for(auto item : m_pSkillsBtnGroup->buttons())
+            {
+                if(!item)
+                    continue;
+
+                SkillBtn *btn = qobject_cast<SkillBtn *>(item);
+                if(!btn || !btn->IsDownloaded())
+                    continue;
+
+                if(btn)
+                {
+                    ::GrpcLibrary::Skill skill;
+                    skill.set_name(btn->Name().toStdString());
+                    skill.set_desc(btn->Desc().toStdString());
+                    skill.set_publisher(btn->Publisher().toStdString());
+                    skill.set_version(btn->Version().toStdString());
+                    skill.set_timestamp(
+                        btn->Timestamp().toString(Qt::ISODate).toStdString());
+                    skill.set_hash(btn->Hash().toStdString());
+                    skills.append(skill);
+                }
+            }
+            NewSessionDialog(skills, this).exec();
         }
         break;
         case 1: {

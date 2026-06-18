@@ -49,7 +49,7 @@
     <name>HomePageWidget</name>
     <message>
         <source>History</source>
-        <translation>历史</translation>
+        <translation>历史记录</translation>
     </message>
     <message>
         <source>Skills</source>

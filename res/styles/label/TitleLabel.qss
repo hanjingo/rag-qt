@@ -1,0 +1,8 @@
+QLabel
+{
+    background-color:transparent;
+    font: 24px "微软雅黑";
+    color: #2D3238;
+    text-align: center;
+    line-height: 32px;
+}

@@ -3,13 +3,12 @@
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class FrameworkWidget;
-QT_END_NAMESPACE
+#include "LoginPage.h"
 
 namespace Ui
 {
 class LoginWidget;
+class LoginPage;
 }
 
 class LoginWidget : public QWidget
@@ -24,11 +23,6 @@ class LoginWidget : public QWidget
     void SignalRegister(const QString &username, const QString &password);
     void SignalLogout();
 
-  private slots:
-    void _slotBtnLoginClicked();
-    void _slotBtnRegisterClicked();
-    void _slotBtnLogoutClicked();
-
   private:
     void _initConnections();
 
@@ -39,5 +33,7 @@ class LoginWidget : public QWidget
   private:
     Ui::LoginWidget    *ui;
     static LoginWidget *m_stLoginWgtInst;
+
+    LoginPage *m_pLoginPageInst;
 };
 #endif // LOGINWIDGET_H

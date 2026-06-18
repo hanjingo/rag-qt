@@ -16,60 +16,33 @@ LoginWidget *LoginWidget::GetLoginWgtInst()
 LoginWidget::LoginWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
     , ui(new Ui::LoginWidget)
+    , m_pLoginPageInst(LoginPage::Instance())
 {
     ui->setupUi(this);
 
-    _initConnections();
+    // Keep container layers transparent so only LoginPage's panel is visible.
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    setStyleSheet("QWidget#LoginWidget{background: transparent;}"
+                  "QStackedWidget#stackedWidget{background: transparent;}");
 
-#ifdef DEBUG
-    ui->editAccount->setText("admin");
-    ui->editPassword->setText("admin");
-#endif
+    ui->stackedWidget->addWidget(m_pLoginPageInst);
+    ui->stackedWidget->setCurrentIndex(0);
 
-    ui->editAccount->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
-    ui->editPassword->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
+    connect(m_pLoginPageInst,
+            &LoginPage::SignalLogin,
+            this,
+            &LoginWidget::SignalLogin);
+    connect(m_pLoginPageInst,
+            &LoginPage::SignalRegister,
+            this,
+            &LoginWidget::SignalRegister);
+    connect(m_pLoginPageInst,
+            &LoginPage::SignalLogout,
+            this,
+            &LoginWidget::SignalLogout);
 }
 
 LoginWidget::~LoginWidget()
 {
     delete ui;
-}
-
-void LoginWidget::_slotBtnLoginClicked()
-{
-    QString username = ui->editAccount->text();
-    QString password = ui->editPassword->text();
-    emit    SignalLogin(username, password);
-}
-
-void LoginWidget::_slotBtnRegisterClicked()
-{
-    QString username = ui->editAccount->text();
-    QString password = ui->editPassword->text();
-    emit    SignalRegister(username, password);
-}
-
-void LoginWidget::_slotBtnLogoutClicked()
-{
-    emit SignalLogout();
-}
-
-void LoginWidget::_initConnections()
-{
-    connect(ui->btnLogin,
-            SIGNAL(pressed()),
-            this,
-            SLOT(_slotBtnLoginClicked()));
-    connect(ui->btnRegister,
-            SIGNAL(pressed()),
-            this,
-            SLOT(_slotBtnRegisterClicked()));
-    connect(ui->btnLogout,
-            SIGNAL(pressed()),
-            this,
-            SLOT(_slotBtnLogoutClicked()));
-    connect(ui->editPassword,
-            SIGNAL(returnPressed()),
-            this,
-            SLOT(_slotBtnLoginClicked()));
 }

@@ -65,6 +65,9 @@ class SkillBtn : public QToolButton
         _refreshText();
     }
 
+    int  DownloadProgress() const { return m_progress; }
+    bool IsDownloaded() const { return m_progress >= 100; }
+
     void Resize(int w, int h);
 
   protected:

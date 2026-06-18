@@ -17,7 +17,7 @@
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>RAT-Qt</string>
+   <string>Rag-Qt</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -112,6 +112,9 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
    <item row="0" column="1">
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>15</number>
+      </property>
       <property name="leftMargin">
        <number>1</number>
       </property>
@@ -194,14 +197,14 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
        <widget class="QPushButton" name="btnMinimize">
         <property name="minimumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="focusPolicy">
@@ -223,7 +226,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
         <property name="iconSize">
          <size>
           <width>45</width>
-          <height>56</height>
+          <height>45</height>
          </size>
         </property>
         <property name="checkable">
@@ -235,14 +238,14 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
        <widget class="QPushButton" name="btnSelectScreen">
         <property name="minimumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="focusPolicy">
@@ -258,7 +261,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
         <property name="iconSize">
          <size>
           <width>45</width>
-          <height>56</height>
+          <height>45</height>
          </size>
         </property>
         <property name="checkable">
@@ -273,14 +276,14 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
        <widget class="QPushButton" name="btnAlarm">
         <property name="minimumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="focusPolicy">
@@ -297,8 +300,8 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="checkable">
@@ -310,26 +313,30 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
        <widget class="QPushButton" name="btnSwitch">
         <property name="minimumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{border-image:url(:/icons/logout) 0 0 60% 60%;}</string>
+         <string notr="true"/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../res.qrc">
+          <normaloff>:/icons/logout</normaloff>:/icons/logout</iconset>
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="checkable">
@@ -344,14 +351,14 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
        <widget class="QPushButton" name="btnExit">
         <property name="minimumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="focusPolicy">
@@ -362,8 +369,8 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
         </property>
         <property name="iconSize">
          <size>
-          <width>56</width>
-          <height>56</height>
+          <width>45</width>
+          <height>45</height>
          </size>
         </property>
         <property name="checkable">

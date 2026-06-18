@@ -1,0 +1,4 @@
+QLabel#lbl_LogoTip{
+image: url(:/SVG/login_logo.png);
+background: rgba(4,17,90,0.40);
+border:none;}

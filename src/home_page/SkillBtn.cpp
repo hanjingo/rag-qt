@@ -64,9 +64,15 @@ void SkillBtn::paintEvent(QPaintEvent *e)
         overlayIcon = QIcon(":/icons/downloaded");
     QSize iconSize(30, 30);
 
-    // calculate the centered coordinates to overlap the icon center with the button center
-    int   x = (width() - iconSize.width()) / 2;
-    int   y = (height() - iconSize.height()) / 2;
+    //// calculate the centered coordinates to overlap the icon center with the button center
+    //int x = (width() - iconSize.width()) / 2;
+    //int y = (height() - iconSize.height()) / 2;
+
+    // calculate the top right coordinates to overlap the icon center with the button center
+    int margin = 5; 
+    int x = width() - iconSize.width() - margin;
+    int y = margin;
+
     QRect iconRect(x, y, iconSize.width(), iconSize.height());
 
     // draw the overlay icon
