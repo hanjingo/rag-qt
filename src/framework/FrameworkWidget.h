@@ -6,19 +6,16 @@
 #include <QCloseEvent>
 #include <QString>
 #include <QPoint>
+#include <QMap>
 #include <QTranslator>
 
 #include "Account.h"
 #include "LoginWidget.h"
 #include "HomePageWidget.h"
 #include "SettingPageWidget.h"
-#include "AudioPageWidget.h"
-#include "VideoPageWidget.h"
-#include "ImagePageWidget.h"
-#include "TextPageWidget.h"
-#include "ToolPageWidget.h"
 
 #include "ProcManager.h"
+#include "PluginMgr.h"
 #include "GrpcClient.h"
 
 QT_BEGIN_NAMESPACE
@@ -26,12 +23,7 @@ class QButtonGroup;
 class QStackedWidget;
 class LoginWidget;
 class HomePageWidget;
-class TextPageWidget;
-class AudioPageWidget;
-class VideoPageWidget;
-class ImagePageWidget;
 class SettingPageWidget;
-class ToolPageWidget;
 QT_END_NAMESPACE
 
 namespace Ui
@@ -66,7 +58,6 @@ class FrameworkWidget : public QWidget
     void _slotLogoutResp(const int errorCode, const int user_id);
 
     void _slotCtlBtnGroupClicked(int);
-    void _slotAppBarBtnGroupClicked(int);
     void _slotUpdateRealTime();
     void _slotGrpcConnected(const QString &address);
     void _slotGrpcConnectFailed(const QString &address);
@@ -86,6 +77,7 @@ class FrameworkWidget : public QWidget
     void _updateResizeCursor(int region);
 
     void _initProcMgr();
+    void _initPluginMgr();
     void _initAppBar();
     void _initControlBar();
     void _initStackedWidget();
@@ -100,12 +92,15 @@ class FrameworkWidget : public QWidget
     void _exit();
     void _switchAccount();
 
+    void
+    _addAppBarItem(const QString &text, const QString &iconPath, int index);
+    void _addPlugin(const QFileInfo &fileInfo, int index = -1);
+
   private:
     Ui::FrameworkWidget    *ui;
     static FrameworkWidget *m_stFrameworkWidgetInst;
 
   private:
-    QButtonGroup *m_pAppBarBtnGroup;
     QButtonGroup *m_pCtlBtnGroup;
     QTimer       *m_pTimer;
 
@@ -116,18 +111,15 @@ class FrameworkWidget : public QWidget
 
   private:
     ProcManager *m_pProcManagerInst;
+    PluginMgr   *m_pPluginMgrInst;
     QTranslator *m_pTranslator;
     GrpcClient  *m_pGrpcClient;
     Account     *m_pAccount;
 
     LoginWidget       *m_pLoginWgtInst;
     HomePageWidget    *m_pHomePageWgtInst;
-    TextPageWidget    *m_pTextPageWgtInst;
-    ImagePageWidget   *m_pImagePageWgtInst;
-    AudioPageWidget   *m_pAudioPageWgtInst;
-    VideoPageWidget   *m_pVideoPageWgtInst;
     SettingPageWidget *m_pSettingPageWgtInst;
-    ToolPageWidget    *m_pToolPageWgtInst;
 };
+
 
 #endif // FRAMEWORKWIDGET_H

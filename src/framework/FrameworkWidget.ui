@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1141</width>
+    <width>1280</width>
     <height>757</height>
    </rect>
   </property>
@@ -27,7 +27,13 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" rowspan="2">
-    <widget class="QWidget" name="AppBarWidget" native="true">
+    <widget class="QWidget" name="DockWidget" native="true">
+     <property name="maximumSize">
+      <size>
+       <width>90</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="styleSheet">
       <string notr="true">QWidget#AppBarWidget{background:#192634;
 border-top-left-radius:0px;
@@ -36,474 +42,24 @@ border-bottom-left-radius:0px;
 border-bottom-right-radius:8px;}</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>15</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
       <item>
-       <widget class="QLabel" name="lblLogo">
-        <property name="minimumSize">
-         <size>
-          <width>70</width>
-          <height>70</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>70</width>
-          <height>70</height>
-         </size>
-        </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
+       <widget class="QListWidget" name="listWidgetAppBar">
         <property name="styleSheet">
-         <string notr="true">border-radius:2px;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>:/NewImg/icon-logo.svg</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignmentFlag::AlignCenter</set>
+         <string notr="true"/>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="btnHome">
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>11</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QToolButton
-{
-	background:rgba(70,184,244,0.40);	
-	border-radius:8px;
-	color:rgb(255, 255, 255);
-	padding-top:-3px;
-	padding-bottom:0px;
-	font:11pt &quot;微软雅黑&quot;;
-}
-
-QToolButton:checked
-{
-	background-color:#46B8F4;
-}</string>
-        </property>
-        <property name="text">
-         <string>Home</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res.qrc">
-          <normaloff>:/icons/home</normaloff>:/icons/home</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>54</width>
-          <height>54</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-        <property name="popupMode">
-         <enum>QToolButton::ToolButtonPopupMode::DelayedPopup</enum>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
-        </property>
-        <property name="autoRaise">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="btnText">
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>11</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QToolButton
-{
-	background:rgba(70,184,244,0.40);	
-	border-radius:8px;
-	color:rgb(255, 255, 255);
-	padding-top:-3px;
-	padding-bottom:0px;
-	font:11pt &quot;微软雅黑&quot;;
-}
-
-QToolButton:checked
-{
-	background-color:#46B8F4;
-}</string>
-        </property>
-        <property name="text">
-         <string>Text</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res.qrc">
-          <normaloff>:/icons/text</normaloff>:/icons/text</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>54</width>
-          <height>54</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="btnImage">
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>11</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QToolButton
-{
-	background:rgba(70,184,244,0.40);	
-	border-radius:8px;
-	color:rgb(255, 255, 255);
-	padding-top:-3px;
-	padding-bottom:0px;
-	font:11pt &quot;微软雅黑&quot;;
-}
-
-QToolButton:checked
-{
-	background-color:#46B8F4;
-}</string>
-        </property>
-        <property name="text">
-         <string>Image</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res.qrc">
-          <normaloff>:/icons/image</normaloff>:/icons/image</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>54</width>
-          <height>54</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="btnAudio">
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>11</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QToolButton
-{
-	background:rgba(70,184,244,0.40);	
-	border-radius:8px;
-	color:rgb(255, 255, 255);
-	padding-top:-3px;
-	padding-bottom:0px;
-	font:11pt &quot;微软雅黑&quot;;
-}
-
-QToolButton:checked
-{
-	background-color:#46B8F4;
-}</string>
-        </property>
-        <property name="text">
-         <string>Audio</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res.qrc">
-          <normaloff>:/icons/audio</normaloff>:/icons/audio</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>54</width>
-          <height>54</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="btnVideo">
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>11</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QToolButton
-{
-	background:rgba(70,184,244,0.40);	
-	border-radius:8px;
-	color:rgb(255, 255, 255);
-	padding-top:-3px;
-	padding-bottom:0px;
-	font:11pt &quot;微软雅黑&quot;;
-}
-
-QToolButton:checked
-{
-	background-color:#46B8F4;
-}</string>
-        </property>
-        <property name="text">
-         <string>Video</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res.qrc">
-          <normaloff>:/icons/video</normaloff>:/icons/video</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>54</width>
-          <height>54</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="btnSetting">
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>11</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QToolButton
-{
-	background:rgba(70,184,244,0.40);	
-	border-radius:8px;
-	color:rgb(255, 255, 255);
-	padding-top:-3px;
-	padding-bottom:0px;
-	font:11pt &quot;微软雅黑&quot;;
-}
-
-QToolButton:checked
-{
-	background-color:#46B8F4;
-}</string>
-        </property>
-        <property name="text">
-         <string>Setting</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res.qrc">
-          <normaloff>:/icons/settings</normaloff>:/icons/settings</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>54</width>
-          <height>54</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="btnTool">
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>75</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>11</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QToolButton
-{
-	background:rgba(70,184,244,0.40);	
-	border-radius:8px;
-	color:rgb(255, 255, 255);
-	padding-top:-3px;
-	padding-bottom:0px;
-	font:11pt &quot;微软雅黑&quot;;
-}
-
-QToolButton:checked
-{
-	background-color:#46B8F4;
-}</string>
-        </property>
-        <property name="text">
-         <string>Tool</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res.qrc">
-          <normaloff>:/icons/tool</normaloff>:/icons/tool</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>54</width>
-          <height>54</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item>
        <widget class="QToolButton" name="btnUser">
@@ -556,6 +112,18 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
    <item row="0" column="1">
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
       <item>
        <widget class="QLabel" name="lblNotice">
         <property name="minimumSize">
@@ -584,6 +152,31 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
       </item>
       <item>
        <widget class="QComboBox" name="comboLang">
+        <property name="styleSheet">
+         <string notr="true">QComboBox {
+    border: none; 
+    
+    /* border: 1px solid #dcdcdc; */
+
+    background-color: transparent; 
+
+    padding-left: 4px; 
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 0px; 
+    border-left-style: solid;
+}
+
+QComboBox QAbstractItemView {
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+}</string>
+        </property>
         <property name="iconSize">
          <size>
           <width>20</width>
@@ -918,7 +511,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
   </layout>
   <zorder>topWidget</zorder>
   <zorder>stackedWidget</zorder>
-  <zorder>AppBarWidget</zorder>
+  <zorder>DockWidget</zorder>
   <zorder>widget</zorder>
  </widget>
  <resources>

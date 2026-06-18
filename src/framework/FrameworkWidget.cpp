@@ -10,6 +10,7 @@
 #include <QScreen>
 #include <QGuiApplication>
 
+#include "PluginInterface.h"
 #include "FrameworkWidget.h"
 #include "ui_FrameworkWidget.h"
 #include "Error.h"
@@ -27,21 +28,16 @@ FrameworkWidget *FrameworkWidget::GetFrameworkWidgetInst()
 FrameworkWidget::FrameworkWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
     , ui(new Ui::FrameworkWidget)
-    , m_pAppBarBtnGroup(new QButtonGroup(this))
     , m_pCtlBtnGroup(new QButtonGroup(this))
     , m_pTimer(new QTimer(this))
     , m_pProcManagerInst(ProcManager::GetProcManagerInst())
+    , m_pPluginMgrInst(PluginMgr::GetPluginMgrInst())
     , m_pTranslator(new QTranslator(this))
     , m_pGrpcClient(GrpcClient::GetGrpcClientInst())
     , m_pAccount(new Account(this))
     , m_pLoginWgtInst(LoginWidget::GetLoginWgtInst())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
     , m_pSettingPageWgtInst(SettingPageWidget::GetMainSettingPageInst())
-    , m_pAudioPageWgtInst(AudioPageWidget::GetAudioPageWidgetInst())
-    , m_pImagePageWgtInst(ImagePageWidget::GetImagePageWidgetInst())
-    , m_pTextPageWgtInst(TextPageWidget::GetTextPageWidgetInst())
-    , m_pVideoPageWgtInst(VideoPageWidget::GetVideoPageWidgetInst())
-    , m_pToolPageWgtInst(ToolPageWidget::GetToolPageWidgetInst())
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_StyledBackground, true);
@@ -56,6 +52,8 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     _initTimer();
     _initServer();
     _initLanguage();
+
+    _initPluginMgr();
 }
 
 FrameworkWidget::~FrameworkWidget()
@@ -66,13 +64,7 @@ FrameworkWidget::~FrameworkWidget()
     delete m_pGrpcClient;
 
     delete m_pHomePageWgtInst;
-    delete m_pTextPageWgtInst;
-    delete m_pImagePageWgtInst;
-    delete m_pAudioPageWgtInst;
-    delete m_pVideoPageWgtInst;
     delete m_pSettingPageWgtInst;
-    delete m_pToolPageWgtInst;
-    delete m_pAppBarBtnGroup;
     delete m_pCtlBtnGroup;
     delete m_pTimer;
     delete ui;
@@ -287,38 +279,6 @@ void FrameworkWidget::_slotCtlBtnGroupClicked(int id)
     }
 }
 
-void FrameworkWidget::_slotAppBarBtnGroupClicked(int id)
-{
-    qDebug() << "App bar button clicked, id:" << id;
-    m_pAppBarBtnGroup->buttons().at(id)->setChecked(true);
-    switch(id)
-    {
-        case 0:
-            ui->stackedWidget->setCurrentWidget(m_pHomePageWgtInst);
-            break;
-        case 1:
-            ui->stackedWidget->setCurrentWidget(m_pTextPageWgtInst);
-            break;
-        case 2:
-            ui->stackedWidget->setCurrentWidget(m_pImagePageWgtInst);
-            break;
-        case 3:
-            ui->stackedWidget->setCurrentWidget(m_pAudioPageWgtInst);
-            break;
-        case 4:
-            ui->stackedWidget->setCurrentWidget(m_pVideoPageWgtInst);
-            break;
-        case 5:
-            ui->stackedWidget->setCurrentWidget(m_pSettingPageWgtInst);
-            break;
-        case 6:
-            ui->stackedWidget->setCurrentWidget(m_pToolPageWgtInst);
-            break;
-        default:
-            break;
-    }
-}
-
 void FrameworkWidget::_slotUpdateRealTime()
 {
     // qDebug() << "Updating real time...";
@@ -367,6 +327,32 @@ void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
 void FrameworkWidget::_initProcMgr()
 {
     m_pProcManagerInst->init();
+}
+
+void FrameworkWidget::_initPluginMgr()
+{
+    // scan plugins in the "plugins" directory relative to the executable
+    QDir dir = QDir(QCoreApplication::applicationDirPath()).filePath("plugins");
+    if(!dir.exists())
+    {
+        // create the plugins directory if it doesn't exist
+        if(!dir.mkpath("."))
+        {
+            qDebug() << "Failed to create plugins directory at "
+                     << dir.absolutePath();
+            return;
+        }
+    }
+
+    // load all plugin files in the directory
+    for(const QFileInfo &fileInfo : dir.entryInfoList(QDir::Files))
+    {
+        if(fileInfo.suffix() != "dll" && fileInfo.suffix() != "so"
+           && fileInfo.suffix() != "dylib")
+            continue;
+
+        _addPlugin(fileInfo);
+    }
 }
 
 int FrameworkWidget::_hitTestResizeRegion(const QPoint &globalPos) const
@@ -418,21 +404,49 @@ void FrameworkWidget::_updateResizeCursor(int region)
 
 void FrameworkWidget::_initAppBar()
 {
-    ui->btnHome->setText(tr("Home"));
-    ui->btnText->setText(tr("Text"));
-    ui->btnImage->setText(tr("Image"));
-    ui->btnAudio->setText(tr("Audio"));
-    ui->btnVideo->setText(tr("Video"));
-    ui->btnSetting->setText(tr("Setting"));
-    ui->btnTool->setText(tr("Tool"));
+    const QSize appBarItemSize(75, 75);
+    ui->listWidgetAppBar->setViewMode(QListView::IconMode);
+    ui->listWidgetAppBar->setFlow(QListView::TopToBottom);
+    ui->listWidgetAppBar->setMovement(QListView::Static);
+    ui->listWidgetAppBar->setResizeMode(QListView::Adjust);
+    ui->listWidgetAppBar->setWrapping(false);
+    ui->listWidgetAppBar->setUniformItemSizes(true);
+    ui->listWidgetAppBar->setGridSize(appBarItemSize);
+    ui->listWidgetAppBar->setIconSize(QSize(40, 40));
+    ui->listWidgetAppBar->setSpacing(6);
+    ui->listWidgetAppBar->setTextElideMode(Qt::ElideNone);
+    ui->listWidgetAppBar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->listWidgetAppBar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->listWidgetAppBar->setStyleSheet("QListWidget {"
+                                        " background: #192634;"
+                                        " border: none;"
+                                        " border-top-left-radius: 0px;"
+                                        " border-top-right-radius: 8px;"
+                                        " border-bottom-left-radius: 0px;"
+                                        " border-bottom-right-radius: 8px;"
+                                        " padding-top: 6px;"
+                                        " padding-left: 7px;"
+                                        " padding-right: 7px;"
+                                        "}"
+                                        "QListWidget::item {"
+                                        " color: #EAF2FF;"
+                                        " width: 75px;"
+                                        " height: 75px;"
+                                        " margin: 3px 0px;"
+                                        " border-radius: 10px;"
+                                        " padding: 0px;"
+                                        "}"
+                                        "QListWidget::item:hover {"
+                                        " background: #2D4D6B;"
+                                        "}"
+                                        "QListWidget::item:selected {"
+                                        " background: #41B3F6;"
+                                        " color: #FFFFFF;"
+                                        "}");
 
-    m_pAppBarBtnGroup->addButton(ui->btnHome, 0);
-    m_pAppBarBtnGroup->addButton(ui->btnText, 1);
-    m_pAppBarBtnGroup->addButton(ui->btnImage, 2);
-    m_pAppBarBtnGroup->addButton(ui->btnAudio, 3);
-    m_pAppBarBtnGroup->addButton(ui->btnVideo, 4);
-    m_pAppBarBtnGroup->addButton(ui->btnSetting, 5);
-    m_pAppBarBtnGroup->addButton(ui->btnTool, 6);
+    _addAppBarItem(tr("Home"), ":/icons/home", 0);
+    _addAppBarItem(tr("Setting"), ":/icons/settings", 1);
+    ui->listWidgetAppBar->setCurrentRow(0);
 }
 
 void FrameworkWidget::_initControlBar()
@@ -449,14 +463,9 @@ void FrameworkWidget::_initControlBar()
 void FrameworkWidget::_initStackedWidget()
 {
     ui->stackedWidget->addWidget(m_pHomePageWgtInst);
-    ui->stackedWidget->addWidget(m_pTextPageWgtInst);
-    ui->stackedWidget->addWidget(m_pImagePageWgtInst);
-    ui->stackedWidget->addWidget(m_pAudioPageWgtInst);
-    ui->stackedWidget->addWidget(m_pVideoPageWgtInst);
     ui->stackedWidget->addWidget(m_pSettingPageWgtInst);
-    ui->stackedWidget->addWidget(m_pToolPageWgtInst);
 
-    ui->stackedWidget->setCurrentWidget(m_pHomePageWgtInst);
+    ui->stackedWidget->setCurrentIndex(0);
 }
 
 void FrameworkWidget::_initConnections()
@@ -478,15 +487,15 @@ void FrameworkWidget::_initConnections()
 
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(_slotUpdateRealTime()));
 
+    connect(ui->listWidgetAppBar,
+            &QListWidget::currentRowChanged,
+            ui->stackedWidget,
+            &QStackedWidget::setCurrentIndex);
+
     connect(m_pCtlBtnGroup,
             &QButtonGroup::idClicked,
             this,
             &FrameworkWidget::_slotCtlBtnGroupClicked);
-
-    connect(m_pAppBarBtnGroup,
-            &QButtonGroup::idClicked,
-            this,
-            &FrameworkWidget::_slotAppBarBtnGroupClicked);
 
     connect(m_pGrpcClient,
             &GrpcClient::SignalGrpcConnected,
@@ -532,6 +541,8 @@ void FrameworkWidget::_initServer()
 void FrameworkWidget::_initLanguage()
 {
     ui->comboLang->setCurrentIndex(1); // Default to English
+
+    ui->comboLang->setIconSize(QSize(24, 24));
 }
 
 void FrameworkWidget::_minimizeWindow()
@@ -588,4 +599,53 @@ void FrameworkWidget::_switchAccount()
 {
     m_pLoginWgtInst->show();
     this->hide();
+}
+
+void FrameworkWidget::_addAppBarItem(const QString &text,
+                                     const QString &iconPath,
+                                     int            index)
+{
+    QIcon icon;
+    if(QFile::exists(iconPath))
+    {
+        qDebug() << "Adding app bar item: " << text
+                 << " with icon: " << iconPath;
+        icon = QIcon(iconPath);
+    } else
+    {
+        icon = QIcon(":/icons/unknown");
+        qDebug() << "Icon file does not exist: " << iconPath
+                 << ", use default icon.";
+    }
+
+    QListWidgetItem *item = new QListWidgetItem(icon, text);
+    item->setTextAlignment(Qt::AlignHCenter | Qt::AlignBottom);
+    item->setSizeHint(QSize(72, 72));
+
+    ui->listWidgetAppBar->insertItem(index, item);
+}
+
+void FrameworkWidget::_addPlugin(const QFileInfo &fileInfo, int index)
+{
+    const QString filePath = fileInfo.absoluteFilePath();
+    qDebug() << "Attempting to load plugin from file: " << filePath;
+    PluginInterface *plugin = m_pPluginMgrInst->Load(filePath);
+    if(!plugin)
+    {
+        qDebug() << "Failed to load plugin from file: " << filePath;
+        return;
+    }
+
+    qDebug() << "Successfully loaded plugin: " << plugin->Name()
+             << " (ID: " << plugin->Id() << ")";
+    auto wgt = plugin->Init(this);
+    if(wgt)
+    {
+        index         = (index < 0 || index > ui->stackedWidget->count())
+                            ? ui->stackedWidget->count()
+                            : index;
+        auto iconPath = fileInfo.absoluteDir().absoluteFilePath(plugin->Icon());
+        _addAppBarItem(plugin->Name(), iconPath, index);
+        ui->stackedWidget->insertWidget(index, wgt);
+    }
 }
