@@ -1,6 +1,8 @@
 ﻿#include "LoginWidget.h"
 #include "ui_LoginWidget.h"
 
+#include "StyleMgr.h"
+
 LoginWidget *LoginWidget::m_stLoginWgtInst = nullptr;
 
 LoginWidget *LoginWidget::GetLoginWgtInst()
@@ -23,6 +25,9 @@ LoginWidget::LoginWidget(QWidget *parent)
     ui->editAccount->setText("admin");
     ui->editPassword->setText("admin");
 #endif
+
+    ui->editAccount->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
+    ui->editPassword->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
 }
 
 LoginWidget::~LoginWidget()

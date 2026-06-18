@@ -153,29 +153,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
       <item>
        <widget class="QComboBox" name="comboLang">
         <property name="styleSheet">
-         <string notr="true">QComboBox {
-    border: none; 
-    
-    /* border: 1px solid #dcdcdc; */
-
-    background-color: transparent; 
-
-    padding-left: 4px; 
-}
-
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 15px;
-
-    border-left-width: 0px; 
-    border-left-style: solid;
-}
-
-QComboBox QAbstractItemView {
-    border: 1px solid #cccccc;
-    background-color: #ffffff;
-}</string>
+         <string notr="true"/>
         </property>
         <property name="iconSize">
          <size>

@@ -10,3 +10,9 @@ Account::Account(QObject *parent)
 Account::~Account()
 {
 }
+
+void Account::Clear()
+{
+    m_id   = -1;
+    m_auth = "";
+}

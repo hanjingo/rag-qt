@@ -14,6 +14,7 @@
 
 #include "SkillBtn.h"
 #include "GrpcClient.h"
+#include "StyleMgr.h"
 
 HomePageWidget *HomePageWidget::m_stMainHomePageInst = nullptr;
 
@@ -74,6 +75,7 @@ void HomePageWidget::_initSkillsArea()
 void HomePageWidget::_initHistoryArea()
 {
     // init filter edit
+    ui->editFilter->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
     ui->editFilter->setText(tr("Filter"));
 
     // init session control buttons

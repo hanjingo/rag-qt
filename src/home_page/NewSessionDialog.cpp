@@ -1,6 +1,8 @@
 #include "NewSessionDialog.h"
 #include "ui_NewSessionDialog.h"
 
+#include "StyleMgr.h"
+
 NewSessionDialog::NewSessionDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::NewSessionDialog)
@@ -41,9 +43,11 @@ void NewSessionDialog::_initUI()
     ui->comboSkill->addItem("Skill4");
 #endif
 
+    ui->checkLocal->setStyleSheet(StyleMgr::ParseFile(":/styles/check_box"));
+    ui->checkRemote->setStyleSheet(StyleMgr::ParseFile(":/styles/check_box"));
     ui->checkLocal->setChecked(true);
-
     ui->checkRemote->setChecked(false);
+
     ui->editRemoteIP->setEnabled(false);
     ui->editRemotePort->setEnabled(false);
 }

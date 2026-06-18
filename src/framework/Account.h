@@ -11,11 +11,14 @@ class Account : public QObject
     explicit Account(QObject *parent = nullptr);
     ~Account();
 
+    void Clear();
+    bool IsValid() const { return m_id > 0 && !m_auth.isEmpty(); }
+
     void SetId(int32_t id) { m_id = id; }
     void SetAuth(const QString &auth) { m_auth = auth; }
 
-    int32_t Id() { return m_id; }
-    QString Auth() { return m_auth; }
+    int32_t Id() const { return m_id; }
+    QString Auth() const { return m_auth; }
 
   private:
     int32_t m_id;

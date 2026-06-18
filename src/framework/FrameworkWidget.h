@@ -17,6 +17,7 @@
 #include "ProcManager.h"
 #include "PluginMgr.h"
 #include "GrpcClient.h"
+#include "StyleMgr.h"
 
 QT_BEGIN_NAMESPACE
 class QButtonGroup;

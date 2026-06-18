@@ -227,6 +227,13 @@ void FrameworkWidget::_slotRegisterResp(const int     errorCode,
 void FrameworkWidget::_slotLogout()
 {
     qDebug() << "Logout signal received.";
+    if(m_pAccount == nullptr || !m_pAccount->IsValid())
+    {
+        qDebug() << "Account instance is null or invalid. exit";
+        _exit();
+        return;
+    }
+
     GrpcClient::GetGrpcClientInst()->Logout(m_pAccount->Id(),
                                             m_pAccount->Auth());
 }
@@ -417,32 +424,8 @@ void FrameworkWidget::_initAppBar()
     ui->listWidgetAppBar->setTextElideMode(Qt::ElideNone);
     ui->listWidgetAppBar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->listWidgetAppBar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->listWidgetAppBar->setStyleSheet("QListWidget {"
-                                        " background: #192634;"
-                                        " border: none;"
-                                        " border-top-left-radius: 0px;"
-                                        " border-top-right-radius: 8px;"
-                                        " border-bottom-left-radius: 0px;"
-                                        " border-bottom-right-radius: 8px;"
-                                        " padding-top: 6px;"
-                                        " padding-left: 7px;"
-                                        " padding-right: 7px;"
-                                        "}"
-                                        "QListWidget::item {"
-                                        " color: #EAF2FF;"
-                                        " width: 75px;"
-                                        " height: 75px;"
-                                        " margin: 3px 0px;"
-                                        " border-radius: 10px;"
-                                        " padding: 0px;"
-                                        "}"
-                                        "QListWidget::item:hover {"
-                                        " background: #2D4D6B;"
-                                        "}"
-                                        "QListWidget::item:selected {"
-                                        " background: #41B3F6;"
-                                        " color: #FFFFFF;"
-                                        "}");
+    ui->listWidgetAppBar->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/slide_bar"));
 
     _addAppBarItem(tr("Home"), ":/icons/home", 0);
     _addAppBarItem(tr("Setting"), ":/icons/settings", 1);
@@ -540,8 +523,8 @@ void FrameworkWidget::_initServer()
 
 void FrameworkWidget::_initLanguage()
 {
+    ui->comboLang->setStyleSheet(StyleMgr::ParseFile(":/styles/combo_box"));
     ui->comboLang->setCurrentIndex(1); // Default to English
-
     ui->comboLang->setIconSize(QSize(24, 24));
 }
 
@@ -593,10 +576,16 @@ void FrameworkWidget::_exit()
 {
     m_pProcManagerInst->destroy();
     this->close();
+    if(m_pLoginWgtInst)
+        m_pLoginWgtInst->close();
 }
 
 void FrameworkWidget::_switchAccount()
 {
+    // clear account info
+    if(m_pAccount)
+        m_pAccount->Clear();
+
     m_pLoginWgtInst->show();
     this->hide();
 }

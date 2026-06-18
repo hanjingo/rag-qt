@@ -56,4 +56,38 @@
         <file alias="en_UK">res/languages/rag-qt_en_UK.qm</file>
         <file alias="zh_CN">res/languages/rag-qt_zh_CN.qm</file>
     </qresource>
+    <qresource prefix="/styles">
+        <file alias="check_box">res/styles/check_box/CheckBox.qss</file>
+
+        <file alias="combo_box">res/styles/combo_box/ComboBox.qss</file>
+
+        <file alias="date_edit">res/styles/date_edit/DateEdit.qss</file>
+
+        <file alias="datetime_edit">res/styles/datetime_edit/DateTimeEdit.qss</file>
+
+        <file alias="all_radius_header_view">res/styles/header_view/AllRadiusHeaderView.qss</file>
+        <file alias="header_view">res/styles/header_view/HeaderView.qss</file>
+
+        <file alias="data_label">res/styles/label/DataLabel.qss</file>
+        <file alias="dialog_tag_label">res/styles/label/DialogTagLabel.qss</file>
+        <file alias="noet_label">res/styles/label/NoteLabel.qss</file>
+        <file alias="radius_label">res/styles/label/RadiusLabel.qss</file>
+        <file alias="tag_label">res/styles/label/TagLabel.qss</file>
+        <file alias="title_label">res/styles/label/TitleLabel.qss</file>
+
+        <file alias="line_edit">res/styles/line_edit/LineEdit.qss</file>
+        <file alias="routine_line_edit">res/styles/line_edit/RoutineLineEdit.qss</file>
+
+        <file alias="slide_bar">res/styles/list_widget/SlideBar.qss</file>
+
+        <file alias="push_button">res/styles/push_button/PushButton.qss</file>
+
+        <file alias="scroll_area">res/styles/scroll_area/ScrollArea.qss</file>
+
+        <file alias="scroll_bar">res/styles/scroll_bar/ScrollBar.qss</file>
+
+        <file alias="tab_widget">res/styles/tab_widget/TabWidget.qss</file>
+
+        <file alias="data_table_view">res/styles/table_view/DataTableView.qss</file>
+    </qresource>
 </RCC>
