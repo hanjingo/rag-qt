@@ -18,6 +18,7 @@ SkillBtn::SkillBtn(QWidget *parent)
     , m_hash("")
     , m_downloadTimes(0)
     , m_progress(-1)
+    , m_state(State::Unknown)
 {
     // init button
     _init();
@@ -25,10 +26,6 @@ SkillBtn::SkillBtn(QWidget *parent)
 
 SkillBtn::~SkillBtn()
 {
-    disconnect(this,
-               SIGNAL(SignalUpdateProgress(int)),
-               this,
-               SLOT(SlotUpdateProgress(int)));
 }
 
 void SkillBtn::paintEvent(QPaintEvent *e)
@@ -56,22 +53,37 @@ void SkillBtn::paintEvent(QPaintEvent *e)
 
     // layer3: draw the overlay icon based on the download progress
     QIcon overlayIcon;
-    if(m_progress < 0)
-        overlayIcon = QIcon(":/icons/download");
-    else if(m_progress >= 0 && m_progress < 100)
-        overlayIcon = QIcon(":/icons/downloading");
-    else
-        overlayIcon = QIcon(":/icons/downloaded");
-    QSize iconSize(30, 30);
+    switch(m_state)
+    {
+        case State::WaitDownload:
+            overlayIcon = QIcon(":/icons/download");
+            break;
+        case State::Downloading:
+            overlayIcon = QIcon(":/icons/downloading");
+            break;
+        case State::Downloaded:
+            overlayIcon = QIcon(":/icons/downloaded");
+            break;
+        case State::Installing:
+            overlayIcon = QIcon(":/icons/installing");
+            break;
+        case State::Installed:
+            overlayIcon = QIcon(":/icons/installed");
+            break;
+        default:
+            overlayIcon = QIcon(":/icons/download");
+            break;
+    }
 
+    QSize iconSize(30, 30);
     //// calculate the centered coordinates to overlap the icon center with the button center
     //int x = (width() - iconSize.width()) / 2;
     //int y = (height() - iconSize.height()) / 2;
 
     // calculate the top right coordinates to overlap the icon center with the button center
-    int margin = 5; 
-    int x = width() - iconSize.width() - margin;
-    int y = margin;
+    int margin = 5;
+    int x      = width() - iconSize.width() - margin;
+    int y      = margin;
 
     QRect iconRect(x, y, iconSize.width(), iconSize.height());
 
@@ -84,14 +96,57 @@ void SkillBtn::Resize(int w, int h)
     setFixedSize(w, h);
 }
 
+void SkillBtn::SetState(State state)
+{
+    if(m_state == state)
+        return;
+
+    switch(state)
+    {
+        case State::WaitDownload: {
+            qDebug() << "SkillBtn state changed to WaitDownload, hash: "
+                     << Hash();
+            this->setCheckable(true);
+        }
+        break;
+        case State::Downloading: {
+            qDebug() << "SkillBtn state changed to Downloading, hash: "
+                     << Hash();
+            this->setCheckable(false); // disable the button while downloading
+        }
+        break;
+        case State::Downloaded: {
+            qDebug() << "SkillBtn state changed to Downloaded, hash: "
+                     << Hash();
+            this->setCheckable(true);
+        }
+        break;
+        case State::Installing: {
+            qDebug() << "SkillBtn state changed to Installing, hash: "
+                     << Hash();
+            this->setCheckable(false); // disable the button while installing
+        }
+        break;
+        case State::Installed: {
+            qDebug() << "SkillBtn state changed to Installed, hash: " << Hash();
+            this->setCheckable(false); // disable the button when installed
+        }
+        break;
+        default: {
+            qDebug() << "SkillBtn state changed to Unknown, hash: " << Hash();
+            this->setCheckable(true);
+        }
+        break;
+    }
+
+    m_state = state;
+    emit SignalStateChanged(this, m_state);
+    update(); // trigger a repaint to reflect the new state
+}
+
 void SkillBtn::_init()
 {
-    connect(this,
-            SIGNAL(SignalUpdateProgress(int)),
-            this,
-            SLOT(SlotUpdateProgress(int)));
-
-    emit SignalUpdateProgress(-1);
+    SetState(State::Unknown);
 }
 
 void SkillBtn::_refreshText()
@@ -113,10 +168,15 @@ void SkillBtn::_refreshText()
                 .arg(m_downloadTimes));
 }
 
-void SkillBtn::SlotUpdateProgress(int progress)
+void SkillBtn::UpdateDownloadProgress(int progress)
 {
-    qDebug() << "Update skill button progress:" << progress;
+    qDebug() << "Update skill button " << m_hash << ", progress:" << progress;
+    SetState(State::Downloading);
     m_progress = progress;
     // refresh the button display to show the new progress state
     update();
+
+    // if download is complete, emit the downloaded signal
+    if(progress >= 100)
+        SetState(State::Downloaded);
 }

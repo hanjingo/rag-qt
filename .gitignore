@@ -63,3 +63,12 @@ bin
 
 #vcpkg
 vcpkg_installed
+
+#plugin
+src/plugins/*
+!src/plugins/Bus.h
+!src/plugins/Bus.cpp
+!src/plugins/CMakeLists.txt
+!src/plugins/PluginInterface.h
+!src/plugins/example
+!src/plugins/example/*

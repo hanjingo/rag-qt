@@ -8,6 +8,10 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <QScreen>
+#include <QDirIterator>
+#include <QFileInfo>
+#include <QFileInfoList>
+#include <QStringList>
 #include <QGuiApplication>
 
 #include "PluginInterface.h"
@@ -357,14 +361,15 @@ void FrameworkWidget::_initPluginMgr()
         }
     }
 
-    // load all plugin files in the directory
-    for(const QFileInfo &fileInfo : dir.entryInfoList(QDir::Files))
+    QStringList  filter{"*.dll", "*.so", "*.dylib"};
+    QDirIterator it(dir.absolutePath(),
+                    filter,
+                    QDir::Files,
+                    QDirIterator::Subdirectories);
+    while(it.hasNext())
     {
-        if(fileInfo.suffix() != "dll" && fileInfo.suffix() != "so"
-           && fileInfo.suffix() != "dylib")
-            continue;
-
-        _addPlugin(fileInfo);
+        it.next(); // skip the first empty file
+        _addPlugin(it.fileInfo());
     }
 }
 

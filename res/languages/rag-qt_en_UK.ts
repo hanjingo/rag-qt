@@ -104,4 +104,24 @@
         <translation>Remote Port</translation>
     </message>
 </context>
+
+<context>
+    <name>HistorySettingDialog</name>
+    <message>
+        <source>History Configuration</source>
+        <translation>History Configuration</translation>
+    </message>
+    <message>
+        <source>Sort By</source>
+        <translation>Sort By</translation>
+    </message>
+    <message>
+        <source>Max Record Count</source>
+        <translation>Max Record Count</translation>
+    </message>
+    <message>
+        <source>Show Description</source>
+        <translation>Show Description</translation>
+    </message>
+</context>
 </TS>

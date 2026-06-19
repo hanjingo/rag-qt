@@ -10,6 +10,17 @@ class SkillBtn : public QToolButton
 {
     Q_OBJECT
   public:
+    enum class State
+    {
+        Unknown,
+        WaitDownload,
+        Downloading,
+        Downloaded,
+        Installing,
+        Installed
+    };
+
+  public:
     explicit SkillBtn(QWidget *parent = nullptr);
     ~SkillBtn();
 
@@ -70,14 +81,16 @@ class SkillBtn : public QToolButton
 
     void Resize(int w, int h);
 
-  protected:
-    void paintEvent(QPaintEvent *e);
+    void  SetState(State state);
+    State GetState() const { return m_state; }
+
+    void UpdateDownloadProgress(int progress);
 
   signals:
-    void SignalUpdateProgress(int progress);
+    void SignalStateChanged(SkillBtn *btn, SkillBtn::State state);
 
-  protected slots:
-    void SlotUpdateProgress(int progress);
+  protected:
+    void paintEvent(QPaintEvent *e);
 
   private:
     void _init();
@@ -93,7 +106,8 @@ class SkillBtn : public QToolButton
     QString   m_hash;
     int       m_downloadTimes;
 
-    int m_progress; // -1: not downloading, 0~100: downloading progress
+    int   m_progress; // -1: not downloading, 0~100: downloading progress
+    State m_state;
 };
 
 #endif // SKILLBTN_H

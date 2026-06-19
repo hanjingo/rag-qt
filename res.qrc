@@ -51,6 +51,8 @@
         <file alias="logout">res/icons/logout.svg</file>
         <file alias="unknown">res/icons/unknown.png</file>
         <file alias="logo">res/icons/logo.png</file>
+        <file alias="success">res/icons/success.png</file>
+        <file alias="installing">res/icons/installing.png</file>
     </qresource>
     <qresource prefix="/languages">
         <file alias="de_DE">res/languages/rag-qt_de_DE.qm</file>

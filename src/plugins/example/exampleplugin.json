@@ -1,0 +1,10 @@
+{
+    "MetaData": {
+        "PluginId": "example-v0.0.1",
+        "Version": "0.0.1",
+        "Name": "example",
+        "Description": "this plugin provided a example widget for the framework",
+        "Author": "hehehunanchina@live.com",
+        "Dependencies": []
+    }
+}

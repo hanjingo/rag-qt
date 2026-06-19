@@ -12,6 +12,9 @@
 #include "NewSessionDialog.h"
 #include "ui_NewSessionDialog.h"
 
+#include "HistorySettingDialog.h"
+#include "ui_HistorySettingDialog.h"
+
 #include "SkillBtn.h"
 #include "GrpcClient.h"
 #include "StyleMgr.h"
@@ -206,18 +209,15 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
                 if(!btn || !btn->IsDownloaded())
                     continue;
 
-                if(btn)
-                {
-                    ::GrpcLibrary::Skill skill;
-                    skill.set_name(btn->Name().toStdString());
-                    skill.set_desc(btn->Desc().toStdString());
-                    skill.set_publisher(btn->Publisher().toStdString());
-                    skill.set_version(btn->Version().toStdString());
-                    skill.set_timestamp(
-                        btn->Timestamp().toString(Qt::ISODate).toStdString());
-                    skill.set_hash(btn->Hash().toStdString());
-                    skills.append(skill);
-                }
+                ::GrpcLibrary::Skill skill;
+                skill.set_name(btn->Name().toStdString());
+                skill.set_desc(btn->Desc().toStdString());
+                skill.set_publisher(btn->Publisher().toStdString());
+                skill.set_version(btn->Version().toStdString());
+                skill.set_timestamp(
+                    btn->Timestamp().toString(Qt::ISODate).toStdString());
+                skill.set_hash(btn->Hash().toStdString());
+                skills.append(skill);
             }
             NewSessionDialog(skills, this).exec();
         }
@@ -233,6 +233,7 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
         break;
         case 2: {
             qDebug() << "Session settings button clicked.";
+            HistorySettingDialog(this).exec();
         }
         break;
         default: {
@@ -321,25 +322,96 @@ void HomePageWidget::_slotDownloadResp(const int      errorCode,
     qDebug() << "Download response received, hash: " << hash
              << ", address: " << addr << ", size: " << size_kb << " KB";
 
-// TODO handle downloaded skill content, e.g. save to file and load into UI
-#ifdef DEBUG
+    // handle downloaded skill content, e.g. save to file and load into UI
     for(auto item : m_pSkillsBtnGroup->buttons())
     {
         SkillBtn *btn = qobject_cast<SkillBtn *>(item);
-        if(btn && btn->Hash() == hash)
-        {
-            // Update skill button state to indicate download success
-            QtConcurrent::run([btn]() {
-                for(int i = 0; i <= 100; i += 20)
-                {
-                    QThread::msleep(20);
-                    emit btn->SignalUpdateProgress(i);
-                }
-            });
-            break;
-        }
+        if(!btn || btn->Hash() != hash)
+            continue;
+
+        btn->SetState(SkillBtn::State::WaitDownload);
+        break;
     }
+}
+
+void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
+                                               SkillBtn::State state)
+{
+    qDebug() << "Skill button state changed, hash: " << btn->Hash()
+             << ", new state: " << static_cast<int>(state);
+    // Handle skill button state change, e.g. update UI or trigger actions
+    switch(state)
+    {
+        case SkillBtn::State::Unknown:
+        case SkillBtn::State::WaitDownload: {
+            qDebug() << "SkillBtn is waiting to download, hash: "
+                     << btn->Hash();
+#ifdef DEBUG
+            for(auto item : m_pSkillsBtnGroup->buttons())
+            {
+                SkillBtn *tmp = qobject_cast<SkillBtn *>(item);
+                if(!btn || btn->Hash() != tmp->Hash())
+                    continue;
+
+                // Update skill button state to indicate download success
+                QtConcurrent::run([btn]() {
+                    for(int i = 0; i <= 100; i += 20)
+                    {
+                        QThread::msleep(20);
+                        btn->UpdateDownloadProgress(i);
+                    }
+                });
+                break;
+            }
 #endif
+        }
+        break;
+        case SkillBtn::State::Downloading: {
+            qDebug() << "SkillBtn is downloading, hash: " << btn->Hash();
+        }
+        break;
+        case SkillBtn::State::Downloaded: {
+            qDebug() << "SkillBtn has been downloaded, hash: " << btn->Hash();
+#ifdef DEBUG
+            for(auto item : m_pSkillsBtnGroup->buttons())
+            {
+                SkillBtn *tmp = qobject_cast<SkillBtn *>(item);
+                if(!btn || btn->Hash() != tmp->Hash())
+                    continue;
+
+                btn->SetState(SkillBtn::State::Installing);
+                break;
+            }
+#endif
+        }
+        break;
+        case SkillBtn::State::Installing: {
+            qDebug() << "SkillBtn is installing, hash: " << btn->Hash();
+#ifdef DEBUG
+            for(auto item : m_pSkillsBtnGroup->buttons())
+            {
+                SkillBtn *tmp = qobject_cast<SkillBtn *>(item);
+                if(!btn || btn->Hash() != tmp->Hash())
+                    continue;
+
+                // Update skill button state to indicate install success
+                QtConcurrent::run([btn]() {
+                    for(int i = 0; i <= 100; i += 20)
+                        QThread::msleep(20);
+
+                    btn->SetState(SkillBtn::State::Installed);
+                });
+                break;
+            }
+#endif
+        }
+        case SkillBtn::State::Installed: {
+            qDebug() << "SkillBtn is installed, hash: " << btn->Hash();
+        }
+        break;
+        default:
+            break;
+    }
 }
 
 void HomePageWidget::_addSessions(
@@ -431,11 +503,46 @@ void HomePageWidget::_addSkills(const QVector<::GrpcLibrary::Skill> &skills)
         btn->SetVersion(skill.version().c_str());
         btn->SetTimestamp(skill.timestamp().c_str());
         btn->SetHash(skill.hash().c_str());
+
+        connect(btn,
+                &SkillBtn::SignalStateChanged,
+                this,
+                &HomePageWidget::_slotSkillBtnStateChanged);
+
         m_pSkillsBtnGroup->addButton(btn);
         idx++;
     }
 
     _drawSkillsArea();
+}
+
+void HomePageWidget::_getSkills(
+    QVector<::GrpcLibrary::Skill>              &skills,
+    std::function<bool(::GrpcLibrary::Skill &)> filter)
+{
+    for(auto item : m_pSkillsBtnGroup->buttons())
+    {
+        if(!item)
+            continue;
+
+        SkillBtn *btn = qobject_cast<SkillBtn *>(item);
+        if(!btn)
+            continue;
+
+
+        ::GrpcLibrary::Skill skill;
+        skill.set_name(btn->Name().toStdString());
+        skill.set_desc(btn->Desc().toStdString());
+        skill.set_publisher(btn->Publisher().toStdString());
+        skill.set_version(btn->Version().toStdString());
+        skill.set_timestamp(
+            btn->Timestamp().toString(Qt::ISODate).toStdString());
+        skill.set_hash(btn->Hash().toStdString());
+        if(!filter(skill))
+            continue;
+
+        skills.append(skill);
+    }
 }
 
 void HomePageWidget::_clearSkills()

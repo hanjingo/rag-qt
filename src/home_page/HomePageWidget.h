@@ -8,6 +8,9 @@
 #include <QResizeEvent>
 #include <QStandardItemModel>
 
+#include <functional>
+
+#include "SkillBtn.h"
 #include "GrpcClient.h"
 
 namespace Ui
@@ -51,6 +54,8 @@ class HomePageWidget : public QWidget
                            const QString &addr,
                            const int64_t  size_kb);
 
+    void _slotSkillBtnStateChanged(SkillBtn *btn, SkillBtn::State state);
+
   private:
     void _initSkillsArea();
     void _initHistoryArea();
@@ -63,6 +68,10 @@ class HomePageWidget : public QWidget
     void _filterSessionTable(const QString &filterText);
 
     void _addSkills(const QVector<::GrpcLibrary::Skill> &skills);
+    void _getSkills(
+        QVector<::GrpcLibrary::Skill>              &skills,
+        std::function<bool(::GrpcLibrary::Skill &)> filter =
+            [](::GrpcLibrary::Skill &) { return true; });
     void _clearSkills();
     void _drawSkillsArea();
 

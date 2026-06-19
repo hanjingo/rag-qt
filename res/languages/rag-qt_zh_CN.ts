@@ -100,4 +100,24 @@
         <translation>远程端口</translation>
     </message>
 </context>
+
+<context>
+    <name>HistorySettingDialog</name>
+    <message>
+        <source>History Configuration</source>
+        <translation>历史记录配置</translation>
+    </message>
+    <message>
+        <source>Sort By</source>
+        <translation>排序方式</translation>
+    </message>
+    <message>
+        <source>Max Record Count</source>
+        <translation>最大记录数</translation>
+    </message>
+    <message>
+        <source>Show Description</source>
+        <translation>显示描述</translation>
+    </message>
+</context>
 </TS>
