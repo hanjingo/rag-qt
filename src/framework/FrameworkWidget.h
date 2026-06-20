@@ -55,12 +55,17 @@ class FrameworkWidget : public QWidget
 
   private slots:
     void _slotLogin(const QString &username, const QString &password);
-    void
-    _slotLoginResp(const int errorCode, const int32_t id, const QString &auth);
+    void _slotLoginResp(const int      errorCode,
+                        const int32_t  id,
+                        const QString &auth,
+                        const int32_t  privilege,
+                        const QString &account,
+                        const QString &lastLoginTime);
     void _slotRegister(const QString &username, const QString &password);
     void _slotRegisterResp(const int errorCode, const int32_t user_id);
     void _slotLogout();
     void _slotLogoutResp(const int errorCode, const int user_id);
+    void _slotUserBtnClicked(bool checked);
 
     void _slotCtlBtnGroupClicked(int);
     void _slotUpdateRealTime();
@@ -69,8 +74,13 @@ class FrameworkWidget : public QWidget
     void _slotComboLangCurrentChanged(int iIndex);
 
     void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
+
     // for BUS signals
     void _slotPong();
+    void _slotQuery(const int64_t sessionId, const QString &query);
+    void _slotQueryResp(const int      errorCode,
+                        const int64_t  id,
+                        const QString &content);
 
   private:
     enum ResizeRegion

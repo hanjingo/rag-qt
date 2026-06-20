@@ -14,8 +14,10 @@
 #include <QStringList>
 #include <QGuiApplication>
 
+#include "Bus.h"
 #include "PluginInterface.h"
 #include "FrameworkWidget.h"
+#include "ui_Account.h"
 #include "ui_FrameworkWidget.h"
 #include "Error.h"
 
@@ -182,7 +184,10 @@ void FrameworkWidget::_slotLogin(const QString &username,
 
 void FrameworkWidget::_slotLoginResp(const int      errorCode,
                                      const int32_t  id,
-                                     const QString &auth)
+                                     const QString &auth,
+                                     const int32_t  privilege,
+                                     const QString &account,
+                                     const QString &lastLoginTime)
 {
     qDebug() << "Login response received. Error code:" << errorCode
              << "ID:" << id << "Auth:" << auth;
@@ -198,6 +203,9 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
 
     m_pAccount->SetId(id);
     m_pAccount->SetAuth(auth);
+    m_pAccount->SetPrivilege(privilege);
+    m_pAccount->SetName(account);
+    m_pAccount->SetLastLoginTime(lastLoginTime);
     m_pLoginWgtInst->hide();
     this->show();
 
@@ -304,6 +312,11 @@ void FrameworkWidget::_slotUpdateRealTime()
     ui->lblDate->setText(curr.toString("yyyy-MM-dd"));
 }
 
+void FrameworkWidget::_slotUserBtnClicked(bool checked)
+{
+    m_pAccount->exec();
+}
+
 void FrameworkWidget::_slotGrpcConnected(const QString &address)
 {
     qDebug() << "FrameworkWidget connected to gRPC server at " << address;
@@ -323,17 +336,26 @@ void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
     switch(iIndex)
     {
         case 0: // Chinese
+        {
             qDebug() << "Switching to Chinese.";
             m_pTranslator->load(":/languages/zh_CN");
-            break;
+            emit Bus::Instance() -> SignalLanguageSwitch("zh_CN");
+        }
+        break;
         case 1: // English
+        {
             qDebug() << "Switching to English.";
             m_pTranslator->load(":/languages/en_UK");
-            break;
+            emit Bus::Instance() -> SignalLanguageSwitch("en_UK");
+        }
+        break;
         case 2: // German
+        {
             qDebug() << "Switching to German.";
             m_pTranslator->load(":/languages/de_DE");
-            break;
+            emit Bus::Instance() -> SignalLanguageSwitch("de_DE");
+        }
+        break;
         default:
             qDebug() << "Unknown language index: " << iIndex;
             return;
@@ -344,6 +366,34 @@ void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
 void FrameworkWidget::_slotPong()
 {
     qDebug() << "Received Pong signal from Bus.";
+}
+
+void FrameworkWidget::_slotQuery(const int64_t sessionId, const QString &query)
+{
+    qDebug() << "Received Bus Query signal from Bus. sessionId: " << sessionId
+             << ", query: " << query;
+    GrpcClient::Instance()->Query(sessionId,
+                                  m_pAccount->Id(),
+                                  m_pAccount->Auth(),
+                                  query);
+}
+
+void FrameworkWidget::_slotQueryResp(const int      errorCode,
+                                     const int64_t  sessionId,
+                                     const QString &content)
+{
+    qDebug() << "Received Bus QueryResp signal from Bus. sessionId: "
+             << sessionId << ", content: " << content;
+    if(errorCode != ErrorCode::OK)
+    {
+        emit Bus::Instance() -> SignalQueryResp(
+            sessionId,
+            tr("Query failed with error code: %1").arg(errorCode));
+        return;
+    }
+
+    // Forward the query response to plugins
+    emit Bus::Instance() -> SignalQueryResp(sessionId, content);
 }
 
 void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
@@ -530,6 +580,11 @@ void FrameworkWidget::_initConnections()
 
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(_slotUpdateRealTime()));
 
+    connect(ui->btnUser,
+            &QToolButton::clicked,
+            this,
+            &FrameworkWidget::_slotUserBtnClicked);
+
     connect(ui->listWidgetAppBar,
             &QListWidget::currentRowChanged,
             ui->stackedWidget,
@@ -565,20 +620,30 @@ void FrameworkWidget::_initConnections()
             this,
             &FrameworkWidget::_slotLogoutResp);
 
+    connect(m_pGrpcClient,
+            &GrpcClient::SignalQueryResp,
+            this,
+            &FrameworkWidget::_slotQueryResp);
+
     connect(ui->comboLang,
             SIGNAL(currentIndexChanged(int)),
             this,
             SLOT(_slotComboLangCurrentChanged(int)));
+
+    connect(m_pPluginMgrInst,
+            &PluginMgr::SignalPluginLoaded,
+            this,
+            &FrameworkWidget::_slotPluginLoaded);
 
     connect(Bus::Instance(),
             &Bus::SignalPong,
             this,
             &FrameworkWidget::_slotPong);
 
-    connect(m_pPluginMgrInst,
-            &PluginMgr::SignalPluginLoaded,
+    connect(Bus::Instance(),
+            &Bus::SignalQuery,
             this,
-            &FrameworkWidget::_slotPluginLoaded);
+            &FrameworkWidget::_slotQuery);
 }
 
 void FrameworkWidget::_initTimer()

@@ -327,7 +327,15 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true"/>
+         <string notr="true">ui-&gt;btnPower-&gt;setStyleSheet(
+    &quot;QPushButton {&quot;
+    &quot;   background-color: transparent;&quot;  // 背景完全透明
+    &quot;   border: none;&quot;                   // 移除邊框線
+    &quot;}&quot;
+    &quot;QPushButton:hover {&quot;
+    &quot;   background-color: rgba(255, 255, 255, 0.1);&quot; // 滑鼠懸停時微亮（可選，增加互動感）
+    &quot;}&quot;
+);</string>
         </property>
         <property name="icon">
          <iconset resource="../../res.qrc">

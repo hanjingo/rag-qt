@@ -22,6 +22,15 @@ PluginMgr::~PluginMgr()
 {
 }
 
+PluginInterface *PluginMgr::Get(const QString &pluginId)
+{
+    if(!m_mLoaders.contains(pluginId))
+        return nullptr;
+
+    QPluginLoader *loader = m_mLoaders.value(pluginId);
+    return qobject_cast<PluginInterface *>(loader->instance());
+}
+
 PluginInterface *PluginMgr::Load(const QString &filePathName)
 {
     QDir    dir     = QDir::current();
@@ -46,14 +55,14 @@ PluginInterface *PluginMgr::Load(const QString &filePathName)
         return nullptr;
     }
 
-    if(m_mLoaders.contains(intf->Id()))
+    if(m_mLoaders.contains(intf->Name()))
     {
         loader->deleteLater();
         return qobject_cast<PluginInterface *>(
-            m_mLoaders.value(intf->Id())->instance());
+            m_mLoaders.value(intf->Name())->instance());
     }
 
-    m_mLoaders.insert(intf->Id(), loader);
+    m_mLoaders.insert(intf->Name(), loader);
     emit SignalPluginLoaded(intf, absPath);
     return intf;
 }

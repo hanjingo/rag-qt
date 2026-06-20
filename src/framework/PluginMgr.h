@@ -24,6 +24,7 @@ class PluginMgr : public QObject
 
     static PluginMgr *Instance();
 
+    PluginInterface *Get(const QString &pluginId);
     PluginInterface *Load(const QString &filePathName);
     void             Unload(const QString &plugin);
     QStringList      Search(

@@ -104,10 +104,15 @@ void SkillBtn::SetState(State state)
 
     switch(state)
     {
+        case State::Unknown: {
+            qDebug() << "SkillBtn state changed to Unknown, hash: " << Hash();
+            this->setCheckable(true);
+        }
+        break;
         case State::WaitDownload: {
             qDebug() << "SkillBtn state changed to WaitDownload, hash: "
                      << Hash();
-            this->setCheckable(true);
+            this->setCheckable(false);
         }
         break;
         case State::Downloading: {
@@ -119,7 +124,7 @@ void SkillBtn::SetState(State state)
         case State::Downloaded: {
             qDebug() << "SkillBtn state changed to Downloaded, hash: "
                      << Hash();
-            this->setCheckable(true);
+            this->setCheckable(false);
         }
         break;
         case State::Installing: {
@@ -133,11 +138,8 @@ void SkillBtn::SetState(State state)
             this->setCheckable(false); // disable the button when installed
         }
         break;
-        default: {
-            qDebug() << "SkillBtn state changed to Unknown, hash: " << Hash();
-            this->setCheckable(true);
-        }
-        break;
+        default:
+            break;
     }
 
     m_state = state;
@@ -147,6 +149,7 @@ void SkillBtn::SetState(State state)
 
 void SkillBtn::_init()
 {
+    this->setCheckable(true);
     SetState(State::Unknown);
 }
 
@@ -203,6 +206,7 @@ void SkillBtn::Download(const QUrl &url, const QString &saveFilePath)
     {
         qDebug()
             << "Invalid URL or save file path for downloading skill content.";
+        SetState(SkillBtn::State::Unknown);
         return;
     }
 

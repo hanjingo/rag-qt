@@ -46,8 +46,12 @@ class GrpcClient : public QObject
   signals:
     void SignalGrpcConnected(const QString &address);
     void SignalGrpcConnectFailed(const QString &address);
-    void
-    SignalLoginResp(const int errorCode, const int32_t id, const QString &auth);
+    void SignalLoginResp(const int      errorCode,
+                         const int32_t  id,
+                         const QString &auth,
+                         const int32_t  privilege,
+                         const QString &account,
+                         const QString &lastLoginTime);
     void SignalRegAccountResp(const int errorCode, const int32_t user_id);
     void SignalQueryResp(const int      errorCode,
                          const int64_t  id,

@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QtConcurrent/QtConcurrent>
 #include <QHeaderView>
+#include <QMessageBox>
 
 #include "HomePageWidget.h"
 #include "ui_HomePageWidget.h"
@@ -175,10 +176,13 @@ void HomePageWidget::_initConnections()
 
 void HomePageWidget::_slotSkillBtnClicked(QAbstractButton *pBtn)
 {
-    qDebug() << "Skill button clicked:" << pBtn;
-    if(!pBtn)
+    if(!pBtn || !pBtn->isCheckable())
+    {
+        qDebug() << "Skill button can not be click";
         return;
+    }
 
+    qDebug() << "Skill button clicked:" << pBtn;
     SkillBtn *pSkillBtn = qobject_cast<SkillBtn *>(pBtn);
     if(!pSkillBtn)
         return;
@@ -342,6 +346,10 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
     // Handle skill button state change, e.g. update UI or trigger actions
     switch(state)
     {
+        case SkillBtn::State::Unknown: {
+            qDebug() << "SkillBtn state is Unknown, hash: " << btn->Hash();
+        }
+        break;
         case SkillBtn::State::WaitDownload: {
             qDebug() << "SkillBtn is waiting to download, hash: "
                      << btn->Hash();
@@ -369,7 +377,11 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
                          << " to " << destDir;
                 QDir(destDir).removeRecursively(); // clean up
                 QFile::remove(zipPath);            // remove the zip file
-                btn->SetState(SkillBtn::State::WaitDownload); // try again
+                btn->SetState(SkillBtn::State::Unknown);
+                QMessageBox::critical(
+                    this,
+                    tr("Download Failed"),
+                    tr("Failed to download skill plugin: %1").arg(btn->Name()));
             } else
             {
                 qDebug() << "Successfully unzipped skill plugin to " << destDir;
@@ -388,13 +400,13 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
             auto plugins = PluginMgr::Instance()->Search(
                 destDir,
                 [](const QJsonObject &metaData) -> bool {
-                    return true;
-                    // return metaData.contains("PluginId")
-                    //        && metaData.contains("Version")
-                    //        && metaData.contains("Name")
-                    //        && metaData.contains("Description")
-                    //        && metaData.contains("Author")
-                    //        && metaData.contains("Dependencies");
+                    return metaData.contains("PluginId")
+                           && metaData.contains("Version")
+                           && metaData.contains("Name")
+                           && metaData.contains("Description")
+                           && metaData.contains("Author")
+                           && metaData.contains("Organization")
+                           && metaData.contains("Dependencies");
                 });
 
             for(auto fpath : plugins)
@@ -409,8 +421,14 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
                 } else
                 {
                     qDebug() << "Failed to load skill plugin from " << destDir;
-                    QDir(destDir).removeRecursively();            // clean up
-                    btn->SetState(SkillBtn::State::WaitDownload); // try again
+                    QDir(destDir).removeRecursively(); // clean up
+                    btn->SetState(
+                        SkillBtn::State::Unknown); // reset state to allow retry
+                    QMessageBox::critical(
+                        this,
+                        tr("Installation Failed"),
+                        tr("Failed to install skill plugin: %1")
+                            .arg(btn->Name()));
                 }
             }
         }
@@ -513,6 +531,15 @@ void HomePageWidget::_addSkills(const QVector<::GrpcLibrary::Skill> &skills)
         btn->SetVersion(skill.version().c_str());
         btn->SetTimestamp(skill.timestamp().c_str());
         btn->SetHash(skill.hash().c_str());
+        btn->SetState(SkillBtn::State::Unknown);
+
+        auto name   = btn->Name();
+        auto plugin = PluginMgr::Instance()->Get(name);
+        if(plugin && plugin->Version() == btn->Version())
+        {
+            qDebug() << "Skill " << btn->Name() << " is already installed.";
+            btn->SetState(SkillBtn::State::Installed);
+        }
 
         connect(btn,
                 &SkillBtn::SignalStateChanged,
