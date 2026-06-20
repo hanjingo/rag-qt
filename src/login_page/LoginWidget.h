@@ -16,7 +16,7 @@ class LoginWidget : public QWidget
     Q_OBJECT
 
   public:
-    static LoginWidget *GetLoginWgtInst();
+    static LoginWidget *Instance();
 
   signals:
     void SignalLogin(const QString &username, const QString &password);

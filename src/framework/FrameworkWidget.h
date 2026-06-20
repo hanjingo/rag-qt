@@ -38,7 +38,7 @@ class FrameworkWidget : public QWidget
     Q_OBJECT
 
   public:
-    static FrameworkWidget *GetFrameworkWidgetInst();
+    static FrameworkWidget *Instance();
     explicit FrameworkWidget(QWidget *parent = nullptr);
     ~FrameworkWidget();
 
@@ -68,6 +68,7 @@ class FrameworkWidget : public QWidget
     void _slotGrpcConnectFailed(const QString &address);
     void _slotComboLangCurrentChanged(int iIndex);
 
+    void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
     // for BUS signals
     void _slotPong();
 
@@ -102,7 +103,6 @@ class FrameworkWidget : public QWidget
 
     void
     _addAppBarItem(const QString &text, const QString &iconPath, int index);
-    void _addPlugin(const QFileInfo &fileInfo, int index = -1);
 
   private:
     Ui::FrameworkWidget    *ui;

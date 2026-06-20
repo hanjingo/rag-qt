@@ -16,7 +16,7 @@ class GrpcClient : public QObject
     explicit GrpcClient(QObject *parent = nullptr);
     ~GrpcClient();
 
-    static GrpcClient *GetGrpcClientInst();
+    static GrpcClient *Instance();
 
     void Connect(const QString &address);
     void Login(const QString &username, const QString &password);

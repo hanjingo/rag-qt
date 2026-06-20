@@ -11,7 +11,7 @@ class ProcManager : public QObject
     explicit ProcManager(QObject *parent = nullptr);
     ~ProcManager();
 
-    static ProcManager *GetProcManagerInst();
+    static ProcManager *Instance();
     void                init();
     void                destroy();
 

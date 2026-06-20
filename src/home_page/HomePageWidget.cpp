@@ -18,6 +18,10 @@
 #include "SkillBtn.h"
 #include "GrpcClient.h"
 #include "StyleMgr.h"
+#include "Downloader.h"
+#include "PluginMgr.h"
+#include "Zipper.h"
+#include "Error.h"
 
 HomePageWidget *HomePageWidget::m_stMainHomePageInst = nullptr;
 
@@ -138,32 +142,32 @@ void HomePageWidget::_initConnections()
             this,
             &HomePageWidget::_slotEditFilterTextChanged);
 
-    connect(GrpcClient::GetGrpcClientInst(),
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalGrpcConnected,
             this,
             &HomePageWidget::_slotGrpcConnected);
 
-    connect(GrpcClient::GetGrpcClientInst(),
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalGetSessionResp,
             this,
             &HomePageWidget::_slotGetSessionResp);
 
-    connect(GrpcClient::GetGrpcClientInst(),
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalNewSessionResp,
             this,
             &HomePageWidget::_slotNewSessionResp);
 
-    connect(GrpcClient::GetGrpcClientInst(),
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalModifySessionTitleResp,
             this,
             &HomePageWidget::_slotModifySessionTitleResp);
 
-    connect(GrpcClient::GetGrpcClientInst(),
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalGetSkillInfoResp,
             this,
             &HomePageWidget::_slotGetSkillInfoResp);
 
-    connect(GrpcClient::GetGrpcClientInst(),
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalDownloadResp,
             this,
             &HomePageWidget::_slotDownloadResp);
@@ -189,7 +193,7 @@ void HomePageWidget::_slotSkillBtnClicked(QAbstractButton *pBtn)
     auth    = "";
 #endif
 
-    GrpcClient::GetGrpcClientInst()->Download(hash, user_id, auth);
+    GrpcClient::Instance()->Download(hash, user_id, auth);
 }
 
 void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
@@ -197,7 +201,7 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
     qDebug() << "Session control button clicked, id: " << id;
     switch(id)
     {
-        case 0: {
+        case 0: { // add session
             qDebug() << "Add session button clicked.";
             QVector<::GrpcLibrary::Skill> skills;
             for(auto item : m_pSkillsBtnGroup->buttons())
@@ -222,7 +226,7 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
             NewSessionDialog(skills, this).exec();
         }
         break;
-        case 1: {
+        case 1: { // delete session
             qDebug() << "Delete session button clicked.";
             auto rows = ui->tbviewHistory->selectionModel()->selectedRows();
             QVector<int64_t> row_ids;
@@ -231,7 +235,7 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
             _delSessions(row_ids);
         }
         break;
-        case 2: {
+        case 2: { // session history settings
             qDebug() << "Session settings button clicked.";
             HistorySettingDialog(this).exec();
         }
@@ -252,14 +256,6 @@ void HomePageWidget::_slotEditFilterTextChanged(const QString &content)
 void HomePageWidget::_slotGrpcConnected(const QString &address)
 {
     qDebug() << "HomePageWidget connected to gRPC server at " << address;
-
-#ifdef DEBUG
-    // For testing, query history after connected
-    GrpcClient::GetGrpcClientInst()->GetSession(-1, 1, "", 10);
-
-    // For testing, query skill info after connected
-    GrpcClient::GetGrpcClientInst()->GetSkillInfo();
-#endif
 }
 
 void HomePageWidget::_slotGetSessionResp(
@@ -322,6 +318,9 @@ void HomePageWidget::_slotDownloadResp(const int      errorCode,
     qDebug() << "Download response received, hash: " << hash
              << ", address: " << addr << ", size: " << size_kb << " KB";
 
+    if(errorCode != OK)
+        return;
+
     // handle downloaded skill content, e.g. save to file and load into UI
     for(auto item : m_pSkillsBtnGroup->buttons())
     {
@@ -329,6 +328,7 @@ void HomePageWidget::_slotDownloadResp(const int      errorCode,
         if(!btn || btn->Hash() != hash)
             continue;
 
+        btn->SetUrl(addr);
         btn->SetState(SkillBtn::State::WaitDownload);
         break;
     }
@@ -342,28 +342,10 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
     // Handle skill button state change, e.g. update UI or trigger actions
     switch(state)
     {
-        case SkillBtn::State::Unknown:
         case SkillBtn::State::WaitDownload: {
             qDebug() << "SkillBtn is waiting to download, hash: "
                      << btn->Hash();
-#ifdef DEBUG
-            for(auto item : m_pSkillsBtnGroup->buttons())
-            {
-                SkillBtn *tmp = qobject_cast<SkillBtn *>(item);
-                if(!btn || btn->Hash() != tmp->Hash())
-                    continue;
-
-                // Update skill button state to indicate download success
-                QtConcurrent::run([btn]() {
-                    for(int i = 0; i <= 100; i += 20)
-                    {
-                        QThread::msleep(20);
-                        btn->UpdateDownloadProgress(i);
-                    }
-                });
-                break;
-            }
-#endif
+            _download(btn, btn->Url());
         }
         break;
         case SkillBtn::State::Downloading: {
@@ -372,39 +354,67 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
         break;
         case SkillBtn::State::Downloaded: {
             qDebug() << "SkillBtn has been downloaded, hash: " << btn->Hash();
-#ifdef DEBUG
-            for(auto item : m_pSkillsBtnGroup->buttons())
-            {
-                SkillBtn *tmp = qobject_cast<SkillBtn *>(item);
-                if(!btn || btn->Hash() != tmp->Hash())
-                    continue;
 
+            // start installing the skill plugin
+            QString zipPath = QString("%1/tmp/%2.zip")
+                                  .arg(QCoreApplication::applicationDirPath())
+                                  .arg(btn->Name());
+            QString destDir = QString("%1/plugins/%2")
+                                  .arg(QCoreApplication::applicationDirPath())
+                                  .arg(btn->Name());
+            Zipper  zipper{zipPath, this};
+            if(!zipper.UnZip(destDir))
+            {
+                qDebug() << "Failed to unzip skill plugin from " << zipPath
+                         << " to " << destDir;
+                QDir(destDir).removeRecursively(); // clean up
+                QFile::remove(zipPath);            // remove the zip file
+                btn->SetState(SkillBtn::State::WaitDownload); // try again
+            } else
+            {
+                qDebug() << "Successfully unzipped skill plugin to " << destDir;
                 btn->SetState(SkillBtn::State::Installing);
-                break;
+                QFile::remove(
+                    zipPath); // remove the zip file after installation
             }
-#endif
         }
         break;
         case SkillBtn::State::Installing: {
             qDebug() << "SkillBtn is installing, hash: " << btn->Hash();
-#ifdef DEBUG
-            for(auto item : m_pSkillsBtnGroup->buttons())
-            {
-                SkillBtn *tmp = qobject_cast<SkillBtn *>(item);
-                if(!btn || btn->Hash() != tmp->Hash())
-                    continue;
-
-                // Update skill button state to indicate install success
-                QtConcurrent::run([btn]() {
-                    for(int i = 0; i <= 100; i += 20)
-                        QThread::msleep(20);
-
-                    btn->SetState(SkillBtn::State::Installed);
+            QString destDir = QString("%1/plugins/%2")
+                                  .arg(QCoreApplication::applicationDirPath())
+                                  .arg(btn->Name());
+            // load the plugin
+            auto plugins = PluginMgr::Instance()->Search(
+                destDir,
+                [](const QJsonObject &metaData) -> bool {
+                    return true;
+                    // return metaData.contains("PluginId")
+                    //        && metaData.contains("Version")
+                    //        && metaData.contains("Name")
+                    //        && metaData.contains("Description")
+                    //        && metaData.contains("Author")
+                    //        && metaData.contains("Dependencies");
                 });
-                break;
+
+            for(auto fpath : plugins)
+            {
+                qDebug() << "Found plugin file: " << fpath;
+                PluginInterface *plugin = PluginMgr::Instance()->Load(fpath);
+                if(plugin)
+                {
+                    qDebug()
+                        << "Successfully loaded skill plugin from " << destDir;
+                    btn->SetState(SkillBtn::State::Installed);
+                } else
+                {
+                    qDebug() << "Failed to load skill plugin from " << destDir;
+                    QDir(destDir).removeRecursively();            // clean up
+                    btn->SetState(SkillBtn::State::WaitDownload); // try again
+                }
             }
-#endif
         }
+        break;
         case SkillBtn::State::Installed: {
             qDebug() << "SkillBtn is installed, hash: " << btn->Hash();
         }
@@ -575,4 +585,12 @@ void HomePageWidget::_drawSkillsArea()
         pBtn->Resize(width, height);
         ui->grid_ProScroll->addWidget(pBtn, i / m_colNum, i % m_colNum);
     }
+}
+
+void HomePageWidget::_download(SkillBtn *btn, const QUrl &url)
+{
+    auto saveFilePath = QString("%1/tmp/%2.zip")
+                            .arg(QCoreApplication::applicationDirPath())
+                            .arg(btn->Name());
+    btn->Download(url, saveFilePath);
 }

@@ -14,9 +14,16 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network)
 find_package(hj REQUIRED)
+
+# for private includes (zip, ...)
+set(Qt_PRIVATE_INCLUDES 
+    ${Qt${QT_VERSION_MAJOR}Core_PRIVATE_INCLUDE_DIRS}
+    ${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS}
+)
+
 
 # ----------------------------------------------------------------------------
 # CMake Policies
@@ -105,6 +112,12 @@ endif()
 if (NOT EXECUTABLE_OUTPUT_PATH)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 endif()
+if (NOT LIBRARY_OUTPUT_DIRECTORY)
+    set(LIBRARY_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/plugins)
+endif()
+if (NOT RUNTIME_OUTPUT_DIRECTORY)
+    set(RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
+endif()
 
 # print build info
 message(STATUS "Build type:                                       ${CMAKE_BUILD_TYPE}")
@@ -129,6 +142,7 @@ add_subdirectory(3rd/libqt)
 list(APPEND PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/res.qrc
 )
+
 add_subdirectory(src)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -158,12 +172,17 @@ else()
 endif()
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE 
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+
     Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Network
     ${hj_LIBRARIES}
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${PROJECT_INCLUDE_DIRS}
+    ${Qt_PRIVATE_INCLUDES}
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/rag-core
 )
 

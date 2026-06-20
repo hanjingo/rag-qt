@@ -3,7 +3,7 @@
 #include "Error.h"
 
 GrpcClient *GrpcClient::m_stGrpcClientInst = nullptr;
-GrpcClient *GrpcClient::GetGrpcClientInst()
+GrpcClient *GrpcClient::Instance()
 {
     if(nullptr == m_stGrpcClientInst)
         m_stGrpcClientInst = new GrpcClient();

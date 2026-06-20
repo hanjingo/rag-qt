@@ -6,6 +6,8 @@
 #include <QString>
 #include <QDateTime>
 
+#include "Downloader.h"
+
 class SkillBtn : public QToolButton
 {
     Q_OBJECT
@@ -84,10 +86,17 @@ class SkillBtn : public QToolButton
     void  SetState(State state);
     State GetState() const { return m_state; }
 
-    void UpdateDownloadProgress(int progress);
+    void SetUrl(const QString &url) { m_url = url; }
+    QUrl Url() const { return m_url; }
+
+    void Download(const QUrl &url, const QString &savePath);
 
   signals:
     void SignalStateChanged(SkillBtn *btn, SkillBtn::State state);
+
+  public:
+    void SlotProgressChanged(int progress);
+    void SlotProgressFinished(bool success);
 
   protected:
     void paintEvent(QPaintEvent *e);
@@ -106,8 +115,10 @@ class SkillBtn : public QToolButton
     QString   m_hash;
     int       m_downloadTimes;
 
-    int   m_progress; // -1: not downloading, 0~100: downloading progress
-    State m_state;
+    int         m_progress; // -1: not downloading, 0~100: downloading progress
+    State       m_state;
+    QString     m_url;
+    Downloader *m_downloader = nullptr;
 };
 
 #endif // SKILLBTN_H

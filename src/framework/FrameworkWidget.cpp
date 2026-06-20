@@ -21,7 +21,7 @@
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
-FrameworkWidget *FrameworkWidget::GetFrameworkWidgetInst()
+FrameworkWidget *FrameworkWidget::Instance()
 {
     if(nullptr == m_stFrameworkWidgetInst)
         m_stFrameworkWidgetInst = new FrameworkWidget();
@@ -34,13 +34,13 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , ui(new Ui::FrameworkWidget)
     , m_pCtlBtnGroup(new QButtonGroup(this))
     , m_pTimer(new QTimer(this))
-    , m_pProcManagerInst(ProcManager::GetProcManagerInst())
-    , m_pPluginMgrInst(PluginMgr::GetPluginMgrInst())
+    , m_pProcManagerInst(ProcManager::Instance())
+    , m_pPluginMgrInst(PluginMgr::Instance())
     , m_pTranslator(new QTranslator(this))
-    , m_pGrpcClient(GrpcClient::GetGrpcClientInst())
+    , m_pGrpcClient(GrpcClient::Instance())
     , m_pBus(Bus::Instance())
     , m_pAccount(new Account(this))
-    , m_pLoginWgtInst(LoginWidget::GetLoginWgtInst())
+    , m_pLoginWgtInst(LoginWidget::Instance())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
     , m_pSettingPageWgtInst(SettingPageWidget::GetMainSettingPageInst())
 {
@@ -177,7 +177,7 @@ void FrameworkWidget::changeEvent(QEvent *event)
 void FrameworkWidget::_slotLogin(const QString &username,
                                  const QString &password)
 {
-    GrpcClient::GetGrpcClientInst()->Login(username, password);
+    GrpcClient::Instance()->Login(username, password);
 }
 
 void FrameworkWidget::_slotLoginResp(const int      errorCode,
@@ -200,6 +200,12 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
     m_pAccount->SetAuth(auth);
     m_pLoginWgtInst->hide();
     this->show();
+
+    // query history after connected
+    GrpcClient::Instance()->GetSession(-1, id, auth, 50);
+
+    // query skill info after connected
+    GrpcClient::Instance()->GetSkillInfo();
     return;
 }
 
@@ -208,7 +214,7 @@ void FrameworkWidget::_slotRegister(const QString &username,
 {
     qDebug() << "Register attempt with username:" << username
              << "and password:" << password;
-    GrpcClient::GetGrpcClientInst()->RegAccount(username, password);
+    GrpcClient::Instance()->RegAccount(username, password);
 }
 
 void FrameworkWidget::_slotRegisterResp(const int     errorCode,
@@ -239,8 +245,7 @@ void FrameworkWidget::_slotLogout()
         return;
     }
 
-    GrpcClient::GetGrpcClientInst()->Logout(m_pAccount->Id(),
-                                            m_pAccount->Auth());
+    GrpcClient::Instance()->Logout(m_pAccount->Id(), m_pAccount->Auth());
 }
 
 void FrameworkWidget::_slotLogoutResp(const int errorCode, const int user_id)
@@ -341,6 +346,35 @@ void FrameworkWidget::_slotPong()
     qDebug() << "Received Pong signal from Bus.";
 }
 
+void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
+                                        const QString   &filePath)
+{
+    if(!plugin)
+    {
+        qDebug() << "Failed to load null plugin";
+        return;
+    }
+
+    //qDebug() << "Plugin loaded: " << plugin->Name()
+    //         << ", version: " << plugin->Version()
+    //         << ", description: " << plugin->Description();
+    auto wgt = plugin->Init(Bus::Instance());
+    emit Bus::Instance() -> SignalPing();
+    if(wgt)
+    {
+        // TODO sort icon position
+        int index = ui->stackedWidget->count();
+        // index         = (index < 0 || index > ui->stackedWidget->count())
+        //                     ? ui->stackedWidget->count()
+        //                     : index;
+
+        QFileInfo fileInfo(filePath);
+        auto iconPath = fileInfo.absoluteDir().absoluteFilePath(plugin->Icon());
+        _addAppBarItem(plugin->Name(), iconPath, index);
+        ui->stackedWidget->insertWidget(index, wgt);
+    }
+}
+
 void FrameworkWidget::_initProcMgr()
 {
     m_pProcManagerInst->init();
@@ -361,15 +395,30 @@ void FrameworkWidget::_initPluginMgr()
         }
     }
 
-    QStringList  filter{"*.dll", "*.so", "*.dylib"};
-    QDirIterator it(dir.absolutePath(),
-                    filter,
-                    QDir::Files,
-                    QDirIterator::Subdirectories);
-    while(it.hasNext())
+    // QStringList  filter{"*.dll", "*.so", "*.dylib"};
+    // QDirIterator it(dir.absolutePath(),
+    //                 filter,
+    //                 QDir::Files,
+    //                 QDirIterator::Subdirectories);
+    // while(it.hasNext())
+    // {
+    //     it.next(); // skip the first empty file
+    //     _addPlugin(it.fileInfo());
+    // }
+
+    auto pluginPaths = m_pPluginMgrInst->Search(
+        dir.absolutePath(),
+        [](const QJsonObject &metaData) -> bool {
+            return metaData.contains("PluginId") && metaData.contains("Version")
+                   && metaData.contains("Name")
+                   && metaData.contains("Description")
+                   && metaData.contains("Author")
+                   && metaData.contains("Dependencies");
+        });
+    for(const QString &path : pluginPaths)
     {
-        it.next(); // skip the first empty file
-        _addPlugin(it.fileInfo());
+        qDebug() << "Found plugin: " << path;
+        m_pPluginMgrInst->Load(path);
     }
 }
 
@@ -525,6 +574,11 @@ void FrameworkWidget::_initConnections()
             &Bus::SignalPong,
             this,
             &FrameworkWidget::_slotPong);
+
+    connect(m_pPluginMgrInst,
+            &PluginMgr::SignalPluginLoaded,
+            this,
+            &FrameworkWidget::_slotPluginLoaded);
 }
 
 void FrameworkWidget::_initTimer()
@@ -628,30 +682,4 @@ void FrameworkWidget::_addAppBarItem(const QString &text,
     item->setSizeHint(QSize(72, 72));
 
     ui->listWidgetAppBar->insertItem(index, item);
-}
-
-void FrameworkWidget::_addPlugin(const QFileInfo &fileInfo, int index)
-{
-    const QString filePath = fileInfo.absoluteFilePath();
-    qDebug() << "Attempting to load plugin from file: " << filePath;
-    PluginInterface *plugin = m_pPluginMgrInst->Load(filePath);
-    if(!plugin)
-    {
-        qDebug() << "Failed to load plugin from file: " << filePath;
-        return;
-    }
-
-    qDebug() << "Successfully loaded plugin: " << plugin->Name()
-             << " (ID: " << plugin->Id() << ")";
-    auto wgt = plugin->Init(Bus::Instance());
-    emit Bus::Instance() -> SignalPing();
-    if(wgt)
-    {
-        index         = (index < 0 || index > ui->stackedWidget->count())
-                            ? ui->stackedWidget->count()
-                            : index;
-        auto iconPath = fileInfo.absoluteDir().absoluteFilePath(plugin->Icon());
-        _addAppBarItem(plugin->Name(), iconPath, index);
-        ui->stackedWidget->insertWidget(index, wgt);
-    }
 }

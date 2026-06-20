@@ -12,7 +12,7 @@
 
 #include "SkillBtn.h"
 #include "GrpcClient.h"
-
+#include "Downloader.h"
 namespace Ui
 {
 class HomePageWidget;
@@ -74,6 +74,9 @@ class HomePageWidget : public QWidget
             [](::GrpcLibrary::Skill &) { return true; });
     void _clearSkills();
     void _drawSkillsArea();
+
+    void _download(SkillBtn *btn, const QUrl &url);
+    // QString _unzip(SkillBtn *btn);
 
   private:
     Ui::HomePageWidget    *ui;

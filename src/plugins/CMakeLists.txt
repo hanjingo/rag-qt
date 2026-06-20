@@ -1,8 +1,8 @@
+option(BUILD_EXAMPLE "Build the example plugin" OFF)
+
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-
-add_subdirectory(example) # For plugin example
 
 file(GLOB SETTINGS_SOURCE_FILES CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
@@ -19,3 +19,13 @@ set(PROJECT_SOURCES "${PROJECT_SOURCES}" PARENT_SCOPE)
 list(APPEND PROJECT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(PROJECT_INCLUDE_DIRS "${PROJECT_INCLUDE_DIRS}" PARENT_SCOPE)
+
+set(PLUGIN_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+# Add all submodules
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/find_submodule.cmake)
+
+if(BUILD_EXAMPLE)
+    add_subdirectory_all("${CMAKE_CURRENT_SOURCE_DIR}")
+else()
+    add_subdirectory_all_exclude("${CMAKE_CURRENT_SOURCE_DIR}" "example")
+endif()

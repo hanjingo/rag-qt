@@ -1,7 +1,11 @@
+#include <QDirIterator>
+#include <QFileInfo>
+#include <QFileInfoList>
+
 #include "PluginMgr.h"
 
 PluginMgr *PluginMgr::m_stPluginMgrInst = nullptr;
-PluginMgr *PluginMgr::GetPluginMgrInst()
+PluginMgr *PluginMgr::Instance()
 {
     if(nullptr == m_stPluginMgrInst)
         m_stPluginMgrInst = new PluginMgr();
@@ -29,6 +33,8 @@ PluginInterface *PluginMgr::Load(const QString &filePathName)
     QObject *plugin = loader->instance();
     if(!plugin)
     {
+        qDebug() << "Failed to load plugin from file: " << absPath
+                 << ". Error: " << loader->errorString();
         loader->deleteLater();
         return nullptr;
     }
@@ -48,7 +54,7 @@ PluginInterface *PluginMgr::Load(const QString &filePathName)
     }
 
     m_mLoaders.insert(intf->Id(), loader);
-    emit SignalPluginLoaded(intf);
+    emit SignalPluginLoaded(intf, absPath);
     return intf;
 }
 
@@ -66,4 +72,44 @@ void PluginMgr::Unload(const QString &plugin)
     loader->deleteLater();
     m_mLoaders.remove(plugin);
     emit SignalPluginUnloaded(plugin);
+}
+
+QStringList PluginMgr::Search(const QString &path, const FilterFunc &filter)
+{
+    QStringList result{};
+    QDir        dir(path);
+    if(!dir.exists())
+        return result;
+
+    // QStringList exts{"*.dll", "*.so", "*.dylib"};
+    // for(const QString &file : dir.entryList(exts, QDir::Files))
+    // {
+    //     QString       absPath = dir.absoluteFilePath(file);
+    //     QPluginLoader loader(absPath);
+
+    //     QJsonObject metaData = loader.metaData().value("MetaData").toObject();
+    //     if(filter(metaData))
+    //         result.append(absPath);
+    // }
+
+    QStringList  exts{"*.dll", "*.so", "*.dylib"};
+    QDirIterator it(dir.absolutePath(),
+                    exts,
+                    QDir::Files,
+                    QDirIterator::Subdirectories);
+    while(it.hasNext())
+    {
+        it.next(); // skip the first empty file
+
+        QString       fpath = it.fileInfo().absoluteFilePath();
+        QPluginLoader loader(fpath);
+        if(loader.metaData().value("MetaData").isNull())
+            continue;
+
+        QJsonObject metaData = loader.metaData().value("MetaData").toObject();
+        if(filter(metaData))
+            result.append(it.filePath());
+    }
+
+    return result;
 }

@@ -50,12 +50,15 @@ add_library(example MODULE
   example.ui
 
   ${CMAKE_CURRENT_SOURCE_DIR}/../Bus.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../Bus.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../PluginInterface.h
 )
 
 target_link_libraries(example PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)
 
 target_include_directories(example PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
 target_compile_definitions(example PRIVATE example_LIBRARY)

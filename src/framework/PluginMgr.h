@@ -2,10 +2,12 @@
 #define PLUGINMGR_H
 
 #include <memory>
+#include <functional>
 #include <QObject>
 #include <QDir>
 #include <QVector>
 #include <QPluginLoader>
+#include <QJsonObject>
 
 #include "PluginInterface.h"
 
@@ -14,15 +16,22 @@ class PluginMgr : public QObject
     Q_OBJECT
 
   public:
+    using FilterFunc = std::function<bool(const QJsonObject &metaData)>;
+
+  public:
     explicit PluginMgr(QObject *parent = nullptr);
     ~PluginMgr();
 
-    static PluginMgr *GetPluginMgrInst();
-    PluginInterface  *Load(const QString &filePathName);
-    void              Unload(const QString &plugin);
+    static PluginMgr *Instance();
+
+    PluginInterface *Load(const QString &filePathName);
+    void             Unload(const QString &plugin);
+    QStringList      Search(
+        const QString    &path,
+        const FilterFunc &filter = [](const QJsonObject &) { return true; });
 
   signals:
-    void SignalPluginLoaded(const PluginInterface *plugin);
+    void SignalPluginLoaded(PluginInterface *plugin, const QString &filePath);
     void SignalPluginUnloaded(const QString &pluginId);
 
   private:

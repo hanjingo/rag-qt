@@ -1,4 +1,5 @@
 #include <QFile>
+#include <QDir>
 #include <QDebug>
 #include <QToolButton>
 #include <QPainter>
@@ -168,15 +169,64 @@ void SkillBtn::_refreshText()
                 .arg(m_downloadTimes));
 }
 
-void SkillBtn::UpdateDownloadProgress(int progress)
+void SkillBtn::SlotProgressChanged(int progress)
 {
     qDebug() << "Update skill button " << m_hash << ", progress:" << progress;
     SetState(State::Downloading);
     m_progress = progress;
     // refresh the button display to show the new progress state
     update();
+}
 
-    // if download is complete, emit the downloaded signal
-    if(progress >= 100)
+void SkillBtn::SlotProgressFinished(bool success)
+{
+    m_downloader->deleteLater();
+    m_downloader = nullptr;
+    if(success)
+    {
+        qDebug() << "Download finished successfully for skill button "
+                 << m_hash;
+        m_progress = 100;
         SetState(State::Downloaded);
+    } else
+    {
+        qDebug() << "Download failed for skill button " << m_hash;
+        m_progress = -1; // reset progress on failure
+        SetState(State::Unknown);
+    }
+    update();
+}
+
+void SkillBtn::Download(const QUrl &url, const QString &saveFilePath)
+{
+    if(saveFilePath.isEmpty() || url.isEmpty())
+    {
+        qDebug()
+            << "Invalid URL or save file path for downloading skill content.";
+        return;
+    }
+
+    if(m_downloader)
+    {
+        m_downloader->deleteLater(); // clean up any existing downloader
+        m_downloader = nullptr;
+    }
+
+    m_downloader = new Downloader(this);
+    m_progress   = -1;
+    m_url        = QString();
+    qDebug() << "Started downloading skill content from " << url.toString()
+             << " to " << saveFilePath;
+    connect(m_downloader,
+            &Downloader::SignalDownloadProgress,
+            this,
+            &SkillBtn::SlotProgressChanged);
+
+    connect(m_downloader,
+            &Downloader::SignalDownloadFinished,
+            this,
+            &SkillBtn::SlotProgressFinished);
+
+    SetState(SkillBtn::State::Downloading);
+    m_downloader->Download(url, saveFilePath);
 }

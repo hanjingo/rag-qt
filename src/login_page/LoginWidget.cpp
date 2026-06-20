@@ -5,7 +5,7 @@
 
 LoginWidget *LoginWidget::m_stLoginWgtInst = nullptr;
 
-LoginWidget *LoginWidget::GetLoginWgtInst()
+LoginWidget *LoginWidget::Instance()
 {
     if(nullptr == m_stLoginWgtInst)
         m_stLoginWgtInst = new LoginWidget();

@@ -2,9 +2,10 @@
 
 #include <QDebug>
 #include <libqt/core/process.h>
+#include <QMessageBox>
 
 ProcManager *ProcManager::m_stProcManagerInst = nullptr;
-ProcManager *ProcManager::GetProcManagerInst()
+ProcManager *ProcManager::Instance()
 {
     if(nullptr == m_stProcManagerInst)
         m_stProcManagerInst = new ProcManager();
@@ -30,6 +31,7 @@ ProcManager::~ProcManager()
 
 void ProcManager::init()
 {
+    // end the current core process if it exists
     if(m_pCore)
     {
         _disconnectCore();
@@ -37,6 +39,15 @@ void ProcManager::init()
         delete m_pCore;
         m_pCore = nullptr;
     }
+
+    // scan existing core processes
+    QVector<qint64> cores;
+    Process::list(cores, [](const QStringList &cols) {
+        return cols.size() >= 2
+               && (cols[0] == "rag-core" || cols[0] == "rag-core.exe");
+    });
+    for(qint64 pid : cores)
+        Process::kill(pid);
 
     m_pCore = new QProcess(this);
     _connectCore();

@@ -8,8 +8,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     // login first
-    FrameworkWidget::GetFrameworkWidgetInst()->hide();
-    LoginWidget::GetLoginWgtInst()->show();
+    FrameworkWidget::Instance()->hide();
+    LoginWidget::Instance()->show();
 
     return a.exec();
 }
