@@ -276,7 +276,8 @@ void HomePageWidget::_slotGetSessionResp(
 void HomePageWidget::_slotNewSessionResp(const int errorCode,
                                          const ::GrpcLibrary::Session &session)
 {
-    qDebug() << "New session response received, session id: " << session.id();
+    qDebug() << "HomePageWidget: New session response received, session id: "
+             << session.id();
     // For testing, just append the new session to history
     _addSessions({session});
     _refreshSessionTable();

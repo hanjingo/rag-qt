@@ -145,7 +145,8 @@ void GrpcClient::RegAccount(const QString &username, const QString &password)
 void GrpcClient::Query(const int64_t  id,
                        const int32_t  user_id,
                        const QString &auth,
-                       const QString &content)
+                       const QString &content,
+                       const QString &model)
 {
     if(!m_pChannel)
     {
@@ -162,6 +163,7 @@ void GrpcClient::Query(const int64_t  id,
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
     req.set_content(content.toStdString());
+    req.set_model(model.toStdString());
 
     // Prepare the response and context
     GrpcLibrary::QueryResp resp;
@@ -226,7 +228,9 @@ void GrpcClient::GetSession(const int64_t  id,
 
 void GrpcClient::NewSession(const int32_t  user_id,
                             const QString &auth,
-                            const QString &title)
+                            const QString &title,
+                            const QString &content,
+                            const QString &model)
 {
     if(!m_pChannel)
     {
@@ -242,6 +246,8 @@ void GrpcClient::NewSession(const int32_t  user_id,
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
     req.set_title(title.toStdString());
+    req.set_content(content.toStdString());
+    req.set_model(model.toStdString());
 
     // Prepare the response and context
     GrpcLibrary::NewSessionResp resp;

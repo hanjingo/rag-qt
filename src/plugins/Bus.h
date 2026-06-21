@@ -3,6 +3,10 @@
 
 #include <QObject>
 
+#define BUS_VERSION_MAJOR 0
+#define BUS_VERSION_MINOR 0
+#define BUS_VERSION_PATCH 1
+
 class Bus : public QObject
 {
     Q_OBJECT
@@ -14,12 +18,20 @@ class Bus : public QObject
     // signals that plugins can emit
     void SignalPong();
     void SignalModelSwitch(const QString &model);
-    void SignalQuery(const int64_t sessionId, const QString &query);
+    void SignalNewSession(const QString &title,
+                          const QString &content,
+                          const QString &model);
+    void SignalQuery(const int64_t  sessionId,
+                     const QString &query,
+                     const QString &model);
 
   signals:
     // signals that framework can emit
     void SignalPing();
     void SignalLanguageSwitch(const QString &lang);
+    void SignalNewSessionResp(const int64_t  sessionId,
+                              const QString &title,
+                              const QString &answer);
     void SignalQueryResp(const int64_t sessionId, const QString &resp);
 
   private:

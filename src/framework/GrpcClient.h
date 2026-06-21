@@ -25,14 +25,17 @@ class GrpcClient : public QObject
     void Query(const int64_t  id,
                const int32_t  user_id,
                const QString &auth,
-               const QString &content);
+               const QString &content,
+               const QString &model);
     void GetSession(const int64_t  id,
                     const int32_t  user_id,
                     const QString &auth,
                     int            limit = 10);
     void NewSession(const int32_t  user_id,
                     const QString &auth,
-                    const QString &title);
+                    const QString &title,
+                    const QString &content = "",
+                    const QString &model   = "");
     void ModifySessionTitle(const int32_t  user_id,
                             const QString &auth,
                             const int64_t  id,

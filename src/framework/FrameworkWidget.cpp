@@ -368,14 +368,52 @@ void FrameworkWidget::_slotPong()
     qDebug() << "Received Pong signal from Bus.";
 }
 
-void FrameworkWidget::_slotQuery(const int64_t sessionId, const QString &query)
+void FrameworkWidget::_slotNewSession(const QString &title,
+                                      const QString &content,
+                                      const QString &model)
+{
+    qDebug() << "Received NewSession signal from Bus. title: " << title
+             << ", content: " << content << ", model: " << model;
+    GrpcClient::Instance()->NewSession(m_pAccount->Id(),
+                                       m_pAccount->Auth(),
+                                       title,
+                                       content,
+                                       model);
+}
+
+void FrameworkWidget::_slotNewSessionResp(const int errorCode,
+                                          const ::GrpcLibrary::Session &session)
+{
+    qDebug() << "FrameworkWidget:Received NewSessionResp signal from remote. "
+                "errorCode: "
+             << errorCode << ", title: " << session.title();
+    if(errorCode != ErrorCode::OK)
+    {
+        emit Bus::Instance() -> SignalNewSessionResp(
+            session.id(),
+            QString::fromStdString(session.title()),
+            tr("Failed to create new session with error code: %1")
+                .arg(errorCode));
+        return;
+    }
+
+    emit Bus::Instance()
+        -> SignalNewSessionResp(session.id(),
+                                QString::fromStdString(session.title()),
+                                QString::fromStdString(session.content()));
+}
+
+void FrameworkWidget::_slotQuery(const int64_t  sessionId,
+                                 const QString &query,
+                                 const QString &model)
 {
     qDebug() << "Received Bus Query signal from Bus. sessionId: " << sessionId
              << ", query: " << query;
     GrpcClient::Instance()->Query(sessionId,
                                   m_pAccount->Id(),
                                   m_pAccount->Auth(),
-                                  query);
+                                  query,
+                                  model);
 }
 
 void FrameworkWidget::_slotQueryResp(const int      errorCode,
@@ -621,6 +659,11 @@ void FrameworkWidget::_initConnections()
             &FrameworkWidget::_slotLogoutResp);
 
     connect(m_pGrpcClient,
+            &GrpcClient::SignalNewSessionResp,
+            this,
+            &FrameworkWidget::_slotNewSessionResp);
+
+    connect(m_pGrpcClient,
             &GrpcClient::SignalQueryResp,
             this,
             &FrameworkWidget::_slotQueryResp);
@@ -644,6 +687,11 @@ void FrameworkWidget::_initConnections()
             &Bus::SignalQuery,
             this,
             &FrameworkWidget::_slotQuery);
+
+    connect(Bus::Instance(),
+            &Bus::SignalNewSession,
+            this,
+            &FrameworkWidget::_slotNewSession);
 }
 
 void FrameworkWidget::_initTimer()

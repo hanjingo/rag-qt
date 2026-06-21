@@ -77,7 +77,14 @@ class FrameworkWidget : public QWidget
 
     // for BUS signals
     void _slotPong();
-    void _slotQuery(const int64_t sessionId, const QString &query);
+    void _slotNewSession(const QString &title,
+                         const QString &content,
+                         const QString &model);
+    void _slotNewSessionResp(const int                     errorCode,
+                             const ::GrpcLibrary::Session &session);
+    void _slotQuery(const int64_t  sessionId,
+                    const QString &query,
+                    const QString &model);
     void _slotQueryResp(const int      errorCode,
                         const int64_t  id,
                         const QString &content);
