@@ -23,6 +23,7 @@
 #include "PluginMgr.h"
 #include "Zipper.h"
 #include "Error.h"
+#include "Account.h"
 
 HomePageWidget *HomePageWidget::m_stMainHomePageInst = nullptr;
 

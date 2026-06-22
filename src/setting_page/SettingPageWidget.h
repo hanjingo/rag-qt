@@ -3,7 +3,9 @@
 
 #include <QMap>
 #include <QWidget>
+#include <QVector>
 
+#include "Bus.h"
 namespace Ui
 {
 class SettingPageWidget;

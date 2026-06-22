@@ -306,6 +306,91 @@ void GrpcClient::ModifySessionTitle(const int32_t  user_id,
     emit SignalModifySessionTitleResp(resp.error_code(), id, title);
 }
 
+void GrpcClient::GetModelInfo(const int32_t  user_id,
+                              const QString &auth,
+                              const QString &hash,
+                              int            limit)
+{
+    if(!m_pChannel)
+    {
+        emit SignalGetModelInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, {});
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::GetModelInfoReq req;
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+    req.set_hash(hash.toStdString());
+    req.set_limit(limit);
+
+    // Prepare the response and context
+    GrpcLibrary::GetModelInfoResp resp;
+    grpc::ClientContext           context;
+
+    // Make the RPC call
+    grpc::Status status = stub->GetModelInfo(&context, req, &resp);
+
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit SignalGetModelInfoResp(ec, {});
+        return;
+    }
+
+    QVector<::GrpcLibrary::Model> models;
+    for(auto i = 0; i < resp.models_size(); i++)
+    {
+        const auto h = resp.models(i);
+        models.append(h);
+    }
+    emit SignalGetModelInfoResp(resp.error_code(), models);
+}
+
+void GrpcClient::NewModelInfo(const int32_t                        user_id,
+                              const QString                       &auth,
+                              const QVector<::GrpcLibrary::Model> &modelInfos)
+{
+    if(!m_pChannel)
+    {
+        emit SignalNewModelInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, {});
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::NewModelInfoReq req;
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+    for(const auto &model : modelInfos)
+        req.add_models()->CopyFrom(model);
+
+    // Prepare the response and context
+    GrpcLibrary::NewModelInfoResp resp;
+    grpc::ClientContext           context;
+
+    // Make the RPC call
+    grpc::Status status = stub->NewModelInfo(&context, req, &resp);
+
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit SignalNewModelInfoResp(ec, {});
+        return;
+    }
+
+    QVector<QString> hashs;
+    for(auto hash : resp.hashs())
+        hashs.append(QString::fromStdString(hash));
+
+    emit SignalNewModelInfoResp(resp.error_code(), hashs);
+}
+
 void GrpcClient::GetSkillInfo(const int64_t id, int limit)
 {
     if(!m_pChannel)

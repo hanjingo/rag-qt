@@ -14,6 +14,13 @@ class Account : public QDialog
     Q_OBJECT
 
   public:
+    enum class PrivilegeType
+    {
+        Normal = 0,
+        Admin  = 1
+    };
+
+  public:
     explicit Account(QWidget *parent = nullptr);
     ~Account();
 
@@ -28,18 +35,18 @@ class Account : public QDialog
     void SetAuth(const QString &auth);
     void SetLastLoginTime(const QString &lastLoginTime);
 
-    int32_t Id() const { return m_id; }
-    int32_t Privilege() const { return m_privilege; }
-    QString Name() const { return m_name; }
-    QString Auth() const { return m_auth; }
-    QString LastLoginTime() const { return m_lastLoginTime; }
+    int32_t   Id() const { return m_id; }
+    PrivilegeType Privilege() const { return m_privilege; }
+    QString   Name() const { return m_name; }
+    QString   Auth() const { return m_auth; }
+    QString   LastLoginTime() const { return m_lastLoginTime; }
 
   private:
     Ui::AccountDialog *ui;
     static Account    *m_stAccountInst;
 
-    int32_t m_id;
-    int32_t m_privilege;
+    int32_t            m_id;
+    PrivilegeType m_privilege;
 
     QString m_name;
     QString m_auth;

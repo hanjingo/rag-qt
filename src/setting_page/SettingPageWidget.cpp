@@ -4,12 +4,13 @@
 
 #include "SettingPageWidget.h"
 #include "ui_SettingPageWidget.h"
+
 #include "SettingPageNetwork.h"
 #include "SettingPageHistory.h"
 #include "SettingPageVersion.h"
+#include "SettingPageModel.h"
 
 SettingPageWidget *SettingPageWidget::m_stMainSettingPageInst = nullptr;
-
 SettingPageWidget *SettingPageWidget::GetMainSettingPageInst()
 {
     if(nullptr == m_stMainSettingPageInst)
@@ -28,6 +29,7 @@ SettingPageWidget::SettingPageWidget(QWidget *parent)
 
     ui->tabWidget->addTab(SettingPageHistory::GetSettingPageHistoryInst(),
                           tr("History Settings"));
+    ui->tabWidget->addTab(SettingPageModel::Instance(), tr("Model Settings"));
     ui->tabWidget->addTab(SettingPageNetwork::GetSettingPageNetworkInst(),
                           tr("Network Settings"));
     ui->tabWidget->addTab(SettingPageVersion::GetSettingPageVersionInst(),
@@ -51,12 +53,14 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
         case 0:
             SettingPageHistory::GetSettingPageHistoryInst();
             break;
-
         case 1:
+            SettingPageModel::Instance();
+            break;
+        case 2:
             SettingPageNetwork::GetSettingPageNetworkInst();
             break;
 
-        case 2:
+        case 3:
             SettingPageVersion::GetSettingPageVersionInst();
             break;
 

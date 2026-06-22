@@ -27,6 +27,7 @@ class GrpcClient : public QObject
                const QString &auth,
                const QString &content,
                const QString &model);
+
     void GetSession(const int64_t  id,
                     const int32_t  user_id,
                     const QString &auth,
@@ -40,6 +41,14 @@ class GrpcClient : public QObject
                             const QString &auth,
                             const int64_t  id,
                             const QString &title);
+
+    void GetModelInfo(const int32_t  user_id,
+                      const QString &auth,
+                      const QString &hash  = "",
+                      int            limit = 50);
+    void NewModelInfo(const int32_t                        user_id,
+                      const QString                       &auth,
+                      const QVector<::GrpcLibrary::Model> &modelInfos);
 
     void GetSkillInfo(const int64_t id = -1, int limit = 50);
 
@@ -59,6 +68,7 @@ class GrpcClient : public QObject
     void SignalQueryResp(const int      errorCode,
                          const int64_t  id,
                          const QString &content);
+
     void SignalLogoutResp(const int errorCode, const int user_id);
     void SignalGetSessionResp(const int                              errorCode,
                               const QVector<::GrpcLibrary::Session> &sessions);
@@ -67,6 +77,12 @@ class GrpcClient : public QObject
     void SignalModifySessionTitleResp(const int      errorCode,
                                       const int64_t  id,
                                       const QString &title);
+
+    void
+    SignalGetModelInfoResp(const int                            errorCode,
+                           const QVector<::GrpcLibrary::Model> &modelInfos);
+    void SignalNewModelInfoResp(const int               errorCode,
+                                const QVector<QString> &hashs);
 
     void SignalGetSkillInfoResp(const int                            errorCode,
                                 const QVector<::GrpcLibrary::Skill> &skills);

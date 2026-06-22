@@ -2,6 +2,8 @@
 #define BUS_H
 
 #include <QObject>
+#include <QString>
+#include <QVector>
 
 #define BUS_VERSION_MAJOR 0
 #define BUS_VERSION_MINOR 0
@@ -10,6 +12,19 @@
 class Bus : public QObject
 {
     Q_OBJECT
+  public:
+    struct ModelInfo
+    {
+        QString hash;
+        QString name;
+        QString publisher;
+        QString timestamp;
+        QString addr;
+        QString capabilities;
+        int64_t contextSize;
+        int32_t cost;
+    };
+
   public:
     static Bus *Instance();
     static void Version(int8_t &major, int8_t &minor, int8_t &patch);
@@ -20,7 +35,7 @@ class Bus : public QObject
 
     void SignalLanguageSwitch(const QString &lang);
 
-    void SignalModelSwitch(const QString &model);
+    void SignalModelInfoUpdate(const QVector<Bus::ModelInfo> &modelInfos);
 
     void SignalNewSession(const QString &title,
                           const QString &content,

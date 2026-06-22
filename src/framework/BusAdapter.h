@@ -14,7 +14,7 @@ class BusAdapter : public QObject
 
   signals:
     void SignalPing();
-
+    void SignalModelInfoUpdate(const QVector<Bus::ModelInfo> &modelInfos);
 
   private slots:
     // for BUS signals

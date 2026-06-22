@@ -16,6 +16,14 @@ BusAdapter *BusAdapter::Instance()
 BusAdapter::BusAdapter(QObject *parent)
     : QObject(parent)
 {
+    // from framework
+    connect(this, &BusAdapter::SignalPing, Bus::Instance(), &Bus::SignalPing);
+    connect(this,
+            &BusAdapter::SignalModelInfoUpdate,
+            Bus::Instance(),
+            &Bus::SignalModelInfoUpdate);
+
+    // to plugin
     connect(Bus::Instance(), &Bus::SignalPong, this, &BusAdapter::_slotPong);
 
     connect(GrpcClient::Instance(),

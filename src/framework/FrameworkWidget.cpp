@@ -20,6 +20,7 @@
 #include "ui_Account.h"
 #include "ui_FrameworkWidget.h"
 #include "Error.h"
+#include "SettingPageModel.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -209,11 +210,14 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
     m_pLoginWgtInst->hide();
     this->show();
 
-    // query history after connected
+    // query history after login in
     GrpcClient::Instance()->GetSession(-1, id, auth, 50);
 
-    // query skill info after connected
+    // query skill info after login in
     GrpcClient::Instance()->GetSkillInfo();
+
+    // query model info after login in
+    GrpcClient::Instance()->GetModelInfo(id, auth, "", 50);
     return;
 }
 
@@ -376,7 +380,9 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     //         << ", version: " << plugin->Version()
     //         << ", description: " << plugin->Description();
     auto wgt = plugin->Init(Bus::Instance());
-    emit Bus::Instance() -> SignalPing();
+    emit BusAdapter::Instance() -> SignalPing();
+    auto modelInfos = SettingPageModel::Instance()->GetModelInfos();
+    emit BusAdapter::Instance() -> SignalModelInfoUpdate(modelInfos);
     if(wgt)
     {
         // TODO sort icon position
