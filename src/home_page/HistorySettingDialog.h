@@ -15,8 +15,19 @@ class HistorySettingDialog : public QDialog
     Q_OBJECT
 
   public:
+    enum class SortBy
+    {
+        TimeAsc = 0,
+        TimeDesc
+    };
+
+  public:
     explicit HistorySettingDialog(QWidget *parent = nullptr);
     ~HistorySettingDialog();
+
+    int    MaxRecord() const;
+    SortBy SortByType() const;
+    bool   ShowDesc() const;
 
   private:
     void _retranslate();

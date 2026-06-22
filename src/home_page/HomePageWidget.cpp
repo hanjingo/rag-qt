@@ -46,6 +46,8 @@ HomePageWidget::HomePageWidget(QWidget *parent)
     , m_pSessionCtlBtnGroup(new QButtonGroup(this))
     , m_pHistoryModel(nullptr)
     , m_colNum(3)
+    , m_maxRecord(100)
+    , m_sortBy(HistorySettingDialog::SortBy::TimeDesc)
 {
     ui->setupUi(this);
 
@@ -270,7 +272,17 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
         break;
         case 2: { // session history settings
             qDebug() << "Session settings button clicked.";
-            HistorySettingDialog(this).exec();
+            HistorySettingDialog dlg(this);
+            auto                 result = dlg.exec();
+            if(result == QDialog::Accepted)
+            {
+                m_maxRecord = dlg.MaxRecord();
+                m_sortBy    = dlg.SortByType();
+                GrpcClient::Instance()->GetSession(-1,
+                                                   Account::Instance()->Id(),
+                                                   Account::Instance()->Auth(),
+                                                   m_maxRecord);
+            }
         }
         break;
         default: {
@@ -537,6 +549,19 @@ void HomePageWidget::_refreshSessionTable(bool clearFirst)
     m_pHistoryModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
     m_pHistoryModel->setHeaderData(1, Qt::Horizontal, tr("Date Time"));
     m_pHistoryModel->setHeaderData(2, Qt::Horizontal, tr("Title"));
+    switch(m_sortBy)
+    {
+        case HistorySettingDialog::SortBy::TimeAsc: {
+            m_pHistoryModel->sort(1, Qt::SortOrder::AscendingOrder);
+        }
+        break;
+        case HistorySettingDialog::SortBy::TimeDesc: {
+            m_pHistoryModel->sort(1, Qt::SortOrder::DescendingOrder);
+        }
+        break;
+        default:
+            break;
+    }
 
     ui->tbviewHistory->hideColumn(0); // hide session id column
 }

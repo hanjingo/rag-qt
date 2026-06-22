@@ -13,6 +13,8 @@
 #include "SkillBtn.h"
 #include "GrpcClient.h"
 #include "Downloader.h"
+#include "HistorySettingDialog.h"
+
 namespace Ui
 {
 class HomePageWidget;
@@ -90,7 +92,9 @@ class HomePageWidget : public QWidget
 
     QStandardItemModel *m_pHistoryModel;
 
-    int m_colNum;
+    int                          m_colNum;
+    int                          m_maxRecord;
+    HistorySettingDialog::SortBy m_sortBy;
 };
 
 #endif // HomePageWidget_H

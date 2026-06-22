@@ -56,6 +56,7 @@ QVector<Bus::Model> SettingPageModel::GetModelInfos()
         modelInfo.timestamp = m_pLLMListModel->item(row, 4)->text();
         modelInfo.addr      = m_pLLMListModel->item(row, 5)->text();
         modelInfo.hash      = m_pLLMListModel->item(row, 6)->text();
+        modelInfo.publisher = m_pLLMListModel->item(row, 7)->text();
 
         modelInfos.append(modelInfo);
     }
@@ -71,17 +72,6 @@ void SettingPageModel::changeEvent(QEvent *event)
         qDebug() << "SettingPageModel language change event received.";
         ui->retranslateUi(this);
         _retranslate();
-    }
-
-    // hide delete button if no privilege
-    if(event->type() == QEvent::Show)
-    {
-        if(!Account::Instance()->IsValid()
-           || Account::Instance()->Privilege() < Account::PrivilegeType::Admin)
-        {
-            ui->btnDel->setVisible(false);
-            ui->btnSetting->setVisible(false);
-        }
     }
 }
 
@@ -139,7 +129,12 @@ void SettingPageModel::_initConnections()
     connect(ui->tbviewModel->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
-            &SettingPageModel::_slotTbviewModelSelectionChanged);
+            &SettingPageModel::_slotTbviewSelectionChanged);
+
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalLoginResp,
+            this,
+            &SettingPageModel::_slotLoginResp);
 
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalGetModelInfoResp,
@@ -161,7 +156,7 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
         m_pLLMListModel->clear();
 
     ui->tbviewModel->setModel(m_pLLMListModel);
-    m_pLLMListModel->setColumnCount(7);
+    m_pLLMListModel->setColumnCount(9);
     m_pLLMListModel->setHeaderData(0, Qt::Horizontal, tr("Name"));
     m_pLLMListModel->setHeaderData(1, Qt::Horizontal, tr("Context Size"));
     m_pLLMListModel->setHeaderData(2, Qt::Horizontal, tr("Capabilities"));
@@ -169,9 +164,12 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
     m_pLLMListModel->setHeaderData(4, Qt::Horizontal, tr("Timestamp"));
     m_pLLMListModel->setHeaderData(5, Qt::Horizontal, tr("Address"));
     m_pLLMListModel->setHeaderData(6, Qt::Horizontal, tr("Hash"));
+    m_pLLMListModel->setHeaderData(7, Qt::Horizontal, tr("Publisher"));
+    m_pLLMListModel->setHeaderData(8, Qt::Horizontal, tr("Tag"));
 }
 
-void SettingPageModel::_addModels(const QVector<Bus::Model> &models)
+void SettingPageModel::_addModels(const QVector<Bus::Model> &models,
+                                  const QString             &tag)
 {
     if(m_pLLMListModel == nullptr)
         return;
@@ -191,6 +189,8 @@ void SettingPageModel::_addModels(const QVector<Bus::Model> &models)
         m_pLLMListModel->setItem(n_row, 4, new QStandardItem(item.timestamp));
         m_pLLMListModel->setItem(n_row, 5, new QStandardItem(item.addr));
         m_pLLMListModel->setItem(n_row, 6, new QStandardItem(item.hash));
+        m_pLLMListModel->setItem(n_row, 7, new QStandardItem(item.publisher));
+        m_pLLMListModel->setItem(n_row, 8, new QStandardItem(tag));
         n_row++;
     }
 }
@@ -236,7 +236,7 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
         case 0: // add
         {
             qDebug() << "Add model button clicked";
-            _addModels({Bus::Model()});
+            _addModels({Bus::Model()}, "Unstaged");
         }
         break;
         case 1: // del
@@ -254,49 +254,95 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
     }
 }
 
-void SettingPageModel::_slotTbviewModelSelectionChanged(
+void SettingPageModel::_slotTbviewSelectionChanged(
     const QItemSelection &selected, const QItemSelection &deselected)
 {
-    if(deselected.indexes().isEmpty()
-       || selected.indexes() == deselected.indexes())
+    if(deselected.isEmpty())
         return;
 
-    qDebug() << "Model table selection changed. Selected rows: "
-             << selected.indexes().size() / m_pLLMListModel->columnCount()
-             << ", Deselected rows: "
-             << deselected.indexes().size() / m_pLLMListModel->columnCount();
-    auto indexes = selected.indexes();
+    if(Account::Instance()->Privilege() < Account::PrivilegeType::Admin)
+        return;
 
-    Bus::Model model;
-    model.hash         = m_pLLMListModel->item(indexes.at(0).row(), 6)->text();
-    model.name         = m_pLLMListModel->item(indexes.at(0).row(), 0)->text();
-    model.publisher    = m_pLLMListModel->item(indexes.at(0).row(), 1)->text();
-    model.timestamp    = m_pLLMListModel->item(indexes.at(0).row(), 2)->text();
-    model.addr         = m_pLLMListModel->item(indexes.at(0).row(), 3)->text();
-    model.capabilities = m_pLLMListModel->item(indexes.at(0).row(), 4)->text();
-    model.contextSize =
-        m_pLLMListModel->item(indexes.at(0).row(), 5)->text().toLongLong();
-    model.cost = m_pLLMListModel->item(indexes.at(0).row(), 6)->text().toInt();
-    qDebug() << "Selected model hash: " << model.hash
-             << ", name: " << model.name << ", publisher: " << model.publisher
-             << ", timestamp: " << model.timestamp << ", addr: " << model.addr
-             << ", capabilities: " << model.capabilities
-             << ", context size: " << model.contextSize
-             << ", cost: " << model.cost;
+    QModelIndex prev = deselected.indexes().first();
+    if(!prev.isValid())
+        return;
 
-    if(model.hash.isEmpty() || model.addr.isEmpty())
+    int oldRow = prev.row();
+    if(oldRow >= m_pLLMListModel->rowCount())
+        return;
+
+    auto pTagItem = m_pLLMListModel->item(oldRow, 8);
+    if(!pTagItem)
+        return;
+
+    QString tag = pTagItem->text();
+    if(tag == "Unstaged")
     {
-        qDebug() << "Selected model hash or addr is empty, ignore.";
-        QMessageBox::critical(
-            this,
-            tr("Invalid Model Info"),
-            tr("Selected model hash or address is empty, cannot download."));
-        m_pLLMListModel->removeRow(indexes.at(0).row());
-        return;
+        qDebug() << "Model info unstaged, need to create. Row: " << oldRow;
+        Bus::Model model;
+        model.name = m_pLLMListModel->item(oldRow, 0)
+                         ? m_pLLMListModel->item(oldRow, 0)->text()
+                         : "";
+        model.contextSize =
+            m_pLLMListModel->item(oldRow, 1)
+                ? m_pLLMListModel->item(oldRow, 1)->text().toLongLong()
+                : 0;
+        model.capabilities = m_pLLMListModel->item(oldRow, 2)
+                                 ? m_pLLMListModel->item(oldRow, 2)->text()
+                                 : "";
+        model.cost      = m_pLLMListModel->item(oldRow, 3)
+                              ? m_pLLMListModel->item(oldRow, 3)->text().toInt()
+                              : 0;
+        model.timestamp = m_pLLMListModel->item(oldRow, 4)
+                              ? m_pLLMListModel->item(oldRow, 4)->text()
+                              : "";
+        model.addr      = m_pLLMListModel->item(oldRow, 5)
+                              ? m_pLLMListModel->item(oldRow, 5)->text()
+                              : "";
+        model.hash      = m_pLLMListModel->item(oldRow, 6)
+                              ? m_pLLMListModel->item(oldRow, 6)->text()
+                              : "";
+        model.publisher = m_pLLMListModel->item(oldRow, 7)
+                              ? m_pLLMListModel->item(oldRow, 7)->text()
+                              : "";
+
+        if(model.hash.isEmpty() || model.addr.isEmpty() || model.name.isEmpty())
+        {
+            qDebug() << "Selected model hash or addr is empty, ignore.";
+            QMessageBox::warning(
+                nullptr,
+                tr("Invalid Model Info"),
+                tr("Model hash, addr or name is empty, please check."));
+            return;
+        }
+
+        GrpcClient::Instance()->NewModelInfo(Account::Instance()->Id(),
+                                             Account::Instance()->Auth(),
+                                             {model});
     }
-    GrpcClient::Instance()->NewModelInfo(Account::Instance()->Id(),
-                                         Account::Instance()->Auth(),
-                                         {model});
+}
+
+void SettingPageModel::_slotLoginResp(const int      errorCode,
+                                      const int64_t  userId,
+                                      const QString &auth,
+                                      const int32_t  privilege,
+                                      const QString &account,
+                                      const QString &lastLoginTime)
+{
+    // hide add/delete/config button if no privilege
+    if(errorCode != ErrorCode::OK
+       || static_cast<Account::PrivilegeType>(privilege)
+              < Account::PrivilegeType::Admin)
+    {
+        ui->btnAdd->setEnabled(false);
+        ui->btnDel->setEnabled(false);
+        ui->btnSetting->setEnabled(false);
+    } else
+    {
+        ui->btnAdd->setEnabled(true);
+        ui->btnDel->setEnabled(true);
+        ui->btnSetting->setEnabled(true);
+    }
 }
 
 void SettingPageModel::_slotGetModelInfoResp(

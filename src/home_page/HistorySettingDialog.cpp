@@ -24,7 +24,6 @@ void HistorySettingDialog::_retranslate()
     ui->lblDialogTitle->setText(tr("History Configuration"));
     ui->lblSortBy->setText(tr("Sort By"));
     ui->lblRecordNum->setText(tr("Max Record Count"));
-    ui->lblShowDesc->setText(tr("Show Description"));
 }
 
 void HistorySettingDialog::_initUI()
@@ -33,4 +32,23 @@ void HistorySettingDialog::_initUI()
 
 void HistorySettingDialog::_initConnections()
 {
+}
+
+int HistorySettingDialog::MaxRecord() const
+{
+    return ui->editMaxRecord->text().toInt();
+}
+
+HistorySettingDialog::SortBy HistorySettingDialog::SortByType() const
+{
+    int sortByIndex = ui->comboSortBy->currentIndex();
+    switch(sortByIndex)
+    {
+        case 0:
+            return SortBy::TimeAsc;
+        case 1:
+            return SortBy::TimeDesc;
+        default:
+            return SortBy::TimeAsc;
+    }
 }

@@ -59,12 +59,12 @@
         </property>
         <item>
          <property name="text">
-          <string>Date Time</string>
+          <string>Date Time Ascend</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Skill Type</string>
+          <string>Date Time Descend</string>
          </property>
         </item>
        </widget>
@@ -83,7 +83,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="editRecordNum">
+       <widget class="QLineEdit" name="editMaxRecord">
         <property name="font">
          <font>
           <italic>false</italic>
@@ -95,26 +95,6 @@
         </property>
         <property name="placeholderText">
          <string>请输入默认网关</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lblShowDesc">
-        <property name="font">
-         <font>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Show Desc</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="checkShowDesc">
-        <property name="text">
-         <string/>
         </property>
        </widget>
       </item>
