@@ -191,6 +191,11 @@ void HomePageWidget::_initConnections()
             &HomePageWidget::_slotModifySessionTitleResp);
 
     connect(GrpcClient::Instance(),
+            &GrpcClient::SignalDelSessionResp,
+            this,
+            &HomePageWidget::_slotDelSessionResp);
+
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalGetSkillInfoResp,
             this,
             &HomePageWidget::_slotGetSkillInfoResp);
@@ -254,10 +259,13 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
         case 1: { // delete session
             qDebug() << "Delete session button clicked.";
             auto rows = ui->tbviewHistory->selectionModel()->selectedRows();
-            QVector<int64_t> row_ids;
+            QVector<int64_t> sessionIds;
             for(auto row : rows)
-                row_ids.append(row.siblingAtColumn(0).data().toLongLong());
-            _delSessions(row_ids);
+                sessionIds.append(row.siblingAtColumn(0).data().toLongLong());
+
+            GrpcClient::Instance()->DelSession(Account::Instance()->Id(),
+                                               Account::Instance()->Auth(),
+                                               sessionIds);
         }
         break;
         case 2: { // session history settings
@@ -326,6 +334,19 @@ void HomePageWidget::_slotModifySessionTitleResp(const int      errorCode,
     }
 
     _refreshSessionTable();
+}
+
+void HomePageWidget::_slotDelSessionResp(const int               errorCode,
+                                         const QVector<int64_t> &ids)
+{
+    qDebug() << "Delete session response received with " << ids.size()
+             << " items.";
+
+    // repull the session list from the server to refresh the history table
+    GrpcClient::Instance()->GetSession(-1,
+                                       Account::Instance()->Id(),
+                                       Account::Instance()->Auth(),
+                                       50);
 }
 
 void HomePageWidget::_slotGetSkillInfoResp(const int                  errorCode,
@@ -472,8 +493,11 @@ void HomePageWidget::_addSessions(const QVector<Bus::Session> &sessions)
     int n_row = m_pHistoryModel->rowCount();
     for(int i = 0; i < sessions.size(); i++)
     {
-        const auto &item = sessions.at(i);
-        m_pHistoryModel->setItem(n_row, 0, new QStandardItem(item.id));
+        const auto &item   = sessions.at(i);
+        auto       *idItem = new QStandardItem;
+        idItem->setData(QVariant::fromValue<qlonglong>(item.id),
+                        Qt::DisplayRole);
+        m_pHistoryModel->setItem(n_row, 0, idItem);
         m_pHistoryModel->setItem(n_row, 1, new QStandardItem(item.timestamp));
         m_pHistoryModel->setItem(n_row, 2, new QStandardItem(item.title));
         n_row++;
@@ -491,9 +515,12 @@ void HomePageWidget::_delSessions(const QVector<int64_t> &sessionIds)
         if(pIdItem == nullptr)
             continue;
 
-        int64_t id = pIdItem->text().toLongLong();
+        int64_t id = pIdItem->data(Qt::DisplayRole).toLongLong();
         if(sessionIds.contains(id))
+        {
+            qDebug() << "delete session id = " << id;
             m_pHistoryModel->removeRow(i);
+        }
     }
 }
 

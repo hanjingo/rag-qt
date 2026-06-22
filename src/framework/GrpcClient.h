@@ -42,6 +42,9 @@ class GrpcClient : public QObject
                             const QString &auth,
                             const int64_t  id,
                             const QString &title);
+    void DelSession(const int64_t           user_id,
+                    const QString          &auth,
+                    const QVector<int64_t> &ids);
 
     void GetModelInfo(const int64_t  user_id,
                       const QString &auth,
@@ -77,6 +80,7 @@ class GrpcClient : public QObject
     void SignalModifySessionTitleResp(const int      errorCode,
                                       const int64_t  id,
                                       const QString &title);
+    void SignalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
     void SignalGetModelInfoResp(const int                  errorCode,
                                 const QVector<Bus::Model> &modelInfos);

@@ -184,14 +184,14 @@ void FrameworkWidget::_slotLogin(const QString &username,
 }
 
 void FrameworkWidget::_slotLoginResp(const int      errorCode,
-                                     const int32_t  id,
+                                     const int64_t  user_id,
                                      const QString &auth,
                                      const int32_t  privilege,
                                      const QString &account,
                                      const QString &lastLoginTime)
 {
     qDebug() << "Login response received. Error code:" << errorCode
-             << "ID:" << id << "Auth:" << auth;
+             << "ID:" << user_id << "Auth:" << auth;
 
     if(errorCode != ErrorCode::OK)
     {
@@ -202,7 +202,7 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
         return;
     }
 
-    m_pAccount->SetId(id);
+    m_pAccount->SetId(user_id);
     m_pAccount->SetAuth(auth);
     m_pAccount->SetPrivilege(privilege);
     m_pAccount->SetName(account);
@@ -211,13 +211,13 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
     this->show();
 
     // query history after login in
-    GrpcClient::Instance()->GetSession(-1, id, auth, 50);
+    GrpcClient::Instance()->GetSession(-1, user_id, auth, 50);
 
     // query skill info after login in
     GrpcClient::Instance()->GetSkillInfo();
 
     // query model info after login in
-    GrpcClient::Instance()->GetModelInfo(id, auth, "", 50);
+    GrpcClient::Instance()->GetModelInfo(user_id, auth, "", 50);
     return;
 }
 

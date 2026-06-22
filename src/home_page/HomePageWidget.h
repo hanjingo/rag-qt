@@ -39,13 +39,14 @@ class HomePageWidget : public QWidget
     void _slotGrpcConnected(const QString &address);
     void _slotEditFilterTextChanged(const QString &content);
 
+    void _slotSessionCtlBtnGroupClicked(int id);
     void _slotGetSessionResp(const int                    errorCode,
                              const QVector<Bus::Session> &sessions);
     void _slotNewSessionResp(const int errorCode, const Bus::Session &session);
     void _slotModifySessionTitleResp(const int      errorCode,
                                      const int64_t  id,
                                      const QString &title);
-    void _slotSessionCtlBtnGroupClicked(int id);
+    void _slotDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
     void _slotGetSkillInfoResp(const int                  errorCode,
                                const QVector<Bus::Skill> &skills);

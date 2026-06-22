@@ -54,7 +54,7 @@ class FrameworkWidget : public QWidget
   private slots:
     void _slotLogin(const QString &username, const QString &password);
     void _slotLoginResp(const int      errorCode,
-                        const int32_t  id,
+                        const int64_t  user_id,
                         const QString &auth,
                         const int32_t  privilege,
                         const QString &account,

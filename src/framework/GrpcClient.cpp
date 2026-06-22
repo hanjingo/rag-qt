@@ -310,6 +310,47 @@ void GrpcClient::ModifySessionTitle(const int64_t  user_id,
     emit SignalModifySessionTitleResp(resp.error_code(), id, title);
 }
 
+void GrpcClient::DelSession(const int64_t           user_id,
+                            const QString          &auth,
+                            const QVector<int64_t> &ids)
+{
+    QVector<int64_t> ret;
+    if(!m_pChannel)
+    {
+        emit SignalDelSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::DelSessionReq req;
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+    for(const auto &id : ids)
+        req.add_ids(id);
+
+    // Prepare the response and context
+    GrpcLibrary::DelSessionResp resp;
+    grpc::ClientContext         context;
+
+    // Make the RPC call
+    grpc::Status status = stub->DelSession(&context, req, &resp);
+
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit SignalDelSessionResp(ec, ret);
+        return;
+    }
+
+    for(int i = 0; i < resp.ids_size(); i++)
+        ret.append(resp.ids(i));
+
+    emit SignalDelSessionResp(resp.error_code(), ret);
+}
+
 void GrpcClient::GetModelInfo(const int64_t  user_id,
                               const QString &auth,
                               const QString &hash,
