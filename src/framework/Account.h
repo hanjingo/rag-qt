@@ -17,6 +17,8 @@ class Account : public QDialog
     explicit Account(QWidget *parent = nullptr);
     ~Account();
 
+    static Account *Instance();
+
     void Clear();
     bool IsValid() const { return m_id > 0 && !m_auth.isEmpty(); }
 
@@ -27,10 +29,14 @@ class Account : public QDialog
     void SetLastLoginTime(const QString &lastLoginTime);
 
     int32_t Id() const { return m_id; }
+    int32_t Privilege() const { return m_privilege; }
+    QString Name() const { return m_name; }
     QString Auth() const { return m_auth; }
+    QString LastLoginTime() const { return m_lastLoginTime; }
 
   private:
     Ui::AccountDialog *ui;
+    static Account    *m_stAccountInst;
 
     int32_t m_id;
     int32_t m_privilege;

@@ -40,8 +40,8 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , m_pPluginMgrInst(PluginMgr::Instance())
     , m_pTranslator(new QTranslator(this))
     , m_pGrpcClient(GrpcClient::Instance())
-    , m_pBus(Bus::Instance())
-    , m_pAccount(new Account(this))
+    , m_pBusAdapter(BusAdapter::Instance())
+    , m_pAccount(Account::Instance())
     , m_pLoginWgtInst(LoginWidget::Instance())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
     , m_pSettingPageWgtInst(SettingPageWidget::GetMainSettingPageInst())
@@ -246,7 +246,7 @@ void FrameworkWidget::_slotRegisterResp(const int     errorCode,
 void FrameworkWidget::_slotLogout()
 {
     qDebug() << "Logout signal received.";
-    if(m_pAccount == nullptr || !m_pAccount->IsValid())
+    if(!m_pAccount->IsValid())
     {
         qDebug() << "Account instance is null or invalid. exit";
         _exit();
@@ -361,77 +361,6 @@ void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
             return;
     }
     QApplication::installTranslator(m_pTranslator);
-}
-
-void FrameworkWidget::_slotPong()
-{
-    qDebug() << "Received Pong signal from Bus.";
-}
-
-void FrameworkWidget::_slotNewSession(const QString &title,
-                                      const QString &content,
-                                      const QString &model)
-{
-    qDebug() << "Received NewSession signal from Bus. title: " << title
-             << ", content: " << content << ", model: " << model;
-    GrpcClient::Instance()->NewSession(m_pAccount->Id(),
-                                       m_pAccount->Auth(),
-                                       title,
-                                       content,
-                                       model);
-}
-
-void FrameworkWidget::_slotNewSessionResp(const int errorCode,
-                                          const ::GrpcLibrary::Session &session)
-{
-    qDebug() << "FrameworkWidget:Received NewSessionResp signal from remote. "
-                "errorCode: "
-             << errorCode << ", title: " << session.title();
-    if(errorCode != ErrorCode::OK)
-    {
-        emit Bus::Instance() -> SignalNewSessionResp(
-            session.id(),
-            QString::fromStdString(session.title()),
-            tr("Failed to create new session with error code: %1")
-                .arg(errorCode));
-        return;
-    }
-
-    emit Bus::Instance()
-        -> SignalNewSessionResp(session.id(),
-                                QString::fromStdString(session.title()),
-                                QString::fromStdString(session.content()));
-}
-
-void FrameworkWidget::_slotQuery(const int64_t  sessionId,
-                                 const QString &query,
-                                 const QString &model)
-{
-    qDebug() << "Received Bus Query signal from Bus. sessionId: " << sessionId
-             << ", query: " << query;
-    GrpcClient::Instance()->Query(sessionId,
-                                  m_pAccount->Id(),
-                                  m_pAccount->Auth(),
-                                  query,
-                                  model);
-}
-
-void FrameworkWidget::_slotQueryResp(const int      errorCode,
-                                     const int64_t  sessionId,
-                                     const QString &content)
-{
-    qDebug() << "Received Bus QueryResp signal from Bus. sessionId: "
-             << sessionId << ", content: " << content;
-    if(errorCode != ErrorCode::OK)
-    {
-        emit Bus::Instance() -> SignalQueryResp(
-            sessionId,
-            tr("Query failed with error code: %1").arg(errorCode));
-        return;
-    }
-
-    // Forward the query response to plugins
-    emit Bus::Instance() -> SignalQueryResp(sessionId, content);
 }
 
 void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
@@ -658,16 +587,6 @@ void FrameworkWidget::_initConnections()
             this,
             &FrameworkWidget::_slotLogoutResp);
 
-    connect(m_pGrpcClient,
-            &GrpcClient::SignalNewSessionResp,
-            this,
-            &FrameworkWidget::_slotNewSessionResp);
-
-    connect(m_pGrpcClient,
-            &GrpcClient::SignalQueryResp,
-            this,
-            &FrameworkWidget::_slotQueryResp);
-
     connect(ui->comboLang,
             SIGNAL(currentIndexChanged(int)),
             this,
@@ -677,21 +596,6 @@ void FrameworkWidget::_initConnections()
             &PluginMgr::SignalPluginLoaded,
             this,
             &FrameworkWidget::_slotPluginLoaded);
-
-    connect(Bus::Instance(),
-            &Bus::SignalPong,
-            this,
-            &FrameworkWidget::_slotPong);
-
-    connect(Bus::Instance(),
-            &Bus::SignalQuery,
-            this,
-            &FrameworkWidget::_slotQuery);
-
-    connect(Bus::Instance(),
-            &Bus::SignalNewSession,
-            this,
-            &FrameworkWidget::_slotNewSession);
 }
 
 void FrameworkWidget::_initTimer()

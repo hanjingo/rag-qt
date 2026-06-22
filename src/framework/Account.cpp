@@ -1,10 +1,20 @@
 #include "Account.h"
 #include "ui_Account.h"
 
+Account *Account::m_stAccountInst = nullptr;
+Account *Account::Instance()
+{
+    if(nullptr == m_stAccountInst)
+        m_stAccountInst = new Account();
+
+    return m_stAccountInst;
+}
+
 Account::Account(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::AccountDialog)
     , m_id(-1)
+    , m_privilege(0)
     , m_auth("")
 {
     ui->setupUi(this);

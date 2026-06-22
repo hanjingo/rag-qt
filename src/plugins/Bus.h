@@ -15,23 +15,23 @@ class Bus : public QObject
     static void Version(int8_t &major, int8_t &minor, int8_t &patch);
 
   signals:
-    // signals that plugins can emit
     void SignalPong();
+    void SignalPing();
+
+    void SignalLanguageSwitch(const QString &lang);
+
     void SignalModelSwitch(const QString &model);
+
     void SignalNewSession(const QString &title,
                           const QString &content,
                           const QString &model);
-    void SignalQuery(const int64_t  sessionId,
-                     const QString &query,
-                     const QString &model);
-
-  signals:
-    // signals that framework can emit
-    void SignalPing();
-    void SignalLanguageSwitch(const QString &lang);
     void SignalNewSessionResp(const int64_t  sessionId,
                               const QString &title,
                               const QString &answer);
+
+    void SignalQuery(const int64_t  sessionId,
+                     const QString &query,
+                     const QString &model);
     void SignalQueryResp(const int64_t sessionId, const QString &resp);
 
   private:

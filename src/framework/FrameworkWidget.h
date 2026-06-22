@@ -18,7 +18,7 @@
 #include "PluginMgr.h"
 #include "GrpcClient.h"
 #include "StyleMgr.h"
-#include "Bus.h"
+#include "BusAdapter.h"
 
 QT_BEGIN_NAMESPACE
 class QButtonGroup;
@@ -26,6 +26,7 @@ class QStackedWidget;
 class LoginWidget;
 class HomePageWidget;
 class SettingPageWidget;
+class BusAdapter;
 QT_END_NAMESPACE
 
 namespace Ui
@@ -50,9 +51,6 @@ class FrameworkWidget : public QWidget
     void leaveEvent(QEvent *event) override;
     void changeEvent(QEvent *event) override;
 
-  signals:
-    void SignalPing();
-
   private slots:
     void _slotLogin(const QString &username, const QString &password);
     void _slotLoginResp(const int      errorCode,
@@ -74,20 +72,6 @@ class FrameworkWidget : public QWidget
     void _slotComboLangCurrentChanged(int iIndex);
 
     void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
-
-    // for BUS signals
-    void _slotPong();
-    void _slotNewSession(const QString &title,
-                         const QString &content,
-                         const QString &model);
-    void _slotNewSessionResp(const int                     errorCode,
-                             const ::GrpcLibrary::Session &session);
-    void _slotQuery(const int64_t  sessionId,
-                    const QString &query,
-                    const QString &model);
-    void _slotQueryResp(const int      errorCode,
-                        const int64_t  id,
-                        const QString &content);
 
   private:
     enum ResizeRegion
@@ -139,7 +123,7 @@ class FrameworkWidget : public QWidget
     PluginMgr   *m_pPluginMgrInst;
     QTranslator *m_pTranslator;
     GrpcClient  *m_pGrpcClient;
-    Bus         *m_pBus;
+    BusAdapter  *m_pBusAdapter;
     Account     *m_pAccount;
 
     LoginWidget       *m_pLoginWgtInst;
