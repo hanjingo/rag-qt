@@ -43,12 +43,12 @@ SettingPageModel::~SettingPageModel()
     delete ui;
 }
 
-QVector<Bus::ModelInfo> SettingPageModel::GetModelInfos()
+QVector<Bus::Model> SettingPageModel::GetModelInfos()
 {
-    QVector<Bus::ModelInfo> modelInfos;
+    QVector<Bus::Model> modelInfos;
     for(int row = 0; row < m_pLLMListModel->rowCount(); ++row)
     {
-        Bus::ModelInfo modelInfo;
+        Bus::Model modelInfo;
         modelInfo.name         = m_pLLMListModel->item(row, 0)->text();
         modelInfo.contextSize  = m_pLLMListModel->item(row, 1)->text().toInt();
         modelInfo.capabilities = m_pLLMListModel->item(row, 2)->text();
@@ -171,7 +171,7 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
     m_pLLMListModel->setHeaderData(6, Qt::Horizontal, tr("Hash"));
 }
 
-void SettingPageModel::_addModels(const QVector<::GrpcLibrary::Model> &models)
+void SettingPageModel::_addModels(const QVector<Bus::Model> &models)
 {
     if(m_pLLMListModel == nullptr)
         return;
@@ -180,34 +180,17 @@ void SettingPageModel::_addModels(const QVector<::GrpcLibrary::Model> &models)
     for(int i = 0; i < models.size(); i++)
     {
         const auto item = models.at(i);
-        m_pLLMListModel->setItem(
-            n_row,
-            0,
-            new QStandardItem(QString::fromStdString(item.name())));
-        m_pLLMListModel->setItem(
-            n_row,
-            1,
-            new QStandardItem(QString::number(item.context_size())));
-        m_pLLMListModel->setItem(
-            n_row,
-            2,
-            new QStandardItem(QString::fromStdString(item.capabilities())));
-        m_pLLMListModel->setItem(
-            n_row,
-            3,
-            new QStandardItem(QString::number(item.cost())));
-        m_pLLMListModel->setItem(
-            n_row,
-            4,
-            new QStandardItem(QString::fromStdString(item.timestamp())));
-        m_pLLMListModel->setItem(
-            n_row,
-            5,
-            new QStandardItem(QString::fromStdString(item.addr())));
-        m_pLLMListModel->setItem(
-            n_row,
-            6,
-            new QStandardItem(QString::fromStdString(item.hash())));
+        m_pLLMListModel->setItem(n_row, 0, new QStandardItem(item.name));
+        m_pLLMListModel->setItem(n_row, 1, new QStandardItem(item.contextSize));
+        m_pLLMListModel->setItem(n_row,
+                                 2,
+                                 new QStandardItem(item.capabilities));
+        m_pLLMListModel->setItem(n_row,
+                                 3,
+                                 new QStandardItem(QString::number(item.cost)));
+        m_pLLMListModel->setItem(n_row, 4, new QStandardItem(item.timestamp));
+        m_pLLMListModel->setItem(n_row, 5, new QStandardItem(item.addr));
+        m_pLLMListModel->setItem(n_row, 6, new QStandardItem(item.hash));
         n_row++;
     }
 }
@@ -253,7 +236,7 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
         case 0: // add
         {
             qDebug() << "Add model button clicked";
-            _addModels({::GrpcLibrary::Model()});
+            _addModels({Bus::Model()});
         }
         break;
         case 1: // del
@@ -284,33 +267,24 @@ void SettingPageModel::_slotTbviewModelSelectionChanged(
              << deselected.indexes().size() / m_pLLMListModel->columnCount();
     auto indexes = selected.indexes();
 
-    ::GrpcLibrary::Model model;
-    model.set_hash(
-        m_pLLMListModel->item(indexes.at(0).row(), 6)->text().toStdString());
-    model.set_name(
-        m_pLLMListModel->item(indexes.at(0).row(), 0)->text().toStdString());
-    model.set_publisher(
-        m_pLLMListModel->item(indexes.at(0).row(), 1)->text().toStdString());
-    model.set_timestamp(
-        m_pLLMListModel->item(indexes.at(0).row(), 2)->text().toStdString());
-    model.set_addr(
-        m_pLLMListModel->item(indexes.at(0).row(), 3)->text().toStdString());
-    model.set_capabilities(
-        m_pLLMListModel->item(indexes.at(0).row(), 4)->text().toStdString());
-    model.set_context_size(
-        m_pLLMListModel->item(indexes.at(0).row(), 5)->text().toLongLong());
-    model.set_cost(
-        m_pLLMListModel->item(indexes.at(0).row(), 6)->text().toDouble());
+    Bus::Model model;
+    model.hash         = m_pLLMListModel->item(indexes.at(0).row(), 6)->text();
+    model.name         = m_pLLMListModel->item(indexes.at(0).row(), 0)->text();
+    model.publisher    = m_pLLMListModel->item(indexes.at(0).row(), 1)->text();
+    model.timestamp    = m_pLLMListModel->item(indexes.at(0).row(), 2)->text();
+    model.addr         = m_pLLMListModel->item(indexes.at(0).row(), 3)->text();
+    model.capabilities = m_pLLMListModel->item(indexes.at(0).row(), 4)->text();
+    model.contextSize =
+        m_pLLMListModel->item(indexes.at(0).row(), 5)->text().toLongLong();
+    model.cost = m_pLLMListModel->item(indexes.at(0).row(), 6)->text().toInt();
+    qDebug() << "Selected model hash: " << model.hash
+             << ", name: " << model.name << ", publisher: " << model.publisher
+             << ", timestamp: " << model.timestamp << ", addr: " << model.addr
+             << ", capabilities: " << model.capabilities
+             << ", context size: " << model.contextSize
+             << ", cost: " << model.cost;
 
-    qDebug() << "Selected model hash: " << model.hash()
-             << ", name: " << model.name().c_str()
-             << ", publisher: " << model.publisher().c_str()
-             << ", timestamp: " << model.timestamp().c_str()
-             << ", addr: " << model.addr().c_str()
-             << ", capabilities: " << model.capabilities().c_str()
-             << ", context size: " << model.context_size()
-             << ", cost: " << model.cost();
-    if(model.hash().empty() || model.addr().empty())
+    if(model.hash.isEmpty() || model.addr.isEmpty())
     {
         qDebug() << "Selected model hash or addr is empty, ignore.";
         QMessageBox::critical(
@@ -326,7 +300,7 @@ void SettingPageModel::_slotTbviewModelSelectionChanged(
 }
 
 void SettingPageModel::_slotGetModelInfoResp(
-    const int errorCode, const QVector<::GrpcLibrary::Model> &modelInfos)
+    const int errorCode, const QVector<Bus::Model> &modelInfos)
 {
     if(errorCode != ErrorCode::OK)
     {

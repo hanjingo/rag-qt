@@ -7,6 +7,7 @@
 
 #include <hj/net/grpc.hpp>
 #include "src/api.grpc.pb.h"
+#include "Bus.h"
 
 class GrpcClient : public QObject
 {
@@ -20,76 +21,82 @@ class GrpcClient : public QObject
 
     void Connect(const QString &address);
     void Login(const QString &username, const QString &password);
-    void Logout(const int32_t user_id, const QString &auth);
+    void Logout(const int64_t user_id, const QString &auth);
     void RegAccount(const QString &username, const QString &password);
     void Query(const int64_t  id,
-               const int32_t  user_id,
+               const int64_t  user_id,
                const QString &auth,
                const QString &content,
                const QString &model);
 
     void GetSession(const int64_t  id,
-                    const int32_t  user_id,
+                    const int64_t  user_id,
                     const QString &auth,
                     int            limit = 10);
-    void NewSession(const int32_t  user_id,
+    void NewSession(const int64_t  user_id,
                     const QString &auth,
                     const QString &title,
                     const QString &content = "",
                     const QString &model   = "");
-    void ModifySessionTitle(const int32_t  user_id,
+    void ModifySessionTitle(const int64_t  user_id,
                             const QString &auth,
                             const int64_t  id,
                             const QString &title);
 
-    void GetModelInfo(const int32_t  user_id,
+    void GetModelInfo(const int64_t  user_id,
                       const QString &auth,
                       const QString &hash  = "",
                       int            limit = 50);
-    void NewModelInfo(const int32_t                        user_id,
-                      const QString                       &auth,
-                      const QVector<::GrpcLibrary::Model> &modelInfos);
+    void NewModelInfo(const int64_t              user_id,
+                      const QString             &auth,
+                      const QVector<Bus::Model> &modelInfos);
 
-    void GetSkillInfo(const int64_t id = -1, int limit = 50);
+    void GetSkillInfo(const QString &hash = "", int limit = 50);
 
     void
-    Download(const QString &hash, const int32_t user_id, const QString &auth);
+    Download(const QString &hash, const int64_t user_id, const QString &auth);
 
   signals:
     void SignalGrpcConnected(const QString &address);
     void SignalGrpcConnectFailed(const QString &address);
     void SignalLoginResp(const int      errorCode,
-                         const int32_t  id,
+                         const int64_t  user_id,
                          const QString &auth,
                          const int32_t  privilege,
                          const QString &account,
                          const QString &lastLoginTime);
-    void SignalRegAccountResp(const int errorCode, const int32_t user_id);
+    void SignalRegAccountResp(const int errorCode, const int64_t user_id);
     void SignalQueryResp(const int      errorCode,
-                         const int64_t  id,
+                         const int64_t  sessionId,
                          const QString &content);
 
-    void SignalLogoutResp(const int errorCode, const int user_id);
-    void SignalGetSessionResp(const int                              errorCode,
-                              const QVector<::GrpcLibrary::Session> &sessions);
-    void SignalNewSessionResp(const int                     errorCode,
-                              const ::GrpcLibrary::Session &session);
+    void SignalLogoutResp(const int errorCode, const int64_t user_id);
+    void SignalGetSessionResp(const int                    errorCode,
+                              const QVector<Bus::Session> &sessions);
+    void SignalNewSessionResp(const int errorCode, const Bus::Session &session);
     void SignalModifySessionTitleResp(const int      errorCode,
                                       const int64_t  id,
                                       const QString &title);
 
-    void
-    SignalGetModelInfoResp(const int                            errorCode,
-                           const QVector<::GrpcLibrary::Model> &modelInfos);
+    void SignalGetModelInfoResp(const int                  errorCode,
+                                const QVector<Bus::Model> &modelInfos);
     void SignalNewModelInfoResp(const int               errorCode,
                                 const QVector<QString> &hashs);
 
-    void SignalGetSkillInfoResp(const int                            errorCode,
-                                const QVector<::GrpcLibrary::Skill> &skills);
+    void SignalGetSkillInfoResp(const int                  errorCode,
+                                const QVector<Bus::Skill> &skills);
     void SignalDownloadResp(const int      errorCode,
                             const QString &hash,
                             const QString &addr,
                             const int64_t  size_kb);
+
+  private:
+    void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src);
+    void _convert(Bus::Session &dst, const ::GrpcLibrary::Session &src);
+    void _convert(::GrpcLibrary::Model &dst, const Bus::Model &src);
+    void _convert(Bus::Model &dst, const ::GrpcLibrary::Model &src);
+    void _convert(::GrpcLibrary::Skill &dst, const Bus::Skill &src);
+    void _convert(Bus::Skill &dst, const ::GrpcLibrary::Skill &src);
 
   private:
     static GrpcClient *m_stGrpcClientInst;

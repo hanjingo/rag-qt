@@ -16,6 +16,8 @@
 #include "HistorySettingDialog.h"
 #include "ui_HistorySettingDialog.h"
 
+#include "SettingPageModel.h"
+
 #include "SkillBtn.h"
 #include "GrpcClient.h"
 #include "StyleMgr.h"
@@ -62,6 +64,30 @@ HomePageWidget::~HomePageWidget()
     m_pSessionCtlBtnGroup = nullptr;
 
     delete ui;
+}
+
+QVector<Bus::Skill> HomePageWidget::GetSkillInfos()
+{
+    QVector<Bus::Skill> skills;
+    for(auto item : m_pSkillsBtnGroup->buttons())
+    {
+        if(!item)
+            continue;
+
+        SkillBtn *btn = qobject_cast<SkillBtn *>(item);
+        if(!btn || btn->GetState() != SkillBtn::State::Installed)
+            continue;
+
+        Bus::Skill skill;
+        skill.hash      = btn->Hash();
+        skill.name      = btn->Name();
+        skill.desc      = btn->Desc();
+        skill.publisher = btn->Publisher();
+        skill.version   = btn->Version();
+        skill.timestamp = btn->Timestamp().toString("%Y-%m-%d %H:%M:%S");
+        skills.append(skill);
+    }
+    return skills;
 }
 
 void HomePageWidget::changeEvent(QEvent *event)
@@ -188,15 +214,9 @@ void HomePageWidget::_slotSkillBtnClicked(QAbstractButton *pBtn)
     if(!pSkillBtn)
         return;
 
-    QString hash = pSkillBtn->Hash();
-    int     user_id;
-    QString auth;
-
-#ifdef DEBUG
-    // For testing, use a hardcoded hash value
-    user_id = 1;
-    auth    = "";
-#endif
+    QString hash    = pSkillBtn->Hash();
+    int64_t user_id = Account::Instance()->Id();
+    QString auth    = Account::Instance()->Auth();
 
     GrpcClient::Instance()->Download(hash, user_id, auth);
 }
@@ -208,27 +228,27 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
     {
         case 0: { // add session
             qDebug() << "Add session button clicked.";
-            QVector<::GrpcLibrary::Skill> skills;
-            for(auto item : m_pSkillsBtnGroup->buttons())
+            auto infos = SettingPageModel::Instance()->GetModelInfos();
+            QVector<QString> models;
+            for(const auto &info : infos)
+                models.append(info.name);
+
+            NewSessionDialog dlg(models, this);
+            auto             result = dlg.exec();
+            if(result == QDialog::Accepted)
             {
-                if(!item)
-                    continue;
-
-                SkillBtn *btn = qobject_cast<SkillBtn *>(item);
-                if(!btn || !btn->IsDownloaded())
-                    continue;
-
-                ::GrpcLibrary::Skill skill;
-                skill.set_name(btn->Name().toStdString());
-                skill.set_desc(btn->Desc().toStdString());
-                skill.set_publisher(btn->Publisher().toStdString());
-                skill.set_version(btn->Version().toStdString());
-                skill.set_timestamp(
-                    btn->Timestamp().toString(Qt::ISODate).toStdString());
-                skill.set_hash(btn->Hash().toStdString());
-                skills.append(skill);
+                qDebug() << "New session dialog accepted.";
+                Bus::Session session;
+                QString      model;
+                bool         isLocal;
+                bool         isRemote;
+                dlg.GetConfig(session, model, isLocal, isRemote);
+                GrpcClient::Instance()->NewSession(Account::Instance()->Id(),
+                                                   Account::Instance()->Auth(),
+                                                   session.title,
+                                                   session.content,
+                                                   model);
             }
-            NewSessionDialog(skills, this).exec();
         }
         break;
         case 1: { // delete session
@@ -263,8 +283,8 @@ void HomePageWidget::_slotGrpcConnected(const QString &address)
     qDebug() << "HomePageWidget connected to gRPC server at " << address;
 }
 
-void HomePageWidget::_slotGetSessionResp(
-    const int errorCode, const QVector<::GrpcLibrary::Session> &sessions)
+void HomePageWidget::_slotGetSessionResp(const int                    errorCode,
+                                         const QVector<Bus::Session> &sessions)
 {
     qDebug() << "Get session response received with " << sessions.size()
              << " items.";
@@ -274,11 +294,11 @@ void HomePageWidget::_slotGetSessionResp(
     _refreshSessionTable();
 }
 
-void HomePageWidget::_slotNewSessionResp(const int errorCode,
-                                         const ::GrpcLibrary::Session &session)
+void HomePageWidget::_slotNewSessionResp(const int           errorCode,
+                                         const Bus::Session &session)
 {
     qDebug() << "HomePageWidget: New session response received, session id: "
-             << session.id();
+             << session.id;
     // For testing, just append the new session to history
     _addSessions({session});
     _refreshSessionTable();
@@ -308,8 +328,8 @@ void HomePageWidget::_slotModifySessionTitleResp(const int      errorCode,
     _refreshSessionTable();
 }
 
-void HomePageWidget::_slotGetSkillInfoResp(
-    const int errorCode, const QVector<::GrpcLibrary::Skill> &skills)
+void HomePageWidget::_slotGetSkillInfoResp(const int                  errorCode,
+                                           const QVector<Bus::Skill> &skills)
 {
     qDebug() << "Get skill info response received with " << skills.size()
              << " items.";
@@ -444,8 +464,7 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
     }
 }
 
-void HomePageWidget::_addSessions(
-    const QVector<::GrpcLibrary::Session> &sessions)
+void HomePageWidget::_addSessions(const QVector<Bus::Session> &sessions)
 {
     if(m_pHistoryModel == nullptr)
         return;
@@ -454,17 +473,9 @@ void HomePageWidget::_addSessions(
     for(int i = 0; i < sessions.size(); i++)
     {
         const auto &item = sessions.at(i);
-        m_pHistoryModel->setItem(n_row,
-                                 0,
-                                 new QStandardItem(QString::number(item.id())));
-        m_pHistoryModel->setItem(
-            n_row,
-            1,
-            new QStandardItem(QString::fromStdString(item.timestamp())));
-        m_pHistoryModel->setItem(
-            n_row,
-            2,
-            new QStandardItem(QString::fromStdString(item.title())));
+        m_pHistoryModel->setItem(n_row, 0, new QStandardItem(item.id));
+        m_pHistoryModel->setItem(n_row, 1, new QStandardItem(item.timestamp));
+        m_pHistoryModel->setItem(n_row, 2, new QStandardItem(item.title));
         n_row++;
     }
 }
@@ -520,19 +531,18 @@ void HomePageWidget::_filterSessionTable(const QString &filterText)
     }
 }
 
-void HomePageWidget::_addSkills(const QVector<::GrpcLibrary::Skill> &skills)
+void HomePageWidget::_addSkills(const QVector<Bus::Skill> &skills)
 {
     int idx = 0;
-    foreach(const ::GrpcLibrary::Skill &skill, skills)
+    foreach(const Bus::Skill &skill, skills)
     {
         SkillBtn *btn = new SkillBtn(ui->scrollAreaSkills);
-        btn->SetId(skill.id());
-        btn->SetName(skill.name().c_str());
-        btn->SetDesc(skill.desc().c_str());
-        btn->SetPublisher(skill.publisher().c_str());
-        btn->SetVersion(skill.version().c_str());
-        btn->SetTimestamp(skill.timestamp().c_str());
-        btn->SetHash(skill.hash().c_str());
+        btn->SetHash(skill.hash);
+        btn->SetName(skill.name);
+        btn->SetDesc(skill.desc);
+        btn->SetPublisher(skill.publisher);
+        btn->SetVersion(skill.version);
+        btn->SetTimestamp(skill.timestamp);
         btn->SetState(SkillBtn::State::Unknown);
 
         auto name   = btn->Name();
@@ -555,9 +565,8 @@ void HomePageWidget::_addSkills(const QVector<::GrpcLibrary::Skill> &skills)
     _drawSkillsArea();
 }
 
-void HomePageWidget::_getSkills(
-    QVector<::GrpcLibrary::Skill>              &skills,
-    std::function<bool(::GrpcLibrary::Skill &)> filter)
+void HomePageWidget::_getSkills(QVector<Bus::Skill>              &skills,
+                                std::function<bool(Bus::Skill &)> filter)
 {
     for(auto item : m_pSkillsBtnGroup->buttons())
     {
@@ -569,14 +578,13 @@ void HomePageWidget::_getSkills(
             continue;
 
 
-        ::GrpcLibrary::Skill skill;
-        skill.set_name(btn->Name().toStdString());
-        skill.set_desc(btn->Desc().toStdString());
-        skill.set_publisher(btn->Publisher().toStdString());
-        skill.set_version(btn->Version().toStdString());
-        skill.set_timestamp(
-            btn->Timestamp().toString(Qt::ISODate).toStdString());
-        skill.set_hash(btn->Hash().toStdString());
+        Bus::Skill skill;
+        skill.hash      = btn->Hash();
+        skill.name      = btn->Name();
+        skill.desc      = btn->Desc();
+        skill.publisher = btn->Publisher();
+        skill.version   = btn->Version();
+        skill.timestamp = btn->Timestamp().toString("%Y-%m-%d %H:%M:%S");
         if(!filter(skill))
             continue;
 

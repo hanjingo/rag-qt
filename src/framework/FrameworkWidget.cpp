@@ -230,7 +230,7 @@ void FrameworkWidget::_slotRegister(const QString &username,
 }
 
 void FrameworkWidget::_slotRegisterResp(const int     errorCode,
-                                        const int32_t user_id)
+                                        const int64_t user_id)
 {
     qDebug() << "Register response received. Error code:" << errorCode
              << "User ID:" << user_id;
@@ -245,6 +245,10 @@ void FrameworkWidget::_slotRegisterResp(const int     errorCode,
     }
 
     m_pAccount->SetId(user_id);
+    QMessageBox::information(
+        this,
+        tr("Register Successful"),
+        tr("Register successful. Please login with your new account."));
 }
 
 void FrameworkWidget::_slotLogout()
@@ -260,7 +264,8 @@ void FrameworkWidget::_slotLogout()
     GrpcClient::Instance()->Logout(m_pAccount->Id(), m_pAccount->Auth());
 }
 
-void FrameworkWidget::_slotLogoutResp(const int errorCode, const int user_id)
+void FrameworkWidget::_slotLogoutResp(const int     errorCode,
+                                      const int64_t user_id)
 {
     qDebug() << "Logout response received. Error code:" << errorCode
              << "User ID:" << user_id;

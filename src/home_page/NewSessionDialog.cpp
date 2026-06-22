@@ -3,11 +3,11 @@
 
 #include "StyleMgr.h"
 
-NewSessionDialog::NewSessionDialog(const QVector<::GrpcLibrary::Skill> &skills,
-                                   QWidget                             *parent)
+NewSessionDialog::NewSessionDialog(const QVector<QString> &models,
+                                   QWidget                *parent)
     : QDialog(parent)
     , ui(new Ui::NewSessionDialog)
-    , m_skills(skills)
+    , m_models{models}
 {
     ui->setupUi(this);
 
@@ -26,7 +26,7 @@ void NewSessionDialog::_retranslate()
     ui->lblConfigTitle->setText(tr("Session Configuration"));
     ui->lblTitle->setText(tr("Title"));
 
-    ui->lblSkill->setText(tr("Skill"));
+    ui->lblModel->setText(tr("Model"));
 
     ui->lblLocalServer->setText(tr("Local Server"));
 
@@ -40,12 +40,9 @@ void NewSessionDialog::_initUI()
 {
     ui->editTitle->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
 
-    for(const auto &skill : m_skills)
-    {
-        ui->comboSkill->addItem(QString::fromStdString(skill.name()));
-    }
-
-    // ui->comboSkill->setStyleSheet(StyleMgr::ParseFile(":/styles/combo_box"));
+    // ui->comboModel->setStyleSheet(StyleMgr::ParseFile(":/styles/combo_box"));
+    for(const auto &model : m_models)
+        ui->comboModel->addItem(model);
 
     ui->checkLocal->setStyleSheet(StyleMgr::ParseFile(":/styles/check_box"));
     ui->checkRemote->setStyleSheet(StyleMgr::ParseFile(":/styles/check_box"));
@@ -62,4 +59,19 @@ void NewSessionDialog::_initConnections()
         ui->editRemoteIP->setEnabled(checked);
         ui->editRemotePort->setEnabled(checked);
     });
+}
+
+void NewSessionDialog::GetConfig(Bus::Session &sess,
+                                 QString      &model,
+                                 bool         &isLocal,
+                                 bool         &isRemote)
+{
+    sess.title = ui->editTitle->text();
+    sess.timestamp = QDateTime::currentDateTime().toString("%Y-%m-%d %H:%M:%S");
+    sess.content = ui->editPrompt->toPlainText();
+
+    model = ui->comboModel->currentText();
+
+    isLocal  = ui->checkLocal->isChecked();
+    isRemote = ui->checkRemote->isChecked();
 }

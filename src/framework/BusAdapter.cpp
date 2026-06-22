@@ -23,27 +23,28 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::Instance(),
             &Bus::SignalModelInfoUpdate);
 
-    // to plugin
-    connect(Bus::Instance(), &Bus::SignalPong, this, &BusAdapter::_slotPong);
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalQueryResp,
+            Bus::Instance(),
+            &Bus::SignalQueryResp);
 
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalNewSessionResp,
-            this,
-            &BusAdapter::_slotNewSessionResp);
+            Bus::Instance(),
+            &Bus::SignalNewSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalQueryResp,
-            this,
-            &BusAdapter::_slotQueryResp);
-
+    // from plugin
     connect(Bus::Instance(), &Bus::SignalPong, this, &BusAdapter::_slotPong);
 
-    connect(Bus::Instance(), &Bus::SignalQuery, this, &BusAdapter::_slotQuery);
+    connect(Bus::Instance(),
+            &Bus::SignalQuery,
+            this,
+            &BusAdapter::_slotQueryFromBus);
 
     connect(Bus::Instance(),
             &Bus::SignalNewSession,
             this,
-            &BusAdapter::_slotNewSession);
+            &BusAdapter::_slotNewSessionFromBus);
 }
 
 BusAdapter::~BusAdapter()
@@ -53,11 +54,12 @@ BusAdapter::~BusAdapter()
 void BusAdapter::_slotPong()
 {
     qDebug() << "Received Pong signal from Bus.";
+    // TODO heartbeat
 }
 
-void BusAdapter::_slotNewSession(const QString &title,
-                                 const QString &content,
-                                 const QString &model)
+void BusAdapter::_slotNewSessionFromBus(const QString &title,
+                                        const QString &content,
+                                        const QString &model)
 {
     qDebug() << "Received NewSession signal from Bus. title: " << title
              << ", content: " << content << ", model: " << model;
@@ -68,31 +70,9 @@ void BusAdapter::_slotNewSession(const QString &title,
                                        model);
 }
 
-void BusAdapter::_slotNewSessionResp(const int                     errorCode,
-                                     const ::GrpcLibrary::Session &session)
-{
-    qDebug() << "FrameworkWidget:Received NewSessionResp signal from remote. "
-                "errorCode: "
-             << errorCode << ", title: " << session.title();
-    if(errorCode != ErrorCode::OK)
-    {
-        emit Bus::Instance() -> SignalNewSessionResp(
-            session.id(),
-            QString::fromStdString(session.title()),
-            tr("Failed to create new session with error code: %1")
-                .arg(errorCode));
-        return;
-    }
-
-    emit Bus::Instance()
-        -> SignalNewSessionResp(session.id(),
-                                QString::fromStdString(session.title()),
-                                QString::fromStdString(session.content()));
-}
-
-void BusAdapter::_slotQuery(const int64_t  sessionId,
-                            const QString &query,
-                            const QString &model)
+void BusAdapter::_slotQueryFromBus(const int64_t  sessionId,
+                                   const QString &query,
+                                   const QString &model)
 {
     qDebug() << "Received Bus Query signal from Bus. sessionId: " << sessionId
              << ", query: " << query;
@@ -101,22 +81,4 @@ void BusAdapter::_slotQuery(const int64_t  sessionId,
                                   Account::Instance()->Auth(),
                                   query,
                                   model);
-}
-
-void BusAdapter::_slotQueryResp(const int      errorCode,
-                                const int64_t  sessionId,
-                                const QString &content)
-{
-    qDebug() << "Received Bus QueryResp signal from Bus. sessionId: "
-             << sessionId << ", content: " << content;
-    if(errorCode != ErrorCode::OK)
-    {
-        emit Bus::Instance() -> SignalQueryResp(
-            sessionId,
-            tr("Query failed with error code: %1").arg(errorCode));
-        return;
-    }
-
-    // Forward the query response to plugins
-    emit Bus::Instance() -> SignalQueryResp(sessionId, content);
 }

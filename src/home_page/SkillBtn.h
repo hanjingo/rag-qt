@@ -26,12 +26,8 @@ class SkillBtn : public QToolButton
     explicit SkillBtn(QWidget *parent = nullptr);
     ~SkillBtn();
 
-    int64_t Id() const { return m_id; }
-    void    SetId(int64_t id)
-    {
-        m_id = id;
-        _refreshText();
-    }
+    void    SetHash(const QString &hash) { m_hash = hash; }
+    QString Hash() const { return m_hash; }
 
     QString Name() const { return m_name; }
     void    SetName(const QString &name)
@@ -68,9 +64,6 @@ class SkillBtn : public QToolButton
         _refreshText();
     }
 
-    void    SetHash(const QString &hash) { m_hash = hash; }
-    QString Hash() const { return m_hash; }
-
     int  DownloadTimes() const { return m_downloadTimes; }
     void SetDownloadTimes(int downloadTimes)
     {
@@ -78,8 +71,7 @@ class SkillBtn : public QToolButton
         _refreshText();
     }
 
-    int  DownloadProgress() const { return m_progress; }
-    bool IsDownloaded() const { return m_progress >= 100; }
+    int DownloadProgress() const { return m_progress; }
 
     void Resize(int w, int h);
 
@@ -106,13 +98,12 @@ class SkillBtn : public QToolButton
     void _refreshText();
 
   private:
-    int64_t   m_id;
+    QString   m_hash;
     QString   m_name;
     QString   m_desc;
     QString   m_publisher;
     QString   m_version;
     QDateTime m_timestamp;
-    QString   m_hash;
     int       m_downloadTimes;
 
     int         m_progress; // -1: not downloading, 0~100: downloading progress

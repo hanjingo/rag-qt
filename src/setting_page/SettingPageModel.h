@@ -26,7 +26,7 @@ class SettingPageModel : public QWidget
     ~SettingPageModel();
 
   public:
-    QVector<Bus::ModelInfo> GetModelInfos();
+    QVector<Bus::Model> GetModelInfos();
 
   signals:
 
@@ -38,8 +38,8 @@ class SettingPageModel : public QWidget
     void _slotTbviewModelSelectionChanged(const QItemSelection &selected,
                                           const QItemSelection &deselected);
 
-    void _slotGetModelInfoResp(const int                            errorCode,
-                               const QVector<::GrpcLibrary::Model> &modelInfos);
+    void _slotGetModelInfoResp(const int                  errorCode,
+                               const QVector<Bus::Model> &modelInfos);
     void _slotNewModelInfoResp(const int               errorCode,
                                const QVector<QString> &hashs);
 
@@ -48,7 +48,7 @@ class SettingPageModel : public QWidget
     void _initConnections();
     void _retranslate();
 
-    void _addModels(const QVector<::GrpcLibrary::Model> &models);
+    void _addModels(const QVector<Bus::Model> &models);
     void _delModels(const QVector<int64_t> &modelIds);
     void _refreshModelTable(bool clearFirst = false);
     void _filterModelTable(const QString &filterText);

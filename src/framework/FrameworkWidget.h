@@ -60,9 +60,9 @@ class FrameworkWidget : public QWidget
                         const QString &account,
                         const QString &lastLoginTime);
     void _slotRegister(const QString &username, const QString &password);
-    void _slotRegisterResp(const int errorCode, const int32_t user_id);
+    void _slotRegisterResp(const int errorCode, const int64_t user_id);
     void _slotLogout();
-    void _slotLogoutResp(const int errorCode, const int user_id);
+    void _slotLogoutResp(const int errorCode, const int64_t user_id);
     void _slotUserBtnClicked(bool checked);
 
     void _slotCtlBtnGroupClicked(int);

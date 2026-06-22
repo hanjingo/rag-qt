@@ -84,7 +84,7 @@ void GrpcClient::Login(const QString &username, const QString &password)
                              "");
 }
 
-void GrpcClient::Logout(const int32_t user_id, const QString &auth)
+void GrpcClient::Logout(const int64_t user_id, const QString &auth)
 {
     if(!m_pChannel)
     {
@@ -143,7 +143,7 @@ void GrpcClient::RegAccount(const QString &username, const QString &password)
 }
 
 void GrpcClient::Query(const int64_t  id,
-                       const int32_t  user_id,
+                       const int64_t  user_id,
                        const QString &auth,
                        const QString &content,
                        const QString &model)
@@ -183,11 +183,11 @@ void GrpcClient::Query(const int64_t  id,
 }
 
 void GrpcClient::GetSession(const int64_t  id,
-                            const int32_t  user_id,
+                            const int64_t  user_id,
                             const QString &auth,
                             int            limit)
 {
-    QVector<::GrpcLibrary::Session> ret;
+    QVector<Bus::Session> ret;
     if(!m_pChannel)
     {
         emit SignalGetSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
@@ -220,21 +220,24 @@ void GrpcClient::GetSession(const int64_t  id,
 
     for(int i = 0; i < resp.sessions_size(); i++)
     {
-        const auto &h = resp.sessions(i);
-        ret.append(h);
+        const auto  &sess = resp.sessions(i);
+        Bus::Session item;
+        _convert(item, sess);
+        ret.append(item);
     }
     emit SignalGetSessionResp(resp.error_code(), ret);
 }
 
-void GrpcClient::NewSession(const int32_t  user_id,
+void GrpcClient::NewSession(const int64_t  user_id,
                             const QString &auth,
                             const QString &title,
                             const QString &content,
                             const QString &model)
 {
+    Bus::Session ret;
     if(!m_pChannel)
     {
-        emit SignalNewSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, {});
+        emit SignalNewSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -259,14 +262,15 @@ void GrpcClient::NewSession(const int32_t  user_id,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalNewSessionResp(ec, {});
+        emit SignalNewSessionResp(ec, ret);
         return;
     }
 
-    emit SignalNewSessionResp(resp.error_code(), resp.session());
+    _convert(ret, resp.session());
+    emit SignalNewSessionResp(resp.error_code(), ret);
 }
 
-void GrpcClient::ModifySessionTitle(const int32_t  user_id,
+void GrpcClient::ModifySessionTitle(const int64_t  user_id,
                                     const QString &auth,
                                     const int64_t  id,
                                     const QString &title)
@@ -306,14 +310,15 @@ void GrpcClient::ModifySessionTitle(const int32_t  user_id,
     emit SignalModifySessionTitleResp(resp.error_code(), id, title);
 }
 
-void GrpcClient::GetModelInfo(const int32_t  user_id,
+void GrpcClient::GetModelInfo(const int64_t  user_id,
                               const QString &auth,
                               const QString &hash,
                               int            limit)
 {
+    QVector<Bus::Model> ret;
     if(!m_pChannel)
     {
-        emit SignalGetModelInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, {});
+        emit SignalGetModelInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -337,22 +342,23 @@ void GrpcClient::GetModelInfo(const int32_t  user_id,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalGetModelInfoResp(ec, {});
+        emit SignalGetModelInfoResp(ec, ret);
         return;
     }
 
-    QVector<::GrpcLibrary::Model> models;
     for(auto i = 0; i < resp.models_size(); i++)
     {
-        const auto h = resp.models(i);
-        models.append(h);
+        const auto item = resp.models(i);
+        Bus::Model model;
+        _convert(model, item);
+        ret.append(model);
     }
-    emit SignalGetModelInfoResp(resp.error_code(), models);
+    emit SignalGetModelInfoResp(resp.error_code(), ret);
 }
 
-void GrpcClient::NewModelInfo(const int32_t                        user_id,
-                              const QString                       &auth,
-                              const QVector<::GrpcLibrary::Model> &modelInfos)
+void GrpcClient::NewModelInfo(const int64_t              user_id,
+                              const QString             &auth,
+                              const QVector<Bus::Model> &modelInfos)
 {
     if(!m_pChannel)
     {
@@ -368,7 +374,10 @@ void GrpcClient::NewModelInfo(const int32_t                        user_id,
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
     for(const auto &model : modelInfos)
-        req.add_models()->CopyFrom(model);
+    {
+        auto m = req.add_models();
+        _convert(*m, model);
+    }
 
     // Prepare the response and context
     GrpcLibrary::NewModelInfoResp resp;
@@ -391,11 +400,12 @@ void GrpcClient::NewModelInfo(const int32_t                        user_id,
     emit SignalNewModelInfoResp(resp.error_code(), hashs);
 }
 
-void GrpcClient::GetSkillInfo(const int64_t id, int limit)
+void GrpcClient::GetSkillInfo(const QString &hash, int limit)
 {
+    QVector<Bus::Skill> ret;
     if(!m_pChannel)
     {
-        emit SignalGetSkillInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, {});
+        emit SignalGetSkillInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -404,7 +414,7 @@ void GrpcClient::GetSkillInfo(const int64_t id, int limit)
 
     // Prepare the request
     GrpcLibrary::GetSkillInfoReq req;
-    req.set_id(id);
+    req.set_hash(hash.toStdString());
     req.set_limit(limit);
 
     // Prepare the response and context
@@ -417,21 +427,22 @@ void GrpcClient::GetSkillInfo(const int64_t id, int limit)
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalGetSkillInfoResp(ec, {});
+        emit SignalGetSkillInfoResp(ec, ret);
         return;
     }
 
-    QVector<::GrpcLibrary::Skill> ret;
     for(int i = 0; i < resp.skills_size(); i++)
     {
         const auto &h = resp.skills(i);
-        ret.append(h);
+        Bus::Skill  skill;
+        _convert(skill, h);
+        ret.append(skill);
     }
     emit SignalGetSkillInfoResp(resp.error_code(), ret);
 }
 
 void GrpcClient::Download(const QString &hash,
-                          const int32_t  user_id,
+                          const int64_t  user_id,
                           const QString &auth)
 {
     if(!m_pChannel)
@@ -468,4 +479,68 @@ void GrpcClient::Download(const QString &hash,
 
     QString addr = QString::fromStdString(resp.addr());
     emit    SignalDownloadResp(resp.error_code(), hash, addr, resp.size_kb());
+}
+
+void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src)
+{
+    dst.set_id(src.id);
+    dst.set_user_id(src.userId);
+    dst.set_title(src.title.toStdString());
+    dst.set_content(src.content.toStdString());
+    dst.set_timestamp(src.timestamp.toStdString());
+}
+
+void GrpcClient::_convert(Bus::Session &dst, const ::GrpcLibrary::Session &src)
+{
+    dst.id        = src.id();
+    dst.userId    = src.user_id();
+    dst.title     = QString::fromStdString(src.title());
+    dst.content   = QString::fromStdString(src.content());
+    dst.timestamp = QString::fromStdString(src.timestamp());
+}
+
+void GrpcClient::_convert(::GrpcLibrary::Model &dst, const Bus::Model &src)
+{
+    dst.set_hash(src.hash.toStdString());
+    dst.set_name(src.name.toStdString());
+    dst.set_publisher(src.publisher.toStdString());
+    dst.set_timestamp(src.timestamp.toStdString());
+    dst.set_addr(src.addr.toStdString());
+    dst.set_capabilities(src.capabilities.toStdString());
+    dst.set_context_size(src.contextSize);
+    dst.set_cost(src.cost);
+}
+
+void GrpcClient::_convert(Bus::Model &dst, const ::GrpcLibrary::Model &src)
+{
+    dst.hash         = QString::fromStdString(src.hash());
+    dst.name         = QString::fromStdString(src.name());
+    dst.publisher    = QString::fromStdString(src.publisher());
+    dst.timestamp    = QString::fromStdString(src.timestamp());
+    dst.addr         = QString::fromStdString(src.addr());
+    dst.capabilities = QString::fromStdString(src.capabilities());
+    dst.contextSize  = src.context_size();
+    dst.cost         = src.cost();
+}
+
+void GrpcClient::_convert(::GrpcLibrary::Skill &dst, const Bus::Skill &src)
+{
+    dst.set_hash(src.hash.toStdString());
+    dst.set_name(src.name.toStdString());
+    dst.set_desc(src.desc.toStdString());
+    dst.set_publisher(src.publisher.toStdString());
+    dst.set_version(src.version.toStdString());
+    dst.set_timestamp(src.timestamp.toStdString());
+    dst.set_platform(src.platform);
+}
+
+void GrpcClient::_convert(Bus::Skill &dst, const ::GrpcLibrary::Skill &src)
+{
+    dst.hash      = QString::fromStdString(src.hash());
+    dst.name      = QString::fromStdString(src.name());
+    dst.desc      = QString::fromStdString(src.desc());
+    dst.publisher = QString::fromStdString(src.publisher());
+    dst.version   = QString::fromStdString(src.version());
+    dst.timestamp = QString::fromStdString(src.timestamp());
+    dst.platform  = src.platform();
 }

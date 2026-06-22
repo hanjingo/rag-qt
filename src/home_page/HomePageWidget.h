@@ -27,6 +27,8 @@ class HomePageWidget : public QWidget
     explicit HomePageWidget(QWidget *parent = nullptr);
     ~HomePageWidget();
 
+    QVector<Bus::Skill> GetSkillInfos();
+
   protected:
     void changeEvent(QEvent *event) override;
 
@@ -37,17 +39,16 @@ class HomePageWidget : public QWidget
     void _slotGrpcConnected(const QString &address);
     void _slotEditFilterTextChanged(const QString &content);
 
-    void _slotGetSessionResp(const int                              errorCode,
-                             const QVector<::GrpcLibrary::Session> &sessions);
-    void _slotNewSessionResp(const int                     errorCode,
-                             const ::GrpcLibrary::Session &session);
+    void _slotGetSessionResp(const int                    errorCode,
+                             const QVector<Bus::Session> &sessions);
+    void _slotNewSessionResp(const int errorCode, const Bus::Session &session);
     void _slotModifySessionTitleResp(const int      errorCode,
                                      const int64_t  id,
                                      const QString &title);
     void _slotSessionCtlBtnGroupClicked(int id);
 
-    void _slotGetSkillInfoResp(const int                            errorCode,
-                               const QVector<::GrpcLibrary::Skill> &skills);
+    void _slotGetSkillInfoResp(const int                  errorCode,
+                               const QVector<Bus::Skill> &skills);
 
     void _slotDownloadResp(const int      errorCode,
                            const QString &hash,
@@ -62,16 +63,17 @@ class HomePageWidget : public QWidget
     void _initConnections();
     void _retranslate();
 
-    void _addSessions(const QVector<::GrpcLibrary::Session> &sessions);
+    void _addSessions(const QVector<Bus::Session> &sessions);
     void _delSessions(const QVector<int64_t> &sessionIds);
     void _refreshSessionTable(bool clearFirst = false);
     void _filterSessionTable(const QString &filterText);
 
-    void _addSkills(const QVector<::GrpcLibrary::Skill> &skills);
+    void _addSkills(const QVector<Bus::Skill> &skills);
     void _getSkills(
-        QVector<::GrpcLibrary::Skill>              &skills,
-        std::function<bool(::GrpcLibrary::Skill &)> filter =
-            [](::GrpcLibrary::Skill &) { return true; });
+        QVector<Bus::Skill>              &skills,
+        std::function<bool(Bus::Skill &)> filter = [](Bus::Skill &) {
+            return true;
+        });
     void _clearSkills();
     void _drawSkillsArea();
 

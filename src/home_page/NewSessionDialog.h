@@ -16,9 +16,14 @@ class NewSessionDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit NewSessionDialog(const QVector<::GrpcLibrary::Skill> &skills,
-                              QWidget *parent = nullptr);
+    explicit NewSessionDialog(const QVector<QString> &models,
+                              QWidget                *parent = nullptr);
     ~NewSessionDialog();
+
+    void GetConfig(Bus::Session &sess,
+                   QString      &model,
+                   bool         &isLocal,
+                   bool         &isRemote);
 
   private:
     void _retranslate();
@@ -26,8 +31,8 @@ class NewSessionDialog : public QDialog
     void _initConnections();
 
   private:
-    Ui::NewSessionDialog         *ui;
-    QVector<::GrpcLibrary::Skill> m_skills;
+    Ui::NewSessionDialog *ui;
+    QVector<QString>      m_models;
 };
 
 #endif // NEWSESSIONDIALOG_H

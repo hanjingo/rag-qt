@@ -10,7 +10,6 @@
 
 SkillBtn::SkillBtn(QWidget *parent)
     : QToolButton(parent)
-    , m_id(-1)
     , m_name("")
     , m_desc("")
     , m_publisher("")
