@@ -18,9 +18,19 @@ class Bus : public QObject
         qint64  id;
         qint64  userId;
         QString title;
-        QString content;
         QString timestamp;
     };
+
+    struct MessageInfo
+    {
+        qint64  id;
+        qint64  sessionId;
+        QString role;
+        QString content;
+        qint64  prevMessageId;
+        QString timestamp;
+    };
+
     struct Model
     {
         QString hash;
@@ -62,12 +72,25 @@ class Bus : public QObject
     void SignalNewSessionResp(const int32_t       errorCode,
                               const Bus::Session &session);
 
+    void SignalGetSession(const int64_t  id,
+                          const int64_t  user_id,
+                          const QString &auth,
+                          int            limit);
+    void SignalGetSessionResp(const int                    errorCode,
+                              const QVector<Bus::Session> &sessions);
+
     void SignalQuery(const int64_t  sessionId,
                      const QString &query,
                      const QString &model);
     void SignalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
                          const QString &content);
+
+    void SignalGetMessageInfo(const int64_t msgId,
+                              const int64_t sessionId,
+                              int           limit);
+    void SignalGetMessageInfoResp(const int                        errorCode,
+                                  const QVector<Bus::MessageInfo> &messages);
 
   private:
     explicit Bus(QObject *parent = nullptr)

@@ -27,8 +27,12 @@ class SettingPageHistory : public QWidget
   signals:
 
   private slots:
+    void _slotNewSessionResp(const int errorCode, const Bus::Session &session);
     void _slotGetSessionResp(const int                    errorCode,
                              const QVector<Bus::Session> &sessions);
+
+    void _slotGetMessageInfoResp(const int                        errorCode,
+                                 const QVector<Bus::MessageInfo> &messages);
 
     void _slotTbviewCurrentChanged(const QModelIndex &curr,
                                    const QModelIndex &prev);
@@ -39,6 +43,7 @@ class SettingPageHistory : public QWidget
     void _retranslate();
     void _addSessions(const QVector<Bus::Session> &sessions);
     void _refreshHistoryTable(bool clearFirst = false);
+    void _refreshChatBrowser(bool clearFirst = true);
 
   private:
     void _addQueryRecord(const QString &query, const QString &timestamp);

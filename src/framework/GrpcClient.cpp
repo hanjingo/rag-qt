@@ -182,6 +182,54 @@ void GrpcClient::Query(const int64_t  id,
                              QString::fromStdString(status.error_message()));
 }
 
+void GrpcClient::GetMessageInfo(const int64_t  session_id,
+                                const int64_t  user_id,
+                                const QString &auth,
+                                int64_t        msg_id,
+                                int            limit)
+{
+    QVector<Bus::MessageInfo> ret;
+    if(!m_pChannel)
+    {
+        emit SignalGetMessageInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::GetMessageInfoReq req;
+    req.set_id(msg_id);
+    req.set_session_id(session_id);
+    req.set_limit(limit);
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+
+    // Prepare the response and context
+    GrpcLibrary::GetMessageInfoResp resp;
+    grpc::ClientContext             context;
+
+    // Make the RPC call
+    grpc::Status status = stub->GetMessageInfo(&context, req, &resp);
+
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit SignalGetMessageInfoResp(ec, ret);
+        return;
+    }
+
+    for(int i = 0; i < resp.messages_size(); i++)
+    {
+        const auto      &msg = resp.messages(i);
+        Bus::MessageInfo item;
+        _convert(item, msg);
+        ret.append(item);
+    }
+    emit SignalGetMessageInfoResp(resp.error_code(), ret);
+}
+
 void GrpcClient::GetSession(const int64_t  id,
                             const int64_t  user_id,
                             const QString &auth,
@@ -231,7 +279,7 @@ void GrpcClient::GetSession(const int64_t  id,
 void GrpcClient::NewSession(const int64_t  user_id,
                             const QString &auth,
                             const QString &title,
-                            const QString &content,
+                            const QString &prompt,
                             const QString &model)
 {
     Bus::Session ret;
@@ -249,7 +297,7 @@ void GrpcClient::NewSession(const int64_t  user_id,
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
     req.set_title(title.toStdString());
-    req.set_content(content.toStdString());
+    req.set_content(prompt.toStdString());
     req.set_model(model.toStdString());
 
     // Prepare the response and context
@@ -527,7 +575,6 @@ void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src)
     dst.set_id(src.id);
     dst.set_user_id(src.userId);
     dst.set_title(src.title.toStdString());
-    dst.set_content(src.content.toStdString());
     dst.set_timestamp(src.timestamp.toStdString());
 }
 
@@ -536,7 +583,6 @@ void GrpcClient::_convert(Bus::Session &dst, const ::GrpcLibrary::Session &src)
     dst.id        = src.id();
     dst.userId    = src.user_id();
     dst.title     = QString::fromStdString(src.title());
-    dst.content   = QString::fromStdString(src.content());
     dst.timestamp = QString::fromStdString(src.timestamp());
 }
 
@@ -584,4 +630,26 @@ void GrpcClient::_convert(Bus::Skill &dst, const ::GrpcLibrary::Skill &src)
     dst.version   = QString::fromStdString(src.version());
     dst.timestamp = QString::fromStdString(src.timestamp());
     dst.platform  = src.platform();
+}
+
+void GrpcClient::_convert(::GrpcLibrary::MessageInfo &dst,
+                          const Bus::MessageInfo     &src)
+{
+    dst.set_id(src.id);
+    dst.set_session_id(src.sessionId);
+    dst.set_role(src.role.toStdString());
+    dst.set_content(src.content.toStdString());
+    dst.set_prev_message_id(src.prevMessageId);
+    dst.set_timestamp(src.timestamp.toStdString());
+}
+
+void GrpcClient::_convert(Bus::MessageInfo                 &dst,
+                          const ::GrpcLibrary::MessageInfo &src)
+{
+    dst.id            = src.id();
+    dst.sessionId     = src.session_id();
+    dst.role          = QString::fromStdString(src.role());
+    dst.content       = QString::fromStdString(src.content());
+    dst.prevMessageId = src.prev_message_id();
+    dst.timestamp     = QString::fromStdString(src.timestamp());
 }

@@ -22,6 +22,7 @@ class NewSessionDialog : public QDialog
 
     void GetConfig(Bus::Session &sess,
                    QString      &model,
+                   QString      &prompt,
                    bool         &isLocal,
                    bool         &isRemote);
 

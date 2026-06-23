@@ -247,13 +247,14 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
                 qDebug() << "New session dialog accepted.";
                 Bus::Session session;
                 QString      model;
+                QString      prompt;
                 bool         isLocal;
                 bool         isRemote;
-                dlg.GetConfig(session, model, isLocal, isRemote);
+                dlg.GetConfig(session, model, prompt, isLocal, isRemote);
                 GrpcClient::Instance()->NewSession(Account::Instance()->Id(),
                                                    Account::Instance()->Auth(),
                                                    session.title,
-                                                   session.content,
+                                                   prompt,
                                                    model);
             }
         }

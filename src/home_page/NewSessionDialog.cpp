@@ -63,14 +63,16 @@ void NewSessionDialog::_initConnections()
 
 void NewSessionDialog::GetConfig(Bus::Session &sess,
                                  QString      &model,
+                                 QString      &prompt,
                                  bool         &isLocal,
                                  bool         &isRemote)
 {
-    sess.title = ui->editTitle->text();
+    sess.title     = ui->editTitle->text();
     sess.timestamp = QDateTime::currentDateTime().toString("%Y-%m-%d %H:%M:%S");
-    sess.content = ui->editPrompt->toPlainText();
 
     model = ui->comboModel->currentText();
+
+    prompt = ui->editPrompt->toPlainText();
 
     isLocal  = ui->checkLocal->isChecked();
     isRemote = ui->checkRemote->isChecked();

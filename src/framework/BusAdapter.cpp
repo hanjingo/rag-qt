@@ -33,6 +33,16 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::Instance(),
             &Bus::SignalNewSessionResp);
 
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalGetSessionResp,
+            Bus::Instance(),
+            &Bus::SignalGetSessionResp);
+
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalGetMessageInfoResp,
+            Bus::Instance(),
+            &Bus::SignalGetMessageInfoResp);
+
     // from plugin
     connect(Bus::Instance(), &Bus::SignalPong, this, &BusAdapter::_slotPong);
 

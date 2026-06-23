@@ -8,6 +8,7 @@
 #include <hj/net/grpc.hpp>
 #include "src/api.grpc.pb.h"
 #include "Bus.h"
+#include "Global.h"
 
 class GrpcClient : public QObject
 {
@@ -23,11 +24,17 @@ class GrpcClient : public QObject
     void Login(const QString &username, const QString &password);
     void Logout(const int64_t user_id, const QString &auth);
     void RegAccount(const QString &username, const QString &password);
+
     void Query(const int64_t  id,
                const int64_t  user_id,
                const QString &auth,
                const QString &content,
                const QString &model);
+    void GetMessageInfo(const int64_t  session_id,
+                        const int64_t  user_id,
+                        const QString &auth,
+                        int64_t        msg_id = -1,
+                        int            limit  = 10);
 
     void GetSession(const int64_t  id,
                     const int64_t  user_id,
@@ -36,8 +43,8 @@ class GrpcClient : public QObject
     void NewSession(const int64_t  user_id,
                     const QString &auth,
                     const QString &title,
-                    const QString &content = "",
-                    const QString &model   = "");
+                    const QString &prompt = "",
+                    const QString &model  = "");
     void ModifySessionTitle(const int64_t  user_id,
                             const QString &auth,
                             const int64_t  id,
@@ -69,9 +76,12 @@ class GrpcClient : public QObject
                          const QString &account,
                          const QString &lastLoginTime);
     void SignalRegAccountResp(const int errorCode, const int64_t user_id);
+
     void SignalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
                          const QString &content);
+    void SignalGetMessageInfoResp(const int                        errorCode,
+                                  const QVector<Bus::MessageInfo> &messages);
 
     void SignalLogoutResp(const int errorCode, const int64_t user_id);
     void SignalGetSessionResp(const int                    errorCode,
@@ -101,6 +111,8 @@ class GrpcClient : public QObject
     void _convert(Bus::Model &dst, const ::GrpcLibrary::Model &src);
     void _convert(::GrpcLibrary::Skill &dst, const Bus::Skill &src);
     void _convert(Bus::Skill &dst, const ::GrpcLibrary::Skill &src);
+    void _convert(::GrpcLibrary::MessageInfo &dst, const Bus::MessageInfo &src);
+    void _convert(Bus::MessageInfo &dst, const ::GrpcLibrary::MessageInfo &src);
 
   private:
     static GrpcClient *m_stGrpcClientInst;
