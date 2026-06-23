@@ -28,7 +28,7 @@
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -56,7 +56,7 @@
         <string>Chat Date</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -75,7 +75,7 @@
         </size>
        </property>
        <property name="correctionMode">
-        <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+        <enum>QAbstractSpinBox::CorrectionMode::CorrectToNearestValue</enum>
        </property>
        <property name="showGroupSeparator" stdset="0">
         <bool>true</bool>
@@ -106,7 +106,7 @@
         <string>to</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -125,7 +125,7 @@
         </size>
        </property>
        <property name="correctionMode">
-        <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+        <enum>QAbstractSpinBox::CorrectionMode::CorrectToNearestValue</enum>
        </property>
        <property name="showGroupSeparator" stdset="0">
         <bool>true</bool>
@@ -162,12 +162,18 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QTableView" name="tbviewItem">
+      <widget class="QTableView" name="tbviewCatalog">
+       <property name="maximumSize">
+        <size>
+         <width>350</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
+        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
+        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
        </property>
        <property name="autoScroll">
         <bool>false</bool>
@@ -181,14 +187,14 @@
       <widget class="QLabel" name="lbl_Right">
        <property name="minimumSize">
         <size>
-         <width>64</width>
-         <height>64</height>
+         <width>50</width>
+         <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>64</width>
-         <height>64</height>
+         <width>50</width>
+         <height>50</height>
         </size>
        </property>
        <property name="font">
@@ -203,25 +209,12 @@
         <string>&gt;&gt;</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QTableView" name="tbviewDetail">
-       <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="autoScroll">
-        <bool>false</bool>
-       </property>
-       <property name="autoScrollMargin">
-        <number>0</number>
-       </property>
-      </widget>
+      <widget class="QTextBrowser" name="txtBrowserChat"/>
      </item>
     </layout>
    </item>
@@ -230,7 +223,7 @@
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>

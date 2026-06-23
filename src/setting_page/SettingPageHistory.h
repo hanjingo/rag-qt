@@ -3,6 +3,12 @@
 
 #include <QMap>
 #include <QWidget>
+#include <QStandardItemModel>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+
+#include "Bus.h"
 
 namespace Ui
 {
@@ -21,10 +27,28 @@ class SettingPageHistory : public QWidget
   signals:
 
   private slots:
+    void _slotGetSessionResp(const int                    errorCode,
+                             const QVector<Bus::Session> &sessions);
+
+    void _slotTbviewCurrentChanged(const QModelIndex &curr,
+                                   const QModelIndex &prev);
+
+  private:
+    void _initUI();
+    void _initConnections();
+    void _retranslate();
+    void _addSessions(const QVector<Bus::Session> &sessions);
+    void _refreshHistoryTable(bool clearFirst = false);
+
+  private:
+    void _addQueryRecord(const QString &query, const QString &timestamp);
+    void _addAnswerRecord(const QString &answer, const QString &timestamp);
 
   private:
     Ui::SettingPageHistory    *ui;
     static SettingPageHistory *m_stSettingPageHistoryInst;
+
+    QStandardItemModel *m_pHistoryModel;
 };
 
 #endif // SETTINGPAGEHISTORY_H
