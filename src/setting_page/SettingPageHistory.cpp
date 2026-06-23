@@ -40,6 +40,44 @@ SettingPageHistory::~SettingPageHistory()
     delete ui;
 }
 
+void SettingPageHistory::_initConnections()
+{
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalNewSessionResp,
+            this,
+            &SettingPageHistory::_slotNewSessionResp);
+
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalGetSessionResp,
+            this,
+            &SettingPageHistory::_slotGetSessionResp);
+
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalGetMessageInfoResp,
+            this,
+            &SettingPageHistory::_slotGetMessageInfoResp);
+
+    connect(ui->tbviewCatalog->selectionModel(),
+            &QItemSelectionModel::currentChanged,
+            this,
+            &SettingPageHistory::_slotTbviewCurrentChanged);
+
+    connect(ui->btnDelete,
+            &QPushButton::clicked,
+            this,
+            &SettingPageHistory::_slotBtnDelSessionClicked);
+
+    connect(ui->btnExport,
+            &QPushButton::clicked,
+            this,
+            &SettingPageHistory::_slotBtnExportSessionClicked);
+
+    connect(ui->btnImport,
+            &QPushButton::clicked,
+            this,
+            &SettingPageHistory::_slotBtnImportSessionClicked);
+}
+
 void SettingPageHistory::_slotNewSessionResp(const int           errorCode,
                                              const Bus::Session &session)
 {
@@ -65,6 +103,33 @@ void SettingPageHistory::_slotGetSessionResp(
 
     m_pHistoryModel->clear();
     _addSessions(sessions);
+    _refreshHistoryTable();
+}
+
+void SettingPageHistory::_slotDelSessionResp(const int               errorCode,
+                                             const QVector<int64_t> &ids)
+{
+    if(errorCode != ErrorCode::OK)
+    {
+        qDebug() << "Error in DelSessionResp: " << errorCode;
+        return;
+    }
+
+    qDebug() << "SettingPageHistory: Delete session response received with "
+             << ids.size() << " items.";
+    for(int i = m_pHistoryModel->rowCount() - 1; i >= 0; i--)
+    {
+        QStandardItem *pIdItem = m_pHistoryModel->item(i, 0);
+        if(pIdItem == nullptr)
+            continue;
+
+        int64_t id = pIdItem->data(Qt::DisplayRole).toLongLong();
+        if(ids.contains(id))
+        {
+            qDebug() << "delete session id = " << id;
+            m_pHistoryModel->removeRow(i);
+        }
+    }
     _refreshHistoryTable();
 }
 
@@ -140,6 +205,44 @@ void SettingPageHistory::_slotTbviewCurrentChanged(const QModelIndex &curr,
                                            100);
 }
 
+void SettingPageHistory::_slotBtnDelSessionClicked()
+{
+    QModelIndexList selectedIndexes =
+        ui->tbviewCatalog->selectionModel()->selectedRows();
+    if(selectedIndexes.isEmpty())
+        return;
+
+    QVector<int64_t> sessionIds;
+    for(const auto &index : selectedIndexes)
+    {
+        int            row     = index.row();
+        QStandardItem *pIdItem = m_pHistoryModel->item(row, 0);
+        if(pIdItem == nullptr)
+            continue;
+
+        int64_t sessionId = pIdItem->data(Qt::DisplayRole).toLongLong();
+        sessionIds.append(sessionId);
+    }
+
+    if(sessionIds.isEmpty())
+        return;
+
+    qDebug() << "Delete sessions with ids: " << sessionIds;
+    GrpcClient::Instance()->DelSession(Account::Instance()->Id(),
+                                       Account::Instance()->Auth(),
+                                       sessionIds);
+}
+
+void SettingPageHistory::_slotBtnExportSessionClicked()
+{
+    qDebug() << "Export session button clicked.";
+}
+
+void SettingPageHistory::_slotBtnImportSessionClicked()
+{
+    qDebug() << "Import session button clicked.";
+}
+
 void SettingPageHistory::_initUI()
 {
     // init history item table
@@ -161,29 +264,6 @@ void SettingPageHistory::_initUI()
         "   font-family: 'Microsoft YaHei', sans-serif;"
         "   font-size: 14px;"
         "}");
-}
-
-void SettingPageHistory::_initConnections()
-{
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalNewSessionResp,
-            this,
-            &SettingPageHistory::_slotNewSessionResp);
-
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetSessionResp,
-            this,
-            &SettingPageHistory::_slotGetSessionResp);
-
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetMessageInfoResp,
-            this,
-            &SettingPageHistory::_slotGetMessageInfoResp);
-
-    connect(ui->tbviewCatalog->selectionModel(),
-            &QItemSelectionModel::currentChanged,
-            this,
-            &SettingPageHistory::_slotTbviewCurrentChanged);
 }
 
 void SettingPageHistory::_retranslate()

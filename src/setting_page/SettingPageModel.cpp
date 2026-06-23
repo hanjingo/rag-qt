@@ -358,7 +358,7 @@ void SettingPageModel::_slotGetModelInfoResp(
 
     // notify to bus
     auto busModelInfos = GetModelInfos();
-    emit BusAdapter::Instance() -> SignalModelInfoUpdate(busModelInfos);
+    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
 }
 
 void SettingPageModel::_slotNewModelInfoResp(const int               errorCode,

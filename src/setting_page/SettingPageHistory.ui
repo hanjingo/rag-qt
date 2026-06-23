@@ -278,7 +278,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnPrint">
+      <widget class="QPushButton" name="btnImport">
        <property name="minimumSize">
         <size>
          <width>132</width>
@@ -295,7 +295,7 @@
         <font/>
        </property>
        <property name="text">
-        <string>Print</string>
+        <string>Import</string>
        </property>
       </widget>
      </item>

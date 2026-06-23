@@ -19,9 +19,9 @@ BusAdapter::BusAdapter(QObject *parent)
     // from framework
     connect(this, &BusAdapter::SignalPing, Bus::Instance(), &Bus::SignalPing);
     connect(this,
-            &BusAdapter::SignalModelInfoUpdate,
+            &BusAdapter::SignalModelInfoUpdateNtf,
             Bus::Instance(),
-            &Bus::SignalModelInfoUpdate);
+            &Bus::SignalModelInfoUpdateNtf);
 
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalQueryResp,
@@ -37,6 +37,11 @@ BusAdapter::BusAdapter(QObject *parent)
             &GrpcClient::SignalGetSessionResp,
             Bus::Instance(),
             &Bus::SignalGetSessionResp);
+
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalDelSessionResp,
+            Bus::Instance(),
+            &Bus::SignalDelSessionResp);
 
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalGetMessageInfoResp,
@@ -88,6 +93,14 @@ void BusAdapter::_slotNewSessionFromBus(const QString &title,
                                        title,
                                        content,
                                        model);
+}
+
+void BusAdapter::_slotDelSessionFromBus(const QVector<int64_t> &ids)
+{
+    qDebug() << "Received DelSession signal from Bus. ids: " << ids;
+    GrpcClient::Instance()->DelSession(Account::Instance()->Id(),
+                                       Account::Instance()->Auth(),
+                                       ids);
 }
 
 void BusAdapter::_slotQueryFromBus(const int64_t  sessionId,

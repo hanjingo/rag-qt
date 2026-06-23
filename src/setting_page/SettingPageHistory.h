@@ -30,12 +30,19 @@ class SettingPageHistory : public QWidget
     void _slotNewSessionResp(const int errorCode, const Bus::Session &session);
     void _slotGetSessionResp(const int                    errorCode,
                              const QVector<Bus::Session> &sessions);
+    void _slotDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
     void _slotGetMessageInfoResp(const int                        errorCode,
                                  const QVector<Bus::MessageInfo> &messages);
 
     void _slotTbviewCurrentChanged(const QModelIndex &curr,
                                    const QModelIndex &prev);
+
+    void _slotBtnDelSessionClicked();
+
+    void _slotBtnExportSessionClicked();
+
+    void _slotBtnImportSessionClicked();
 
   private:
     void _initUI();

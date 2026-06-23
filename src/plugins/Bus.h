@@ -64,7 +64,7 @@ class Bus : public QObject
 
     void SignalLanguageSwitch(const QString &lang);
 
-    void SignalModelInfoUpdate(const QVector<Bus::Model> &modelInfos);
+    void SignalModelInfoUpdateNtf(const QVector<Bus::Model> &modelInfos);
 
     void SignalNewSession(const QString &title,
                           const QString &content,
@@ -72,12 +72,11 @@ class Bus : public QObject
     void SignalNewSessionResp(const int32_t       errorCode,
                               const Bus::Session &session);
 
-    void SignalGetSession(const int64_t  id,
-                          const int64_t  user_id,
-                          const QString &auth,
-                          int            limit);
+    void SignalGetSession(const int64_t sessionId, int limit);
     void SignalGetSessionResp(const int                    errorCode,
                               const QVector<Bus::Session> &sessions);
+
+    void SignalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
     void SignalQuery(const int64_t  sessionId,
                      const QString &query,

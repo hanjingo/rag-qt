@@ -14,7 +14,7 @@ class BusAdapter : public QObject
 
   signals:
     void SignalPing();
-    void SignalModelInfoUpdate(const QVector<Bus::Model> &modelInfos);
+    void SignalModelInfoUpdateNtf(const QVector<Bus::Model> &modelInfos);
 
   private slots:
     // for BUS signals
@@ -29,6 +29,7 @@ class BusAdapter : public QObject
     void _slotGetMessageInfoFromBus(const int64_t msgId,
                                     const int64_t sessionId,
                                     int           limit);
+    void _slotDelSessionFromBus(const QVector<int64_t> &ids);
 
   private:
     explicit BusAdapter(QObject *parent = nullptr);
