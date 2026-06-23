@@ -39,7 +39,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_SmpDate">
+      <widget class="QLabel" name="lblChatDate">
        <property name="minimumSize">
         <size>
          <width>88</width>
@@ -61,7 +61,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDateEdit" name="dateEdit_Start">
+      <widget class="QDateEdit" name="dateEditStart">
        <property name="minimumSize">
         <size>
          <width>200</width>
@@ -89,7 +89,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_SmpDateTo">
+      <widget class="QLabel" name="lblChatDateTo">
        <property name="minimumSize">
         <size>
          <width>26</width>
@@ -111,7 +111,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDateEdit" name="dateEdit_End">
+      <widget class="QDateEdit" name="dateEditEnd">
        <property name="minimumSize">
         <size>
          <width>200</width>
@@ -139,7 +139,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnSelect">
+      <widget class="QPushButton" name="btnSearch">
        <property name="minimumSize">
         <size>
          <width>112</width>

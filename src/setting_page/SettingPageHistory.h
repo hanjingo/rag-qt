@@ -44,12 +44,15 @@ class SettingPageHistory : public QWidget
 
     void _slotBtnImportSessionClicked();
 
+    void _slotBtnSearchClicked();
+
   private:
     void _initUI();
     void _initConnections();
     void _retranslate();
     void _addSessions(const QVector<Bus::Session> &sessions);
     void _refreshHistoryTable(bool clearFirst = false);
+    void _addMessages(const QVector<Bus::MessageInfo> &messages);
     void _refreshChatBrowser(bool clearFirst = true);
 
   private:
