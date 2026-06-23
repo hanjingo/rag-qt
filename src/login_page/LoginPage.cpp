@@ -1,6 +1,7 @@
 ﻿#include "LoginPage.h"
 #include "ui_LoginPage.h"
 
+#include <QMessageBox>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 

@@ -1,3 +1,8 @@
+[submodule "3rd/libqt"]
+	path = 3rd/libqt
+	url = git@github.com:hanjingo/libqt.git
+	branch = main
+	
 [submodule "3rd/rag-core"]
 	path = 3rd/rag-core
 	url = git@github.com:hanjingo/rag-core.git
