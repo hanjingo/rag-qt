@@ -1,6 +1,9 @@
 ﻿#include "LoginPage.h"
 #include "ui_LoginPage.h"
 
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
+
 #include "StyleMgr.h"
 
 LoginPage *LoginPage::m_stLoginPageInst = nullptr;
@@ -67,7 +70,11 @@ void LoginPage::_slotBtnRegisterClicked()
 {
     QString username = ui->editAccount->text();
     QString password = ui->editPassword->text();
-    emit    SignalRegister(username, password);
+    // TODO: Add validation for username and password before emitting the signal.
+    if(!_validateInput(username, password))
+        return;
+
+    emit SignalRegister(username, password);
 }
 
 void LoginPage::_slotBtnLogoutClicked()
@@ -93,4 +100,42 @@ void LoginPage::_initConnections()
             SIGNAL(returnPressed()),
             this,
             SLOT(_slotBtnLoginClicked()));
+}
+
+bool LoginPage::_validateInput(const QString &username, const QString &password)
+{
+    QRegularExpression accountRegex("^[a-zA-Z0-9]{6,16}$");
+    if(!accountRegex.match(username).hasMatch())
+    {
+        QMessageBox::warning(nullptr,
+                             tr("Input Error"),
+                             tr("Username must be 6-16 characters long and "
+                                "contain only letters and numbers."));
+        return false;
+    }
+
+    static const QSet<QString> blacklist = {"root",
+                                            "admin",
+                                            "administrator",
+                                            "system"};
+    if(blacklist.contains(username.toLower()))
+    {
+        QMessageBox::warning(nullptr,
+                             tr("Input Error"),
+                             tr("Username '%1' is not allowed. Please choose a "
+                                "different username.")
+                                 .arg(username));
+        return false;
+    }
+
+    QRegularExpression passwdRegex("^.{5,16}$");
+    if(!passwdRegex.match(password).hasMatch())
+    {
+        QMessageBox::warning(nullptr,
+                             tr("Input Error"),
+                             tr("Password must be 5-16 characters long."));
+        return false;
+    }
+
+    return true;
 }

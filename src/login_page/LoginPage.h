@@ -31,6 +31,7 @@ class LoginPage : public QWidget
 
   private:
     void _initConnections();
+    bool _validateInput(const QString &username, const QString &password);
 
   protected:
     explicit LoginPage(QWidget *parent = nullptr);
