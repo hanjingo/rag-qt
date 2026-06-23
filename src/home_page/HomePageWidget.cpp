@@ -507,11 +507,20 @@ void HomePageWidget::_addSessions(const QVector<Bus::Session> &sessions)
     for(int i = 0; i < sessions.size(); i++)
     {
         const auto &item   = sessions.at(i);
+
+        // ID
         auto       *idItem = new QStandardItem;
         idItem->setData(QVariant::fromValue<qlonglong>(item.id),
                         Qt::DisplayRole);
+        idItem->setFlags(idItem->flags() & ~Qt::ItemIsEditable); // uneditable
         m_pHistoryModel->setItem(n_row, 0, idItem);
-        m_pHistoryModel->setItem(n_row, 1, new QStandardItem(item.timestamp));
+
+        // TimeStamp
+        auto *tmItem = new QStandardItem(item.timestamp);
+        tmItem->setFlags(tmItem->flags() & ~Qt::ItemIsEditable);
+        m_pHistoryModel->setItem(n_row, 1, tmItem);
+
+        // Title
         m_pHistoryModel->setItem(n_row, 2, new QStandardItem(item.title));
         n_row++;
     }

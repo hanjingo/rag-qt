@@ -22,9 +22,13 @@ class BusAdapter : public QObject
     void _slotNewSessionFromBus(const QString &title,
                                 const QString &content,
                                 const QString &model);
+    void _slotGetSessionFromBus(const int64_t sessionId, int limit);
     void _slotQueryFromBus(const int64_t  sessionId,
                            const QString &query,
                            const QString &model);
+    void _slotGetMessageInfoFromBus(const int64_t msgId,
+                                    const int64_t sessionId,
+                                    int           limit);
 
   private:
     explicit BusAdapter(QObject *parent = nullptr);
