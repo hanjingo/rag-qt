@@ -73,6 +73,8 @@ class FrameworkWidget : public QWidget
 
     void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
 
+    void _slotImageCaptured(const QPixmap &pixmap);
+
   private:
     enum ResizeRegion
     {

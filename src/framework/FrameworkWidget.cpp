@@ -22,6 +22,7 @@
 #include "Error.h"
 #include "SettingPageModel.h"
 #include "System.h"
+#include "ScreenCapture.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -399,6 +400,11 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     }
 }
 
+void FrameworkWidget::_slotImageCaptured(const QPixmap &pixmap)
+{
+    qDebug() << "Image captured from screen capture. Size: " << pixmap.size();
+}
+
 void FrameworkWidget::_initProcMgr()
 {
     m_pProcManagerInst->init();
@@ -621,7 +627,7 @@ void FrameworkWidget::_initLanguage()
     ui->comboLang->setIconSize(QSize(24, 24));
 
     // get local language
-    QString localLang = LocalLang();
+    QString localLang = System::Instance()->LocalLang();
     if(localLang.startsWith("zh"))
         emit ui->comboLang->currentIndexChanged(0);
     else if(localLang.startsWith("en"))
@@ -639,36 +645,12 @@ void FrameworkWidget::_minimizeWindow()
 
 void FrameworkWidget::_selectScreen()
 {
-    this->showMinimized(); // Minimize the window to avoid it being captured in the screenshot of the current screen
-
-    // Get the list of available screens
-    QList<QScreen *> screens = QGuiApplication::screens();
-
-    // Create a menu to list the screens
-    QMenu screenMenu;
-    for(int i = 0; i < screens.size(); ++i)
-    {
-        QAction *action =
-            screenMenu.addAction(QString("Screen %1: %2x%3")
-                                     .arg(i + 1)
-                                     .arg(screens[i]->size().width())
-                                     .arg(screens[i]->size().height()));
-        action->setData(i); // Store the screen index in the action's data
-    }
-
-    // Show the menu at the cursor position
-    QAction *selectedAction = screenMenu.exec(QCursor::pos());
-    if(selectedAction)
-    {
-        int screenIndex = selectedAction->data().toInt();
-        if(screenIndex >= 0 && screenIndex < screens.size())
-        {
-            // Move the window to the selected screen
-            QScreen *selectedScreen = screens[screenIndex];
-            QRect    screenGeometry = selectedScreen->geometry();
-            move(screenGeometry.topLeft());
-        }
-    }
+    ScreenCapture *capture = new ScreenCapture(this);
+    connect(capture,
+            &ScreenCapture::SignalImageCaptured,
+            this,
+            &FrameworkWidget::_slotImageCaptured);
+    capture->start();
 }
 
 void FrameworkWidget::_showAlarmDialog()
