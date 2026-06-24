@@ -5,8 +5,11 @@
 #include "SettingPageWidget.h"
 #include "ui_SettingPageWidget.h"
 
+#include "StyleMgr.h"
+
 #include "SettingPageNetwork.h"
 #include "SettingPageHistory.h"
+#include "SettingPageSkill.h"
 #include "SettingPageVersion.h"
 #include "SettingPageModel.h"
 
@@ -27,9 +30,12 @@ SettingPageWidget::SettingPageWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->tabWidget->setStyleSheet(StyleMgr::ParseFile(":/styles/tab_widget"));
+
     ui->tabWidget->addTab(SettingPageHistory::GetSettingPageHistoryInst(),
                           tr("History Settings"));
     ui->tabWidget->addTab(SettingPageModel::Instance(), tr("Model Settings"));
+    ui->tabWidget->addTab(SettingPageSkill::Instance(), tr("Skill Settings"));
     ui->tabWidget->addTab(SettingPageNetwork::GetSettingPageNetworkInst(),
                           tr("Network Settings"));
     ui->tabWidget->addTab(SettingPageVersion::GetSettingPageVersionInst(),
@@ -57,10 +63,12 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
             SettingPageModel::Instance();
             break;
         case 2:
+            SettingPageSkill::Instance();
+            break;
+        case 3:
             SettingPageNetwork::GetSettingPageNetworkInst();
             break;
-
-        case 3:
+        case 4:
             SettingPageVersion::GetSettingPageVersionInst();
             break;
 

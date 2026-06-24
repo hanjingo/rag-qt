@@ -28,9 +28,15 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" rowspan="2">
     <widget class="QWidget" name="DockWidget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>72</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
-       <width>90</width>
+       <width>72</width>
        <height>16777215</height>
       </size>
      </property>
@@ -56,6 +62,18 @@ border-bottom-right-radius:8px;}</string>
       </property>
       <item>
        <widget class="QListWidget" name="listWidgetAppBar">
+        <property name="minimumSize">
+         <size>
+          <width>72</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>72</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="styleSheet">
          <string notr="true"/>
         </property>

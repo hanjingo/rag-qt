@@ -30,3 +30,15 @@ SettingPageNetwork::~SettingPageNetwork()
 {
     delete ui;
 }
+
+void SettingPageNetwork::_initUI()
+{
+}
+
+void SettingPageNetwork::_retranslate()
+{
+}
+
+void SettingPageNetwork::_initConnections()
+{
+}

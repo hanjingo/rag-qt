@@ -25,6 +25,10 @@ class SettingPageNetwork : public QWidget
     explicit SettingPageNetwork(QWidget *parent = nullptr);
     ~SettingPageNetwork();
 
+    void _initUI();
+    void _initConnections();
+    void _retranslate();
+
   private:
     Ui::SettingPageNetwork    *ui;
     static SettingPageNetwork *m_stSettingPageNetworkInst;
