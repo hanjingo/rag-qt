@@ -409,7 +409,7 @@ void SettingPageHistory::_slotBtnSearchClicked()
 
         const QString str = pTmItem->text();
         // Qt format uses 'hh' (not 'HH') for 24-hour parsing.
-        auto tm = QDateTime::fromString(str, "yyyy-MM-dd hh:mm:ss");
+        auto tm = QDateTime::fromString(str, TIMESTAMP_FMT);
         if(!tm.isValid())
         {
             qDebug() << "Invalid timestamp format: " << str;

@@ -57,9 +57,9 @@ class GrpcClient : public QObject
                       const QString &auth,
                       const QString &hash  = "",
                       int            limit = 50);
-    void NewModelInfo(const int64_t              user_id,
-                      const QString             &auth,
-                      const QVector<Bus::Model> &modelInfos);
+    void NewModelInfo(const int64_t                    user_id,
+                      const QString                   &auth,
+                      const QVector<Bus::ModelConfig> &modelInfos);
 
     void GetSkillInfo(const QString &hash = "", int limit = 50);
 
@@ -92,8 +92,8 @@ class GrpcClient : public QObject
                                       const QString &title);
     void SignalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
-    void SignalGetModelInfoResp(const int                  errorCode,
-                                const QVector<Bus::Model> &modelInfos);
+    void SignalGetModelInfoResp(const int                        errorCode,
+                                const QVector<Bus::ModelConfig> &modelInfos);
     void SignalNewModelInfoResp(const int               errorCode,
                                 const QVector<QString> &hashs);
 
@@ -107,8 +107,8 @@ class GrpcClient : public QObject
   private:
     void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src);
     void _convert(Bus::Session &dst, const ::GrpcLibrary::Session &src);
-    void _convert(::GrpcLibrary::Model &dst, const Bus::Model &src);
-    void _convert(Bus::Model &dst, const ::GrpcLibrary::Model &src);
+    void _convert(::GrpcLibrary::Model &dst, const Bus::ModelConfig &src);
+    void _convert(Bus::ModelConfig &dst, const ::GrpcLibrary::Model &src);
     void _convert(::GrpcLibrary::Skill &dst, const Bus::Skill &src);
     void _convert(Bus::Skill &dst, const ::GrpcLibrary::Skill &src);
     void _convert(::GrpcLibrary::MessageInfo &dst, const Bus::MessageInfo &src);

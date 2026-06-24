@@ -404,7 +404,7 @@ void GrpcClient::GetModelInfo(const int64_t  user_id,
                               const QString &hash,
                               int            limit)
 {
-    QVector<Bus::Model> ret;
+    QVector<Bus::ModelConfig> ret;
     if(!m_pChannel)
     {
         emit SignalGetModelInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
@@ -437,17 +437,17 @@ void GrpcClient::GetModelInfo(const int64_t  user_id,
 
     for(auto i = 0; i < resp.models_size(); i++)
     {
-        const auto item = resp.models(i);
-        Bus::Model model;
+        const auto       item = resp.models(i);
+        Bus::ModelConfig model;
         _convert(model, item);
         ret.append(model);
     }
     emit SignalGetModelInfoResp(resp.error_code(), ret);
 }
 
-void GrpcClient::NewModelInfo(const int64_t              user_id,
-                              const QString             &auth,
-                              const QVector<Bus::Model> &modelInfos)
+void GrpcClient::NewModelInfo(const int64_t                    user_id,
+                              const QString                   &auth,
+                              const QVector<Bus::ModelConfig> &modelInfos)
 {
     if(!m_pChannel)
     {
@@ -586,7 +586,8 @@ void GrpcClient::_convert(Bus::Session &dst, const ::GrpcLibrary::Session &src)
     dst.timestamp = QString::fromStdString(src.timestamp());
 }
 
-void GrpcClient::_convert(::GrpcLibrary::Model &dst, const Bus::Model &src)
+void GrpcClient::_convert(::GrpcLibrary::Model   &dst,
+                          const Bus::ModelConfig &src)
 {
     dst.set_hash(src.hash.toStdString());
     dst.set_name(src.name.toStdString());
@@ -598,7 +599,8 @@ void GrpcClient::_convert(::GrpcLibrary::Model &dst, const Bus::Model &src)
     dst.set_cost(src.cost);
 }
 
-void GrpcClient::_convert(Bus::Model &dst, const ::GrpcLibrary::Model &src)
+void GrpcClient::_convert(Bus::ModelConfig           &dst,
+                          const ::GrpcLibrary::Model &src)
 {
     dst.hash         = QString::fromStdString(src.hash());
     dst.name         = QString::fromStdString(src.name());

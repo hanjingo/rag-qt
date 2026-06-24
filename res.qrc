@@ -55,6 +55,9 @@
         <file alias="installing">res/icons/installing.png</file>
         <file alias="installed">res/icons/installed.png</file>
         <file alias="send">res/icons/send.png</file>
+        <file alias="save">res/icons/save.png</file>
+        <file alias="upload">res/icons/upload.png</file>
+        <file alias="import">res/icons/import.png</file>
     </qresource>
     <qresource prefix="/languages">
         <file alias="de_DE">res/languages/rag-qt_de_DE.qm</file>

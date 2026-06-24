@@ -26,7 +26,7 @@ class SettingPageModel : public QWidget
     ~SettingPageModel();
 
   public:
-    QVector<Bus::Model> GetModelInfos();
+    QVector<Bus::ModelConfig> GetModelConfigs();
 
   signals:
 
@@ -35,8 +35,6 @@ class SettingPageModel : public QWidget
 
   private slots:
     void _slotModelCtlBtnGroupClicked(int id);
-    void _slotTbviewSelectionChanged(const QItemSelection &selected,
-                                     const QItemSelection &deselected);
 
     void _slotLoginResp(const int      errorCode,
                         const int64_t  userId,
@@ -44,21 +42,30 @@ class SettingPageModel : public QWidget
                         const int32_t  privilege,
                         const QString &account,
                         const QString &lastLoginTime);
-    void _slotGetModelInfoResp(const int                  errorCode,
-                               const QVector<Bus::Model> &modelInfos);
-    void _slotNewModelInfoResp(const int               errorCode,
-                               const QVector<QString> &hashs);
+    void _slotGetModelInfoResp(const int                        errorCode,
+                               const QVector<Bus::ModelConfig> &modelInfos);
 
   private:
     void _initUI();
     void _initConnections();
     void _retranslate();
 
-    void _addModels(const QVector<Bus::Model> &models,
-                    const QString             &tag = "Staged");
-    void _delModels(const QVector<int64_t> &modelIds);
-    void _refreshModelTable(bool clearFirst = false);
-    void _filterModelTable(const QString &filterText);
+    void _addModels(const QVector<Bus::ModelConfig> &configs,
+                    const QString                   &tag = "Staged");
+    void _delModels(const QVector<QString> &hashs);
+    void _setModels(const QVector<Bus::ModelConfig> &configs,
+                    const QString                   &tag = "Staged");
+
+    QVector<Bus::ModelConfig> _getModelConfigs(const QVector<int> &rows = {});
+    void                      _saveModelConfigs();
+    void                      _importModelConfigs();
+    void                      _refreshModelTable(bool clearFirst = false);
+    void                      _filterModelTable(const QString &filterText);
+
+    void _convert(QJsonArray                      &jsonArrConfigs,
+                  const QVector<Bus::ModelConfig> &configs);
+    void _convert(QVector<Bus::ModelConfig> &configs,
+                  const QJsonArray          &jsonArrConfigs);
 
   private:
     Ui::SettingPageModel    *ui;

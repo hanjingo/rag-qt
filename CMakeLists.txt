@@ -205,6 +205,25 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 # ----------------------------------------------------------------------------
+# Resource Files
+# ----------------------------------------------------------------------------
+file(GLOB RAG_QT_RESOURCE_FILES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/res/*.json"
+)
+if (RAG_QT_RESOURCE_FILES)
+    add_custom_target(rag_qt_copy_resources ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${EXECUTABLE_OUTPUT_PATH}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${RAG_QT_RESOURCE_FILES}
+            "${EXECUTABLE_OUTPUT_PATH}"
+        DEPENDS ${RAG_QT_RESOURCE_FILES}
+        COMMENT "Copying rag_qt resource files to output dir ${EXECUTABLE_OUTPUT_PATH}"
+    )
+else()
+    message(STATUS "No Rag-Qt resource files to copy for ${PROJECT_NAME}")
+endif()
+
+# ----------------------------------------------------------------------------
 # deploy Qt
 # ----------------------------------------------------------------------------
 if (CMAKE_BUILD_TYPE STREQUAL "Release")

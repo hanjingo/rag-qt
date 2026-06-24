@@ -381,21 +381,15 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
         return;
     }
 
-    //qDebug() << "Plugin loaded: " << plugin->Name()
-    //         << ", version: " << plugin->Version()
-    //         << ", description: " << plugin->Description();
     auto wgt = plugin->Init(Bus::Instance());
     emit BusAdapter::Instance() -> SignalPing();
-    auto modelInfos = SettingPageModel::Instance()->GetModelInfos();
-    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(modelInfos);
+
+    auto confs = SettingPageModel::Instance()->GetModelConfigs();
+    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(confs);
     if(wgt)
     {
         // TODO sort icon position
-        int index = ui->stackedWidget->count();
-        // index         = (index < 0 || index > ui->stackedWidget->count())
-        //                     ? ui->stackedWidget->count()
-        //                     : index;
-
+        int       index = ui->stackedWidget->count();
         QFileInfo fileInfo(filePath);
         auto iconPath = fileInfo.absoluteDir().absoluteFilePath(plugin->Icon());
         _addAppBarItem(plugin->Name(), iconPath, index);

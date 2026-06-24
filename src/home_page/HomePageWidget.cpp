@@ -235,7 +235,7 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
     {
         case 0: { // add session
             qDebug() << "Add session button clicked.";
-            auto infos = SettingPageModel::Instance()->GetModelInfos();
+            auto infos = SettingPageModel::Instance()->GetModelConfigs();
             QVector<QString> models;
             for(const auto &info : infos)
                 models.append(info.name);
@@ -506,10 +506,10 @@ void HomePageWidget::_addSessions(const QVector<Bus::Session> &sessions)
     int n_row = m_pHistoryModel->rowCount();
     for(int i = 0; i < sessions.size(); i++)
     {
-        const auto &item   = sessions.at(i);
+        const auto &item = sessions.at(i);
 
         // ID
-        auto       *idItem = new QStandardItem;
+        auto *idItem = new QStandardItem;
         idItem->setData(QVariant::fromValue<qlonglong>(item.id),
                         Qt::DisplayRole);
         idItem->setFlags(idItem->flags() & ~Qt::ItemIsEditable); // uneditable
