@@ -57,6 +57,11 @@ void SettingPageHistory::_initConnections()
             &SettingPageHistory::_slotGetSessionResp);
 
     connect(GrpcClient::Instance(),
+            &GrpcClient::SignalDelSessionResp,
+            this,
+            &SettingPageHistory::_slotDelSessionResp);
+
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalGetMessageInfoResp,
             this,
             &SettingPageHistory::_slotGetMessageInfoResp);
@@ -140,6 +145,7 @@ void SettingPageHistory::_slotDelSessionResp(const int               errorCode,
         }
     }
     _refreshHistoryTable();
+    _refreshChatBrowser(true);
 }
 
 void SettingPageHistory::_slotGetMessageInfoResp(
@@ -555,6 +561,9 @@ void SettingPageHistory::_refreshHistoryTable(bool clearFirst)
 
 void SettingPageHistory::_refreshChatBrowser(bool clearFirst)
 {
+    if(clearFirst)
+        ui->txtBrowserChat->clear();
+
     QModelIndex curr = ui->tbviewCatalog->currentIndex();
     if(!curr.isValid())
         return;
@@ -563,9 +572,6 @@ void SettingPageHistory::_refreshChatBrowser(bool clearFirst)
     QStandardItem *pContentItem = m_pHistoryModel->item(row, 3);
     if(pContentItem == nullptr)
         return;
-
-    if(clearFirst)
-        ui->txtBrowserChat->clear();
 
     QJsonArray arr = pContentItem->data(Qt::UserRole).toJsonArray();
     for(int i = arr.size() - 1; i >= 0; i--)
