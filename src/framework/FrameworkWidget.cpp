@@ -21,6 +21,7 @@
 #include "ui_FrameworkWidget.h"
 #include "Error.h"
 #include "SettingPageModel.h"
+#include "System.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -59,9 +60,10 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     _initStackedWidget();
     _initTimer();
     _initServer();
-    _initLanguage();
 
     _initPluginMgr();
+
+    _initLanguage();
 }
 
 FrameworkWidget::~FrameworkWidget()
@@ -616,8 +618,18 @@ void FrameworkWidget::_initServer()
 void FrameworkWidget::_initLanguage()
 {
     ui->comboLang->setStyleSheet(StyleMgr::ParseFile(":/styles/combo_box"));
-    ui->comboLang->setCurrentIndex(1); // Default to English
     ui->comboLang->setIconSize(QSize(24, 24));
+
+    // get local language
+    QString localLang = LocalLang();
+    if(localLang.startsWith("zh"))
+        emit ui->comboLang->currentIndexChanged(0);
+    else if(localLang.startsWith("en"))
+        emit ui->comboLang->currentIndexChanged(1);
+    else if(localLang.startsWith("de"))
+        emit ui->comboLang->currentIndexChanged(2);
+    else
+        emit ui->comboLang->currentIndexChanged(1); // Default to English
 }
 
 void FrameworkWidget::_minimizeWindow()
