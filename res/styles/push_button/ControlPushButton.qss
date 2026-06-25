@@ -1,0 +1,10 @@
+QPushButton
+{
+    background-color: #7B8DA3;
+    
+    /* qproperty-icon: url(":/icons/logout"); */
+    
+    qproperty-iconSize: 48px 48px; 
+    
+    border: none; 
+}

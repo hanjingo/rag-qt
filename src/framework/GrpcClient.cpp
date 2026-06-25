@@ -1,5 +1,6 @@
 #include "GrpcClient.h"
 
+#include <QCoreApplication>
 #include "Error.h"
 
 GrpcClient *GrpcClient::m_stGrpcClientInst = nullptr;
@@ -179,6 +180,7 @@ void GrpcClient::Query(const int64_t  id,
                              id,
                              QString::fromStdString(resp.content()),
                              resp.is_finished());
+        QCoreApplication::processEvents();
     }
     reader->Finish();
 

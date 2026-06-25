@@ -11,9 +11,10 @@ QListWidget {
 }
 QListWidget::item {
     color: #EAF2FF;
-    width: 75px;
-    height: 75px;
-    margin: 3px 0px;
+    font-size: 10px;
+    width: 58px;
+    height: 58px;
+    margin: 2px 0px;
     border-radius: 10px;
     padding: 0px;
 }

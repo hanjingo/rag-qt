@@ -92,6 +92,7 @@
         <file alias="slide_bar">res/styles/list_widget/SlideBar.qss</file>
 
         <file alias="push_button">res/styles/push_button/PushButton.qss</file>
+        <file alias="ctl_push_button">res/styles/push_button/ControlPushButton.qss</file>
 
         <file alias="scroll_area">res/styles/scroll_area/ScrollArea.qss</file>
 

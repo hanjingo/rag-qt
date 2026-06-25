@@ -181,8 +181,8 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
         </property>
         <property name="iconSize">
          <size>
-          <width>20</width>
-          <height>20</height>
+          <width>30</width>
+          <height>30</height>
          </size>
         </property>
         <item>
@@ -216,26 +216,11 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
       </item>
       <item>
        <widget class="QPushButton" name="btnMinimize">
-        <property name="minimumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{border-image:url(:/icons/minimize);}
-
-
-</string>
+         <string notr="true"/>
         </property>
         <property name="text">
          <string/>
@@ -257,23 +242,11 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
       </item>
       <item>
        <widget class="QPushButton" name="btnSelectScreen">
-        <property name="minimumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{border-image:url(:/icons/quit_usual);}</string>
+         <string notr="true"/>
         </property>
         <property name="icon">
          <iconset resource="../../res.qrc">
@@ -295,29 +268,19 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
       </item>
       <item>
        <widget class="QPushButton" name="btnAlarm">
-        <property name="minimumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{border-image:url(:/icons/icon_warn);}
-
-
-</string>
+         <string notr="true"/>
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normalon>:/icons/icon_warn</normalon>
+         </iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -332,31 +295,11 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
       </item>
       <item>
        <widget class="QPushButton" name="btnSwitch">
-        <property name="minimumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">ui-&gt;btnPower-&gt;setStyleSheet(
-    &quot;QPushButton {&quot;
-    &quot;   background-color: transparent;&quot;  // 背景完全透明
-    &quot;   border: none;&quot;                   // 移除邊框線
-    &quot;}&quot;
-    &quot;QPushButton:hover {&quot;
-    &quot;   background-color: rgba(255, 255, 255, 0.1);&quot; // 滑鼠懸停時微亮（可選，增加互動感）
-    &quot;}&quot;
-);</string>
+         <string notr="true"/>
         </property>
         <property name="icon">
          <iconset resource="../../res.qrc">
@@ -378,23 +321,16 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
       </item>
       <item>
        <widget class="QPushButton" name="btnExit">
-        <property name="minimumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{border-image:url(:/icons/quit_usual);}</string>
+         <string notr="true"/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normalon>:/icons/quit_usual</normalon>
+         </iconset>
         </property>
         <property name="iconSize">
          <size>

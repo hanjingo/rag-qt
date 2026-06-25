@@ -501,16 +501,12 @@ void FrameworkWidget::_updateResizeCursor(int region)
 
 void FrameworkWidget::_initAppBar()
 {
-    const QSize appBarItemSize(75, 75);
     ui->listWidgetAppBar->setViewMode(QListView::IconMode);
     ui->listWidgetAppBar->setFlow(QListView::TopToBottom);
     ui->listWidgetAppBar->setMovement(QListView::Static);
     ui->listWidgetAppBar->setResizeMode(QListView::Adjust);
     ui->listWidgetAppBar->setWrapping(false);
     ui->listWidgetAppBar->setUniformItemSizes(true);
-    ui->listWidgetAppBar->setGridSize(appBarItemSize);
-    ui->listWidgetAppBar->setIconSize(QSize(40, 40));
-    ui->listWidgetAppBar->setSpacing(6);
     ui->listWidgetAppBar->setTextElideMode(Qt::ElideNone);
     ui->listWidgetAppBar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->listWidgetAppBar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -529,6 +525,12 @@ void FrameworkWidget::_initControlBar()
     m_pCtlBtnGroup->addButton(ui->btnAlarm, 2);
     m_pCtlBtnGroup->addButton(ui->btnSwitch, 3);
     m_pCtlBtnGroup->addButton(ui->btnExit, 4);
+    for(auto btn : m_pCtlBtnGroup->buttons())
+    {
+        btn->setStyleSheet(StyleMgr::ParseFile(":/styles/ctl_push_button"));
+    }
+    // ui->btnSwitch->setStyleSheet(
+    //     StyleMgr::ParseFile(":/styles/ctl_push_button"));
 
     ui->lblNotice->setText(tr("Welcome!!!"));
 }
@@ -695,7 +697,6 @@ void FrameworkWidget::_addAppBarItem(const QString &text,
 
     QListWidgetItem *item = new QListWidgetItem(icon, text);
     item->setTextAlignment(Qt::AlignHCenter | Qt::AlignBottom);
-    item->setSizeHint(QSize(72, 72));
 
     ui->listWidgetAppBar->insertItem(index, item);
 }
