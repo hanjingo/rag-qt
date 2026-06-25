@@ -150,7 +150,7 @@ void GrpcClient::Query(const int64_t  id,
 {
     if(!m_pChannel)
     {
-        emit SignalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED, id, "");
+        emit SignalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED, id, "", true);
         return;
     }
 
@@ -170,16 +170,29 @@ void GrpcClient::Query(const int64_t  id,
     grpc::ClientContext    context;
 
     // Make the RPC call
-    grpc::Status status = stub->Query(&context, req, &resp);
+    std::unique_ptr<grpc::ClientReader<GrpcLibrary::QueryResp>> reader(
+        stub->Query(&context, req));
 
-    if(status.ok())
+    while(reader->Read(&resp))
+    {
         emit SignalQueryResp(resp.error_code(),
                              id,
-                             QString::fromStdString(resp.content()));
-    else
-        emit SignalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                             id,
-                             QString::fromStdString(status.error_message()));
+                             QString::fromStdString(resp.content()),
+                             resp.is_finished());
+    }
+    reader->Finish();
+
+    // // Make the RPC call
+    // grpc::Status status = stub->Query(&context, req, &resp);
+
+    // if(status.ok())
+    //     emit SignalQueryResp(resp.error_code(),
+    //                          id,
+    //                          QString::fromStdString(resp.content()));
+    // else
+    //     emit SignalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+    //                          id,
+    //                          QString::fromStdString(status.error_message()));
 }
 
 void GrpcClient::GetMessageInfo(const int64_t  session_id,

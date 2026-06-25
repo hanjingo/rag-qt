@@ -79,7 +79,8 @@ class GrpcClient : public QObject
 
     void SignalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
-                         const QString &content);
+                         const QString &content,
+                         const bool     isFinished);
     void SignalGetMessageInfoResp(const int                        errorCode,
                                   const QVector<Bus::MessageInfo> &messages);
 

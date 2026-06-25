@@ -94,7 +94,8 @@ class Bus : public QObject
                      const QString &model);
     void SignalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
-                         const QString &content);
+                         const QString &content,
+                         const bool     isFinished);
 
     void SignalGetMessageInfo(const int64_t msgId,
                               const int64_t sessionId,
