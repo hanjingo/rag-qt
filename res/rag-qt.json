@@ -1,40 +1,22 @@
 {
-    "model_configs":[
+    "model_configs": [
         {
-            "hash": "hash1",
-            "name": "TinyStories-656K-Q3_K_M",
-            "publisher": "unknown",
-            "timestamp": "2026-06-01 12:00:01",
             "addr": "./models/TinyStories-656K-Q3_K_M.gguf",
-            "capabilities": "chat",
-            "context_size": 4000,
-            "cost": 0.0,
             "api_key": "",
-            "temperature": 0.7,
-            "top_p": 0.1,
-            "top_k": 0.1,
-            "reputation_penalty": 0.1,
-            "max_tokens": 4000,
-            "stop_words": "",
-            "prompt": ""
-        },
-        {
-            "hash": "hash2",
-            "name": "qwen",
-            "publisher": "unknown",
-            "timestamp": "2026-06-01 12:00:01",
-            "addr": "http://www.huggingface.com/qwen",
             "capabilities": "chat",
             "context_size": 4000,
-            "cost": 0.0,
-            "api_key": "xxxxxxxx",
-            "temperature": 0.7,
-            "top_p": 0.1,
-            "top_k": 0.1,
-            "reputation_penalty": 0.1,
+            "cost": 0,
+            "hash": "hash1",
             "max_tokens": 4000,
+            "name": "TinyStories-656K-Q3_K_M",
+            "prompt": "",
+            "publisher": "unknown",
+            "reputation_penalty": 0.10000000149011612,
             "stop_words": "",
-            "prompt": ""
+            "temperature": 0.699999988079071,
+            "timestamp": "2026-06-01 12:00:01",
+            "top_k": 0.10000000149011612,
+            "top_p": 0.10000000149011612
         }
     ]
 }

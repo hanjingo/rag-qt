@@ -400,6 +400,19 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     }
 }
 
+void FrameworkWidget::_slotCoreStarted()
+{
+}
+
+void FrameworkWidget::_slotCoreFinished(int                  exitCode,
+                                        QProcess::ExitStatus exitStatus)
+{
+}
+
+void FrameworkWidget::_slotCoreError(QProcess::ProcessError error)
+{
+}
+
 void FrameworkWidget::_slotImageCaptured(const QPixmap &pixmap)
 {
     qDebug() << "Image captured from screen capture. Size: " << pixmap.size();
@@ -611,6 +624,19 @@ void FrameworkWidget::_initConnections()
             &PluginMgr::SignalPluginLoaded,
             this,
             &FrameworkWidget::_slotPluginLoaded);
+
+    connect(m_pProcManagerInst,
+            &ProcManager::SignalCoreStarted,
+            this,
+            &FrameworkWidget::_slotCoreStarted);
+    connect(m_pProcManagerInst,
+            &ProcManager::SignalCoreFinished,
+            this,
+            &FrameworkWidget::_slotCoreFinished);
+    connect(m_pProcManagerInst,
+            &ProcManager::SignalCoreError,
+            this,
+            &FrameworkWidget::_slotCoreError);
 }
 
 void FrameworkWidget::_initTimer()

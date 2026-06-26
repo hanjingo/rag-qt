@@ -106,6 +106,7 @@ void ProcManager::_disconnectCore()
 void ProcManager::_slotCoreStarted()
 {
     qDebug() << "Core started.";
+    emit SignalCoreStarted();
 }
 
 void ProcManager::_slotCoreFinished(int                  exitCode,
@@ -113,9 +114,11 @@ void ProcManager::_slotCoreFinished(int                  exitCode,
 {
     qDebug() << "Core finished. Exit code:" << exitCode
              << "Exit status:" << exitStatus;
+    emit SignalCoreFinished(exitCode, exitStatus);
 }
 
 void ProcManager::_slotCoreError(QProcess::ProcessError error)
 {
     qDebug() << "Core error:" << error;
+    emit SignalCoreError(error);
 }

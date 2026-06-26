@@ -9,7 +9,7 @@
       ],
       "buildRoot": "${projectDir}\\build\\${name}",
       "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -DBUILD_TEST=ON -DBUILD_BENCH=ON -DBUILD_EXAMPLE=OFF",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -DBUILD_TEST=ON -DBUILD_BENCH=ON -DBUILD_EXAMPLE=OFF -DGGML_CUDA=ON",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "variables": [
@@ -34,7 +34,7 @@
       ],
       "buildRoot": "${projectDir}\\build\\${name}",
       "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -DBUILD_TEST=ON -DBUILD_BENCH=ON -DBUILD_EXAMPLE=OFF",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -DBUILD_TEST=ON -DBUILD_BENCH=ON -DBUILD_EXAMPLE=OFF -DGGML_CUDA=ON",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "variables": [

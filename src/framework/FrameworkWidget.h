@@ -73,6 +73,10 @@ class FrameworkWidget : public QWidget
 
     void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
 
+    void _slotCoreStarted();
+    void _slotCoreFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void _slotCoreError(QProcess::ProcessError error);
+
     void _slotImageCaptured(const QPixmap &pixmap);
 
   private:

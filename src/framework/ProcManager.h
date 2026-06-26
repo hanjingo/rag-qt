@@ -15,6 +15,11 @@ class ProcManager : public QObject
     void                init();
     void                destroy();
 
+  signals:
+    void SignalCoreStarted();
+    void SignalCoreFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void SignalCoreError(QProcess::ProcessError error);
+
   private:
     void _connectCore();
     void _disconnectCore();
