@@ -42,8 +42,6 @@ class SettingPageModel : public QWidget
                         const int32_t  privilege,
                         const QString &account,
                         const QString &lastLoginTime);
-    void _slotGetModelInfoResp(const int                        errorCode,
-                               const QVector<Bus::ModelConfig> &modelInfos);
 
   private:
     void _initUI();

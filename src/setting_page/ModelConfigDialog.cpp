@@ -1,10 +1,13 @@
 #include "ModelConfigDialog.h"
 #include "ui_ModelConfigDialog.h"
 
+#include "Global.h"
+
 ModelConfigDialog::ModelConfigDialog(const Bus::ModelConfig &conf,
                                      QWidget                *parent)
     : QDialog(parent)
     , ui(new Ui::ModelConfigDialog)
+    , m_pPipelineBtnGroup(new QButtonGroup(this))
     , m_conf(conf)
 {
     ui->setupUi(this);
@@ -21,12 +24,11 @@ ModelConfigDialog::~ModelConfigDialog()
 
 Bus::ModelConfig ModelConfigDialog::GetConfig()
 {
-    m_conf.hash      = ui->editHash->text();
-    m_conf.name      = ui->editName->text();
-    m_conf.publisher = ui->editPublisher->text();
-    m_conf.timestamp = ui->editTimestamp->text();
-    m_conf.addr      = ui->editAddr->text();
-    // m_conf.capabilities = ui->editCapabilities->text();
+    m_conf.id          = ui->editID->text();
+    m_conf.name        = ui->editName->text();
+    m_conf.publisher   = ui->editPublisher->text();
+    m_conf.timestamp   = ui->editTimestamp->text();
+    m_conf.addr        = ui->editAddr->text();
     m_conf.contextSize = ui->editMaxTokens->text().toLongLong();
     m_conf.cost        = ui->editPrice->text().toInt();
 
@@ -38,6 +40,14 @@ Bus::ModelConfig ModelConfigDialog::GetConfig()
     m_conf.maxTokens         = ui->editMaxTokens->text().toLongLong();
     m_conf.stopWords         = ui->editStopWords->text();
     m_conf.prompt            = ui->editPrompt->toPlainText();
+
+    if(ui->ckLocal->isChecked())
+        m_conf.pipeline = PIPELINE_LOCAL;
+    else if(ui->ckRemote->isChecked())
+        m_conf.pipeline = PIPELINE_REMOTE;
+    else if(ui->ckHybrid->isChecked())
+        m_conf.pipeline = PIPELINE_HYBRID;
+
     return m_conf;
 }
 
@@ -47,7 +57,7 @@ void ModelConfigDialog::_retranslate()
 
 void ModelConfigDialog::_initUI()
 {
-    ui->editHash->setText(m_conf.hash);
+    ui->editID->setText(m_conf.id);
     ui->editName->setText(m_conf.name);
     ui->editPublisher->setText(m_conf.publisher);
     ui->editTimestamp->setText(m_conf.timestamp);
@@ -63,6 +73,22 @@ void ModelConfigDialog::_initUI()
     ui->editMaxTokens->setText(QString::number(m_conf.maxTokens));
     ui->editStopWords->setText(m_conf.stopWords);
     ui->editPrompt->setPlainText(m_conf.prompt);
+
+    m_pPipelineBtnGroup->addButton(ui->ckLocal);
+    m_pPipelineBtnGroup->addButton(ui->ckRemote);
+    m_pPipelineBtnGroup->addButton(ui->ckHybrid);
+    m_pPipelineBtnGroup->setExclusive(true);
+
+    if(m_conf.pipeline == PIPELINE_LOCAL)
+    {
+        ui->ckLocal->setChecked(true);
+    } else if(m_conf.pipeline == PIPELINE_REMOTE)
+    {
+        ui->ckRemote->setChecked(true);
+    } else if(m_conf.pipeline == PIPELINE_HYBRID)
+    {
+        ui->ckHybrid->setChecked(true);
+    }
 }
 
 void ModelConfigDialog::_initConnections()

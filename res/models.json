@@ -1,0 +1,20 @@
+[
+    {
+        "id": "bartowski/SmolLM2-135M-Instruct-Q8_0",
+        "addr": "./models/SmolLM2-135M-Instruct-Q8_0.gguf",
+        "api_key": "",
+        "pipeline": "local",
+        "context_size": 4000,
+        "cost": 0,
+        "max_tokens": 4000,
+        "name": "SmolLM2-135M-Instruct-Q8_0",
+        "prompt": "",
+        "publisher": "unknown",
+        "reputation_penalty": 0.10000000149011612,
+        "stop_words": "",
+        "temperature": 0.699999988079071,
+        "timestamp": "2026-06-01 12:00:01",
+        "top_k": 0.10000000149011612,
+        "top_p": 0.10000000149011612
+    }
+]

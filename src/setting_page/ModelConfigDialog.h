@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QVector>
+#include <QButtonGroup>
 
 #include "ui_ModelConfigDialog.h"
 #include "Bus.h"
@@ -30,7 +31,9 @@ class ModelConfigDialog : public QDialog
 
   private:
     Ui::ModelConfigDialog *ui;
-    Bus::ModelConfig       m_conf;
+
+    QButtonGroup    *m_pPipelineBtnGroup;
+    Bus::ModelConfig m_conf;
 };
 
 #endif // MODELCONFIGDIALOG_H

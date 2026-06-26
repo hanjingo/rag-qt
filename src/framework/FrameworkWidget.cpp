@@ -219,8 +219,6 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
     // query skill info after login in
     GrpcClient::Instance()->GetSkillInfo();
 
-    // query model info after login in
-    GrpcClient::Instance()->GetModelInfo(user_id, auth, "", 50);
     return;
 }
 

@@ -34,12 +34,12 @@ class Bus : public QObject
     struct ModelConfig
     {
         // base info
-        QString hash;
+        QString id;
         QString name;
         QString publisher;
         QString timestamp;
         QString addr;
-        QString capabilities;
+        QString pipeline;
         qint64  contextSize;
         qint32  cost;
         QString apiKey;

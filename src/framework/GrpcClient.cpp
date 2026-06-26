@@ -414,96 +414,6 @@ void GrpcClient::DelSession(const int64_t           user_id,
     emit SignalDelSessionResp(resp.error_code(), ret);
 }
 
-void GrpcClient::GetModelInfo(const int64_t  user_id,
-                              const QString &auth,
-                              const QString &hash,
-                              int            limit)
-{
-    QVector<Bus::ModelConfig> ret;
-    if(!m_pChannel)
-    {
-        emit SignalGetModelInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
-        return;
-    }
-
-    // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
-
-    // Prepare the request
-    GrpcLibrary::GetModelInfoReq req;
-    req.set_user_id(user_id);
-    req.set_auth(auth.toStdString());
-    req.set_hash(hash.toStdString());
-    req.set_limit(limit);
-
-    // Prepare the response and context
-    GrpcLibrary::GetModelInfoResp resp;
-    grpc::ClientContext           context;
-
-    // Make the RPC call
-    grpc::Status status = stub->GetModelInfo(&context, req, &resp);
-
-    if(!status.ok())
-    {
-        auto ec = status.error_code();
-        emit SignalGetModelInfoResp(ec, ret);
-        return;
-    }
-
-    for(auto i = 0; i < resp.models_size(); i++)
-    {
-        const auto       item = resp.models(i);
-        Bus::ModelConfig model;
-        _convert(model, item);
-        ret.append(model);
-    }
-    emit SignalGetModelInfoResp(resp.error_code(), ret);
-}
-
-void GrpcClient::NewModelInfo(const int64_t                    user_id,
-                              const QString                   &auth,
-                              const QVector<Bus::ModelConfig> &modelInfos)
-{
-    if(!m_pChannel)
-    {
-        emit SignalNewModelInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, {});
-        return;
-    }
-
-    // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
-
-    // Prepare the request
-    GrpcLibrary::NewModelInfoReq req;
-    req.set_user_id(user_id);
-    req.set_auth(auth.toStdString());
-    for(const auto &model : modelInfos)
-    {
-        auto m = req.add_models();
-        _convert(*m, model);
-    }
-
-    // Prepare the response and context
-    GrpcLibrary::NewModelInfoResp resp;
-    grpc::ClientContext           context;
-
-    // Make the RPC call
-    grpc::Status status = stub->NewModelInfo(&context, req, &resp);
-
-    if(!status.ok())
-    {
-        auto ec = status.error_code();
-        emit SignalNewModelInfoResp(ec, {});
-        return;
-    }
-
-    QVector<QString> hashs;
-    for(auto hash : resp.hashs())
-        hashs.append(QString::fromStdString(hash));
-
-    emit SignalNewModelInfoResp(resp.error_code(), hashs);
-}
-
 void GrpcClient::GetSkillInfo(const QString &hash, int limit)
 {
     QVector<Bus::Skill> ret;
@@ -599,32 +509,6 @@ void GrpcClient::_convert(Bus::Session &dst, const ::GrpcLibrary::Session &src)
     dst.userId    = src.user_id();
     dst.title     = QString::fromStdString(src.title());
     dst.timestamp = QString::fromStdString(src.timestamp());
-}
-
-void GrpcClient::_convert(::GrpcLibrary::Model   &dst,
-                          const Bus::ModelConfig &src)
-{
-    dst.set_hash(src.hash.toStdString());
-    dst.set_name(src.name.toStdString());
-    dst.set_publisher(src.publisher.toStdString());
-    dst.set_timestamp(src.timestamp.toStdString());
-    dst.set_addr(src.addr.toStdString());
-    dst.set_capabilities(src.capabilities.toStdString());
-    dst.set_context_size(src.contextSize);
-    dst.set_cost(src.cost);
-}
-
-void GrpcClient::_convert(Bus::ModelConfig           &dst,
-                          const ::GrpcLibrary::Model &src)
-{
-    dst.hash         = QString::fromStdString(src.hash());
-    dst.name         = QString::fromStdString(src.name());
-    dst.publisher    = QString::fromStdString(src.publisher());
-    dst.timestamp    = QString::fromStdString(src.timestamp());
-    dst.addr         = QString::fromStdString(src.addr());
-    dst.capabilities = QString::fromStdString(src.capabilities());
-    dst.contextSize  = src.context_size();
-    dst.cost         = src.cost();
 }
 
 void GrpcClient::_convert(::GrpcLibrary::Skill &dst, const Bus::Skill &src)

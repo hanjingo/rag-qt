@@ -58,14 +58,14 @@ QVector<Bus::ModelConfig> SettingPageModel::GetModelConfigs()
     for(int row = 0; row < m_pLLMListModel->rowCount(); ++row)
     {
         Bus::ModelConfig conf;
-        conf.hash         = m_pLLMListModel->item(row, 0)->text();
-        conf.name         = m_pLLMListModel->item(row, 1)->text();
-        conf.publisher    = m_pLLMListModel->item(row, 2)->text();
-        conf.timestamp    = m_pLLMListModel->item(row, 3)->text();
-        conf.addr         = m_pLLMListModel->item(row, 4)->text();
-        conf.capabilities = m_pLLMListModel->item(row, 5)->text();
-        conf.contextSize  = m_pLLMListModel->item(row, 6)->text().toInt();
-        conf.cost         = m_pLLMListModel->item(row, 7)->text().toInt();
+        conf.id          = m_pLLMListModel->item(row, 0)->text();
+        conf.name        = m_pLLMListModel->item(row, 1)->text();
+        conf.publisher   = m_pLLMListModel->item(row, 2)->text();
+        conf.timestamp   = m_pLLMListModel->item(row, 3)->text();
+        conf.addr        = m_pLLMListModel->item(row, 4)->text();
+        conf.pipeline    = m_pLLMListModel->item(row, 5)->text();
+        conf.contextSize = m_pLLMListModel->item(row, 6)->text().toInt();
+        conf.cost        = m_pLLMListModel->item(row, 7)->text().toInt();
 
         conf.apiKey      = m_pLLMListModel->item(row, 8)->text();
         conf.temperature = m_pLLMListModel->item(row, 9)->text().toFloat();
@@ -153,11 +153,6 @@ void SettingPageModel::_initConnections()
             &GrpcClient::SignalLoginResp,
             this,
             &SettingPageModel::_slotLoginResp);
-
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetModelInfoResp,
-            this,
-            &SettingPageModel::_slotGetModelInfoResp);
 }
 
 void SettingPageModel::_refreshModelTable(bool clearFirst)
@@ -170,12 +165,12 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
 
     ui->tbviewModel->setModel(m_pLLMListModel);
     m_pLLMListModel->setColumnCount(17);
-    m_pLLMListModel->setHeaderData(0, Qt::Horizontal, tr("Hash"));
+    m_pLLMListModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
     m_pLLMListModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
     m_pLLMListModel->setHeaderData(2, Qt::Horizontal, tr("Publisher"));
     m_pLLMListModel->setHeaderData(3, Qt::Horizontal, tr("Time Stamp"));
     m_pLLMListModel->setHeaderData(4, Qt::Horizontal, tr("Addr"));
-    m_pLLMListModel->setHeaderData(5, Qt::Horizontal, tr("Capabilities"));
+    m_pLLMListModel->setHeaderData(5, Qt::Horizontal, tr("Pipeline"));
     m_pLLMListModel->setHeaderData(6, Qt::Horizontal, tr("Context Size"));
     m_pLLMListModel->setHeaderData(7, Qt::Horizontal, tr("Cost"));
     m_pLLMListModel->setHeaderData(8, Qt::Horizontal, tr("Api KEY"));
@@ -191,8 +186,10 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
 
     m_pLLMListModel->setHeaderData(16, Qt::Horizontal, tr("Tag"));
 
-    ui->tbviewModel->hideColumn(0);  // hide hash column
+    ui->tbviewModel->hideColumn(1);  // hide name column
     ui->tbviewModel->hideColumn(2);  // hide publisher column
+    ui->tbviewModel->hideColumn(3);  // hide timestamp column
+    ui->tbviewModel->hideColumn(8);  // hide API KEY column
     ui->tbviewModel->hideColumn(14); // hide stop words column
     ui->tbviewModel->hideColumn(15); // hide prompt column
 }
@@ -207,14 +204,12 @@ void SettingPageModel::_addModels(const QVector<Bus::ModelConfig> &configs,
     for(int i = 0; i < configs.size(); i++)
     {
         const auto conf = configs.at(i);
-        m_pLLMListModel->setItem(n_row, 0, new QStandardItem(conf.hash));
+        m_pLLMListModel->setItem(n_row, 0, new QStandardItem(conf.id));
         m_pLLMListModel->setItem(n_row, 1, new QStandardItem(conf.name));
         m_pLLMListModel->setItem(n_row, 2, new QStandardItem(conf.publisher));
         m_pLLMListModel->setItem(n_row, 3, new QStandardItem(conf.timestamp));
         m_pLLMListModel->setItem(n_row, 4, new QStandardItem(conf.addr));
-        m_pLLMListModel->setItem(n_row,
-                                 5,
-                                 new QStandardItem(conf.capabilities));
+        m_pLLMListModel->setItem(n_row, 5, new QStandardItem(conf.pipeline));
         m_pLLMListModel->setItem(
             n_row,
             6,
@@ -278,30 +273,30 @@ void SettingPageModel::_setModels(const QVector<Bus::ModelConfig> &configs,
     if(m_pLLMListModel == nullptr)
         return;
 
-    QVector<QString> hashs;
+    QVector<QString> ids;
     for(auto conf : configs)
-        hashs.append(conf.hash);
+        ids.append(conf.id);
 
     for(int i = 0; i < m_pLLMListModel->rowCount(); i++)
     {
-        auto pHashItem = m_pLLMListModel->item(i, 0);
-        if(pHashItem == nullptr || !hashs.contains(pHashItem->text()))
+        auto pIdItem = m_pLLMListModel->item(i, 0);
+        if(pIdItem == nullptr || !ids.contains(pIdItem->text()))
             continue;
 
         Bus::ModelConfig conf;
-        conf.hash = "";
+        conf.id = "";
         for(auto item : configs)
         {
-            if(item.hash == pHashItem->text())
+            if(item.id == pIdItem->text())
             {
                 conf = item;
                 break;
             }
         }
-        if(conf.hash.isEmpty())
+        if(conf.id.isEmpty())
             continue;
 
-        pHashItem->setText(conf.hash);
+        pIdItem->setText(conf.id);
         auto pNameItem = m_pLLMListModel->item(i, 1);
         if(pNameItem)
             pNameItem->setText(conf.name);
@@ -318,9 +313,9 @@ void SettingPageModel::_setModels(const QVector<Bus::ModelConfig> &configs,
         if(pAddrItem)
             pAddrItem->setText(conf.addr);
 
-        auto pCapabilitiesItem = m_pLLMListModel->item(i, 5);
-        if(pCapabilitiesItem)
-            pCapabilitiesItem->setText(conf.capabilities);
+        auto pPipelineItem = m_pLLMListModel->item(i, 5);
+        if(pPipelineItem)
+            pPipelineItem->setText(conf.pipeline);
 
         auto pContextSizeItem = m_pLLMListModel->item(i, 6);
         if(pContextSizeItem)
@@ -386,14 +381,14 @@ SettingPageModel::_getModelConfigs(const QVector<int> &rows)
             continue;
 
         Bus::ModelConfig cfg;
-        cfg.hash         = m_pLLMListModel->item(i, 0)->text();
-        cfg.name         = m_pLLMListModel->item(i, 1)->text();
-        cfg.publisher    = m_pLLMListModel->item(i, 2)->text();
-        cfg.timestamp    = m_pLLMListModel->item(i, 3)->text();
-        cfg.addr         = m_pLLMListModel->item(i, 4)->text();
-        cfg.capabilities = m_pLLMListModel->item(i, 5)->text();
-        cfg.contextSize  = m_pLLMListModel->item(i, 6)->text().toInt();
-        cfg.cost         = m_pLLMListModel->item(i, 7)->text().toFloat();
+        cfg.id          = m_pLLMListModel->item(i, 0)->text();
+        cfg.name        = m_pLLMListModel->item(i, 1)->text();
+        cfg.publisher   = m_pLLMListModel->item(i, 2)->text();
+        cfg.timestamp   = m_pLLMListModel->item(i, 3)->text();
+        cfg.addr        = m_pLLMListModel->item(i, 4)->text();
+        cfg.pipeline    = m_pLLMListModel->item(i, 5)->text();
+        cfg.contextSize = m_pLLMListModel->item(i, 6)->text().toInt();
+        cfg.cost        = m_pLLMListModel->item(i, 7)->text().toFloat();
 
         cfg.apiKey            = m_pLLMListModel->item(i, 8)->text();
         cfg.temperature       = m_pLLMListModel->item(i, 9)->text().toFloat();
@@ -404,7 +399,7 @@ SettingPageModel::_getModelConfigs(const QVector<int> &rows)
         cfg.stopWords         = m_pLLMListModel->item(i, 14)->text();
         cfg.prompt            = m_pLLMListModel->item(i, 15)->text();
 
-        if(cfg.hash.isEmpty())
+        if(cfg.id.isEmpty())
             continue;
 
         ret.append(cfg);
@@ -418,12 +413,12 @@ void SettingPageModel::_convert(QJsonArray                      &jsonArrConfigs,
     for(auto conf : configs)
     {
         QJsonObject obj;
-        obj["hash"]         = conf.hash;
+        obj["id"]           = conf.id;
         obj["name"]         = conf.name;
         obj["publisher"]    = conf.publisher;
         obj["timestamp"]    = conf.timestamp;
         obj["addr"]         = conf.addr;
-        obj["capabilities"] = conf.capabilities;
+        obj["pipeline"]     = conf.pipeline;
         obj["context_size"] = conf.contextSize;
         obj["cost"]         = conf.cost;
 
@@ -450,14 +445,14 @@ void SettingPageModel::_convert(QVector<Bus::ModelConfig> &configs,
 
         QJsonObject      jsonObj = obj.toObject();
         Bus::ModelConfig conf;
-        conf.hash         = jsonObj["hash"].toString();
-        conf.name         = jsonObj["name"].toString();
-        conf.publisher    = jsonObj["publisher"].toString();
-        conf.timestamp    = jsonObj["timestamp"].toString();
-        conf.addr         = jsonObj["addr"].toString();
-        conf.capabilities = jsonObj["capabilities"].toString();
-        conf.contextSize  = jsonObj["context_size"].toInt();
-        conf.cost         = jsonObj["cost"].toInt();
+        conf.id          = jsonObj["id"].toString();
+        conf.name        = jsonObj["name"].toString();
+        conf.publisher   = jsonObj["publisher"].toString();
+        conf.timestamp   = jsonObj["timestamp"].toString();
+        conf.addr        = jsonObj["addr"].toString();
+        conf.pipeline    = jsonObj["pipeline"].toString();
+        conf.contextSize = jsonObj["context_size"].toInt();
+        conf.cost        = jsonObj["cost"].toInt();
 
         conf.apiKey            = jsonObj["api_key"].toString();
         conf.temperature       = jsonObj["temperature"].toDouble();
@@ -491,7 +486,7 @@ void SettingPageModel::_filterModelTable(const QString &filterText)
 
 void SettingPageModel::_saveModelConfigs()
 {
-    QFile file(CONFIG_FILE_PATH);
+    QFile file(MODEL_CONFIG_FILE);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         qDebug() << "Failed to open file for writing: " << file.errorString();
@@ -502,25 +497,23 @@ void SettingPageModel::_saveModelConfigs()
         return;
     }
 
-    QJsonObject obj;
-    QJsonArray  confArr;
-    auto        confs = _getModelConfigs({});
+    QJsonArray confArr;
+    auto       confs = _getModelConfigs({});
     _convert(confArr, confs);
-    obj["model_configs"] = confArr;
 
-    QJsonDocument doc(obj);
+    QJsonDocument doc(confArr);
     QTextStream   out(&file);
     out << doc.toJson(QJsonDocument::Indented);
     file.close();
     QMessageBox::information(
         this,
         tr("Save Successful"),
-        tr("Model config exported to file: %1").arg(CONFIG_FILE_PATH));
+        tr("Model config exported to file: %1").arg(MODEL_CONFIG_FILE));
 }
 
 void SettingPageModel::_importModelConfigs()
 {
-    QFile file(CONFIG_FILE_PATH);
+    QFile file(MODEL_CONFIG_FILE);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "Failed to open file for reading: " << file.errorString();
@@ -546,18 +539,17 @@ void SettingPageModel::_importModelConfigs()
         return;
     }
 
-    if(!doc.isObject())
+    if(!doc.isArray())
     {
-        qDebug() << "Invalid JSON format: root is not an object";
+        qDebug() << "Invalid JSON format: root is not an array";
         QMessageBox::warning(this,
                              tr("Import Failed"),
-                             tr("Invalid JSON format: root is not an object"));
+                             tr("Invalid JSON format: root is not an array"));
         return;
     }
 
-    QJsonObject obj     = doc.object();
-    QJsonArray  arr     = obj["model_configs"].toArray();
-    auto        configs = QVector<Bus::ModelConfig>();
+    QJsonArray arr     = doc.array();
+    auto       configs = QVector<Bus::ModelConfig>();
     _convert(configs, arr);
     _addModels(configs, "Imported");
 }
@@ -627,15 +619,15 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
             QVector<Bus::ModelConfig> newConfs;
             for(auto item : confs)
             {
-                // item.hash         = conf.hash;
-                // item.name         = conf.name;
-                item.publisher    = conf.publisher;
-                item.timestamp    = conf.timestamp;
-                item.addr         = conf.addr;
-                item.capabilities = conf.capabilities;
-                item.contextSize  = conf.contextSize;
-                item.cost         = conf.cost;
-                item.apiKey       = conf.apiKey;
+                item.id          = conf.id;
+                item.name        = conf.name;
+                item.publisher   = conf.publisher;
+                item.timestamp   = conf.timestamp;
+                item.addr        = conf.addr;
+                item.pipeline    = conf.pipeline;
+                item.contextSize = conf.contextSize;
+                item.cost        = conf.cost;
+                item.apiKey      = conf.apiKey;
 
                 item.temperature       = conf.temperature;
                 item.topP              = conf.topP;
@@ -687,16 +679,4 @@ void SettingPageModel::_slotLoginResp(const int      errorCode,
         ui->btnDel->setEnabled(true);
         ui->btnSetting->setEnabled(true);
     }
-}
-
-void SettingPageModel::_slotGetModelInfoResp(
-    const int errorCode, const QVector<Bus::ModelConfig> &modelInfos)
-{
-    if(errorCode != ErrorCode::OK)
-    {
-        qDebug() << "Failed to get model info, error code: " << errorCode;
-        return;
-    }
-
-    //_addModels(modelInfos);
 }
