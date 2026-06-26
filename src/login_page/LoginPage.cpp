@@ -23,36 +23,9 @@ LoginPage::LoginPage(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Keep the page/container transparent and only show the login panel card.
-    setAttribute(Qt::WA_TranslucentBackground, true);
-    setStyleSheet("QWidget#LoginPage{background: transparent;}"
-                  "QWidget#wgtLogin{background: transparent;}");
-
-#ifdef DEBUG
-    ui->editAccount->setText("admin");
-    ui->editPassword->setText("admin");
-#endif
-
-    ui->editAccount->setStyleSheet(
-        StyleMgr::ParseFile(":/styles/passwd_line_edit"));
-    ui->editPassword->setStyleSheet(
-        StyleMgr::ParseFile(":/styles/passwd_line_edit"));
-
-    ui->lblLogo->setPixmap(QPixmap(":/icons/logo"));
-    ui->lblTitle->setStyleSheet(StyleMgr::ParseFile(":/styles/title_label"));
-
-    ui->btnLogin->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
-    ui->btnLogout->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
-    ui->btnRegister->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
-
-    ui->lblForgotPasswd->setStyleSheet(
-        StyleMgr::ParseFile(":/styles/red_label"));
-    ui->lblForgotPasswd->setText(
-        "<a style='color:red;' href=http://www.baidu.com> Forgot "
-        "Password?</a>");
-    ui->lblForgotPasswd->setOpenExternalLinks(true);
-
+    _initUI();
     _initConnections();
+    _retranslate();
 }
 
 LoginPage::~LoginPage()
@@ -83,6 +56,38 @@ void LoginPage::_slotBtnLogoutClicked()
     emit SignalLogout();
 }
 
+void LoginPage::_initUI()
+{
+    // Keep the page/container transparent and only show the login panel card.
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    setStyleSheet("QWidget#LoginPage{background: transparent;}"
+                  "QWidget#wgtLogin{background: transparent;}");
+
+#ifdef DEBUG
+    ui->editAccount->setText("admin");
+    ui->editPassword->setText("admin");
+#endif
+
+    ui->editAccount->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/passwd_line_edit"));
+    ui->editPassword->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/passwd_line_edit"));
+
+    ui->lblLogo->setPixmap(QPixmap(":/icons/logo"));
+    ui->lblTitle->setStyleSheet(StyleMgr::ParseFile(":/styles/title_label"));
+
+    ui->btnLogin->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+    ui->btnLogout->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+    ui->btnRegister->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+
+    ui->lblForgotPasswd->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/red_label"));
+    ui->lblForgotPasswd->setText(
+        "<a style='color:red;' href=http://www.baidu.com> Forgot "
+        "Password?</a>");
+    ui->lblForgotPasswd->setOpenExternalLinks(true);
+}
+
 void LoginPage::_initConnections()
 {
     connect(ui->btnLogin,
@@ -103,6 +108,10 @@ void LoginPage::_initConnections()
             SLOT(_slotBtnLoginClicked()));
 }
 
+void LoginPage::_retranslate()
+{
+}
+
 bool LoginPage::_validateInput(const QString &username, const QString &password)
 {
     QRegularExpression accountRegex("^[a-zA-Z0-9]{6,16}$");
@@ -116,9 +125,12 @@ bool LoginPage::_validateInput(const QString &username, const QString &password)
     }
 
     static const QSet<QString> blacklist = {"root",
+                                            "owner",
                                             "admin",
                                             "administrator",
-                                            "system"};
+                                            "developer"
+                                            "system",
+                                            "user"};
     if(blacklist.contains(username.toLower()))
     {
         QMessageBox::warning(nullptr,

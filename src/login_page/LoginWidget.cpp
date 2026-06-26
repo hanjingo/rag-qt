@@ -1,6 +1,11 @@
 ﻿#include "LoginWidget.h"
 #include "ui_LoginWidget.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QFileDialog>
+
+#include "Global.h"
 #include "StyleMgr.h"
 
 LoginWidget *LoginWidget::m_stLoginWgtInst = nullptr;
@@ -20,6 +25,18 @@ LoginWidget::LoginWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    _initUI();
+    _initConnections();
+    _retranslate();
+}
+
+LoginWidget::~LoginWidget()
+{
+    delete ui;
+}
+
+void LoginWidget::_initUI()
+{
     // Keep container layers transparent so only LoginPage's panel is visible.
     setAttribute(Qt::WA_TranslucentBackground, true);
     setStyleSheet("QWidget#LoginWidget{background: transparent;}"
@@ -27,7 +44,10 @@ LoginWidget::LoginWidget(QWidget *parent)
 
     ui->stackedWidget->addWidget(m_pLoginPageInst);
     ui->stackedWidget->setCurrentIndex(0);
+}
 
+void LoginWidget::_initConnections()
+{
     connect(m_pLoginPageInst,
             &LoginPage::SignalLogin,
             this,
@@ -42,7 +62,6 @@ LoginWidget::LoginWidget(QWidget *parent)
             &LoginWidget::SignalLogout);
 }
 
-LoginWidget::~LoginWidget()
+void LoginWidget::_retranslate()
 {
-    delete ui;
 }

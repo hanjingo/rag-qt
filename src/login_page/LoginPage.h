@@ -3,13 +3,15 @@
 
 #include <QWidget>
 
+#include "ui_LoginPage.h"
+
 QT_BEGIN_NAMESPACE
 class FrameworkWidget;
 QT_END_NAMESPACE
 
 namespace Ui
 {
-class LoginPage;
+class AccountMgrPage;
 }
 
 class LoginPage : public QWidget
@@ -30,7 +32,9 @@ class LoginPage : public QWidget
     void _slotBtnLogoutClicked();
 
   private:
+    void _initUI();
     void _initConnections();
+    void _retranslate();
     bool _validateInput(const QString &username, const QString &password);
 
   protected:

@@ -8,7 +8,7 @@
 namespace Ui
 {
 class LoginWidget;
-class LoginPage;
+class AccountMgrPage;
 }
 
 class LoginWidget : public QWidget
@@ -23,8 +23,13 @@ class LoginWidget : public QWidget
     void SignalRegister(const QString &username, const QString &password);
     void SignalLogout();
 
+  private slots:
+
   private:
+    void _initConfig();
+    void _initUI();
     void _initConnections();
+    void _retranslate();
 
   protected:
     explicit LoginWidget(QWidget *parent = nullptr);
