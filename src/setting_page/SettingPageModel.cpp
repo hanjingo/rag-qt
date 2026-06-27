@@ -58,14 +58,14 @@ QVector<Bus::ModelConfig> SettingPageModel::GetModelConfigs()
     for(int row = 0; row < m_pLLMListModel->rowCount(); ++row)
     {
         Bus::ModelConfig conf;
-        conf.id          = m_pLLMListModel->item(row, 0)->text();
-        conf.name        = m_pLLMListModel->item(row, 1)->text();
-        conf.publisher   = m_pLLMListModel->item(row, 2)->text();
-        conf.timestamp   = m_pLLMListModel->item(row, 3)->text();
-        conf.addr        = m_pLLMListModel->item(row, 4)->text();
-        conf.pipeline    = m_pLLMListModel->item(row, 5)->text();
-        conf.contextSize = m_pLLMListModel->item(row, 6)->text().toInt();
-        conf.cost        = m_pLLMListModel->item(row, 7)->text().toInt();
+        conf.id            = m_pLLMListModel->item(row, 0)->text();
+        conf.name          = m_pLLMListModel->item(row, 1)->text();
+        conf.publisher     = m_pLLMListModel->item(row, 2)->text();
+        conf.timestamp     = m_pLLMListModel->item(row, 3)->text();
+        conf.addr          = m_pLLMListModel->item(row, 4)->text();
+        conf.pipeline      = m_pLLMListModel->item(row, 5)->text();
+        conf.ctxWindowSize = m_pLLMListModel->item(row, 6)->text().toInt();
+        conf.cost          = m_pLLMListModel->item(row, 7)->text().toInt();
 
         conf.apiKey      = m_pLLMListModel->item(row, 8)->text();
         conf.temperature = m_pLLMListModel->item(row, 9)->text().toFloat();
@@ -73,9 +73,10 @@ QVector<Bus::ModelConfig> SettingPageModel::GetModelConfigs()
         conf.topK        = m_pLLMListModel->item(row, 11)->text().toFloat();
         conf.reputationPenalty =
             m_pLLMListModel->item(row, 12)->text().toFloat();
-        conf.maxTokens = m_pLLMListModel->item(row, 13)->text().toInt();
+        conf.minP      = m_pLLMListModel->item(row, 13)->text().toFloat();
         conf.stopWords = m_pLLMListModel->item(row, 14)->text();
-        conf.prompt    = m_pLLMListModel->item(row, 15)->text();
+
+        conf.prompt = m_pLLMListModel->item(row, 15)->text();
 
         modelConfigs.append(conf);
     }
@@ -171,25 +172,34 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
     m_pLLMListModel->setHeaderData(3, Qt::Horizontal, tr("Time Stamp"));
     m_pLLMListModel->setHeaderData(4, Qt::Horizontal, tr("Addr"));
     m_pLLMListModel->setHeaderData(5, Qt::Horizontal, tr("Pipeline"));
-    m_pLLMListModel->setHeaderData(6, Qt::Horizontal, tr("Context Size"));
-    m_pLLMListModel->setHeaderData(7, Qt::Horizontal, tr("Cost"));
-    m_pLLMListModel->setHeaderData(8, Qt::Horizontal, tr("Api KEY"));
-    m_pLLMListModel->setHeaderData(9, Qt::Horizontal, tr("Temperature"));
-    m_pLLMListModel->setHeaderData(10, Qt::Horizontal, tr("Top-P"));
-    m_pLLMListModel->setHeaderData(11, Qt::Horizontal, tr("Top-K"));
-    m_pLLMListModel->setHeaderData(12,
+    m_pLLMListModel->setHeaderData(6, Qt::Horizontal, tr("Cost"));
+    m_pLLMListModel->setHeaderData(7, Qt::Horizontal, tr("Api KEY"));
+
+    m_pLLMListModel->setHeaderData(8, Qt::Horizontal, tr("Temperature"));
+    m_pLLMListModel->setHeaderData(9, Qt::Horizontal, tr("Top-P"));
+    m_pLLMListModel->setHeaderData(10, Qt::Horizontal, tr("Top-K"));
+    m_pLLMListModel->setHeaderData(11,
                                    Qt::Horizontal,
                                    tr("Reputation Penalty"));
-    m_pLLMListModel->setHeaderData(13, Qt::Horizontal, tr("Max Token"));
+    m_pLLMListModel->setHeaderData(12, Qt::Horizontal, tr("Min-P"));
+
+    m_pLLMListModel->setHeaderData(13, Qt::Horizontal, tr("Window Size"));
     m_pLLMListModel->setHeaderData(14, Qt::Horizontal, tr("Stop Words"));
+
     m_pLLMListModel->setHeaderData(15, Qt::Horizontal, tr("Prompt"));
 
     m_pLLMListModel->setHeaderData(16, Qt::Horizontal, tr("Tag"));
 
-    ui->tbviewModel->hideColumn(1);  // hide name column
-    ui->tbviewModel->hideColumn(2);  // hide publisher column
-    ui->tbviewModel->hideColumn(3);  // hide timestamp column
-    ui->tbviewModel->hideColumn(8);  // hide API KEY column
+    ui->tbviewModel->hideColumn(1); // hide name column
+    ui->tbviewModel->hideColumn(2); // hide publisher column
+    ui->tbviewModel->hideColumn(3); // hide timestamp column
+    // ui->tbviewModel->hideColumn(4);  // hide addr column
+    // ui->tbviewModel->hideColumn(7);  // hide API KEY column
+    ui->tbviewModel->hideColumn(8);  // hide temperature column
+    ui->tbviewModel->hideColumn(9);  // hide top-p column
+    ui->tbviewModel->hideColumn(10); // hide top-k column
+    // ui->tbviewModel->hideColumn(11); // hide reputation penalty column
+    ui->tbviewModel->hideColumn(12); // hide min-p column
     ui->tbviewModel->hideColumn(14); // hide stop words column
     ui->tbviewModel->hideColumn(15); // hide prompt column
 }
@@ -210,33 +220,35 @@ void SettingPageModel::_addModels(const QVector<Bus::ModelConfig> &configs,
         m_pLLMListModel->setItem(n_row, 3, new QStandardItem(conf.timestamp));
         m_pLLMListModel->setItem(n_row, 4, new QStandardItem(conf.addr));
         m_pLLMListModel->setItem(n_row, 5, new QStandardItem(conf.pipeline));
-        m_pLLMListModel->setItem(
-            n_row,
-            6,
-            new QStandardItem(QString::number(conf.contextSize)));
         m_pLLMListModel->setItem(n_row,
-                                 7,
+                                 6,
                                  new QStandardItem(QString::number(conf.cost)));
-        m_pLLMListModel->setItem(n_row, 8, new QStandardItem(conf.apiKey));
+        m_pLLMListModel->setItem(n_row, 7, new QStandardItem(conf.apiKey));
+
         m_pLLMListModel->setItem(
             n_row,
-            9,
+            8,
             new QStandardItem(QString::number(conf.temperature)));
         m_pLLMListModel->setItem(n_row,
-                                 10,
+                                 9,
                                  new QStandardItem(QString::number(conf.topP)));
         m_pLLMListModel->setItem(n_row,
-                                 11,
+                                 10,
                                  new QStandardItem(QString::number(conf.topK)));
         m_pLLMListModel->setItem(
             n_row,
-            12,
+            11,
             new QStandardItem(QString::number(conf.reputationPenalty)));
+        m_pLLMListModel->setItem(n_row,
+                                 12,
+                                 new QStandardItem(QString::number(conf.minP)));
+
         m_pLLMListModel->setItem(
             n_row,
             13,
-            new QStandardItem(QString::number(conf.maxTokens)));
+            new QStandardItem(QString::number(conf.ctxWindowSize)));
         m_pLLMListModel->setItem(n_row, 14, new QStandardItem(conf.stopWords));
+
         m_pLLMListModel->setItem(n_row, 15, new QStandardItem(conf.prompt));
 
         m_pLLMListModel->setItem(n_row, 16, new QStandardItem(tag));
@@ -279,10 +291,10 @@ void SettingPageModel::_setModels(const QVector<Bus::ModelConfig> &configs,
 
     for(int i = 0; i < m_pLLMListModel->rowCount(); i++)
     {
+        // id
         auto pIdItem = m_pLLMListModel->item(i, 0);
         if(pIdItem == nullptr || !ids.contains(pIdItem->text()))
             continue;
-
         Bus::ModelConfig conf;
         conf.id = "";
         for(auto item : configs)
@@ -295,69 +307,85 @@ void SettingPageModel::_setModels(const QVector<Bus::ModelConfig> &configs,
         }
         if(conf.id.isEmpty())
             continue;
-
         pIdItem->setText(conf.id);
+
+        // name
         auto pNameItem = m_pLLMListModel->item(i, 1);
         if(pNameItem)
             pNameItem->setText(conf.name);
 
+        // publisher
         auto pPublisherItem = m_pLLMListModel->item(i, 2);
         if(pPublisherItem)
             pPublisherItem->setText(conf.publisher);
 
+        // timestamp
         auto pTimestampItem = m_pLLMListModel->item(i, 3);
         if(pTimestampItem)
             pTimestampItem->setText(conf.timestamp);
 
+        // addr
         auto pAddrItem = m_pLLMListModel->item(i, 4);
         if(pAddrItem)
             pAddrItem->setText(conf.addr);
 
+        // pipeline
         auto pPipelineItem = m_pLLMListModel->item(i, 5);
         if(pPipelineItem)
             pPipelineItem->setText(conf.pipeline);
 
-        auto pContextSizeItem = m_pLLMListModel->item(i, 6);
-        if(pContextSizeItem)
-            pContextSizeItem->setText(QString::number(conf.contextSize));
-
-        auto pCostItem = m_pLLMListModel->item(i, 7);
+        // cost
+        auto pCostItem = m_pLLMListModel->item(i, 6);
         if(pCostItem)
             pCostItem->setText(QString::number(conf.cost));
 
-        auto pApiKeyItem = m_pLLMListModel->item(i, 8);
+        // apiKey
+        auto pApiKeyItem = m_pLLMListModel->item(i, 7);
         if(pApiKeyItem)
             pApiKeyItem->setText(conf.apiKey);
 
-        auto pTemperatureItem = m_pLLMListModel->item(i, 9);
+        // temperature
+        auto pTemperatureItem = m_pLLMListModel->item(i, 8);
         if(pTemperatureItem)
             pTemperatureItem->setText(QString::number(conf.temperature));
 
-        auto pTopPItem = m_pLLMListModel->item(i, 10);
+        // topP
+        auto pTopPItem = m_pLLMListModel->item(i, 9);
         if(pTopPItem)
             pTopPItem->setText(QString::number(conf.topP));
 
-        auto pTopKItem = m_pLLMListModel->item(i, 11);
+        // topK
+        auto pTopKItem = m_pLLMListModel->item(i, 10);
         if(pTopKItem)
             pTopKItem->setText(QString::number(conf.topK));
 
-        auto pReputationPenaltyItem = m_pLLMListModel->item(i, 12);
+        // reputationPenalty
+        auto pReputationPenaltyItem = m_pLLMListModel->item(i, 11);
         if(pReputationPenaltyItem)
             pReputationPenaltyItem->setText(
                 QString::number(conf.reputationPenalty));
 
-        auto pMaxTokenItem = m_pLLMListModel->item(i, 13);
-        if(pMaxTokenItem)
-            pMaxTokenItem->setText(QString::number(conf.maxTokens));
+        // minP
+        auto pMinPItem = m_pLLMListModel->item(i, 12);
+        if(pMinPItem)
+            pMinPItem->setText(QString::number(conf.minP));
 
+        // ctxWindowSize
+        auto pCtxWindowSizeItem = m_pLLMListModel->item(i, 13);
+        if(pCtxWindowSizeItem)
+            pCtxWindowSizeItem->setText(QString::number(conf.ctxWindowSize));
+
+        // stopWords
         auto pStopWordsItem = m_pLLMListModel->item(i, 14);
         if(pStopWordsItem)
             pStopWordsItem->setText(conf.stopWords);
 
+        // prompt
         auto pPromptItem = m_pLLMListModel->item(i, 15);
         if(pPromptItem)
             pPromptItem->setText(conf.prompt);
 
+        // tag
         auto pTagItem = m_pLLMListModel->item(i, 16);
         if(pTagItem)
             pTagItem->setText(tag);
@@ -381,23 +409,25 @@ SettingPageModel::_getModelConfigs(const QVector<int> &rows)
             continue;
 
         Bus::ModelConfig cfg;
-        cfg.id          = m_pLLMListModel->item(i, 0)->text();
-        cfg.name        = m_pLLMListModel->item(i, 1)->text();
-        cfg.publisher   = m_pLLMListModel->item(i, 2)->text();
-        cfg.timestamp   = m_pLLMListModel->item(i, 3)->text();
-        cfg.addr        = m_pLLMListModel->item(i, 4)->text();
-        cfg.pipeline    = m_pLLMListModel->item(i, 5)->text();
-        cfg.contextSize = m_pLLMListModel->item(i, 6)->text().toInt();
-        cfg.cost        = m_pLLMListModel->item(i, 7)->text().toFloat();
+        cfg.id        = m_pLLMListModel->item(i, 0)->text();
+        cfg.name      = m_pLLMListModel->item(i, 1)->text();
+        cfg.publisher = m_pLLMListModel->item(i, 2)->text();
+        cfg.timestamp = m_pLLMListModel->item(i, 3)->text();
+        cfg.addr      = m_pLLMListModel->item(i, 4)->text();
+        cfg.pipeline  = m_pLLMListModel->item(i, 5)->text();
+        cfg.cost      = m_pLLMListModel->item(i, 6)->text().toFloat();
+        cfg.apiKey    = m_pLLMListModel->item(i, 7)->text();
 
-        cfg.apiKey            = m_pLLMListModel->item(i, 8)->text();
-        cfg.temperature       = m_pLLMListModel->item(i, 9)->text().toFloat();
-        cfg.topP              = m_pLLMListModel->item(i, 10)->text().toFloat();
-        cfg.topK              = m_pLLMListModel->item(i, 11)->text().toFloat();
-        cfg.reputationPenalty = m_pLLMListModel->item(i, 12)->text().toFloat();
-        cfg.maxTokens         = m_pLLMListModel->item(i, 13)->text().toInt();
-        cfg.stopWords         = m_pLLMListModel->item(i, 14)->text();
-        cfg.prompt            = m_pLLMListModel->item(i, 15)->text();
+        cfg.temperature       = m_pLLMListModel->item(i, 8)->text().toFloat();
+        cfg.topP              = m_pLLMListModel->item(i, 9)->text().toFloat();
+        cfg.topK              = m_pLLMListModel->item(i, 10)->text().toFloat();
+        cfg.reputationPenalty = m_pLLMListModel->item(i, 11)->text().toFloat();
+        cfg.minP              = m_pLLMListModel->item(i, 12)->text().toFloat();
+
+        cfg.ctxWindowSize = m_pLLMListModel->item(i, 13)->text().toInt();
+        cfg.stopWords     = m_pLLMListModel->item(i, 14)->text();
+
+        cfg.prompt = m_pLLMListModel->item(i, 15)->text();
 
         if(cfg.id.isEmpty())
             continue;
@@ -413,23 +443,26 @@ void SettingPageModel::_convert(QJsonArray                      &jsonArrConfigs,
     for(auto conf : configs)
     {
         QJsonObject obj;
-        obj["id"]           = conf.id;
-        obj["name"]         = conf.name;
-        obj["publisher"]    = conf.publisher;
-        obj["timestamp"]    = conf.timestamp;
-        obj["addr"]         = conf.addr;
-        obj["pipeline"]     = conf.pipeline;
-        obj["context_size"] = conf.contextSize;
-        obj["cost"]         = conf.cost;
+        obj["id"]        = conf.id;
+        obj["name"]      = conf.name;
+        obj["publisher"] = conf.publisher;
+        obj["timestamp"] = conf.timestamp;
+        obj["addr"]      = conf.addr;
+        obj["pipeline"]  = conf.pipeline;
+        obj["cost"]      = conf.cost;
+        obj["api_key"]   = conf.apiKey;
 
-        obj["api_key"]            = conf.apiKey;
-        obj["temperature"]        = conf.temperature;
-        obj["top_p"]              = conf.topP;
-        obj["top_k"]              = conf.topK;
-        obj["reputation_penalty"] = conf.reputationPenalty;
-        obj["max_tokens"]         = conf.maxTokens;
-        obj["stop_words"]         = conf.stopWords;
-        obj["prompt"]             = conf.prompt;
+        obj["temperature"] = QString::number(conf.temperature, 'f', 1);
+        obj["top_p"]       = QString::number(conf.topP, 'f', 1);
+        obj["top_k"]       = QString::number(conf.topK, 'f', 1);
+        obj["reputation_penalty"] =
+            QString::number(conf.reputationPenalty, 'f', 1);
+        obj["min_p"] = QString::number(conf.minP, 'f', 1);
+
+        obj["ctx_window_size"] = conf.ctxWindowSize;
+        obj["stop_words"]      = conf.stopWords;
+
+        obj["prompt"] = conf.prompt;
 
         jsonArrConfigs.append(obj);
     }
@@ -445,23 +478,25 @@ void SettingPageModel::_convert(QVector<Bus::ModelConfig> &configs,
 
         QJsonObject      jsonObj = obj.toObject();
         Bus::ModelConfig conf;
-        conf.id          = jsonObj["id"].toString();
-        conf.name        = jsonObj["name"].toString();
-        conf.publisher   = jsonObj["publisher"].toString();
-        conf.timestamp   = jsonObj["timestamp"].toString();
-        conf.addr        = jsonObj["addr"].toString();
-        conf.pipeline    = jsonObj["pipeline"].toString();
-        conf.contextSize = jsonObj["context_size"].toInt();
-        conf.cost        = jsonObj["cost"].toInt();
+        conf.id        = jsonObj["id"].toString();
+        conf.name      = jsonObj["name"].toString();
+        conf.publisher = jsonObj["publisher"].toString();
+        conf.timestamp = jsonObj["timestamp"].toString();
+        conf.addr      = jsonObj["addr"].toString();
+        conf.pipeline  = jsonObj["pipeline"].toString();
+        conf.cost      = jsonObj["cost"].toInt();
+        conf.apiKey    = jsonObj["api_key"].toString();
 
-        conf.apiKey            = jsonObj["api_key"].toString();
         conf.temperature       = jsonObj["temperature"].toDouble();
         conf.topP              = jsonObj["top_p"].toDouble();
         conf.topK              = jsonObj["top_k"].toDouble();
         conf.reputationPenalty = jsonObj["reputation_penalty"].toDouble();
-        conf.maxTokens         = jsonObj["max_tokens"].toInt();
-        conf.stopWords         = jsonObj["stop_words"].toString();
-        conf.prompt            = jsonObj["prompt"].toString();
+        conf.minP              = jsonObj["min_p"].toDouble();
+
+        conf.ctxWindowSize = jsonObj["ctx_window_size"].toInt();
+        conf.stopWords     = jsonObj["stop_words"].toString();
+
+        conf.prompt = jsonObj["prompt"].toString();
 
         configs.append(conf);
     }
@@ -619,23 +654,24 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
             QVector<Bus::ModelConfig> newConfs;
             for(auto item : confs)
             {
-                item.id          = conf.id;
-                item.name        = conf.name;
-                item.publisher   = conf.publisher;
-                item.timestamp   = conf.timestamp;
-                item.addr        = conf.addr;
-                item.pipeline    = conf.pipeline;
-                item.contextSize = conf.contextSize;
-                item.cost        = conf.cost;
-                item.apiKey      = conf.apiKey;
+                item.id            = conf.id;
+                item.name          = conf.name;
+                item.publisher     = conf.publisher;
+                item.timestamp     = conf.timestamp;
+                item.addr          = conf.addr;
+                item.pipeline      = conf.pipeline;
+                item.ctxWindowSize = conf.ctxWindowSize;
+                item.cost          = conf.cost;
+                item.apiKey        = conf.apiKey;
 
                 item.temperature       = conf.temperature;
                 item.topP              = conf.topP;
                 item.topK              = conf.topK;
                 item.reputationPenalty = conf.reputationPenalty;
-                item.maxTokens         = conf.maxTokens;
+                item.minP              = conf.minP;
                 item.stopWords         = conf.stopWords;
-                item.prompt            = conf.prompt;
+
+                item.prompt = conf.prompt;
                 newConfs.append(item);
             }
             _setModels(newConfs, "Staged");

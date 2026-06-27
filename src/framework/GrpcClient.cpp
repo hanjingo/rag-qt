@@ -143,11 +143,12 @@ void GrpcClient::RegAccount(const QString &username, const QString &password)
         emit SignalRegAccountResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
 }
 
-void GrpcClient::Query(const int64_t  id,
-                       const int64_t  user_id,
-                       const QString &auth,
-                       const QString &content,
-                       const QString &model)
+void GrpcClient::Query(const int64_t           id,
+                       const int64_t           user_id,
+                       const QString          &auth,
+                       const QString          &content,
+                       const QString          &model,
+                       const Bus::ModelConfig &config)
 {
     if(!m_pChannel)
     {
@@ -165,6 +166,15 @@ void GrpcClient::Query(const int64_t  id,
     req.set_auth(auth.toStdString());
     req.set_content(content.toStdString());
     req.set_model(model.toStdString());
+
+    req.mutable_sampling()->set_repetition_penalty(config.reputationPenalty);
+    req.mutable_sampling()->set_temperature(config.temperature);
+    req.mutable_sampling()->set_top_k(config.topK);
+    req.mutable_sampling()->set_top_p(config.topP);
+    req.mutable_sampling()->set_min_p(config.minP);
+
+    req.mutable_ctx()->set_window_size(config.ctxWindowSize);
+    req.mutable_ctx()->set_stop_words(config.stopWords.toStdString());
 
     // Prepare the response and context
     GrpcLibrary::QueryResp resp;

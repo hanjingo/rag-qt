@@ -24,6 +24,9 @@ class ModelConfigDialog : public QDialog
 
     Bus::ModelConfig GetConfig();
 
+  private slots:
+    void _slotBtnModelAddrClicked();
+
   private:
     void _retranslate();
     void _initUI();

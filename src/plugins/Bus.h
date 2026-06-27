@@ -40,17 +40,21 @@ class Bus : public QObject
         QString timestamp;
         QString addr;
         QString pipeline;
-        qint64  contextSize;
         qint32  cost;
         QString apiKey;
 
-        // parameters
-        float   temperature;
-        float   topP;
-        float   topK;
-        float   reputationPenalty;
-        qint64  maxTokens;
+        // sampling parameters
+        float temperature;
+        float topP;
+        float topK;
+        float reputationPenalty;
+        float minP;
+
+        // context parameters
+        int     ctxWindowSize;
         QString stopWords;
+
+        // prompt
         QString prompt;
     };
 
@@ -89,9 +93,10 @@ class Bus : public QObject
 
     void SignalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
-    void SignalQuery(const int64_t  sessionId,
-                     const QString &query,
-                     const QString &model);
+    void SignalQuery(const int64_t           sessionId,
+                     const QString          &query,
+                     const QString          &model,
+                     const Bus::ModelConfig &config);
     void SignalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
                          const QString &content,

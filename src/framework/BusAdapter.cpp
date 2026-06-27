@@ -103,9 +103,10 @@ void BusAdapter::_slotDelSessionFromBus(const QVector<int64_t> &ids)
                                        ids);
 }
 
-void BusAdapter::_slotQueryFromBus(const int64_t  sessionId,
-                                   const QString &query,
-                                   const QString &model)
+void BusAdapter::_slotQueryFromBus(const int64_t           sessionId,
+                                   const QString          &query,
+                                   const QString          &model,
+                                   const Bus::ModelConfig &config)
 {
     qDebug() << "Received Bus Query signal from Bus. sessionId: " << sessionId
              << ", query: " << query;
@@ -113,7 +114,8 @@ void BusAdapter::_slotQueryFromBus(const int64_t  sessionId,
                                   Account::Instance()->Id(),
                                   Account::Instance()->Auth(),
                                   query,
-                                  model);
+                                  model,
+                                  config);
 }
 
 void BusAdapter::_slotGetSessionFromBus(const int64_t id, int limit)
