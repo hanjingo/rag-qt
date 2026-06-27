@@ -74,6 +74,14 @@ void ProcManager::destroy()
     }
 }
 
+QString ProcManager::readAllStandardOutput()
+{
+    if(!m_pCore)
+        return QString();
+
+    return QString::fromLocal8Bit(m_pCore->readAllStandardOutput());
+}
+
 void ProcManager::_connectCore()
 {
     connect(m_pCore, &QProcess::started, this, &ProcManager::_slotCoreStarted);

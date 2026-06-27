@@ -1,6 +1,7 @@
 # ============================================================================
 # Subdirectories
 # ============================================================================
+add_subdirectory(splash_page)
 add_subdirectory(login_page)
 add_subdirectory(framework)
 add_subdirectory(home_page)

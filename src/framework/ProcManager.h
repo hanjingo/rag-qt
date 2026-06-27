@@ -1,6 +1,7 @@
 #ifndef PROCMANAGER_H
 #define PROCMANAGER_H
 
+#include <QString>
 #include <QProcess>
 
 class ProcManager : public QObject
@@ -14,6 +15,7 @@ class ProcManager : public QObject
     static ProcManager *Instance();
     void                init();
     void                destroy();
+    QString             readAllStandardOutput();
 
   signals:
     void SignalCoreStarted();
