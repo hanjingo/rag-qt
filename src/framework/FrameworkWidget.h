@@ -72,6 +72,7 @@ class FrameworkWidget : public QWidget
     void _slotComboLangCurrentChanged(int iIndex);
 
     void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
+    void _slotPluginUnloaded(const QString &pluginId);
 
     void _slotCoreStarted();
     void _slotCoreFinished(int exitCode, QProcess::ExitStatus exitStatus);

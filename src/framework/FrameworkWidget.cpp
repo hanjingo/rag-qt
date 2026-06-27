@@ -382,9 +382,11 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
         return;
     }
 
+    // init plugin
     auto wgt = plugin->Init(Bus::Instance());
     emit BusAdapter::Instance() -> SignalPing();
 
+    // update model info
     auto confs = SettingPageModel::Instance()->GetModelConfigs();
     emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(confs);
     if(wgt)
@@ -395,6 +397,35 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
         auto iconPath = fileInfo.absoluteDir().absoluteFilePath(plugin->Icon());
         _addAppBarItem(plugin->Name(), iconPath, index);
         ui->stackedWidget->insertWidget(index, wgt);
+    }
+}
+
+void FrameworkWidget::_slotPluginUnloaded(const QString &pluginId)
+{
+    qDebug() << "Plugin unloaded: " << pluginId;
+
+    // remove app bar item
+    int index = -1;
+    for(int i = 0; i < ui->listWidgetAppBar->count(); ++i)
+    {
+        auto item = ui->listWidgetAppBar->item(i);
+        if(item && item->text() == pluginId)
+        {
+            index = i;
+            delete ui->listWidgetAppBar->takeItem(i);
+            break;
+        }
+    }
+
+    // remove stacked widget item
+    if(index != -1)
+    {
+        auto wgt = ui->stackedWidget->widget(index);
+        if(wgt)
+        {
+            ui->stackedWidget->removeWidget(wgt);
+            wgt->deleteLater();
+        }
     }
 }
 
@@ -622,6 +653,11 @@ void FrameworkWidget::_initConnections()
             &PluginMgr::SignalPluginLoaded,
             this,
             &FrameworkWidget::_slotPluginLoaded);
+
+    connect(m_pPluginMgrInst,
+            &PluginMgr::SignalPluginUnloaded,
+            this,
+            &FrameworkWidget::_slotPluginUnloaded);
 
     connect(m_pProcManagerInst,
             &ProcManager::SignalCoreStarted,

@@ -60,6 +60,8 @@ class HomePageWidget : public QWidget
 
     void _slotSkillBtnStateChanged(SkillBtn *btn, SkillBtn::State state);
 
+    void _slotPluginUnloaded(const QString &pluginId);
+
   private:
     void _initSkillsArea();
     void _initHistoryArea();

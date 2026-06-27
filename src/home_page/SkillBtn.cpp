@@ -217,7 +217,7 @@ void SkillBtn::Download(const QUrl &url, const QString &saveFilePath)
 
     m_downloader = new Downloader(this);
     m_progress   = -1;
-    m_url        = QString();
+    // m_url        = url;
     qDebug() << "Started downloading skill content from " << url.toString()
              << " to " << saveFilePath;
     connect(m_downloader,
@@ -232,4 +232,12 @@ void SkillBtn::Download(const QUrl &url, const QString &saveFilePath)
 
     SetState(SkillBtn::State::Downloading);
     m_downloader->Download(url, saveFilePath);
+}
+
+void SkillBtn::Reset()
+{
+    qDebug() << "Resetting skill button " << m_hash;
+    SetState(State::Unknown);
+    m_progress = -1;
+    m_url      = QString();
 }

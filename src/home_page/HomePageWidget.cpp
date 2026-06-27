@@ -172,6 +172,11 @@ void HomePageWidget::_initConnections()
             this,
             &HomePageWidget::_slotEditFilterTextChanged);
 
+    connect(PluginMgr::Instance(),
+            &PluginMgr::SignalPluginUnloaded,
+            this,
+            &HomePageWidget::_slotPluginUnloaded);
+
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalGrpcConnected,
             this,
@@ -495,6 +500,22 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
         break;
         default:
             break;
+    }
+}
+
+void HomePageWidget::_slotPluginUnloaded(const QString &pluginId)
+{
+    qDebug() << "Plugin unloaded: " << pluginId;
+    // remove the skill button associated with the unloaded plugin
+    for(auto item : m_pSkillsBtnGroup->buttons())
+    {
+        SkillBtn *btn = qobject_cast<SkillBtn *>(item);
+        if(!btn || btn->Name() != pluginId)
+            continue;
+
+        qDebug() << "Removing skill button for unloaded plugin: " << pluginId;
+        btn->Reset();
+        break;
     }
 }
 

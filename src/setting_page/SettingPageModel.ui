@@ -39,6 +39,9 @@
          <height>30</height>
         </size>
        </property>
+       <property name="inputMask">
+        <string>Filter</string>
+       </property>
       </widget>
      </item>
      <item>

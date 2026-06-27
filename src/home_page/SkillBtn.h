@@ -82,6 +82,7 @@ class SkillBtn : public QToolButton
     QUrl Url() const { return m_url; }
 
     void Download(const QUrl &url, const QString &savePath);
+    void Reset();
 
   signals:
     void SignalStateChanged(SkillBtn *btn, SkillBtn::State state);
