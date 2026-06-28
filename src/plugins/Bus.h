@@ -102,6 +102,9 @@ class Bus : public QObject
                          const QString &content,
                          const bool     isFinished);
 
+    void SignalStopAnswer(const int64_t sessionId);
+    void SignalStopAnswerResp(const int64_t errorCode, const int64_t sessionId);
+
     void SignalGetMessageInfo(const int64_t msgId,
                               const int64_t sessionId,
                               int           limit);

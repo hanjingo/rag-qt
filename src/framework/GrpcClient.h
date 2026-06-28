@@ -36,6 +36,9 @@ class GrpcClient : public QObject
                const QString          &content,
                const QString          &model,
                const Bus::ModelConfig &config);
+    void StopAnswer(const int64_t  session_id,
+                    const int64_t  user_id,
+                    const QString &auth);
     void GetMessageInfo(const int64_t  session_id,
                         const int64_t  user_id,
                         const QString &auth,
@@ -81,6 +84,7 @@ class GrpcClient : public QObject
                          const int64_t  sessionId,
                          const QString &content,
                          const bool     isFinished);
+    void SignalStopAnswerResp(const int64_t errorCode, const int64_t sessionId);
     void SignalGetMessageInfoResp(const int                        errorCode,
                                   const QVector<Bus::MessageInfo> &messages);
 

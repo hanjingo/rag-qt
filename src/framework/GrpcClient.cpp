@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QDebug>
 
 #include "Error.h"
 
@@ -225,17 +226,30 @@ void GrpcClient::Query(const int64_t           id,
     grpc::ClientContext    context;
 
     // Make the RPC call
+    qDebug() << "Send Query request to server, id: " << id
+             << ", user_id: " << user_id << ", auth: " << auth
+             << ", content: " << content << ", model: " << model;
     std::unique_ptr<grpc::ClientReader<GrpcLibrary::QueryResp>> reader(
         stub->Query(&context, req));
 
+    qDebug() << "Waiting for Query response from server, id: " << id
+             << ", user_id: " << user_id << ", auth: " << auth
+             << ", content: " << content << ", model: " << model;
     while(reader->Read(&resp))
     {
+        qDebug() << "Received Query response from server, error_code: "
+                 << resp.error_code() << ", id: " << id
+                 << ", content: " << QString::fromStdString(resp.content())
+                 << ", is_finished: " << resp.is_finished();
         emit SignalQueryResp(resp.error_code(),
                              id,
                              QString::fromStdString(resp.content()),
                              resp.is_finished());
         QCoreApplication::processEvents();
     }
+    qDebug() << "Query finished for id: " << id << ", user_id: " << user_id
+             << ", auth: " << auth << ", content: " << content
+             << ", model: " << model;
     reader->Finish();
 
     // // Make the RPC call
@@ -249,6 +263,40 @@ void GrpcClient::Query(const int64_t           id,
     //     emit SignalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED,
     //                          id,
     //                          QString::fromStdString(status.error_message()));
+}
+
+void GrpcClient::StopAnswer(const int64_t  session_id,
+                            const int64_t  user_id,
+                            const QString &auth)
+{
+    if(!m_pChannel)
+    {
+        emit SignalStopAnswerResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                  session_id);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::StopAnswerReq req;
+    req.set_session_id(session_id);
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+
+    // Prepare the response and context
+    GrpcLibrary::StopAnswerResp resp;
+    grpc::ClientContext         context;
+
+    // Make the RPC call
+    grpc::Status status = stub->StopAnswer(&context, req, &resp);
+
+    if(status.ok())
+        emit SignalStopAnswerResp(resp.error_code(), session_id);
+    else
+        emit SignalStopAnswerResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                  session_id);
 }
 
 void GrpcClient::GetMessageInfo(const int64_t  session_id,

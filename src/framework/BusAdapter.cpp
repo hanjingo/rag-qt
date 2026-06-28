@@ -29,6 +29,11 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::SignalQueryResp);
 
     connect(GrpcClient::Instance(),
+            &GrpcClient::SignalStopAnswerResp,
+            Bus::Instance(),
+            &Bus::SignalStopAnswerResp);
+
+    connect(GrpcClient::Instance(),
             &GrpcClient::SignalNewSessionResp,
             Bus::Instance(),
             &Bus::SignalNewSessionResp);
@@ -55,6 +60,11 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::SignalQuery,
             this,
             &BusAdapter::_slotQueryFromBus);
+
+    connect(Bus::Instance(),
+            &Bus::SignalStopAnswer,
+            this,
+            &BusAdapter::_slotStopAnswerFromBus);
 
     connect(Bus::Instance(),
             &Bus::SignalGetSession,
@@ -116,6 +126,15 @@ void BusAdapter::_slotQueryFromBus(const int64_t           sessionId,
                                   query,
                                   model,
                                   config);
+}
+
+void BusAdapter::_slotStopAnswerFromBus(const int64_t sessionId)
+{
+    qDebug() << "Received Bus StopAnswer signal from Bus. sessionId: "
+             << sessionId;
+    GrpcClient::Instance()->StopAnswer(sessionId,
+                                       Account::Instance()->Id(),
+                                       Account::Instance()->Auth());
 }
 
 void BusAdapter::_slotGetSessionFromBus(const int64_t id, int limit)
