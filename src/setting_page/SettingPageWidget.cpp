@@ -38,8 +38,7 @@ SettingPageWidget::SettingPageWidget(QWidget *parent)
     ui->tabWidget->addTab(SettingPageModel::Instance(), tr("Model Settings"));
     ui->tabWidget->addTab(SettingPageSkill::Instance(), tr("Skill Settings"));
     ui->tabWidget->addTab(SettingPageSync::Instance(), tr("Sync Settings"));
-    ui->tabWidget->addTab(SettingPageNetwork::GetSettingPageNetworkInst(),
-                          tr("Network Settings"));
+    ui->tabWidget->addTab(SettingPageNetwork::Instance(), tr("Network Settings"));
     ui->tabWidget->addTab(SettingPageVersion::GetSettingPageVersionInst(),
                           tr("Version Info"));
 
@@ -71,7 +70,7 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
             SettingPageSync::Instance();
             break;
         case 4:
-            SettingPageNetwork::GetSettingPageNetworkInst();
+            SettingPageNetwork::Instance();
             break;
         case 5:
             SettingPageVersion::GetSettingPageVersionInst();

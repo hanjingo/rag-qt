@@ -14,6 +14,8 @@
 #include <QStringList>
 #include <QGuiApplication>
 
+#include <iostream>
+
 #include "Bus.h"
 #include "PluginInterface.h"
 #include "FrameworkWidget.h"
@@ -23,6 +25,7 @@
 #include "SettingPageModel.h"
 #include "System.h"
 #include "ScreenCapture.h"
+#include "SettingPageNetwork.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -52,18 +55,12 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     ui->setupUi(this);
     setAttribute(Qt::WA_StyledBackground, true);
 
-    _initProcMgr();
-
     _initConnections();
-
     _initAppBar();
     _initControlBar();
     _initStackedWidget();
     _initTimer();
-    _initServer();
-
     _initPluginMgr();
-
     _initLanguage();
 }
 
@@ -79,6 +76,26 @@ FrameworkWidget::~FrameworkWidget()
     delete m_pCtlBtnGroup;
     delete m_pTimer;
     delete ui;
+}
+
+void FrameworkWidget::InitCore()
+{
+    _initProcMgr();
+}
+
+void FrameworkWidget::InitNetwork()
+{
+    _initServer();
+}
+
+QString FrameworkWidget::ReadAllStandardOutput()
+{
+    return m_pProcManagerInst->readAllStandardOutput();
+}
+
+bool FrameworkWidget::IsConnectedToCoreService()
+{
+    return m_pGrpcClient ? m_pGrpcClient->IsConnected() : false;
 }
 
 void FrameworkWidget::closeEvent(QCloseEvent *event)
@@ -329,7 +346,8 @@ void FrameworkWidget::_slotUserBtnClicked(bool checked)
 
 void FrameworkWidget::_slotGrpcConnected(const QString &address)
 {
-    qDebug() << "FrameworkWidget connected to gRPC server at " << address;
+    std::cout << "Core service connected to gRPC server at "
+              << address.toStdString() << std::endl;
     ui->lblNetStatus->setText(tr("Connected"));
 }
 
@@ -680,7 +698,18 @@ void FrameworkWidget::_initTimer()
 
 void FrameworkWidget::_initServer()
 {
-    m_pGrpcClient->Connect("127.0.0.1:50051");
+    auto confs = SettingPageNetwork::Instance()->GetNetworkConfigs();
+    for(const auto &conf : confs)
+    {
+        if(!conf.isEnable)
+            continue;
+
+        QString address = QString("%1:%2").arg(conf.ip).arg(conf.port);
+        qDebug() << "Connecting to gRPC server at " << address;
+        m_pGrpcClient->Connect(address);
+        return;
+    }
+    // m_pGrpcClient->Connect("127.0.0.1:50051");
 }
 
 void FrameworkWidget::_initLanguage()

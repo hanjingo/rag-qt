@@ -1,6 +1,8 @@
 #ifndef GRPCCLIENT_H
 #define GRPCCLIENT_H
 
+#include <atomic>
+
 #include <QObject>
 #include <QString>
 #include <QVector>
@@ -20,7 +22,10 @@ class GrpcClient : public QObject
 
     static GrpcClient *Instance();
 
+    bool IsConnected() const { return m_bIsConnected.load(); }
+
     void Connect(const QString &address);
+    void Heartbeat(const int64_t timestamp);
     void Login(const QString &username, const QString &password);
     void Logout(const int64_t user_id, const QString &auth);
     void RegAccount(const QString &username, const QString &password);
@@ -62,6 +67,8 @@ class GrpcClient : public QObject
   signals:
     void SignalGrpcConnected(const QString &address);
     void SignalGrpcConnectFailed(const QString &address);
+    void SignalGrpcDisconnected(const QString &address);
+    void SignalPong(const int64_t timestamp);
     void SignalLoginResp(const int      errorCode,
                          const int64_t  user_id,
                          const QString &auth,
@@ -104,6 +111,9 @@ class GrpcClient : public QObject
   private:
     static GrpcClient *m_stGrpcClientInst;
     hj::grpc_channel  *m_pChannel;
+
+    std::atomic<bool> m_bIsConnected;
+    QString           m_strAddress;
 };
 
 #endif

@@ -43,6 +43,11 @@ class FrameworkWidget : public QWidget
     explicit FrameworkWidget(QWidget *parent = nullptr);
     ~FrameworkWidget();
 
+    void    InitCore();
+    void    InitNetwork();
+    QString ReadAllStandardOutput();
+    bool    IsConnectedToCoreService();
+
   protected:
     void closeEvent(QCloseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;

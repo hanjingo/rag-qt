@@ -1,6 +1,8 @@
 #include "GrpcClient.h"
 
 #include <QCoreApplication>
+#include <QDateTime>
+
 #include "Error.h"
 
 GrpcClient *GrpcClient::m_stGrpcClientInst = nullptr;
@@ -34,11 +36,53 @@ void GrpcClient::Connect(const QString &address)
         delete m_pChannel;
         m_pChannel = nullptr;
     }
-    m_pChannel = new hj::grpc_channel();
+    m_pChannel   = new hj::grpc_channel();
+    m_strAddress = address;
     if(m_pChannel->connect(address.toStdString()))
-        emit SignalGrpcConnected(address);
-    else
+    {
+        Heartbeat(QDateTime::currentMSecsSinceEpoch());
+    } else
+    {
+        m_bIsConnected.store(false);
         emit SignalGrpcConnectFailed(address);
+    }
+}
+
+void GrpcClient::Heartbeat(const int64_t timestamp)
+{
+    if(!m_pChannel)
+    {
+        emit SignalGrpcConnectFailed("");
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::Ping req;
+    req.set_timestamp(timestamp);
+
+    // Prepare the response and context
+    GrpcLibrary::Pong   resp;
+    grpc::ClientContext context;
+
+    // Make the RPC call
+    grpc::Status status = stub->Heartbeat(&context, req, &resp);
+
+    if(status.ok())
+    {
+        if(!m_bIsConnected.load())
+        {
+            m_bIsConnected.store(true);
+            emit SignalGrpcConnected(m_strAddress);
+        }
+        emit SignalPong(timestamp);
+    } else
+    {
+        m_bIsConnected.store(false);
+        emit SignalGrpcDisconnected(m_strAddress);
+    }
 }
 
 void GrpcClient::Login(const QString &username, const QString &password)

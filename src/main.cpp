@@ -1,7 +1,6 @@
 #include <QApplication>
 #include <QThread>
 
-#include "ProcManager.h"
 #include "SplashScreen.h"
 #include "LoginWidget.h"
 #include "FrameworkWidget.h"
@@ -21,20 +20,38 @@ int main(int argc, char *argv[])
 
     // init proc manager
     QString output;
-    ProcManager::Instance()->init();
-    for(int i = 0; i <= 100 && splash.getProgress() < 100; i++)
+    FrameworkWidget::Instance()->InitCore();
+    for(int i = 0; i <= 50 && splash.getProgress() < 50; i++)
     {
         splash.setProgress(i);
-        output = ProcManager::Instance()->readAllStandardOutput();
+        output = FrameworkWidget::Instance()->ReadAllStandardOutput();
         splash.appendLog(output);
-        if(output.contains("init llm model finish"))
+        if(output.contains("init core service finish"))
         {
-            splash.setProgress(100);
+            splash.setProgress(50);
             break;
         }
         a.processEvents();
         QThread::msleep(300);
     }
+
+    // init network
+    FrameworkWidget::Instance()->InitNetwork();
+    for(int i = splash.getProgress(); i <= 100 && splash.getProgress() < 100;
+        i++)
+    {
+        splash.setProgress(i);
+        output = FrameworkWidget::Instance()->ReadAllStandardOutput();
+        splash.appendLog(output);
+        if(FrameworkWidget::Instance()->IsConnectedToCoreService())
+        {
+            splash.setProgress(100);
+            break;
+        }
+        a.processEvents();
+        QThread::msleep(100);
+    }
+
     splash.close();
 
     // start login
