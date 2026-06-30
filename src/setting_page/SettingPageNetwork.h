@@ -29,6 +29,9 @@ class SettingPageNetwork : public QWidget
     static SettingPageNetwork *Instance();
     QVector<NetworkConfig>     GetNetworkConfigs();
 
+  signals:
+    void SignalSwitchAccount();
+
   protected:
     explicit SettingPageNetwork(QWidget *parent = nullptr);
     ~SettingPageNetwork();
@@ -37,6 +40,7 @@ class SettingPageNetwork : public QWidget
     void _slotPong(const int64_t timestamp);
     void _slotBtnSaveClicked();
     void _slotBtnNetTestClicked();
+    void _slotNetConfigCkGroupClicked(int id);
 
   private:
     void _initUI();
@@ -44,10 +48,16 @@ class SettingPageNetwork : public QWidget
     void _retranslate();
     void _saveConfigFiles();
     void _loadConfigFiles();
+    void _testNetwork();
+    void _resetDelayValues();
 
   private:
     Ui::SettingPageNetwork    *ui;
     static SettingPageNetwork *m_stSettingPageNetworkInst;
+
+    QButtonGroup *m_pNetConfigCkGroup;
+
+    int m_lastConfigCkboxId = -1;
 };
 
 #endif // SETTINGPAGENETWORK_H

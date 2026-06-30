@@ -17,6 +17,8 @@
 #include "Global.h"
 #include "GrpcClient.h"
 
+#include "StyleMgr.h"
+
 SettingPageNetwork *SettingPageNetwork::m_stSettingPageNetworkInst = nullptr;
 
 SettingPageNetwork *SettingPageNetwork::Instance()
@@ -32,9 +34,11 @@ SettingPageNetwork *SettingPageNetwork::Instance()
 SettingPageNetwork::SettingPageNetwork(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SettingPageNetwork)
+    , m_pNetConfigCkGroup(new QButtonGroup(this))
 {
     ui->setupUi(this);
 
+    m_lastConfigCkboxId = 0;
     _initUI();
     _initConnections();
     _retranslate();
@@ -84,7 +88,7 @@ void SettingPageNetwork::_slotPong(const int64_t timestamp)
 {
     qDebug() << "Pong received with timestamp:" << timestamp;
     auto ms = QDateTime::currentMSecsSinceEpoch();
-    ui->lblCoreServDelay->setText(QString::number(ms - timestamp) + " ms");
+    ui->lblCoreServDelay->setText(QString::number(ms - timestamp));
 }
 
 void SettingPageNetwork::_slotBtnSaveClicked()
@@ -98,12 +102,35 @@ void SettingPageNetwork::_slotBtnNetTestClicked()
 {
     qDebug()
         << "Network Test button clicked. Implement network test logic here.";
-    GrpcClient::Instance()->Heartbeat(QDateTime::currentMSecsSinceEpoch());
+    _testNetwork();
+}
+
+void SettingPageNetwork::_slotNetConfigCkGroupClicked(int id)
+{
+    qDebug() << "Network config checkbox clicked. id: " << id;
+    if(id == m_lastConfigCkboxId)
+        return;
+
+    auto confs = GetNetworkConfigs();
+    if(id >= confs.size())
+        return;
+
+    m_lastConfigCkboxId = id;
+    // logout and switch to the login page
+    emit this->SignalSwitchAccount();
 }
 
 void SettingPageNetwork::_initUI()
 {
     _loadConfigFiles();
+
+    ui->btnSave->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+    ui->btnNetTest->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+
+    m_pNetConfigCkGroup->addButton(ui->ckCoreEnable, 0);
+    m_pNetConfigCkGroup->addButton(ui->ckCoreEnableBackup1, 1);
+    m_pNetConfigCkGroup->addButton(ui->ckCoreEnableBackup2, 2);
+    m_pNetConfigCkGroup->setExclusive(true);
 }
 
 void SettingPageNetwork::_retranslate()
@@ -112,10 +139,10 @@ void SettingPageNetwork::_retranslate()
 
 void SettingPageNetwork::_initConnections()
 {
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalPong,
-            this,
-            &SettingPageNetwork::_slotPong);
+    // connect(GrpcClient::Instance(),
+    //         &GrpcClient::SignalPong,
+    //         this,
+    //         &SettingPageNetwork::_slotPong);
 
     connect(ui->btnSave,
             &QPushButton::clicked,
@@ -126,6 +153,11 @@ void SettingPageNetwork::_initConnections()
             &QPushButton::clicked,
             this,
             &SettingPageNetwork::_slotBtnNetTestClicked);
+
+    connect(m_pNetConfigCkGroup,
+            &QButtonGroup::idClicked,
+            this,
+            &SettingPageNetwork::_slotNetConfigCkGroupClicked);
 }
 
 void SettingPageNetwork::_saveConfigFiles()
@@ -252,4 +284,52 @@ void SettingPageNetwork::_loadConfigFiles()
                 break;
         }
     }
+}
+
+void SettingPageNetwork::_testNetwork()
+{
+    _resetDelayValues();
+    auto configs = GetNetworkConfigs();
+    for(int i = 0; i < configs.size(); ++i)
+    {
+        const auto &config = configs[i];
+        qDebug() << "Testing network config " << i << ": " << config.ip << ":"
+                 << config.port;
+        GrpcClient cli;
+        connect(&cli,
+                &GrpcClient::SignalPong,
+                [this, i](const int64_t timestamp) {
+                    qDebug() << "Client " << i
+                             << " Pong received from test network.";
+                    auto str = QString::number(
+                        QDateTime::currentMSecsSinceEpoch() - timestamp);
+                    switch(i)
+                    {
+                        case 0:
+                            ui->lblCoreServDelay->setText(str);
+                            break;
+                        case 1:
+                            ui->lblCoreServDelayBackup1->setText(str);
+                            break;
+                        case 2:
+                            ui->lblCoreServDelayBackup2->setText(str);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+        cli.Connect(config.ip + ":" + QString::number(config.port));
+        auto now = QDateTime::currentMSecsSinceEpoch();
+        cli.Heartbeat(now);
+        qDebug() << "Client " << i << " heartbeat to " << config.ip << ":"
+                 << config.port << " finished.";
+    }
+}
+
+void SettingPageNetwork::_resetDelayValues()
+{
+    ui->lblCoreServDelay->setText("N/A");
+    ui->lblCoreServDelayBackup1->setText("N/A");
+    ui->lblCoreServDelayBackup2->setText("N/A");
 }

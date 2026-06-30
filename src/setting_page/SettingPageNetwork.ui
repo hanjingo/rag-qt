@@ -207,6 +207,12 @@ border-bottom-right-radius:15px;}</string>
          <height>40</height>
         </size>
        </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <italic>false</italic>
@@ -214,7 +220,35 @@ border-bottom-right-radius:15px;}</string>
         </font>
        </property>
        <property name="text">
-        <string>0ms</string>
+        <string>N/A</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblCoreServDelayUnit">
+       <property name="minimumSize">
+        <size>
+         <width>103</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>103</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>ms</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -287,7 +321,7 @@ border-bottom-right-radius:15px;}</string>
         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
        </property>
        <property name="placeholderText">
-        <string>192.168.0.1</string>
+        <string>www.hango.fun</string>
        </property>
       </widget>
      </item>
@@ -380,6 +414,12 @@ border-bottom-right-radius:15px;}</string>
          <height>40</height>
         </size>
        </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <italic>false</italic>
@@ -387,7 +427,35 @@ border-bottom-right-radius:15px;}</string>
         </font>
        </property>
        <property name="text">
-        <string>0ms</string>
+        <string>N/A</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblCoreServDelayBackup1Unit">
+       <property name="minimumSize">
+        <size>
+         <width>103</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>103</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>ms</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -460,7 +528,7 @@ border-bottom-right-radius:15px;}</string>
         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
        </property>
        <property name="placeholderText">
-        <string>192.168.0.1</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -522,7 +590,7 @@ border-bottom-right-radius:15px;}</string>
         <bool>false</bool>
        </property>
        <property name="placeholderText">
-        <string>50051</string>
+        <string>0</string>
        </property>
       </widget>
      </item>
@@ -553,6 +621,12 @@ border-bottom-right-radius:15px;}</string>
          <height>40</height>
         </size>
        </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <italic>false</italic>
@@ -560,7 +634,35 @@ border-bottom-right-radius:15px;}</string>
         </font>
        </property>
        <property name="text">
-        <string>0ms</string>
+        <string>N/A</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblCoreServDelayBackup2Unit">
+       <property name="minimumSize">
+        <size>
+         <width>103</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>103</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>ms</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>

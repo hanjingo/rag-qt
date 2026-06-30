@@ -13,7 +13,7 @@
         "top_k": 0.1,
         "reputation_penalty": 0.1,
         "min_p": 0.1,
-        "ctx_window_size": 40960,
+        "ctx_window_size": 4096,
         "stop_words": "",
         "prompt": ""
     },
@@ -23,7 +23,7 @@
         "publisher": "unknown",
         "timestamp": "2026-06-01 12:00:01",
         "addr": "./models/gemma-4-12B-it-Q8_0.gguf",
-        "pipeline": "hybrid",
+        "pipeline": "local",
         "cost": 0,
         "api_key": "",
         "temperature": 0.7,
@@ -31,7 +31,7 @@
         "top_k": 0.1,
         "reputation_penalty": 0.1,
         "min_p": 0.1,
-        "ctx_window_size": 40960,
+        "ctx_window_size": 4096,
         "stop_words": "",
         "prompt": ""
     }

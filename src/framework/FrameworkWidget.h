@@ -75,6 +75,7 @@ class FrameworkWidget : public QWidget
     void _slotGrpcConnected(const QString &address);
     void _slotGrpcConnectFailed(const QString &address);
     void _slotComboLangCurrentChanged(int iIndex);
+    void _slotSwitchAccount();
 
     void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
     void _slotPluginUnloaded(const QString &pluginId);

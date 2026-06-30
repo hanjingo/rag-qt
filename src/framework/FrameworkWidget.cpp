@@ -391,6 +391,12 @@ void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
     QApplication::installTranslator(m_pTranslator);
 }
 
+void FrameworkWidget::_slotSwitchAccount()
+{
+    qDebug() << "Switch account signal received.";
+    _switchAccount();
+}
+
 void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
                                         const QString   &filePath)
 {
@@ -619,6 +625,11 @@ void FrameworkWidget::_initConnections()
             &LoginWidget::SignalLogout,
             this,
             &FrameworkWidget::_slotLogout);
+
+    connect(SettingPageNetwork::Instance(),
+            &SettingPageNetwork::SignalSwitchAccount,
+            this,
+            &FrameworkWidget::_slotSwitchAccount);
 
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(_slotUpdateRealTime()));
 
