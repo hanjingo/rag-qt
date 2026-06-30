@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1140</width>
-    <height>778</height>
+    <height>614</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@ border-bottom-right-radius:15px;}</string>
     <widget class="QWidget" name="wgt_SlaveCtrl1" native="true">
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="lbl_SlaveCtrl1_Name_2">
+       <widget class="QLabel" name="lblAccount">
         <property name="font">
          <font>
           <italic>false</italic>
@@ -51,17 +51,10 @@ border-bottom-right-radius:15px;}</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="checkBox">
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="ckAccount">
         <property name="text">
-         <string>Account</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="checkBox_2">
-        <property name="text">
-         <string>Token Usage</string>
+         <string>Account &amp;&amp; Password</string>
         </property>
        </widget>
       </item>
@@ -71,6 +64,13 @@ border-bottom-right-radius:15px;}</string>
    <item>
     <widget class="QWidget" name="wgt_SlaveCtrl1_2" native="true">
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkBox_2">
+        <property name="text">
+         <string>Question &amp;&amp; Answer</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="lbl_SlaveCtrl1_Name_3">
         <property name="font">
@@ -84,12 +84,26 @@ border-bottom-right-radius:15px;}</string>
         </property>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="checkBox_3">
+        <property name="text">
+         <string>Stop Answers Count</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QWidget" name="wgt_SlaveCtrl1_3" native="true">
      <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkBox_6">
+        <property name="text">
+         <string>Model Config</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="lbl_SlaveCtrl1_Name_4">
         <property name="font">
@@ -99,7 +113,14 @@ border-bottom-right-radius:15px;}</string>
          </font>
         </property>
         <property name="text">
-         <string>Model Setting</string>
+         <string>Model</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="checkBox_7">
+        <property name="text">
+         <string>Index Storage</string>
         </property>
        </widget>
       </item>
@@ -119,6 +140,26 @@ border-bottom-right-radius:15px;}</string>
         </property>
         <property name="text">
          <string>Other</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkBox_4">
+        <property name="text">
+         <string>Crash Handle</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="checkBox_5">
+        <property name="text">
+         <string>Hardware Usage</string>
         </property>
        </widget>
       </item>
