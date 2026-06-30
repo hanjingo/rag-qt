@@ -29,6 +29,7 @@ class Bus : public QObject
         QString content;
         qint64  prevMessageId;
         QString timestamp;
+        bool    isFinished;
     };
 
     struct ModelConfig

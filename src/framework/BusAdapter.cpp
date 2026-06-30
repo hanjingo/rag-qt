@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QCoreApplication>
 
 #include "BusAdapter.h"
 #include "Account.h"
@@ -26,7 +27,8 @@ BusAdapter::BusAdapter(QObject *parent)
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalQueryResp,
             Bus::Instance(),
-            &Bus::SignalQueryResp);
+            &Bus::SignalQueryResp,
+            Qt::QueuedConnection);
 
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalStopAnswerResp,

@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include "Error.h"
+#include "GrpcClientReactor.h"
 
 GrpcClient *GrpcClient::m_stGrpcClientInst = nullptr;
 GrpcClient *GrpcClient::Instance()
@@ -225,44 +226,10 @@ void GrpcClient::Query(const int64_t           id,
     GrpcLibrary::QueryResp resp;
     grpc::ClientContext    context;
 
-    // Make the RPC call
-    qDebug() << "Send Query request to server, id: " << id
-             << ", user_id: " << user_id << ", auth: " << auth
-             << ", content: " << content << ", model: " << model;
-    std::unique_ptr<grpc::ClientReader<GrpcLibrary::QueryResp>> reader(
-        stub->Query(&context, req));
-
-    qDebug() << "Waiting for Query response from server, id: " << id
-             << ", user_id: " << user_id << ", auth: " << auth
-             << ", content: " << content << ", model: " << model;
-    while(reader->Read(&resp))
-    {
-        qDebug() << "Received Query response from server, error_code: "
-                 << resp.error_code() << ", id: " << id
-                 << ", content: " << QString::fromStdString(resp.content())
-                 << ", is_finished: " << resp.is_finished();
-        emit SignalQueryResp(resp.error_code(),
-                             id,
-                             QString::fromStdString(resp.content()),
-                             resp.is_finished());
-        QCoreApplication::processEvents();
-    }
-    qDebug() << "Query finished for id: " << id << ", user_id: " << user_id
-             << ", auth: " << auth << ", content: " << content
-             << ", model: " << model;
-    reader->Finish();
-
-    // // Make the RPC call
-    // grpc::Status status = stub->Query(&context, req, &resp);
-
-    // if(status.ok())
-    //     emit SignalQueryResp(resp.error_code(),
-    //                          id,
-    //                          QString::fromStdString(resp.content()));
-    // else
-    //     emit SignalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-    //                          id,
-    //                          QString::fromStdString(status.error_message()));
+    QueryReactor *reactor = new QueryReactor(this, id);
+    stub->async()->Query(&reactor->m_context, &req, reactor);
+    reactor->StartCall();
+    reactor->StartRead(&reactor->m_resp);
 }
 
 void GrpcClient::StopAnswer(const int64_t  session_id,
