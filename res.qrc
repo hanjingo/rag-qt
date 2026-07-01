@@ -8,7 +8,6 @@
         <file alias="select_screen">res/icons/select_screen.png</file>
         <file alias="pause_usual">res/icons/puse_usual.svg</file>
         <file alias="pause_unable">res/icons/puse_unable.svg</file>
-        <file alias="pause_check">res/icons/puse_check.svg</file>
         <file alias="stop_unable">res/icons/stop_unable.svg</file>
         <file alias="stop_usual">res/icons/stop_usual.svg</file>
         <file alias="stop_check">res/icons/stop_check.svg</file>
@@ -18,8 +17,6 @@
         <file alias="box_open">res/icons/box_open.svg</file>
         <file alias="text">res/icons/text.png</file>
         <file alias="image">res/icons/image.png</file>
-        <file alias="audio_norm">res/icons/audio_norm.png</file>
-        <file alias="audio_recording">res/icons/audio_recording.png</file>
         <file alias="video">res/icons/video.png</file>
         <file alias="home">res/icons/home.png</file>
         <file alias="tool">res/icons/tool.png</file>
@@ -55,7 +52,6 @@
         <file alias="success">res/icons/success.png</file>
         <file alias="installing">res/icons/installing.png</file>
         <file alias="installed">res/icons/installed.png</file>
-        <file alias="send">res/icons/send.png</file>
         <file alias="save">res/icons/save.png</file>
         <file alias="upload">res/icons/upload.png</file>
         <file alias="import">res/icons/import.png</file>
