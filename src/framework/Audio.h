@@ -76,8 +76,6 @@ class AudioMgr : public QObject
     ~AudioMgr();
 
   private:
-    static AudioMgr *m_stAudioMgrInst;
-
     QMap<qint64, QAudioSource *> m_srcs;
     QMap<QByteArray, bool>       m_devs;
 };

@@ -5,6 +5,7 @@
 #include "Account.h"
 #include "Error.h"
 #include "Audio.h"
+#include "AudioTranslator.h"
 
 BusAdapter *BusAdapter::m_stBusAdapterInst = nullptr;
 BusAdapter *BusAdapter::Instance()
@@ -71,6 +72,11 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::Instance(),
             &Bus::SignalAudioCaptureStopped);
 
+    connect(AudioTranslatorMgr::Instance(),
+            &AudioTranslatorMgr::SignalAudioTranslated,
+            Bus::Instance(),
+            &Bus::SignalAudioTranslated);
+
     // from plugin
     connect(Bus::Instance(), &Bus::SignalPong, this, &BusAdapter::_slotPong);
 
@@ -108,6 +114,11 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::SignalAudioCaptureStop,
             AudioMgr::Instance(),
             &AudioMgr::SlotAudioCaptureStop);
+
+    connect(Bus::Instance(),
+            &Bus::SignalAudioTranslate,
+            AudioTranslatorMgr::Instance(),
+            &AudioTranslatorMgr::SlotAudioTranslate);
 }
 
 BusAdapter::~BusAdapter()

@@ -1,0 +1,26 @@
+{
+    "translators": [
+        {
+            "id": "default",
+            "model_path": "./models/ggml-base.bin",
+            "language": "auto",
+            "translate": true,
+            "min_new_sample_size": 6400,
+            "min_audio_buffer_size": 32000,
+            "mute_amplitude_threshold": 0.03,
+            "mute_amplitude_duration_ms": 200
+        }
+    ],
+    "network_configs": [
+        {
+            "ip": "127.0.0.1",
+            "isEnable": true,
+            "port": 50051
+        },
+        {
+            "ip": "www.hango.fun",
+            "isEnable": false,
+            "port": 50051
+        }
+    ]
+}

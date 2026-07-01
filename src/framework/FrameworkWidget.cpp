@@ -27,6 +27,8 @@
 #include "ScreenCapture.h"
 #include "SettingPageNetwork.h"
 #include "Audio.h"
+#include "AudioTranslator.h"
+#include "Config.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -63,6 +65,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     _initTimer();
     _initPluginMgr();
     _initLanguage();
+    _initAudioTranslator();
 }
 
 FrameworkWidget::~FrameworkWidget()
@@ -759,6 +762,34 @@ void FrameworkWidget::_initLanguage()
         emit ui->comboLang->currentIndexChanged(2);
     else
         emit ui->comboLang->currentIndexChanged(1); // Default to English
+}
+
+void FrameworkWidget::_initAudioTranslator()
+{
+    auto items = Config::Instance().translatorParams();
+    for(auto item : items)
+    {
+        auto param           = hj::asr::context::default_params();
+        auto full_param      = hj::asr::context::default_full_params();
+        full_param.language  = item.language.toStdString().c_str();
+        full_param.translate = item.translate;
+        auto trans = AudioTranslatorMgr::Instance()->Create(item.id,
+                                                            item.modelPath,
+                                                            param,
+                                                            full_param);
+        trans->setMuteAmplitudeDurationMs(item.muteAmplitudeDurationMs);
+        trans->setMuteAmplitudeThreshold(item.muteAmplitudeThreshold);
+        trans->setMinAudioBufferSize(item.minAudioBufferSize);
+        trans->setMinNewSampleSize(item.minNewSampleSize);
+        qDebug() << "create translator with id:" << item.id
+                 << ", model path:" << item.modelPath
+                 << ", language:" << item.language
+                 << ", translate:" << item.translate
+                 << ", mute amplitude durMs:" << item.muteAmplitudeDurationMs
+                 << ", mute amplitude threshold:" << item.muteAmplitudeThreshold
+                 << ", min audio buffer size:" << item.minAudioBufferSize
+                 << ", min new sample size:" << item.minNewSampleSize;
+    }
 }
 
 void FrameworkWidget::_minimizeWindow()

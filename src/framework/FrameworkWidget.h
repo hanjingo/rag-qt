@@ -109,6 +109,7 @@ class FrameworkWidget : public QWidget
     void _initTimer();
     void _initServer();
     void _initLanguage();
+    void _initAudioTranslator();
 
     void _minimizeWindow();
     void _audioToggle();

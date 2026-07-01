@@ -1,6 +1,5 @@
 #include "Audio.h"
 
-AudioMgr *AudioMgr::m_stAudioMgrInst = nullptr;
 AudioMgr *AudioMgr::Instance()
 {
     static AudioMgr instance;

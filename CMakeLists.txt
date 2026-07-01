@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network Multimedia)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network Multimedia)
 find_package(hj REQUIRED)
+find_package(whisper REQUIRED)
 
 # for private includes (zip, ...)
 set(Qt_PRIVATE_INCLUDES 
@@ -181,6 +182,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Multimedia
 
     ${hj_LIBRARIES}
+
+    whisper
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
