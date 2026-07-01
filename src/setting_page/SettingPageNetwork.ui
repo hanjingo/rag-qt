@@ -321,7 +321,7 @@ border-bottom-right-radius:15px;}</string>
         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
        </property>
        <property name="placeholderText">
-        <string>www.hango.fun</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -383,7 +383,7 @@ border-bottom-right-radius:15px;}</string>
         <bool>false</bool>
        </property>
        <property name="placeholderText">
-        <string>50051</string>
+        <string/>
        </property>
       </widget>
      </item>

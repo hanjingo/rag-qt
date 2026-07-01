@@ -6,8 +6,7 @@
 #include "ui_SettingPageVersion.h"
 
 SettingPageVersion *SettingPageVersion::m_stSettingPageVersionInst = nullptr;
-
-SettingPageVersion *SettingPageVersion::GetSettingPageVersionInst()
+SettingPageVersion *SettingPageVersion::Instance()
 {
     if(nullptr == m_stSettingPageVersionInst)
     {

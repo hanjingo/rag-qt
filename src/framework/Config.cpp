@@ -4,6 +4,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QFileDialog>
+#include <QSaveFile>
 
 #include "Global.h"
 
@@ -25,7 +27,7 @@ Config &Config::Instance()
 
 void Config::load(const QString &filepath)
 {
-    QFile         readFile(CONFIG_FILE);
+    QFile         readFile(filepath);
     QJsonDocument doc;
     if(readFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -49,20 +51,36 @@ void Config::load(const QString &filepath)
     m_rootObj = doc.object();
 }
 
+void Config::save(const QString &filepath)
+{
+    QJsonDocument doc(m_rootObj);
+    QFile         saveFile(filepath);
+    if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for writing: "
+                 << saveFile.errorString();
+        return;
+    }
+
+    QTextStream out(&saveFile);
+    out << doc.toJson(QJsonDocument::Indented);
+    saveFile.close();
+}
+
 QVector<Config::TranslatorParam> Config::translatorParams()
 {
     QVector<Config::TranslatorParam> params;
     if(m_rootObj.isEmpty())
         return params;
 
-    if(!m_rootObj.contains("translators")
-       || !m_rootObj["translators"].isArray())
+    if(!m_rootObj.contains(KEY_TRANSLATOR_CONFIG)
+       || !m_rootObj[KEY_TRANSLATOR_CONFIG].isArray())
     {
         qDebug() << "Config file does not contain 'translators' array.";
         return params;
     }
 
-    QJsonArray arr = m_rootObj["translators"].toArray();
+    QJsonArray arr = m_rootObj[KEY_TRANSLATOR_CONFIG].toArray();
     for(int i = 0; i < arr.size(); ++i)
     {
         Config::TranslatorParam param;
@@ -82,4 +100,30 @@ QVector<Config::TranslatorParam> Config::translatorParams()
         params.append(param);
     }
     return params;
+}
+
+QVector<Config::NetworkConfig> Config::networkConfigs()
+{
+    QVector<Config::NetworkConfig> configs;
+    if(m_rootObj.isEmpty())
+        return configs;
+
+    if(!m_rootObj.contains(KEY_NETWORK_CONFIG)
+       || !m_rootObj[KEY_NETWORK_CONFIG].isArray())
+    {
+        qDebug() << "Config file does not contain 'network_configs' array.";
+        return configs;
+    }
+
+    QJsonArray arr = m_rootObj[KEY_NETWORK_CONFIG].toArray();
+    for(int i = 0; i < arr.size(); ++i)
+    {
+        Config::NetworkConfig config;
+        auto                  obj = arr[i].toObject();
+        config.ip                 = obj["ip"].toString();
+        config.port               = obj["port"].toInt();
+        config.isEnable           = obj["isEnable"].toBool(true);
+        configs.append(config);
+    }
+    return configs;
 }

@@ -14,7 +14,7 @@ class SettingPageVersion : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageVersion *GetSettingPageVersionInst();
+    static SettingPageVersion *Instance();
     explicit SettingPageVersion(QWidget *parent = nullptr);
     ~SettingPageVersion();
 

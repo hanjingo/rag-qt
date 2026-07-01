@@ -53,7 +53,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     , m_pAccount(Account::Instance())
     , m_pLoginWgtInst(LoginWidget::Instance())
     , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
-    , m_pSettingPageWgtInst(SettingPageWidget::GetMainSettingPageInst())
+    , m_pSettingPageWgtInst(SettingPageWidget::Instance())
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_StyledBackground, true);

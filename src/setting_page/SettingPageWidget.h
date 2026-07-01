@@ -16,7 +16,7 @@ class SettingPageWidget : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageWidget *GetMainSettingPageInst();
+    static SettingPageWidget *Instance();
     explicit SettingPageWidget(QWidget *parent = nullptr);
     ~SettingPageWidget();
 

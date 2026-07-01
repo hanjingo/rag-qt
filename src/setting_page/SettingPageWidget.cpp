@@ -13,9 +13,10 @@
 #include "SettingPageSync.h"
 #include "SettingPageVersion.h"
 #include "SettingPageModel.h"
+#include "SettingPageHardware.h"
 
 SettingPageWidget *SettingPageWidget::m_stMainSettingPageInst = nullptr;
-SettingPageWidget *SettingPageWidget::GetMainSettingPageInst()
+SettingPageWidget *SettingPageWidget::Instance()
 {
     if(nullptr == m_stMainSettingPageInst)
     {
@@ -33,14 +34,16 @@ SettingPageWidget::SettingPageWidget(QWidget *parent)
 
     ui->tabWidget->setStyleSheet(StyleMgr::ParseFile(":/styles/tab_widget"));
 
-    ui->tabWidget->addTab(SettingPageHistory::GetSettingPageHistoryInst(),
+    ui->tabWidget->addTab(SettingPageHistory::Instance(),
                           tr("History Settings"));
     ui->tabWidget->addTab(SettingPageModel::Instance(), tr("Model Settings"));
     ui->tabWidget->addTab(SettingPageSkill::Instance(), tr("Skill Settings"));
     ui->tabWidget->addTab(SettingPageSync::Instance(), tr("Sync Settings"));
-    ui->tabWidget->addTab(SettingPageNetwork::Instance(), tr("Network Settings"));
-    ui->tabWidget->addTab(SettingPageVersion::GetSettingPageVersionInst(),
-                          tr("Version Info"));
+    ui->tabWidget->addTab(SettingPageNetwork::Instance(),
+                          tr("Network Settings"));
+    ui->tabWidget->addTab(SettingPageHardware::Instance(),
+                          tr("Hardware Settings"));
+    ui->tabWidget->addTab(SettingPageVersion::Instance(), tr("Version Info"));
 
     connect(ui->tabWidget,
             SIGNAL(currentChanged(int)),
@@ -58,7 +61,7 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
     switch(iIndex)
     {
         case 0:
-            SettingPageHistory::GetSettingPageHistoryInst();
+            SettingPageHistory::Instance();
             break;
         case 1:
             SettingPageModel::Instance();
@@ -73,7 +76,10 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
             SettingPageNetwork::Instance();
             break;
         case 5:
-            SettingPageVersion::GetSettingPageVersionInst();
+            SettingPageHardware::Instance();
+            break;
+        case 6:
+            SettingPageVersion::Instance();
             break;
 
         default:

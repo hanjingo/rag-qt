@@ -24,12 +24,22 @@ class Config : public QObject
         int minAudioBufferSize = 32000;
     };
 
+    struct NetworkConfig
+    {
+        QString ip;
+        int     port;
+        bool    isEnable;
+    };
+
   public:
     static Config &Instance();
 
-    void load(const QString &filepath);
+    void         load(const QString &filepath);
+    void         save(const QString &filepath);
+    QJsonObject &rootObj() { return m_rootObj; }
 
     QVector<Config::TranslatorParam> translatorParams();
+    QVector<Config::NetworkConfig>   networkConfigs();
 
   private:
     explicit Config(QObject *parent = nullptr);

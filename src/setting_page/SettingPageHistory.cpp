@@ -18,7 +18,7 @@
 
 SettingPageHistory *SettingPageHistory::m_stSettingPageHistoryInst = nullptr;
 
-SettingPageHistory *SettingPageHistory::GetSettingPageHistoryInst()
+SettingPageHistory *SettingPageHistory::Instance()
 {
     if(nullptr == m_stSettingPageHistoryInst)
     {

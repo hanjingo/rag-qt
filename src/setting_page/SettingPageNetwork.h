@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include "Config.h"
+
 QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QComboBox;
@@ -14,20 +16,13 @@ namespace Ui
 class SettingPageNetwork;
 }
 
-struct NetworkConfig
-{
-    QString ip;
-    int     port;
-    bool    isEnable;
-};
-
 class SettingPageNetwork : public QWidget
 {
     Q_OBJECT
 
   public:
-    static SettingPageNetwork *Instance();
-    QVector<NetworkConfig>     GetNetworkConfigs();
+    static SettingPageNetwork     *Instance();
+    QVector<Config::NetworkConfig> GetNetworkConfigs();
 
   signals:
     void SignalSwitchAccount();

@@ -20,7 +20,6 @@
 #include "StyleMgr.h"
 
 SettingPageNetwork *SettingPageNetwork::m_stSettingPageNetworkInst = nullptr;
-
 SettingPageNetwork *SettingPageNetwork::Instance()
 {
     if(nullptr == m_stSettingPageNetworkInst)
@@ -49,13 +48,13 @@ SettingPageNetwork::~SettingPageNetwork()
     delete ui;
 }
 
-QVector<NetworkConfig> SettingPageNetwork::GetNetworkConfigs()
+QVector<Config::NetworkConfig> SettingPageNetwork::GetNetworkConfigs()
 {
-    QVector<NetworkConfig> configs;
+    QVector<Config::NetworkConfig> configs;
     if(!ui->editCoreServIP->text().isEmpty()
        && !ui->editCoreServPort->text().isEmpty())
     {
-        NetworkConfig config;
+        Config::NetworkConfig config;
         config.ip       = ui->editCoreServIP->text();
         config.port     = ui->editCoreServPort->text().toInt();
         config.isEnable = ui->ckCoreEnable->isChecked();
@@ -65,7 +64,7 @@ QVector<NetworkConfig> SettingPageNetwork::GetNetworkConfigs()
     if(!ui->editCoreServIPBackup1->text().isEmpty()
        && !ui->editCoreServPortBackup1->text().isEmpty())
     {
-        NetworkConfig config;
+        Config::NetworkConfig config;
         config.ip       = ui->editCoreServIPBackup1->text();
         config.port     = ui->editCoreServPortBackup1->text().toInt();
         config.isEnable = ui->ckCoreEnableBackup1->isChecked();
@@ -75,7 +74,7 @@ QVector<NetworkConfig> SettingPageNetwork::GetNetworkConfigs()
     if(!ui->editCoreServIPBackup2->text().isEmpty()
        && !ui->editCoreServPortBackup2->text().isEmpty())
     {
-        NetworkConfig config;
+        Config::NetworkConfig config;
         config.ip       = ui->editCoreServIPBackup2->text();
         config.port     = ui->editCoreServPortBackup2->text().toInt();
         config.isEnable = ui->ckCoreEnableBackup2->isChecked();
@@ -139,10 +138,10 @@ void SettingPageNetwork::_retranslate()
 
 void SettingPageNetwork::_initConnections()
 {
-    // connect(GrpcClient::Instance(),
-    //         &GrpcClient::SignalPong,
-    //         this,
-    //         &SettingPageNetwork::_slotPong);
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalPong,
+            this,
+            &SettingPageNetwork::_slotPong);
 
     connect(ui->btnSave,
             &QPushButton::clicked,
@@ -162,27 +161,8 @@ void SettingPageNetwork::_initConnections()
 
 void SettingPageNetwork::_saveConfigFiles()
 {
-    // Read existing file
-    QFile         readFile(CONFIG_FILE);
-    QJsonDocument doc;
-    if(readFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QByteArray      data = readFile.readAll();
-        QJsonParseError parseError;
-        doc = QJsonDocument::fromJson(data, &parseError);
-        if(parseError.error != QJsonParseError::NoError || !doc.isObject())
-        {
-            doc = QJsonDocument(QJsonObject());
-        }
-        readFile.close();
-    } else
-    {
-        doc = QJsonDocument(QJsonObject());
-    }
-
-    QJsonObject rootObj = doc.object();
-    QJsonArray  confArr;
-    auto        confs = GetNetworkConfigs();
+    QJsonArray confArr;
+    auto       confs = GetNetworkConfigs();
     for(auto conf : confs)
     {
         QJsonObject confObj;
@@ -192,69 +172,14 @@ void SettingPageNetwork::_saveConfigFiles()
         confArr.append(confObj);
     }
 
-    rootObj["network_configs"] = confArr;
-    doc.setObject(rootObj);
-    QSaveFile saveFile(CONFIG_FILE);
-    if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        qDebug() << "Failed to open file for writing: "
-                 << saveFile.errorString();
-        QMessageBox::warning(this,
-                             tr("Save Failed"),
-                             tr("Failed to open file for writing: %1")
-                                 .arg(saveFile.errorString()));
-        return;
-    }
-
-    QTextStream out(&saveFile);
-    out << doc.toJson(QJsonDocument::Indented);
-    if(!saveFile.commit()) // Atomically replaces the file
-    {
-        QMessageBox::warning(
-            this,
-            tr("Save Failed"),
-            tr("Failed to save file: %1").arg(saveFile.errorString()));
-        return;
-    }
-
-    QMessageBox::information(
-        this,
-        tr("Save Successful"),
-        tr("Network config exported to file: %1").arg(CONFIG_FILE));
+    Config::Instance().rootObj()[KEY_NETWORK_CONFIG] = confArr;
+    Config::Instance().save(CONFIG_FILE);
 }
 
 void SettingPageNetwork::_loadConfigFiles()
 {
-    QFile         readFile(CONFIG_FILE);
-    QJsonDocument doc;
-    if(readFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QByteArray      data = readFile.readAll();
-        QJsonParseError parseError;
-        doc = QJsonDocument::fromJson(data, &parseError);
-        if(parseError.error != QJsonParseError::NoError || !doc.isObject())
-        {
-            qDebug() << "Failed to parse JSON from config file: "
-                     << parseError.errorString();
-            return;
-        }
-        readFile.close();
-    } else
-    {
-        qDebug() << "Failed to open config file for reading: "
-                 << readFile.errorString();
-        return;
-    }
-
-    QJsonObject rootObj = doc.object();
-    if(!rootObj.contains("network_configs")
-       || !rootObj["network_configs"].isArray())
-    {
-        qDebug() << "Config file does not contain 'network_configs' array.";
-        return;
-    }
-
-    QJsonArray confArr = rootObj["network_configs"].toArray();
+    QJsonArray confArr =
+        Config::Instance().rootObj()[KEY_NETWORK_CONFIG].toArray();
     for(int i = 0; i < confArr.size(); ++i)
     {
         QJsonObject confObj  = confArr[i].toObject();

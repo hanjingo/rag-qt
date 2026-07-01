@@ -20,7 +20,7 @@ class SettingPageHistory : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageHistory *GetSettingPageHistoryInst();
+    static SettingPageHistory *Instance();
     explicit SettingPageHistory(QWidget *parent = nullptr);
     ~SettingPageHistory();
 
