@@ -4,6 +4,7 @@
 #include "BusAdapter.h"
 #include "Account.h"
 #include "Error.h"
+#include "Audio.h"
 
 BusAdapter *BusAdapter::m_stBusAdapterInst = nullptr;
 BusAdapter *BusAdapter::Instance()
@@ -55,6 +56,21 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::Instance(),
             &Bus::SignalGetMessageInfoResp);
 
+    connect(AudioMgr::Instance(),
+            &AudioMgr::SignalAudioCaptureStarted,
+            Bus::Instance(),
+            &Bus::SignalAudioCaptureStarted);
+
+    connect(AudioMgr::Instance(),
+            &AudioMgr::SignalAudioCaptured,
+            Bus::Instance(),
+            &Bus::SignalAudioCaptured);
+
+    connect(AudioMgr::Instance(),
+            &AudioMgr::SignalAudioCaptureStopped,
+            Bus::Instance(),
+            &Bus::SignalAudioCaptureStopped);
+
     // from plugin
     connect(Bus::Instance(), &Bus::SignalPong, this, &BusAdapter::_slotPong);
 
@@ -82,6 +98,16 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::SignalGetMessageInfo,
             this,
             &BusAdapter::_slotGetMessageInfoFromBus);
+
+    connect(Bus::Instance(),
+            &Bus::SignalAudioCaptureStart,
+            AudioMgr::Instance(),
+            &AudioMgr::SlotAudioCaptureStart);
+
+    connect(Bus::Instance(),
+            &Bus::SignalAudioCaptureStop,
+            AudioMgr::Instance(),
+            &AudioMgr::SlotAudioCaptureStop);
 }
 
 BusAdapter::~BusAdapter()

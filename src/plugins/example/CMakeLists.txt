@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Widgets Multimedia)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets Multimedia)
 
 # ----------------------------------------------------------------------------
 # Build Configuration
@@ -26,6 +26,12 @@ endif()
 # set output path
 if (NOT EXECUTABLE_OUTPUT_PATH)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+endif()
+if (NOT LIBRARY_OUTPUT_DIRECTORY)
+    set(LIBRARY_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
+endif()
+if (NOT RUNTIME_OUTPUT_DIRECTORY)
+    set(RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 endif()
 
 # print build info
@@ -44,49 +50,54 @@ message(STATUS "C++ flags, minimal Release configuration:         ${CMAKE_CXX_FL
 # Source Code
 # ----------------------------------------------------------------------------
 
-add_library(example MODULE
-  example.h
-  example.cpp
-  example.ui
+# set plugin common file directory
+if (NOT PLUGIN_ROOT_DIR)
+    set(PLUGIN_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/plugins)
+endif()
+message(STATUS "Plugin root dir: ${PLUGIN_ROOT_DIR}")
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Bus.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Bus.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/../PluginInterface.h
+add_library(example MODULE
+  Example.h
+  Example.cpp
+  Example.ui
+  
+  ${PLUGIN_ROOT_DIR}/Bus.cpp
+  ${PLUGIN_ROOT_DIR}/Bus.h
+  ${PLUGIN_ROOT_DIR}/PluginInterface.h
 )
 
-target_link_libraries(example PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(example PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Multimedia)
 
 target_include_directories(example PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
+    ${PLUGIN_ROOT_DIR}
 )
 
-target_compile_definitions(example PRIVATE example_LIBRARY)
+target_compile_definitions(example PRIVATE EXAMPLE_LIBRARY)
 
 # Export all symbols for Windows DLL
 set_target_properties(example PROPERTIES 
     WINDOWS_EXPORT_ALL_SYMBOLS ON
-    LIBRARY_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}/plugins/example"
-    RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}/plugins/example"
+    LIBRARY_OUTPUT_DIRECTORY "${LIBRARY_OUTPUT_DIRECTORY}"
+    RUNTIME_OUTPUT_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}"
 )
-
 
 # ----------------------------------------------------------------------------
 # Resource Files
 # ----------------------------------------------------------------------------
-file(GLOB example_RESOURCE_FILES CONFIGURE_DEPENDS
+file(GLOB EXAMPLE_RESOURCE_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/*.png"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.svg"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.jpg"
 )
-if (example_RESOURCE_FILES)
-    add_custom_target(example_copy_resources ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${EXECUTABLE_OUTPUT_PATH}/plugins/example"
+if (EXAMPLE_RESOURCE_FILES)
+    add_custom_target(chatbox_copy_resources ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${LIBRARY_OUTPUT_DIRECTORY}"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${example_RESOURCE_FILES}
-            "${EXECUTABLE_OUTPUT_PATH}/plugins/example"
-        DEPENDS ${example_RESOURCE_FILES}
-        COMMENT "Copying example resource files to output dir"
+            ${EXAMPLE_RESOURCE_FILES}
+            "${LIBRARY_OUTPUT_DIRECTORY}"
+        DEPENDS ${EXAMPLE_RESOURCE_FILES}
+        COMMENT "Copying example resource files to output dir ${LIBRARY_OUTPUT_DIRECTORY}"
     )
 else()
     message(STATUS "No example resource files to copy for ${PROJECT_NAME}")

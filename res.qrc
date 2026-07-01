@@ -18,7 +18,8 @@
         <file alias="box_open">res/icons/box_open.svg</file>
         <file alias="text">res/icons/text.png</file>
         <file alias="image">res/icons/image.png</file>
-        <file alias="audio">res/icons/audio.png</file>
+        <file alias="audio_norm">res/icons/audio_norm.png</file>
+        <file alias="audio_recording">res/icons/audio_recording.png</file>
         <file alias="video">res/icons/video.png</file>
         <file alias="home">res/icons/home.png</file>
         <file alias="tool">res/icons/tool.png</file>
@@ -58,6 +59,8 @@
         <file alias="save">res/icons/save.png</file>
         <file alias="upload">res/icons/upload.png</file>
         <file alias="import">res/icons/import.png</file>
+        <file alias="microphone_enable">res/icons/microphone_enable.png</file>
+        <file alias="microphone_disable">res/icons/microphone_disable.png</file>
     </qresource>
     <qresource prefix="/languages">
         <file alias="de_DE">res/languages/rag-qt_de_DE.qm</file>

@@ -26,6 +26,7 @@
 #include "System.h"
 #include "ScreenCapture.h"
 #include "SettingPageNetwork.h"
+#include "Audio.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -307,25 +308,41 @@ void FrameworkWidget::_slotCtlBtnGroupClicked(int id)
     switch(id)
     {
         case 0: // Minimize
+        {
             qDebug() << "Minimize button clicked.";
             _minimizeWindow();
-            break;
-        case 1: // Select Screen
+        }
+        break;
+        case 1: // Audio Enable/Disable
+        {
+            qDebug() << "Audio button clicked.";
+            _audioToggle();
+        }
+        break;
+        case 2: // Select Screen
+        {
             qDebug() << "Select Screen button clicked.";
             _selectScreen();
-            break;
-        case 2: // Alarm
+        }
+        break;
+        case 3: // Alarm
+        {
             qDebug() << "Alarm button clicked.";
             _showAlarmDialog();
-            break;
-        case 3: // switch account
+        }
+        break;
+        case 4: // switch account
+        {
             qDebug() << "Switch account button clicked.";
             _switchAccount();
-            break;
-        case 4: // Exit
+        }
+        break;
+        case 5: // Exit
+        {
             qDebug() << "Exit button clicked.";
             _exit();
-            break;
+        }
+        break;
         default:
             break;
     }
@@ -586,11 +603,15 @@ void FrameworkWidget::_initAppBar()
 
 void FrameworkWidget::_initControlBar()
 {
+    ui->btnAudio->setIcon(QIcon(":/icons/microphone_enable"));
+    ui->btnAudio->setVisible(true);
+
     m_pCtlBtnGroup->addButton(ui->btnMinimize, 0);
-    m_pCtlBtnGroup->addButton(ui->btnSelectScreen, 1);
-    m_pCtlBtnGroup->addButton(ui->btnAlarm, 2);
-    m_pCtlBtnGroup->addButton(ui->btnSwitch, 3);
-    m_pCtlBtnGroup->addButton(ui->btnExit, 4);
+    m_pCtlBtnGroup->addButton(ui->btnAudio, 1);
+    m_pCtlBtnGroup->addButton(ui->btnSelectScreen, 2);
+    m_pCtlBtnGroup->addButton(ui->btnAlarm, 3);
+    m_pCtlBtnGroup->addButton(ui->btnSwitch, 4);
+    m_pCtlBtnGroup->addButton(ui->btnExit, 5);
     for(auto btn : m_pCtlBtnGroup->buttons())
     {
         btn->setStyleSheet(StyleMgr::ParseFile(":/styles/ctl_push_button"));
@@ -743,6 +764,22 @@ void FrameworkWidget::_initLanguage()
 void FrameworkWidget::_minimizeWindow()
 {
     this->showMinimized();
+}
+
+void FrameworkWidget::_audioToggle()
+{
+    m_isAudioEnable = (m_isAudioEnable) ? false : true;
+    if(m_isAudioEnable)
+    {
+        ui->btnAudio->setIcon(QIcon(":/icons/microphone_enable"));
+        ui->btnAudio->setVisible(true);
+        AudioMgr::Instance()->enable();
+    } else
+    {
+        ui->btnAudio->setIcon(QIcon(":/icons/microphone_disable"));
+        ui->btnAudio->setVisible(true);
+        AudioMgr::Instance()->disable();
+    }
 }
 
 void FrameworkWidget::_selectScreen()

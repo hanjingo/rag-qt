@@ -19,6 +19,7 @@
 #include "GrpcClient.h"
 #include "StyleMgr.h"
 #include "BusAdapter.h"
+#include "Audio.h"
 
 QT_BEGIN_NAMESPACE
 class QButtonGroup;
@@ -110,6 +111,7 @@ class FrameworkWidget : public QWidget
     void _initLanguage();
 
     void _minimizeWindow();
+    void _audioToggle();
     void _selectScreen();
     void _showAlarmDialog();
     void _exit();
@@ -125,6 +127,8 @@ class FrameworkWidget : public QWidget
   private:
     QButtonGroup *m_pCtlBtnGroup;
     QTimer       *m_pTimer;
+
+    bool m_isAudioEnable = true;
 
     bool   m_isResizing   = false;
     int    m_resizeRegion = ResizeNone;
