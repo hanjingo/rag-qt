@@ -24,6 +24,10 @@ class Config : public QObject
         int minAudioBufferSize    = 32000;
         int keepLastAudioBufferMs = 1000;
 
+        int   sleepTimeoutMs      = 3000;
+        float wakeupThreshold     = 0.01;
+        int   maxSameContentCount = 3;
+
         QString          filtRegex;
         QVector<QString> noiseWords;
     };

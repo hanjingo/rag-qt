@@ -2,14 +2,17 @@
     "translators": [
         {
             "id": "default",
-            "model_path": "./models/ggml-small-q8_0.bin",
+            "model_path": "./models/ggml-base.bin",
             "language": "auto",
             "translate": true,
             "min_new_sample_size": 6400,
             "min_audio_buffer_size": 32000,
-            "mute_amplitude_threshold": 0.05,
+            "mute_amplitude_threshold": 0.03,
             "mute_amplitude_duration_ms": 200,
             "keep_last_audio_buffer_ms": 1000,
+            "sleep_timeout_ms": 2000,
+            "wakeup_threshold": 0.001,
+            "max_same_content_count": 3,
             "filt_regex": "\\[[^\\]]*\\]|\\([^\\)]*\\)",
             "noise_words": [
                 "Thank you for watching.",

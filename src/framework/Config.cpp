@@ -100,6 +100,10 @@ QVector<Config::TranslatorParam> Config::translatorParams()
         param.keepLastAudioBufferMs =
             obj["keep_last_audio_buffer_ms"].toInt(1000);
 
+        param.sleepTimeoutMs      = obj["sleep_timeout_ms"].toInt(3000);
+        param.wakeupThreshold     = obj["wakeup_threshold"].toDouble(0.01);
+        param.maxSameContentCount = obj["max_same_content_count"].toInt(3);
+
         param.filtRegex = obj["filt_regex"].toString();
         param.noiseWords.clear();
         if(obj.contains("noise_words") && obj["noise_words"].isArray())

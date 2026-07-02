@@ -784,6 +784,9 @@ void FrameworkWidget::_initAudioTranslator()
         trans->setKeepLastAudioBufferMs(item.keepLastAudioBufferMs);
         trans->setFiltRegex(item.filtRegex);
         trans->setNoiseWords(item.noiseWords);
+        trans->setSleepTimeoutMs(item.sleepTimeoutMs);
+        trans->setWakeupThreshold(item.wakeupThreshold);
+        trans->setMaxSameContentCount(item.maxSameContentCount);
         qDebug() << "create translator with id:" << item.id
                  << ", model path:" << item.modelPath
                  << ", language:" << item.language
@@ -794,7 +797,10 @@ void FrameworkWidget::_initAudioTranslator()
                  << ", min new sample size:" << item.minNewSampleSize
                  << ", keep last audio buffer ms:" << item.keepLastAudioBufferMs
                  << ", filt regex:" << item.filtRegex
-                 << ", noise words:" << item.noiseWords;
+                 << ", noise words:" << item.noiseWords
+                 << ", sleep timeout ms:" << item.sleepTimeoutMs
+                 << ", wakeup threshold:" << item.wakeupThreshold
+                 << ", max same content count:" << item.maxSameContentCount;
     }
 }
 
