@@ -27,26 +27,30 @@ class AudioTranslator : public QObject
     // QByteArray to std::vector<float> (pcmf32)
     static void convert(std::vector<float> &pcmf32, const QByteArray &data);
 
-    hj::asr::full_params_t fullParams();
-
     void     setWorkerThread(QThread *thread) { m_thread = thread; }
     QThread *workerThread() const { return m_thread; }
 
+    // full params
+    hj::asr::full_params_t fullParams();
+    void                   setFullParams(const hj::asr::full_params_t &params);
+
+    // mute control
+    void  setMinAudioBufferSize(int size);
+    int   minAudioBufferSize() const { return m_minAudioBufferSize; }
+    void  setMinNewSampleSize(int size);
+    int   minNewSampleSize() const { return m_minNewSampleSize; }
     void  setMuteAmplitudeDurationMs(int durMs);
     float muteAmplitudeDurationMs() const { return m_muteAmplitudeDurationMs; }
     void  setMuteAmplitudeThreshold(float threshold);
     float muteAmplitudeThreshold() const { return m_muteAmplitudeThreshold; }
+    void  setKeepLastAudioBufferMs(int ms);
+    int   keepLastAudioBufferMs() const { return m_keepLastAudioBufferMs; }
 
-    void setMinAudioBufferSize(int size);
-    int  minAudioBufferSize() const { return m_minAudioBufferSize; }
-    void setMinNewSampleSize(int size);
-    int  minNewSampleSize() const { return m_minNewSampleSize; }
-    void setKeepLastAudioBufferMs(int ms);
-    int  keepLastAudioBufferMs() const { return m_keepLastAudioBufferMs; }
-
+    // noise control
     void setFiltRegex(const QString &regex);
     void setNoiseWords(const QVector<QString> &words) { m_noiseWords = words; }
 
+    // sleep and wake up control
     void  setSleepTimeoutMs(int ms);
     int   sleepTimeoutMs() const { return m_sleepTimeoutMs; }
     void  setWakeupThreshold(float threshold);
@@ -54,6 +58,7 @@ class AudioTranslator : public QObject
     void  setMaxSameContentCount(int count);
     int   maxSameContentCount() const { return m_maxSameContentCount; }
 
+    // tool function
     bool checkCurrSegmentFinished(const QString &catched);
     void checkAmplitude();
     bool checkBufSize();

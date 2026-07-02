@@ -185,6 +185,11 @@ hj::asr::full_params_t AudioTranslator::fullParams()
     return m_fullParams;
 }
 
+void AudioTranslator::setFullParams(const hj::asr::full_params_t &params)
+{
+    m_fullParams = params;
+}
+
 void AudioTranslator::setMuteAmplitudeDurationMs(int durMs)
 {
     m_muteAmplitudeDurationMs = durMs;

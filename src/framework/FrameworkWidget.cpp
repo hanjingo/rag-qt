@@ -769,10 +769,38 @@ void FrameworkWidget::_initAudioTranslator()
     auto items = Config::Instance().translatorParams();
     for(auto item : items)
     {
-        auto param           = hj::asr::context::default_params();
-        auto full_param      = hj::asr::context::default_full_params();
-        full_param.language  = item.language.toStdString().c_str();
-        full_param.translate = item.translate;
+        auto param             = hj::asr::context::default_params();
+        auto full_param        = hj::asr::context::default_full_params();
+        full_param.n_threads   = item.nThreads;
+        full_param.n_max_text_ctx = item.nMaxTextCtx;
+        full_param.offset_ms      = item.offsetMs;
+        full_param.duration_ms    = item.durationMs;
+
+        full_param.translate   = item.translate;
+        full_param.detect_language = item.detectLanguage;
+        full_param.language    = item.language.toStdString().c_str();
+
+        full_param.no_context = item.noCtx;
+        full_param.no_timestamps = item.noTimestamps;
+        full_param.single_segment = item.singleSegment;
+        full_param.print_special  = item.printSpecial;
+        full_param.print_progress = item.printProgress;
+        full_param.print_realtime = item.printRealtime;
+        full_param.carry_initial_prompt = item.carryInitialPrompt;
+        full_param.initial_prompt       = item.initialPrompt.toStdString().c_str();
+        full_param.suppress_regex       = item.suppressRegex.toStdString().c_str();
+        full_param.suppress_blank       = item.suppressBlank;
+        full_param.suppress_nst   = item.suppressNst;
+
+        full_param.temperature = item.temperature;
+        full_param.temperature_inc = item.temperatureInc;
+
+        full_param.max_initial_ts = item.maxInitialTs;
+        full_param.length_penalty = item.lengthPenalty;
+        full_param.entropy_thold  = item.entropyThold;
+        full_param.logprob_thold  = item.logprobThold;
+        full_param.no_speech_thold = item.noSpeechThold;
+
         auto trans = AudioTranslatorMgr::Instance()->Create(item.id,
                                                             item.modelPath,
                                                             param,

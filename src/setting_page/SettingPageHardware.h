@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include <QWidget>
+#include <QStandardItemModel>
 
 namespace Ui
 {
@@ -21,6 +22,13 @@ class SettingPageHardware : public QWidget
   signals:
 
   private slots:
+    void _slotComboAudioTranslatorCurrentChanged(int iIndex);
+
+  private:
+    void _initUI();
+    void _initConnections();
+
+    void _switchAudioConfig(const QString &id);
 
   private:
     Ui::SettingPageHardware    *ui;
