@@ -781,6 +781,9 @@ void FrameworkWidget::_initAudioTranslator()
         trans->setMuteAmplitudeThreshold(item.muteAmplitudeThreshold);
         trans->setMinAudioBufferSize(item.minAudioBufferSize);
         trans->setMinNewSampleSize(item.minNewSampleSize);
+        trans->setKeepLastAudioBufferMs(item.keepLastAudioBufferMs);
+        trans->setFiltRegex(item.filtRegex);
+        trans->setNoiseWords(item.noiseWords);
         qDebug() << "create translator with id:" << item.id
                  << ", model path:" << item.modelPath
                  << ", language:" << item.language
@@ -788,7 +791,10 @@ void FrameworkWidget::_initAudioTranslator()
                  << ", mute amplitude durMs:" << item.muteAmplitudeDurationMs
                  << ", mute amplitude threshold:" << item.muteAmplitudeThreshold
                  << ", min audio buffer size:" << item.minAudioBufferSize
-                 << ", min new sample size:" << item.minNewSampleSize;
+                 << ", min new sample size:" << item.minNewSampleSize
+                 << ", keep last audio buffer ms:" << item.keepLastAudioBufferMs
+                 << ", filt regex:" << item.filtRegex
+                 << ", noise words:" << item.noiseWords;
     }
 }
 

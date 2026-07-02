@@ -20,8 +20,12 @@ class Config : public QObject
         int   muteAmplitudeDurationMs = 200;
         float muteAmplitudeThreshold  = 0.03;
 
-        int minNewSampleSize   = 6400;
-        int minAudioBufferSize = 32000;
+        int minNewSampleSize      = 6400;
+        int minAudioBufferSize    = 32000;
+        int keepLastAudioBufferMs = 1000;
+
+        QString          filtRegex;
+        QVector<QString> noiseWords;
     };
 
     struct NetworkConfig

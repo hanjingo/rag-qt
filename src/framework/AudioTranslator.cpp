@@ -88,19 +88,6 @@ int AudioTranslatorMgr::Translate(const QByteArray &src, const QString &id)
     if(trans == nullptr)
         return -1;
 
-    // QVector<QString> segments;
-    // auto             ec = trans->translate(segments, src);
-    // if(ec != 0)
-    //     return ec;
-
-    // if(!segments.isEmpty())
-    // {
-    //     emit SignalAudioTranslated(ec, src, segments);
-    //     return 0;
-    // }
-
-    // return ec;
-
     emit SignalProcessAudio(src, trans->fullParams());
     return 0;
 }
@@ -112,19 +99,6 @@ int AudioTranslatorMgr::Translate(const QByteArray            &src,
     auto trans = Get(id);
     if(trans == nullptr)
         return -1;
-
-    // QVector<QString> segments;
-    // auto             ec = trans->translate(segments, src, params);
-    // if(ec != 0)
-    //     return ec;
-
-    // if(!segments.isEmpty())
-    // {
-    //     emit SignalAudioTranslated(ec, src, segments);
-    //     return 0;
-    // }
-
-    // return ec;
 
     emit SignalProcessAudio(src, hj::asr::context::default_full_params());
     return 0;
@@ -208,18 +182,40 @@ void AudioTranslator::setMinNewSampleSize(int size)
     m_minNewSampleSize = size;
 }
 
-bool AudioTranslator::checkCurrSegmentFinished(const QString &catched)
+void AudioTranslator::setKeepLastAudioBufferMs(int ms)
 {
-    return m_muteCount >= 3 && !catched.isEmpty();
+    m_keepLastAudioBufferMs = ms;
 }
 
-void AudioTranslator::checkAmplitude(int lastMs, float threshold)
+bool AudioTranslator::checkCurrSegmentFinished(const QString &catched)
 {
-    auto check_samples =
-        qMin(m_pcmBuf.size(), (size_t) (16000 * lastMs / 1000));
-    float maxAmplitude = 0.0;
+    if(m_muteCount < 3)
+        return false;
+
+    if(!catched.isEmpty())
+        return true;
+
+    if(m_muteCount >= 5)
+        return true;
+
+    return false;
+}
+
+void AudioTranslator::checkAmplitude()
+{
+    auto lastMs             = muteAmplitudeDurationMs();
+    auto threshold          = muteAmplitudeThreshold();
+    auto needToCheckSamples = static_cast<size_t>(16000 * lastMs / 1000);
+    if(m_pcmBuf.size() < needToCheckSamples) // not enough samples to check
+        return;
+
+    auto  check_samples = qMin(m_pcmBuf.size(), needToCheckSamples);
+    float maxAmplitude  = 0.0;
     for(size_t i = m_pcmBuf.size() - check_samples; i < m_pcmBuf.size(); ++i)
         maxAmplitude = qMax(maxAmplitude, qAbs(m_pcmBuf[i]));
+
+    qDebug() << "checkAmplitude - max:" << maxAmplitude
+             << "threshold:" << threshold << "muteCount:" << m_muteCount;
 
     if(maxAmplitude < threshold)
         m_muteCount++;
@@ -240,8 +236,18 @@ bool AudioTranslator::checkNewSampleSize(int newSampleSize)
 
 void AudioTranslator::filt(QString &str)
 {
-    QRegularExpression regex("\\[.*?\\]");
-    str.remove(regex);
+    QRegularExpression tagRegex(m_filtRegex);
+    str.remove(tagRegex);
+
+    // remove noise words
+    for(const auto &noise : m_noiseWords)
+    {
+        qDebug() << "filt noise word:" << noise;
+        if(!noise.isEmpty())
+            str.replace(noise, "", Qt::CaseInsensitive);
+    }
+
+    str.replace(QRegularExpression("\\s+"), " ");
     str = str.trimmed();
 }
 
@@ -270,7 +276,7 @@ int AudioTranslator::translate(QVector<QString>             &segments,
         return 0;
 
     // check the last n ms amplitue
-    checkAmplitude(muteAmplitudeDurationMs(), muteAmplitudeThreshold());
+    checkAmplitude();
 
     // translate pcmf32 to text
     auto err = m_ctx.full(params, m_pcmBuf);
@@ -292,16 +298,25 @@ int AudioTranslator::translate(QVector<QString>             &segments,
 
     // filt noise
     filt(tmpStr);
+    qDebug() << "After filt - tmpStr:" << tmpStr
+             << ", muteCount:" << m_muteCount
+             << ", buffer size:" << m_pcmBuf.size();
+    if(tmpStr.isEmpty())
+        return 0;
 
     // check finished or not
-    if(checkCurrSegmentFinished(tmpStr))
+    bool isFinished = checkCurrSegmentFinished(tmpStr);
+    qDebug() << "checkCurrSegmentFinished result:" << isFinished;
+    if(isFinished)
     {
-        // curr segment finished, emit signal
-        m_history.append(tmpStr);
         segments.append(tmpStr);
 
-        // m_history.clear();
-        m_pcmBuf.clear();
+        // clear buffer, keep the last 1 second
+        size_t keepSize = (size_t) 16000 * keepLastAudioBufferMs() / 1000;
+        keepSize        = qMin(m_pcmBuf.size(), keepSize);
+        std::vector<float> keepBuf(m_pcmBuf.end() - keepSize, m_pcmBuf.end());
+        m_pcmBuf = keepBuf;
+
         m_muteCount     = 0;
         m_newSampleSize = 0;
     }

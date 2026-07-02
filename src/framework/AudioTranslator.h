@@ -39,9 +39,14 @@ class AudioTranslator : public QObject
     int  minAudioBufferSize() const { return m_minAudioBufferSize; }
     void setMinNewSampleSize(int size);
     int  minNewSampleSize() const { return m_minNewSampleSize; }
+    void setKeepLastAudioBufferMs(int ms);
+    int  keepLastAudioBufferMs() const { return m_keepLastAudioBufferMs; }
+
+    void setFiltRegex(const QString &regex) { m_filtRegex = regex; }
+    void setNoiseWords(const QVector<QString> &words) { m_noiseWords = words; }
 
     bool checkCurrSegmentFinished(const QString &catched);
-    void checkAmplitude(int lastMs, float threshold);
+    void checkAmplitude();
     bool checkBufSize();
     bool checkNewSampleSize(int newSampleSize);
     void filt(QString &text);
@@ -70,12 +75,15 @@ class AudioTranslator : public QObject
     int   m_muteAmplitudeDurationMs = 200;
     float m_muteAmplitudeThreshold  = 0.0;
 
-    int m_minNewSampleSize   = 6400;
-    int m_minAudioBufferSize = 32000;
+    int m_minNewSampleSize      = 6400;
+    int m_minAudioBufferSize    = 32000;
+    int m_keepLastAudioBufferMs = 1000;
 
-    int              m_muteCount     = 0;
-    int              m_newSampleSize = 0;
-    QVector<QString> m_history;
+    QString          m_filtRegex;
+    QVector<QString> m_noiseWords;
+
+    int m_muteCount     = 0;
+    int m_newSampleSize = 0;
 };
 
 class AudioTranslatorMgr : public QObject

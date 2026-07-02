@@ -97,6 +97,17 @@ QVector<Config::TranslatorParam> Config::translatorParams()
 
         param.minAudioBufferSize = obj["min_audio_buffer_size"].toInt(32000);
         param.minNewSampleSize   = obj["min_new_sample_size"].toInt(6400);
+        param.keepLastAudioBufferMs =
+            obj["keep_last_audio_buffer_ms"].toInt(1000);
+
+        param.filtRegex = obj["filt_regex"].toString();
+        param.noiseWords.clear();
+        if(obj.contains("noise_words") && obj["noise_words"].isArray())
+        {
+            QJsonArray noiseArr = obj["noise_words"].toArray();
+            for(int j = 0; j < noiseArr.size(); ++j)
+                param.noiseWords.append(noiseArr[j].toString());
+        }
         params.append(param);
     }
     return params;

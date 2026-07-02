@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include "Error.h"
+#include "TimedQueue.h"
 #include "GrpcClientReactor.h"
 
 GrpcClient *GrpcClient::m_stGrpcClientInst = nullptr;
@@ -20,6 +21,7 @@ GrpcClient::GrpcClient(QObject *parent)
     : QObject(parent)
     , m_pChannel(nullptr)
 {
+    TimedQueue::Instance().start(10);
 }
 
 GrpcClient::~GrpcClient()

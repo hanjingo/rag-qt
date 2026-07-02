@@ -4,21 +4,25 @@
 #include <QCoreApplication>
 
 #include "Error.h"
+#include "TimedQueue.h"
 
 void QueryReactor::OnReadDone(bool ok)
 {
     if(ok)
     {
-        qDebug() << "Async Received Query response, error_code:"
-                 << m_resp.error_code() << ", id:" << m_id
-                 << ", content:" << QString::fromStdString(m_resp.content())
-                 << ", is_finished:" << m_resp.is_finished();
+        auto ec         = m_resp.error_code();
+        auto id         = m_id;
+        auto content    = QString::fromStdString(m_resp.content());
+        auto isFinished = m_resp.is_finished();
+        qDebug() << "Async Received Query response, error_code:" << ec
+                 << ", id:" << id << ", content:" << content
+                 << ", is_finished:" << isFinished;
 
-        emit m_client->SignalQueryResp(m_resp.error_code(),
-                                       m_id,
-                                       QString::fromStdString(m_resp.content()),
-                                       m_resp.is_finished());
-        QCoreApplication::processEvents();
+        TimedQueue::Instance().enqueue([ec, id, content, isFinished]() {
+            emit GrpcClient::Instance()
+                -> SignalQueryResp(ec, id, content, isFinished);
+        });
+
         StartRead(&m_resp);
     }
 }
