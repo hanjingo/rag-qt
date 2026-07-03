@@ -161,32 +161,20 @@ void SettingPageNetwork::_initConnections()
 
 void SettingPageNetwork::_saveConfigFiles()
 {
-    QJsonArray confArr;
-    auto       confs = GetNetworkConfigs();
-    for(auto conf : confs)
-    {
-        QJsonObject confObj;
-        confObj["ip"]       = conf.ip;
-        confObj["port"]     = conf.port;
-        confObj["isEnable"] = conf.isEnable;
-        confArr.append(confObj);
-    }
-
-    Config::Instance().rootObj()[KEY_NETWORK_CONFIG] = confArr;
+    auto confs = GetNetworkConfigs();
+    Config::Instance().setNetworkConfigs(confs);
     Config::Instance().save(CONFIG_FILE);
 }
 
 void SettingPageNetwork::_loadConfigFiles()
 {
-    QJsonArray confArr =
-        Config::Instance().rootObj()[KEY_NETWORK_CONFIG].toArray();
-    for(int i = 0; i < confArr.size(); ++i)
+    auto confs = Config::Instance().networkConfigs();
+    for(int i = 0; i < confs.size(); ++i)
     {
-        QJsonObject confObj  = confArr[i].toObject();
-        QString     ip       = confObj["ip"].toString();
-        int         port     = confObj["port"].toInt();
-        bool        isEnable = confObj["isEnable"].toBool();
-
+        const auto &config   = confs[i];
+        QString     ip       = config.ip;
+        int         port     = config.port;
+        bool        isEnable = config.isEnable;
         switch(i)
         {
             case 0:

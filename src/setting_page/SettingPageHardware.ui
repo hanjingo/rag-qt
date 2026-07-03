@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1248</width>
-    <height>698</height>
+    <height>736</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -24,1091 +24,1241 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
-    <widget class="QListWidget" name="listWidgetCatalog"/>
+    <widget class="QListWidget" name="listWidgetCatalog">
+     <property name="maximumSize">
+      <size>
+       <width>300</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
    </item>
    <item>
-    <widget class="QStackedWidget" name="stackPage">
-     <widget class="QWidget" name="pageAudio">
-      <layout class="QGridLayout" name="gridLayout_4">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QWidget" name="wgtAudio" native="true">
-         <property name="styleSheet">
-          <string notr="true">background-color:#C1CCD6;</string>
+    <layout class="QVBoxLayout" name="wgtRight">
+     <item>
+      <widget class="QStackedWidget" name="stackPage">
+       <widget class="QWidget" name="pageAudio">
+        <layout class="QGridLayout" name="gridLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QWidget" name="wgtAudio" native="true">
+           <property name="styleSheet">
+            <string notr="true">background-color:#C1CCD6;</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
             <item>
-             <widget class="QLabel" name="lblAudioTranslatorTitle">
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>0</height>
-               </size>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLabel" name="lblAudioTranslatorTitle">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <italic>false</italic>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Audio Translator</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboAudioTranslator">
+                <property name="minimumSize">
+                 <size>
+                  <width>300</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QWidget" name="wgtBaseParam" native="true">
+              <property name="styleSheet">
+               <string notr="true">background-color:#C1CCD6;</string>
               </property>
-              <property name="font">
-               <font>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Audio</string>
-              </property>
+              <layout class="QGridLayout" name="gridLayout">
+               <item row="1" column="0">
+                <widget class="QLabel" name="lblModelPath">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Model Path</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QLineEdit" name="editModelPath">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="lblBaseParamTitle">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Base Param</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="ckUseGPU">
+                 <property name="text">
+                  <string>Use GPU</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="3">
+                <widget class="QComboBox" name="comboAudioTranslatorGPU"/>
+               </item>
+               <item row="3" column="4">
+                <widget class="QCheckBox" name="ckFlashAttention">
+                 <property name="text">
+                  <string>Flash Attention</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="comboAudioTranslator">
-              <property name="minimumSize">
-               <size>
-                <width>300</width>
-                <height>0</height>
-               </size>
+             <widget class="QWidget" name="wgtFullParam" native="true">
+              <property name="styleSheet">
+               <string notr="true">background-color:#C1CCD6;</string>
               </property>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <item row="6" column="1">
+                <widget class="QLabel" name="lblInitPrompt">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Initial Prompt</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QLabel" name="lblDurMs">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Duration Milliseconds</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="ckTranslate">
+                 <property name="text">
+                  <string>Translate</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="4">
+                <widget class="QCheckBox" name="ckPrintProgress">
+                 <property name="text">
+                  <string>Print Progress</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0">
+                <widget class="QLabel" name="lblTemperature">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Temperature</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="2">
+                <widget class="QLabel" name="lblEntropyThreshold">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Entropy Threshold</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QLabel" name="lblMaxTextCtx">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max Text Context</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="2">
+                <widget class="QLineEdit" name="editInitPrompt">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="5">
+                <widget class="QLineEdit" name="editMaxInitTs">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="lblThreadsNum">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Threads Num</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="2">
+                <widget class="QLabel" name="lblTemperatureInc">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Temperature Increment</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="1">
+                <widget class="QLineEdit" name="editLengthPenalty">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="4">
+                <widget class="QLabel" name="lblMaxInitTs">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max Initial Ts</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QCheckBox" name="ckNoCtx">
+                 <property name="text">
+                  <string>No Context</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="5">
+                <widget class="QCheckBox" name="ckPrintRealTime">
+                 <property name="text">
+                  <string>Print Real Time</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="1">
+                <widget class="QLineEdit" name="editTemperature">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QCheckBox" name="ckDetectLanguage">
+                 <property name="text">
+                  <string>Detect Language</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="editThreadsNum">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="inputMask">
+                  <string/>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>4</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="3">
+                <widget class="QLineEdit" name="editEntropyThreshold">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="2">
+                <widget class="QLabel" name="lblLanguage">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Language</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="3">
+                <widget class="QCheckBox" name="ckPrintSpecial">
+                 <property name="text">
+                  <string>Print Special</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QLineEdit" name="editMaxTextCtx">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="inputMask">
+                  <string/>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>16384</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="3">
+                <widget class="QLineEdit" name="editTemperatureInc">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="0">
+                <widget class="QLabel" name="lblLengthPenalty">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Length Penalty</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="lblFullParamTitle">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Full Param</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="lblOffsetMs">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Offset Milliseconds</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="5">
+                <widget class="QLineEdit" name="editLogProbThreshold">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="editOffsetMs">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="3">
+                <widget class="QLineEdit" name="editDurMs">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="inputMask">
+                  <string/>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QCheckBox" name="ckCarryInitPrompt">
+                 <property name="text">
+                  <string>Carry Initial Prompt</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="2">
+                <widget class="QCheckBox" name="ckSingleSegment">
+                 <property name="text">
+                  <string>Single Segment</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QCheckBox" name="ckNoTimestamps">
+                 <property name="text">
+                  <string>No Timestamps</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="3">
+                <widget class="QComboBox" name="comboLanguage">
+                 <item>
+                  <property name="text">
+                   <string>auto</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>en</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>zh</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="9" column="4">
+                <widget class="QLabel" name="lblLogProbThreshold">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Log Prob Threshold</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0">
+                <widget class="QLabel" name="lblNoSpeechThreshold">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>No Speech Threshold</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="1">
+                <widget class="QLineEdit" name="editNoSpeechThreshold">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="2">
+                <widget class="QCheckBox" name="ckSuppressBlank">
+                 <property name="text">
+                  <string>Suppress Blank</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="3">
+                <widget class="QCheckBox" name="ckSuppressNst">
+                 <property name="text">
+                  <string>Suppress Nst</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="4">
+                <widget class="QLabel" name="lblSuppressRegex">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Suppress Regex</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="5">
+                <widget class="QLineEdit" name="editSuppressRegex">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
+             <widget class="QWidget" name="wgtMuteControl" native="true">
+              <property name="styleSheet">
+               <string notr="true">background-color:#C1CCD6;</string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
+              <layout class="QGridLayout" name="gridLayout_5">
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="editMuteAmplitudeDur">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="lblMuteAmplitudeDur">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Mute Amplitude Duration(ms)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="4">
+                <widget class="QLabel" name="lblKeepLastAudioBuffer">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Keep Last Audio Buffer(ms)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="3">
+                <widget class="QLineEdit" name="editWakeupThreshold">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.01</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="2">
+                <widget class="QLabel" name="lblWakeupThreshold">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Wake Up Threshold</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QLineEdit" name="editMinAudioBufferSize">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>32000</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QLabel" name="lblMinAudioBufferSize">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Min Audio Buffer Size</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="editMinNewSampleSize">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>6400</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="lblMuteControlTitle">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Mute Control</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="3">
+                <widget class="QLineEdit" name="editMuteAmplitudeThreshold">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.03</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="lblMinNewSampleSize">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Min New Sample Size</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QLabel" name="lblMuteAmplitudeThreshold">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Mute Amplitude Threshold</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QLineEdit" name="editSleepTimeoutMs">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>3000</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="lblSleepTimeout">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Sleep Timeout (ms)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="5">
+                <widget class="QLineEdit" name="editKeepLastAudioBuffer">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>1000</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="4">
+                <widget class="QLabel" name="lblMaxSameContentCount">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max Same Content Count</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="5">
+                <widget class="QLineEdit" name="editMaxSameContentCount">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>3</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="wgtMuteControl_2" native="true">
+              <property name="styleSheet">
+               <string notr="true">background-color:#C1CCD6;</string>
               </property>
-             </spacer>
+              <layout class="QGridLayout" name="gridLayout_6">
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="editNoiseWords">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="editFiltRegex">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="lblNoiseWords">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Noise Words</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="lblNoiseControlTitle">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Noise Control</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="lblFiltRegex">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Filt Regex</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="QWidget" name="wgtBaseParam" native="true">
-            <property name="styleSheet">
-             <string notr="true">background-color:#C1CCD6;</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout">
-             <item row="3" column="0">
-              <widget class="QCheckBox" name="ckUseGPU">
-               <property name="text">
-                <string>Use GPU</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="lblModelPath">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Model Path</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="lblBaseParamTitle">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Base Param</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QCheckBox" name="ckFlashAttention">
-               <property name="text">
-                <string>Flash Attention</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QLineEdit" name="editModelPath">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="3">
-              <widget class="QComboBox" name="comboGPU"/>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QWidget" name="wgtFullParam" native="true">
-            <property name="styleSheet">
-             <string notr="true">background-color:#C1CCD6;</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_3">
-             <item row="9" column="4">
-              <widget class="QLabel" name="lblLogProbThreshold">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Log Prob Threshold</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QLineEdit" name="editMaxTextCtx">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>16384</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="4">
-              <widget class="QCheckBox" name="ckPrintProgress">
-               <property name="text">
-                <string>Print Progress</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="5">
-              <widget class="QCheckBox" name="ckPrintRealTime">
-               <property name="text">
-                <string>Print Real Time</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="5">
-              <widget class="QLineEdit" name="editLogProbThreshold">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.0-1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QCheckBox" name="ckSuppressBlank">
-               <property name="text">
-                <string>Suppress Blank</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="4">
-              <widget class="QLabel" name="lblMaxInitTs">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Max Initial Ts</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="3">
-              <widget class="QLineEdit" name="editSuppressRegex">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QCheckBox" name="ckNoTimestamps">
-               <property name="text">
-                <string>No Timestamps</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="6">
-              <widget class="QLabel" name="lblNoSpeechThreshold">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>No Speech Threshold</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="lblMaxTextCtx">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Max Text Context</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QCheckBox" name="ckNoCtx">
-               <property name="text">
-                <string>No Context</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QCheckBox" name="ckCarryInitPrompt">
-               <property name="text">
-                <string>Carry Initial Prompt</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1">
-              <widget class="QLineEdit" name="editTemperature">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.0-1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QLabel" name="lblLengthPenalty">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Length Penalty</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="3">
-              <widget class="QCheckBox" name="ckPrintSpecial">
-               <property name="text">
-                <string>Print Special</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QLabel" name="lblLanguage">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Language</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="3">
-              <widget class="QLineEdit" name="editLanguage">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>auto</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="5">
-              <widget class="QLineEdit" name="editOffsetMs">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QCheckBox" name="ckDetectLanguage">
-               <property name="text">
-                <string>Detect Language</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="2">
-              <widget class="QLabel" name="lblTemperatureInc">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Temperature Increment</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="2">
-              <widget class="QLineEdit" name="editInitPrompt">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="1">
-              <widget class="QCheckBox" name="ckSuppressNst">
-               <property name="text">
-                <string>Suppress Nst</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="2">
-              <widget class="QLabel" name="lblEntropyThreshold">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Entropy Threshold</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2">
-              <widget class="QCheckBox" name="ckSingleSegment">
-               <property name="text">
-                <string>Single Segment</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="2">
-              <widget class="QLabel" name="lblSuppressRegex">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Suppress Regex</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="editThreadsNum">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>4</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="3">
-              <widget class="QLineEdit" name="editTemperatureInc">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.0-1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0">
-              <widget class="QLabel" name="lblTemperature">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Temperature</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="5">
-              <widget class="QLineEdit" name="editMaxInitTs">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.0-1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="lblThreadsNum">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Threads Num</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QLabel" name="lblInitPrompt">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Initial Prompt</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="4">
-              <widget class="QLabel" name="lblOffsetMs">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Offset Milliseconds</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="3">
-              <widget class="QLineEdit" name="editEntropyThreshold">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.0-1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="1">
-              <widget class="QLineEdit" name="editLengthPenalty">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.0-1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="lblFullParamTitle">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Full Param</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QCheckBox" name="ckTranslate">
-               <property name="text">
-                <string>Translate</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="7">
-              <widget class="QLineEdit" name="editNoSpeechThreshold">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.0-1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="6">
-              <widget class="QLabel" name="lblDurMs">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Duration Milliseconds</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="7">
-              <widget class="QLineEdit" name="editDurMs">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QWidget" name="wgtMuteControl" native="true">
-            <property name="styleSheet">
-             <string notr="true">background-color:#C1CCD6;</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_5">
-             <item row="4" column="0">
-              <widget class="QLabel" name="lblSleepTimeout">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Sleep Timeout (ms)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="lblMinAudioBufferSize">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Min Audio Buffer Size</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="3">
-              <widget class="QLineEdit" name="editMuteAmplitudeThreshold">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.03</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="3">
-              <widget class="QLineEdit" name="editWakeupThreshold">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.01</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="lblMuteControlTitle">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Mute Control</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="editMuteAmplitudeDur">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>0.0-1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="lblMinNewSampleSize">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Min New Sample Size</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QLabel" name="lblMuteAmplitudeThreshold">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Mute Amplitude Threshold</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="editMinNewSampleSize">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>6400</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="lblMuteAmplitudeDur">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Mute Amplitude Duration(ms)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2">
-              <widget class="QLabel" name="lblWakeupThreshold">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Wake Up Threshold</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="editSleepTimeoutMs">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>3000</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QLineEdit" name="editMinAudioBufferSize">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>32000</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="lblKeepLastAudioBuffer">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Keep Last Audio Buffer(ms)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="editKeepLastAudioBuffer">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>1000</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="lblMaxSameContentCount">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Max Same Content Count</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QLineEdit" name="editMaxSameContentCount">
-               <property name="font">
-                <font>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>3</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="pageGPU"/>
-    </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pageGPU"/>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="wgtBottom" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>794</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnAdd">
+          <property name="minimumSize">
+           <size>
+            <width>132</width>
+            <height>45</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Add</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnSave">
+          <property name="minimumSize">
+           <size>
+            <width>132</width>
+            <height>45</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Save</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

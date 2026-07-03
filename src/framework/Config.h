@@ -60,8 +60,8 @@ class Config : public QObject
         int   maxSameContentCount = 3;
 
         // noise control
-        QString          filtRegex;
-        QVector<QString> noiseWords;
+        QString     filtRegex;
+        QStringList noiseWords;
     };
 
     struct NetworkConfig
@@ -78,8 +78,11 @@ class Config : public QObject
     void         save(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
-    QVector<Config::TranslatorParam> translatorParams();
-    QVector<Config::NetworkConfig>   networkConfigs();
+    QVector<Config::TranslatorParam> audioTranslatorParams();
+    void setAudioTranslatorParams(QVector<Config::TranslatorParam> &parmas);
+
+    QVector<Config::NetworkConfig> networkConfigs();
+    void setNetworkConfigs(QVector<Config::NetworkConfig> &configs);
 
   private:
     explicit Config(QObject *parent = nullptr);

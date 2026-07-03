@@ -67,7 +67,7 @@ void Config::save(const QString &filepath)
     saveFile.close();
 }
 
-QVector<Config::TranslatorParam> Config::translatorParams()
+QVector<Config::TranslatorParam> Config::audioTranslatorParams()
 {
     QVector<Config::TranslatorParam> params;
     if(m_rootObj.isEmpty())
@@ -153,6 +153,76 @@ QVector<Config::TranslatorParam> Config::translatorParams()
     return params;
 }
 
+void Config::setAudioTranslatorParams(QVector<Config::TranslatorParam> &params)
+{
+    QJsonArray arr;
+    for(auto param : params)
+    {
+        QJsonObject obj;
+        obj["id"]         = param.id;
+        obj["model_path"] = param.modelPath;
+
+        // ctx param
+        obj["use_gpu"]         = param.useGPU;
+        obj["gpu_device"]      = param.gpuDevice;
+        obj["flash_attention"] = param.flashAttention;
+
+        // full param
+        obj["n_threads"]      = param.nThreads;
+        obj["n_max_text_ctx"] = param.nMaxTextCtx;
+        obj["offset_ms"]      = param.offsetMs;
+        obj["duration_ms"]    = param.durationMs;
+
+        obj["translate"]       = param.translate;
+        obj["detect_language"] = param.detectLanguage;
+        obj["language"]        = param.language;
+
+        obj["no_ctx"]               = param.noCtx;
+        obj["no_timestamps"]        = param.noTimestamps;
+        obj["single_segment"]       = param.singleSegment;
+        obj["print_special"]        = param.printSpecial;
+        obj["print_progress"]       = param.printProgress;
+        obj["print_realtime"]       = param.printRealtime;
+        obj["carry_initial_prompt"] = param.carryInitialPrompt;
+        obj["initial_prompt"]       = param.initialPrompt;
+        obj["suppress_regex"]       = param.suppressRegex;
+        obj["suppress_blank"]       = param.suppressBlank;
+        obj["suppress_nst"]         = param.suppressNst;
+
+        obj["temperature"]     = param.temperature;
+        obj["temperature_inc"] = param.temperatureInc;
+
+        obj["max_initial_ts"]  = param.maxInitialTs;
+        obj["length_penalty"]  = param.lengthPenalty;
+        obj["entropy_thold"]   = param.entropyThold;
+        obj["logprob_thold"]   = param.logprobThold;
+        obj["no_speech_thold"] = param.noSpeechThold;
+
+        // mute control
+        obj["min_audio_buffer_size"]      = param.minAudioBufferSize;
+        obj["min_new_sample_size"]        = param.minNewSampleSize;
+        obj["mute_amplitude_duration_ms"] = param.muteAmplitudeDurationMs;
+        obj["mute_amplitude_threshold"]   = param.muteAmplitudeThreshold;
+        obj["keep_last_audio_buffer_ms"]  = param.keepLastAudioBufferMs;
+
+        // sleep and wake up control
+        obj["sleep_timeout_ms"]       = param.sleepTimeoutMs;
+        obj["wakeup_threshold"]       = param.wakeupThreshold;
+        obj["max_same_content_count"] = param.maxSameContentCount;
+
+        // noise control
+        obj["filt_regex"] = param.filtRegex;
+        QJsonArray noiseArr;
+        for(auto word : param.noiseWords)
+            noiseArr.append(word);
+        obj["noise_words"] = noiseArr;
+
+        arr.append(obj);
+    }
+
+    m_rootObj[KEY_TRANSLATOR_CONFIG] = arr;
+}
+
 QVector<Config::NetworkConfig> Config::networkConfigs()
 {
     QVector<Config::NetworkConfig> configs;
@@ -177,4 +247,18 @@ QVector<Config::NetworkConfig> Config::networkConfigs()
         configs.append(config);
     }
     return configs;
+}
+
+void Config::setNetworkConfigs(QVector<Config::NetworkConfig> &configs)
+{
+    QJsonArray arr;
+    for(auto config : configs)
+    {
+        QJsonObject obj;
+        obj["ip"]       = config.ip;
+        obj["port"]     = config.port;
+        obj["isEnable"] = config.isEnable;
+        arr.append(obj);
+    }
+    m_rootObj[KEY_NETWORK_CONFIG] = arr;
 }

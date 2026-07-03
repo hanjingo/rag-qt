@@ -23,12 +23,16 @@ class SettingPageHardware : public QWidget
 
   private slots:
     void _slotComboAudioTranslatorCurrentChanged(int iIndex);
+    void _slotBtnSaveClicked();
+    void _slotBtnAddClicked();
 
   private:
     void _initUI();
     void _initConnections();
 
     void _switchAudioConfig(const QString &id);
+    void _addAudioConfig(const QString &id);
+    void _save();
 
   private:
     Ui::SettingPageHardware    *ui;
