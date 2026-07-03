@@ -190,6 +190,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${PROJECT_INCLUDE_DIRS}
     ${Qt_PRIVATE_INCLUDES}
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/rag-core
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rd/libqt
 )
 
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES

@@ -1,44 +1,13 @@
-#ifndef AUDIO_H
-#define AUDIO_H
+#ifndef AUDIOMGR_H
+#define AUDIOMGR_H
 
-#include <QObject>
-#include <QCoreApplication>
+#include <QMap>
+#include <QByteArray>
 #include <QAudioDevice>
-#include <QMediaDevices>
 #include <QAudioFormat>
 #include <QAudioSource>
-#include <QIODevice>
-#include <QMap>
-#include <QDebug>
 
-class AudioStreamReceiver : public QIODevice
-{
-    Q_OBJECT
-
-  public:
-    explicit AudioStreamReceiver(QObject *parent = nullptr)
-        : QIODevice(parent)
-    {
-        open(QIODevice::WriteOnly);
-    }
-
-  signals:
-    void SignalAudioCaptured(const QByteArray &data);
-
-  protected:
-    qint64 writeData(const char *data, qint64 len) override
-    {
-        emit SignalAudioCaptured(QByteArray(data, len));
-        return len;
-    }
-
-    qint64 readData(char *data, qint64 maxlen) override
-    {
-        Q_UNUSED(data);
-        Q_UNUSED(maxlen);
-        return 0;
-    }
-};
+#include <libqt/multimedia/AudioStreamReceiver.h>
 
 class AudioMgr : public QObject
 {
@@ -80,4 +49,4 @@ class AudioMgr : public QObject
     QMap<QByteArray, bool>       m_devs;
 };
 
-#endif // AUDIO_H
+#endif // AUDIOMGR_H

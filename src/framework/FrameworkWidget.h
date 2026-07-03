@@ -19,7 +19,7 @@
 #include "GrpcClient.h"
 #include "StyleMgr.h"
 #include "BusAdapter.h"
-#include "Audio.h"
+#include "AudioMgr.h"
 
 QT_BEGIN_NAMESPACE
 class QButtonGroup;

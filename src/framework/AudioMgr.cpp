@@ -1,4 +1,6 @@
-#include "Audio.h"
+#include "AudioMgr.h"
+
+#include <QDebug>
 
 AudioMgr *AudioMgr::Instance()
 {

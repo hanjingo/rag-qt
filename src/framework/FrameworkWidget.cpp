@@ -26,7 +26,7 @@
 #include "System.h"
 #include "ScreenCapture.h"
 #include "SettingPageNetwork.h"
-#include "Audio.h"
+#include "AudioMgr.h"
 #include "AudioTranslator.h"
 #include "Config.h"
 
