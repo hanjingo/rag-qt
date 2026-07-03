@@ -6,43 +6,147 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>638</width>
-    <height>773</height>
+    <width>1089</width>
+    <height>782</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>New Model Config</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QWidget" name="wgtBasic" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
       <item>
-       <widget class="QWidget" name="widget_2" native="true">
+       <widget class="QWidget" name="wgtBase" native="true">
         <property name="styleSheet">
          <string notr="true">background-color:#C1CCD6;</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QLabel" name="lblTitleBase">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="4" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <property name="spacing">
+            <number>0</number>
            </property>
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Base</string>
-           </property>
-          </widget>
+           <item>
+            <widget class="QLabel" name="lblCreateTime">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Create Time</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="editCreateTime">
+             <property name="font">
+              <font>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>2026-01-01 01:01:01</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
-         <item>
+         <item row="8" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="lblApiKey_2">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Hash</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="editHash">
+             <property name="font">
+              <font>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>Optional</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <property name="spacing">
             <number>0</number>
@@ -73,7 +177,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="editID">
+            <widget class="QLineEdit" name="editId">
              <property name="font">
               <font>
                <italic>false</italic>
@@ -90,7 +194,7 @@
            </item>
           </layout>
          </item>
-         <item>
+         <item row="4" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="spacing">
             <number>0</number>
@@ -138,7 +242,122 @@
            </item>
           </layout>
          </item>
-         <item>
+         <item row="2" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="lblName">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Name</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="editName">
+             <property name="font">
+              <font>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>Required</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblTitleBase">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Base</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="lblApiKey">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>API Key</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="editApiKey">
+             <property name="font">
+              <font>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>Optional</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="8" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <property name="spacing">
             <number>0</number>
@@ -199,317 +418,7 @@
            </item>
           </layout>
          </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="lblApiKey">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>API Key</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="editApiKey">
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="placeholderText">
-              <string>Optional</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="lblPackageSize">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Package Size</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="editPackageSize">
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="placeholderText">
-              <string>(GB)</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="lblPrice">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Price</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="editPrice">
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="placeholderText">
-              <string>0.0$/token</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="lblPriceUnit">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>$/token</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="lblLicense">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>License</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="comboLicense">
-             <item>
-              <property name="text">
-               <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>GPL3</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Apache-2.0</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_8">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="lblName">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Name</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="editName">
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="placeholderText">
-              <string>Required</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_9">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="lblCreateTime">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Create Time</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="editTimestamp">
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="placeholderText">
-              <string>2026-01-01 01:01:01</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
+         <item row="5" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_10">
            <property name="spacing">
             <number>0</number>
@@ -554,7 +463,734 @@
              </property>
             </widget>
            </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="lblPrice">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Price</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="editPrice">
+               <property name="font">
+                <font>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="placeholderText">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="lblPriceUnit">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>$/token</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
           </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget_5" native="true">
+        <property name="styleSheet">
+         <string notr="true">background-color:#C1CCD6;</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="2" column="2">
+          <widget class="QCheckBox" name="ckUseDirectIO">
+           <property name="text">
+            <string>Use Direct IO</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="5">
+          <widget class="QCheckBox" name="ckUseExtraBufferTypes">
+           <property name="text">
+            <string>Use Extra Buffer Types</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="4">
+          <widget class="QCheckBox" name="ckCheckTensors">
+           <property name="text">
+            <string>Check Tensors</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="comboMainGPU">
+           <item>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="7">
+          <widget class="QCheckBox" name="ckNoAlloc">
+           <property name="text">
+            <string>No Alloc</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblModelParamTitle">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Model Param</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QCheckBox" name="ckUseMLock">
+           <property name="text">
+            <string>Use MLock</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="6">
+          <widget class="QCheckBox" name="ckNoHost">
+           <property name="text">
+            <string>No Host</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="ckUseGPU">
+           <property name="text">
+            <string>Use GPU</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="ckVocabOnly">
+           <property name="text">
+            <string>Vocab Only</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="ckUseMMap">
+           <property name="text">
+            <string>Use MMap</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget_6" native="true">
+        <property name="styleSheet">
+         <string notr="true">background-color:#C1CCD6;</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="4" column="5">
+          <widget class="QLineEdit" name="editYarnBetaFast">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="6">
+          <widget class="QLabel" name="lblNumSeqMax">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Num Seq Max</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="lblNumBatch">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Num Batch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="lblNumThreadsBatch">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Num Threads Batch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lblNumThreads">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Num Threads</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="lblYarnAttnFactor">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Yarn Attn Factor</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="4">
+          <widget class="QLabel" name="lblYarnBetaFast">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Yarn Beta Fast</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblContextTitle">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Context</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <widget class="QLabel" name="lblNumUBatch">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Num UBatch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblNumContext">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Num Context</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
+          <widget class="QLineEdit" name="editRopeFreqScale">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="3">
+          <widget class="QLineEdit" name="editYarnAttnFactor">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="editRopeFreqBase">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="6">
+          <widget class="QLabel" name="lblYarnBetaSlow">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Yarn Beta Slow</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="3">
+          <widget class="QLineEdit" name="editDefragThold">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="editNumContext">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="editNumThreads">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="editYarnOrigContext">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="lblRopeFreqScale">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Rope Freq Scale</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QLineEdit" name="editNumBatch">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="lblYarnOrigContext">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Yarn Orig Context</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="lblDefragThold">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Defrag Thold</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="5">
+          <widget class="QLineEdit" name="editNumUBatch">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="7">
+          <widget class="QLineEdit" name="editNumSeqMax">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLineEdit" name="editNumThreadsBatch">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="lblYarnExtFactor">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Yarn Ext Factor</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="7">
+          <widget class="QLineEdit" name="editYarnBetaSlow">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="editYarnExtFactor">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="lblRopeFreqBase">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Rope Freq Base</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QCheckBox" name="ckEmbeddings">
+           <property name="text">
+            <string>Embeddings</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QCheckBox" name="ckOffloadKQV">
+           <property name="text">
+            <string>OffloadKQV</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QCheckBox" name="ckNoPerf">
+           <property name="text">
+            <string>No Perf</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="3">
+          <widget class="QCheckBox" name="ckOPOffload">
+           <property name="text">
+            <string>OP Offload</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="4">
+          <widget class="QCheckBox" name="ckSwaFull">
+           <property name="text">
+            <string>Swa Full</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="5">
+          <widget class="QCheckBox" name="ckKVUnified">
+           <property name="text">
+            <string>KV Unified</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -565,95 +1201,6 @@
          <string notr="true">background-color:#C1CCD6;</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="lblTitleParameter">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Sampling</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="lblTemperature">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Temperature</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="editTemperature">
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>0.0-2.0</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="lblTopP">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Top-P</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="editTopP">
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>0.0-1.0</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="2">
           <widget class="QLabel" name="lblTopK">
            <property name="minimumSize">
@@ -689,42 +1236,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="lblPenalty">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Reputation Penalty</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="editPenalty">
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>0.0</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
+         <item row="2" column="6">
           <widget class="QLabel" name="lblMinP">
            <property name="minimumSize">
             <size>
@@ -743,7 +1255,131 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblSamplingTitle">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Sampling</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lblTopP">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Top-P</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="5">
+          <widget class="QLineEdit" name="editReputationPenalty">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>0.0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="editTopP">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>0.0-1.0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="editTemperature">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>0.0-2.0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="4">
+          <widget class="QLabel" name="lblPenalty">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Reputation Penalty</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblTemperature">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Temperature</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="7">
           <widget class="QLineEdit" name="editMinP">
            <property name="font">
             <font>
@@ -768,27 +1404,8 @@
          <string notr="true">background-color:#C1CCD6;</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QLabel" name="lblTitleContextParam">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Context</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
-          <widget class="QLineEdit" name="editWindowSize">
+          <widget class="QLineEdit" name="editCtxWindowSize">
            <property name="font">
             <font>
              <italic>false</italic>
@@ -822,7 +1439,26 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblControlTitle">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Control</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
           <widget class="QLabel" name="lblStopWords">
            <property name="minimumSize">
             <size>
@@ -841,7 +1477,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="1" column="3">
           <widget class="QLineEdit" name="editStopWords">
            <property name="font">
             <font>

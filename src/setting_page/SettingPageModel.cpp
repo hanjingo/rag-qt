@@ -17,6 +17,7 @@
 #include "Error.h"
 #include "Account.h"
 #include "BusAdapter.h"
+#include "Config.h"
 
 SettingPageModel *SettingPageModel::m_stSettingPageModelInst = nullptr;
 SettingPageModel *SettingPageModel::Instance()
@@ -49,38 +50,32 @@ SettingPageModel::~SettingPageModel()
     delete ui;
 }
 
-QVector<Bus::ModelConfig> SettingPageModel::GetModelConfigs()
+QVector<Bus::ModelInfo> SettingPageModel::GetBusModelInfos()
 {
-    QVector<Bus::ModelConfig> modelConfigs;
+    QVector<Bus::ModelInfo> infos;
     if(m_pLLMListModel == nullptr)
-        return modelConfigs;
+        return infos;
 
     for(int row = 0; row < m_pLLMListModel->rowCount(); ++row)
     {
-        Bus::ModelConfig conf;
-        conf.id            = m_pLLMListModel->item(row, 0)->text();
-        conf.name          = m_pLLMListModel->item(row, 1)->text();
-        conf.publisher     = m_pLLMListModel->item(row, 2)->text();
-        conf.timestamp     = m_pLLMListModel->item(row, 3)->text();
-        conf.addr          = m_pLLMListModel->item(row, 4)->text();
-        conf.pipeline      = m_pLLMListModel->item(row, 5)->text();
-        conf.ctxWindowSize = m_pLLMListModel->item(row, 6)->text().toInt();
-        conf.cost          = m_pLLMListModel->item(row, 7)->text().toInt();
+        Bus::ModelInfo conf;
+        conf.id        = m_pLLMListModel->item(row, 0)->text();
+        conf.name      = m_pLLMListModel->item(row, 1)->text();
+        conf.publisher = m_pLLMListModel->item(row, 2)->text();
+        conf.timestamp = m_pLLMListModel->item(row, 3)->text();
+        conf.addr      = m_pLLMListModel->item(row, 4)->text();
+        conf.pipeline  = m_pLLMListModel->item(row, 5)->text();
+        conf.cost      = m_pLLMListModel->item(row, 7)->text().toInt();
+        conf.hash      = m_pLLMListModel->item(row, 8)->text();
 
-        conf.apiKey      = m_pLLMListModel->item(row, 8)->text();
-        conf.temperature = m_pLLMListModel->item(row, 9)->text().toFloat();
-        conf.topP        = m_pLLMListModel->item(row, 10)->text().toFloat();
-        conf.topK        = m_pLLMListModel->item(row, 11)->text().toFloat();
-        conf.reputationPenalty =
-            m_pLLMListModel->item(row, 12)->text().toFloat();
-        conf.minP      = m_pLLMListModel->item(row, 13)->text().toFloat();
-        conf.stopWords = m_pLLMListModel->item(row, 14)->text();
+        conf.ctxWindowSize = m_pLLMListModel->item(row, 9)->text().toInt();
+        conf.stopWords     = m_pLLMListModel->item(row, 10)->text();
 
-        conf.prompt = m_pLLMListModel->item(row, 15)->text();
+        conf.prompt = m_pLLMListModel->item(row, 11)->text();
 
-        modelConfigs.append(conf);
+        infos.append(conf);
     }
-    return modelConfigs;
+    return infos;
 }
 
 void SettingPageModel::changeEvent(QEvent *event)
@@ -134,8 +129,9 @@ void SettingPageModel::_initUI()
     ui->tbviewModel->setSelectionBehavior(QAbstractItemView::SelectRows);
     _refreshModelTable(true);
 
+    auto confs = Config::Instance().modelConfigs();
+    _addModels(confs, "Staged");
     _retranslate();
-    _importModelConfigs();
 }
 
 void SettingPageModel::_retranslate()
@@ -165,7 +161,7 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
         m_pLLMListModel->clear();
 
     ui->tbviewModel->setModel(m_pLLMListModel);
-    m_pLLMListModel->setColumnCount(17);
+    m_pLLMListModel->setColumnCount(12);
     m_pLLMListModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
     m_pLLMListModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
     m_pLLMListModel->setHeaderData(2, Qt::Horizontal, tr("Publisher"));
@@ -174,38 +170,18 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
     m_pLLMListModel->setHeaderData(5, Qt::Horizontal, tr("Pipeline"));
     m_pLLMListModel->setHeaderData(6, Qt::Horizontal, tr("Cost"));
     m_pLLMListModel->setHeaderData(7, Qt::Horizontal, tr("Api KEY"));
+    m_pLLMListModel->setHeaderData(8, Qt::Horizontal, tr("Hash"));
 
-    m_pLLMListModel->setHeaderData(8, Qt::Horizontal, tr("Temperature"));
-    m_pLLMListModel->setHeaderData(9, Qt::Horizontal, tr("Top-P"));
-    m_pLLMListModel->setHeaderData(10, Qt::Horizontal, tr("Top-K"));
-    m_pLLMListModel->setHeaderData(11,
-                                   Qt::Horizontal,
-                                   tr("Reputation Penalty"));
-    m_pLLMListModel->setHeaderData(12, Qt::Horizontal, tr("Min-P"));
+    m_pLLMListModel->setHeaderData(9, Qt::Horizontal, tr("Window Size"));
+    m_pLLMListModel->setHeaderData(10, Qt::Horizontal, tr("Stop Words"));
 
-    m_pLLMListModel->setHeaderData(13, Qt::Horizontal, tr("Window Size"));
-    m_pLLMListModel->setHeaderData(14, Qt::Horizontal, tr("Stop Words"));
+    m_pLLMListModel->setHeaderData(11, Qt::Horizontal, tr("Prompt"));
 
-    m_pLLMListModel->setHeaderData(15, Qt::Horizontal, tr("Prompt"));
-
-    m_pLLMListModel->setHeaderData(16, Qt::Horizontal, tr("Tag"));
-
-    ui->tbviewModel->hideColumn(1); // hide name column
-    ui->tbviewModel->hideColumn(2); // hide publisher column
-    ui->tbviewModel->hideColumn(3); // hide timestamp column
-    // ui->tbviewModel->hideColumn(4);  // hide addr column
-    // ui->tbviewModel->hideColumn(7);  // hide API KEY column
-    ui->tbviewModel->hideColumn(8);  // hide temperature column
-    ui->tbviewModel->hideColumn(9);  // hide top-p column
-    ui->tbviewModel->hideColumn(10); // hide top-k column
-    // ui->tbviewModel->hideColumn(11); // hide reputation penalty column
-    ui->tbviewModel->hideColumn(12); // hide min-p column
-    ui->tbviewModel->hideColumn(14); // hide stop words column
-    ui->tbviewModel->hideColumn(15); // hide prompt column
+    m_pLLMListModel->setHeaderData(12, Qt::Horizontal, tr("Tag"));
 }
 
-void SettingPageModel::_addModels(const QVector<Bus::ModelConfig> &configs,
-                                  const QString                   &tag)
+void SettingPageModel::_addModels(const QVector<Config::ModelConfig> &configs,
+                                  const QString                      &tag)
 {
     if(m_pLLMListModel == nullptr)
         return;
@@ -224,38 +200,21 @@ void SettingPageModel::_addModels(const QVector<Bus::ModelConfig> &configs,
                                  6,
                                  new QStandardItem(QString::number(conf.cost)));
         m_pLLMListModel->setItem(n_row, 7, new QStandardItem(conf.apiKey));
+        m_pLLMListModel->setItem(n_row, 8, new QStandardItem(conf.hash));
 
         m_pLLMListModel->setItem(
             n_row,
-            8,
-            new QStandardItem(QString::number(conf.temperature)));
-        m_pLLMListModel->setItem(n_row,
-                                 9,
-                                 new QStandardItem(QString::number(conf.topP)));
-        m_pLLMListModel->setItem(n_row,
-                                 10,
-                                 new QStandardItem(QString::number(conf.topK)));
-        m_pLLMListModel->setItem(
-            n_row,
-            11,
-            new QStandardItem(QString::number(conf.reputationPenalty)));
-        m_pLLMListModel->setItem(n_row,
-                                 12,
-                                 new QStandardItem(QString::number(conf.minP)));
-
-        m_pLLMListModel->setItem(
-            n_row,
-            13,
+            9,
             new QStandardItem(QString::number(conf.ctxWindowSize)));
-        m_pLLMListModel->setItem(n_row, 14, new QStandardItem(conf.stopWords));
+        m_pLLMListModel->setItem(n_row, 10, new QStandardItem(conf.stopWords));
+        m_pLLMListModel->setItem(n_row, 11, new QStandardItem(conf.prompt));
 
-        m_pLLMListModel->setItem(n_row, 15, new QStandardItem(conf.prompt));
-
-        m_pLLMListModel->setItem(n_row, 16, new QStandardItem(tag));
+        m_pLLMListModel->setItem(n_row, 12, new QStandardItem(tag));
         n_row++;
     }
 
-    auto busModelInfos = _getModelConfigs();
+    // notify bus
+    auto busModelInfos = _GetBusModelInfos();
     emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
 }
 
@@ -275,12 +234,22 @@ void SettingPageModel::_delModels(const QVector<QString> &hashs)
             m_pLLMListModel->removeRow(i);
     }
 
-    auto busModelInfos = _getModelConfigs();
+    // save to config file
+    auto confs = Config::Instance().modelConfigs();
+    for(auto itr = confs.begin(); itr != confs.end(); ++itr)
+    {
+        if(hashs.contains(itr->hash))
+            itr = confs.erase(itr);
+    }
+    Config::Instance().setModelConfigs(confs);
+
+    // notify bus
+    auto busModelInfos = _GetBusModelInfos();
     emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
 }
 
-void SettingPageModel::_setModels(const QVector<Bus::ModelConfig> &configs,
-                                  const QString                   &tag)
+void SettingPageModel::_setModels(const QVector<Config::ModelConfig> &configs,
+                                  const QString                      &tag)
 {
     if(m_pLLMListModel == nullptr)
         return;
@@ -295,7 +264,7 @@ void SettingPageModel::_setModels(const QVector<Bus::ModelConfig> &configs,
         auto pIdItem = m_pLLMListModel->item(i, 0);
         if(pIdItem == nullptr || !ids.contains(pIdItem->text()))
             continue;
-        Bus::ModelConfig conf;
+        Config::ModelConfig conf;
         conf.id = "";
         for(auto item : configs)
         {
@@ -344,61 +313,54 @@ void SettingPageModel::_setModels(const QVector<Bus::ModelConfig> &configs,
         if(pApiKeyItem)
             pApiKeyItem->setText(conf.apiKey);
 
-        // temperature
-        auto pTemperatureItem = m_pLLMListModel->item(i, 8);
-        if(pTemperatureItem)
-            pTemperatureItem->setText(QString::number(conf.temperature));
-
-        // topP
-        auto pTopPItem = m_pLLMListModel->item(i, 9);
-        if(pTopPItem)
-            pTopPItem->setText(QString::number(conf.topP));
-
-        // topK
-        auto pTopKItem = m_pLLMListModel->item(i, 10);
-        if(pTopKItem)
-            pTopKItem->setText(QString::number(conf.topK));
-
-        // reputationPenalty
-        auto pReputationPenaltyItem = m_pLLMListModel->item(i, 11);
-        if(pReputationPenaltyItem)
-            pReputationPenaltyItem->setText(
-                QString::number(conf.reputationPenalty));
-
-        // minP
-        auto pMinPItem = m_pLLMListModel->item(i, 12);
-        if(pMinPItem)
-            pMinPItem->setText(QString::number(conf.minP));
+        // hash
+        auto pHashItem = m_pLLMListModel->item(i, 8);
+        if(pHashItem)
+            pHashItem->setText(conf.hash);
 
         // ctxWindowSize
-        auto pCtxWindowSizeItem = m_pLLMListModel->item(i, 13);
+        auto pCtxWindowSizeItem = m_pLLMListModel->item(i, 9);
         if(pCtxWindowSizeItem)
             pCtxWindowSizeItem->setText(QString::number(conf.ctxWindowSize));
 
         // stopWords
-        auto pStopWordsItem = m_pLLMListModel->item(i, 14);
+        auto pStopWordsItem = m_pLLMListModel->item(i, 10);
         if(pStopWordsItem)
             pStopWordsItem->setText(conf.stopWords);
 
         // prompt
-        auto pPromptItem = m_pLLMListModel->item(i, 15);
+        auto pPromptItem = m_pLLMListModel->item(i, 11);
         if(pPromptItem)
             pPromptItem->setText(conf.prompt);
 
         // tag
-        auto pTagItem = m_pLLMListModel->item(i, 16);
+        auto pTagItem = m_pLLMListModel->item(i, 12);
         if(pTagItem)
             pTagItem->setText(tag);
     }
 
-    auto busModelInfos = _getModelConfigs();
-    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
+    // save to config file
+    auto confs = Config::Instance().modelConfigs();
+    for(int i = 0; i < confs.size(); i++)
+    {
+        for(auto item : configs)
+        {
+            if(confs[i].id != item.id)
+                continue;
+
+            confs[i] = item;
+        }
+    }
+    Config::Instance().setModelConfigs(confs);
+
+    auto infos = _GetBusModelInfos();
+    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(infos);
 }
 
-QVector<Bus::ModelConfig>
-SettingPageModel::_getModelConfigs(const QVector<int> &rows)
+QVector<Bus::ModelInfo>
+SettingPageModel::_GetBusModelInfos(const QVector<int> &rows)
 {
-    QVector<Bus::ModelConfig> ret;
+    QVector<Bus::ModelInfo> ret;
     if(m_pLLMListModel == nullptr)
         return ret;
 
@@ -408,98 +370,26 @@ SettingPageModel::_getModelConfigs(const QVector<int> &rows)
         if(!rows.isEmpty() && !rows.contains(i))
             continue;
 
-        Bus::ModelConfig cfg;
-        cfg.id        = m_pLLMListModel->item(i, 0)->text();
-        cfg.name      = m_pLLMListModel->item(i, 1)->text();
-        cfg.publisher = m_pLLMListModel->item(i, 2)->text();
-        cfg.timestamp = m_pLLMListModel->item(i, 3)->text();
-        cfg.addr      = m_pLLMListModel->item(i, 4)->text();
-        cfg.pipeline  = m_pLLMListModel->item(i, 5)->text();
-        cfg.cost      = m_pLLMListModel->item(i, 6)->text().toFloat();
-        cfg.apiKey    = m_pLLMListModel->item(i, 7)->text();
+        Bus::ModelInfo info;
+        info.id        = m_pLLMListModel->item(i, 0)->text();
+        info.name      = m_pLLMListModel->item(i, 1)->text();
+        info.publisher = m_pLLMListModel->item(i, 2)->text();
+        info.timestamp = m_pLLMListModel->item(i, 3)->text();
+        info.addr      = m_pLLMListModel->item(i, 4)->text();
+        info.pipeline  = m_pLLMListModel->item(i, 5)->text();
+        info.cost      = m_pLLMListModel->item(i, 6)->text().toFloat();
+        info.hash      = m_pLLMListModel->item(i, 8)->text();
 
-        cfg.temperature       = m_pLLMListModel->item(i, 8)->text().toFloat();
-        cfg.topP              = m_pLLMListModel->item(i, 9)->text().toFloat();
-        cfg.topK              = m_pLLMListModel->item(i, 10)->text().toFloat();
-        cfg.reputationPenalty = m_pLLMListModel->item(i, 11)->text().toFloat();
-        cfg.minP              = m_pLLMListModel->item(i, 12)->text().toFloat();
+        info.ctxWindowSize = m_pLLMListModel->item(i, 9)->text().toInt();
+        info.stopWords     = m_pLLMListModel->item(i, 10)->text();
 
-        cfg.ctxWindowSize = m_pLLMListModel->item(i, 13)->text().toInt();
-        cfg.stopWords     = m_pLLMListModel->item(i, 14)->text();
-
-        cfg.prompt = m_pLLMListModel->item(i, 15)->text();
-
-        if(cfg.id.isEmpty())
+        info.prompt = m_pLLMListModel->item(i, 11)->text();
+        if(info.id.isEmpty())
             continue;
 
-        ret.append(cfg);
+        ret.append(info);
     }
     return ret;
-}
-
-void SettingPageModel::_convert(QJsonArray                      &jsonArrConfigs,
-                                const QVector<Bus::ModelConfig> &configs)
-{
-    for(auto conf : configs)
-    {
-        QJsonObject obj;
-        obj["id"]        = conf.id;
-        obj["name"]      = conf.name;
-        obj["publisher"] = conf.publisher;
-        obj["timestamp"] = conf.timestamp;
-        obj["addr"]      = conf.addr;
-        obj["pipeline"]  = conf.pipeline;
-        obj["cost"]      = conf.cost;
-        obj["api_key"]   = conf.apiKey;
-
-        obj["temperature"] = QString::number(conf.temperature, 'f', 1);
-        obj["top_p"]       = QString::number(conf.topP, 'f', 1);
-        obj["top_k"]       = QString::number(conf.topK, 'f', 1);
-        obj["reputation_penalty"] =
-            QString::number(conf.reputationPenalty, 'f', 1);
-        obj["min_p"] = QString::number(conf.minP, 'f', 1);
-
-        obj["ctx_window_size"] = conf.ctxWindowSize;
-        obj["stop_words"]      = conf.stopWords;
-
-        obj["prompt"] = conf.prompt;
-
-        jsonArrConfigs.append(obj);
-    }
-}
-
-void SettingPageModel::_convert(QVector<Bus::ModelConfig> &configs,
-                                const QJsonArray          &jsonArrConfigs)
-{
-    for(auto obj : jsonArrConfigs)
-    {
-        if(!obj.isObject())
-            continue;
-
-        QJsonObject      jsonObj = obj.toObject();
-        Bus::ModelConfig conf;
-        conf.id        = jsonObj["id"].toString();
-        conf.name      = jsonObj["name"].toString();
-        conf.publisher = jsonObj["publisher"].toString();
-        conf.timestamp = jsonObj["timestamp"].toString();
-        conf.addr      = jsonObj["addr"].toString();
-        conf.pipeline  = jsonObj["pipeline"].toString();
-        conf.cost      = jsonObj["cost"].toInt();
-        conf.apiKey    = jsonObj["api_key"].toString();
-
-        conf.temperature       = jsonObj["temperature"].toDouble();
-        conf.topP              = jsonObj["top_p"].toDouble();
-        conf.topK              = jsonObj["top_k"].toDouble();
-        conf.reputationPenalty = jsonObj["reputation_penalty"].toDouble();
-        conf.minP              = jsonObj["min_p"].toDouble();
-
-        conf.ctxWindowSize = jsonObj["ctx_window_size"].toInt();
-        conf.stopWords     = jsonObj["stop_words"].toString();
-
-        conf.prompt = jsonObj["prompt"].toString();
-
-        configs.append(conf);
-    }
 }
 
 void SettingPageModel::_filterModelTable(const QString &filterText)
@@ -521,25 +411,31 @@ void SettingPageModel::_filterModelTable(const QString &filterText)
 
 void SettingPageModel::_saveModelConfigs()
 {
-    QFile file(MODEL_CONFIG_FILE);
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    auto infos = _GetBusModelInfos();
+    auto confs = Config::Instance().modelConfigs();
+    for(int i = 0; i < confs.size(); ++i)
     {
-        qDebug() << "Failed to open file for writing: " << file.errorString();
-        QMessageBox::warning(
-            this,
-            tr("Save Failed"),
-            tr("Failed to open file for writing: %1").arg(file.errorString()));
-        return;
+        for(auto info : infos)
+        {
+            if(confs[i].id != info.id)
+                continue;
+
+            confs[i].name      = info.name;
+            confs[i].publisher = info.publisher;
+            confs[i].timestamp = info.timestamp;
+            confs[i].addr      = info.addr;
+            confs[i].pipeline  = info.pipeline;
+            confs[i].cost      = info.cost;
+            confs[i].hash      = info.hash;
+
+            confs[i].ctxWindowSize = info.ctxWindowSize;
+            confs[i].stopWords     = info.stopWords;
+
+            confs[i].prompt = info.prompt;
+        }
     }
-
-    QJsonArray confArr;
-    auto       confs = _getModelConfigs({});
-    _convert(confArr, confs);
-
-    QJsonDocument doc(confArr);
-    QTextStream   out(&file);
-    out << doc.toJson(QJsonDocument::Indented);
-    file.close();
+    Config::Instance().setModelConfigs(confs);
+    Config::Instance().saveModel(MODEL_CONFIG_FILE);
     QMessageBox::information(
         this,
         tr("Save Successful"),
@@ -548,45 +444,16 @@ void SettingPageModel::_saveModelConfigs()
 
 void SettingPageModel::_importModelConfigs()
 {
-    QFile file(MODEL_CONFIG_FILE);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug() << "Failed to open file for reading: " << file.errorString();
-        QMessageBox::warning(
-            this,
-            tr("Import Failed"),
-            tr("Failed to open file for reading: %1").arg(file.errorString()));
-        return;
-    }
+    // choose model file path
+    QString filePath =
+        QFileDialog::getOpenFileName(this,
+                                     tr("Select Model Config File"),
+                                     "",
+                                     tr("Model Config Files (*.json)"));
 
-    QByteArray data = file.readAll();
-    file.close();
-
-    QJsonParseError parseError;
-    QJsonDocument   doc = QJsonDocument::fromJson(data, &parseError);
-    if(parseError.error != QJsonParseError::NoError)
-    {
-        qDebug() << "Failed to parse JSON: " << parseError.errorString();
-        QMessageBox::warning(
-            this,
-            tr("Import Failed"),
-            tr("Failed to parse JSON: %1").arg(parseError.errorString()));
-        return;
-    }
-
-    if(!doc.isArray())
-    {
-        qDebug() << "Invalid JSON format: root is not an array";
-        QMessageBox::warning(this,
-                             tr("Import Failed"),
-                             tr("Invalid JSON format: root is not an array"));
-        return;
-    }
-
-    QJsonArray arr     = doc.array();
-    auto       configs = QVector<Bus::ModelConfig>();
-    _convert(configs, arr);
-    _addModels(configs, "Imported");
+    Config::Instance().loadModel(filePath);
+    auto confs = Config::Instance().modelConfigs();
+    _addModels(confs, "Staged");
 }
 
 void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
@@ -602,18 +469,41 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
         case 0: // add
         {
             qDebug() << "Add model button clicked";
-            Bus::ModelConfig conf;
+            Config::ModelConfig conf;
             if(!rows.empty())
             {
-                auto confs = _getModelConfigs(rows);
-                if(!confs.empty())
-                    conf = confs.at(0);
+                auto infos = _GetBusModelInfos(rows);
+                if(!infos.empty())
+                {
+                    auto info      = infos.at(0);
+                    conf.id        = info.id;
+                    conf.name      = info.name;
+                    conf.publisher = info.publisher;
+                    conf.timestamp = info.timestamp;
+                    conf.addr      = info.addr;
+                    conf.pipeline  = info.pipeline;
+                    conf.cost      = info.cost;
+                    conf.hash      = info.hash;
+
+                    conf.ctxWindowSize = info.ctxWindowSize;
+                    conf.stopWords     = info.stopWords;
+
+                    conf.prompt = info.prompt;
+                }
             }
 
             ModelConfigDialog dlg(conf, this);
             auto              result = dlg.exec();
+            conf                     = dlg.GetConfig();
             if(result == QDialog::Accepted)
-                _addModels({dlg.GetConfig()}, "Unstaged");
+            {
+                _addModels({conf}, "Unstaged");
+
+                // save to config file
+                auto confs = Config::Instance().modelConfigs();
+                confs.append(conf);
+                Config::Instance().setModelConfigs(confs);
+            }
         }
         break;
         case 1: // del
@@ -634,45 +524,38 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
                                      tr("Please select a model to configure."));
                 return;
             }
-            auto confs = _getModelConfigs(rows);
-            if(confs.isEmpty())
+            auto infos = _GetBusModelInfos(rows);
+            if(infos.isEmpty())
             {
                 QMessageBox::warning(this,
                                      tr("No Model Configed"),
                                      tr("Please select a model to configure."));
                 return;
             }
+            auto id = infos.at(0).id;
 
-            Bus::ModelConfig conf;
-            conf = confs.at(0);
+            // get model conf info
+            auto                confs = Config::Instance().modelConfigs();
+            Config::ModelConfig conf;
+            for(auto item : confs)
+            {
+                if(item.id != id)
+                    continue;
+
+                conf = item;
+            }
             ModelConfigDialog dlg(conf, this);
             auto              result = dlg.exec();
             if(result != QDialog::Accepted)
                 return;
 
             conf = dlg.GetConfig();
-            QVector<Bus::ModelConfig> newConfs;
-            for(auto item : confs)
+            QVector<Config::ModelConfig> newConfs;
+            for(auto item : infos)
             {
-                item.id            = conf.id;
-                item.name          = conf.name;
-                item.publisher     = conf.publisher;
-                item.timestamp     = conf.timestamp;
-                item.addr          = conf.addr;
-                item.pipeline      = conf.pipeline;
-                item.ctxWindowSize = conf.ctxWindowSize;
-                item.cost          = conf.cost;
-                item.apiKey        = conf.apiKey;
-
-                item.temperature       = conf.temperature;
-                item.topP              = conf.topP;
-                item.topK              = conf.topK;
-                item.reputationPenalty = conf.reputationPenalty;
-                item.minP              = conf.minP;
-                item.stopWords         = conf.stopWords;
-
-                item.prompt = conf.prompt;
-                newConfs.append(item);
+                Config::ModelConfig newConf = conf;
+                newConf.id                  = item.id;
+                newConfs.append(newConf);
             }
             _setModels(newConfs, "Staged");
         }

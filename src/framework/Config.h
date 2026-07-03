@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QJsonArray>
 #include <QJsonObject>
 
 class Config : public QObject
@@ -71,11 +72,76 @@ class Config : public QObject
         bool    isEnable;
     };
 
+    struct ModelConfig
+    {
+        // base info
+        QString id;
+        QString name;
+        QString publisher;
+        QString timestamp;
+        QString addr;
+        QString pipeline;
+        float   cost;
+        QString apiKey;
+        QString hash;
+
+        // model params
+        QString mainGPU;
+        bool    vocabOnly;
+        bool    useMMap;
+        bool    useDirectIO;
+        bool    useMLock;
+        bool    checkTensors;
+        bool    useExtraBufTypes;
+        bool    noHost;
+        bool    noAlloc;
+
+        // context params
+        int nCtx;
+        int nBatch;
+        int nUbatch;
+        int nSeqMax;
+        int nThreads;
+        int nThreadsBatch;
+
+        float ropeFreqBase;
+        float ropeFreqScale;
+        float yarnExtFactor;
+        float yarnAttnFactor;
+        float yarnBetaFast;
+        float yarnBetaSlow;
+        int   yarnOrigCtx;
+        float defragThold;
+
+        bool embeddings;
+        bool offloadKQV;
+        bool noPerf;
+        bool opOffload;
+        bool swaFull;
+        bool kvUnified;
+
+        // sampling parameters
+        float temperature;
+        float topP;
+        float topK;
+        float reputationPenalty;
+        float minP;
+
+        // control parameters
+        int     ctxWindowSize;
+        QString stopWords;
+
+        // prompt
+        QString prompt;
+    };
+
   public:
     static Config &Instance();
 
     void         load(const QString &filepath);
+    void         loadModel(const QString &filepath);
     void         save(const QString &filepath);
+    void         saveModel(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
     QVector<Config::TranslatorParam> audioTranslatorParams();
@@ -84,12 +150,17 @@ class Config : public QObject
     QVector<Config::NetworkConfig> networkConfigs();
     void setNetworkConfigs(QVector<Config::NetworkConfig> &configs);
 
+    Config::ModelConfig          getModelConfigById(const QString &id);
+    QVector<Config::ModelConfig> modelConfigs();
+    void setModelConfigs(QVector<Config::ModelConfig> &configs);
+
   private:
     explicit Config(QObject *parent = nullptr);
     ~Config();
 
   private:
     QJsonObject m_rootObj;
+    QJsonArray  m_modelArr;
 };
 
 #endif // CONFIG_H

@@ -26,6 +26,7 @@
 #include "Zipper.h"
 #include "Error.h"
 #include "Account.h"
+#include "Config.h"
 
 HomePageWidget *HomePageWidget::m_stMainHomePageInst = nullptr;
 
@@ -240,10 +241,10 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
     {
         case 0: { // add session
             qDebug() << "Add session button clicked.";
-            auto infos = SettingPageModel::Instance()->GetModelConfigs();
+            auto             confs = Config::Instance().modelConfigs();
             QVector<QString> models;
-            for(const auto &info : infos)
-                models.append(info.name);
+            for(const auto &conf : confs)
+                models.append(conf.name);
 
             NewSessionDialog dlg(models, this);
             auto             result = dlg.exec();

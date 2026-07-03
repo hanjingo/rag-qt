@@ -10,6 +10,7 @@
 
 #include "GrpcClient.h"
 #include "Bus.h"
+#include "Config.h"
 
 namespace Ui
 {
@@ -26,7 +27,7 @@ class SettingPageModel : public QWidget
     ~SettingPageModel();
 
   public:
-    QVector<Bus::ModelConfig> GetModelConfigs();
+    QVector<Bus::ModelInfo> GetBusModelInfos();
 
   signals:
 
@@ -48,22 +49,17 @@ class SettingPageModel : public QWidget
     void _initConnections();
     void _retranslate();
 
-    void _addModels(const QVector<Bus::ModelConfig> &configs,
-                    const QString                   &tag = "Staged");
+    void _addModels(const QVector<Config::ModelConfig> &configs,
+                    const QString                      &tag = "Staged");
     void _delModels(const QVector<QString> &hashs);
-    void _setModels(const QVector<Bus::ModelConfig> &configs,
-                    const QString                   &tag = "Staged");
+    void _setModels(const QVector<Config::ModelConfig> &configs,
+                    const QString                      &tag = "Staged");
 
-    QVector<Bus::ModelConfig> _getModelConfigs(const QVector<int> &rows = {});
-    void                      _saveModelConfigs();
-    void                      _importModelConfigs();
-    void                      _refreshModelTable(bool clearFirst = false);
-    void                      _filterModelTable(const QString &filterText);
-
-    void _convert(QJsonArray                      &jsonArrConfigs,
-                  const QVector<Bus::ModelConfig> &configs);
-    void _convert(QVector<Bus::ModelConfig> &configs,
-                  const QJsonArray          &jsonArrConfigs);
+    QVector<Bus::ModelInfo> _GetBusModelInfos(const QVector<int> &rows = {});
+    void                    _saveModelConfigs();
+    void                    _importModelConfigs();
+    void                    _refreshModelTable(bool clearFirst = false);
+    void                    _filterModelTable(const QString &filterText);
 
   private:
     Ui::SettingPageModel    *ui;

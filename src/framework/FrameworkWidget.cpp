@@ -431,8 +431,8 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     emit BusAdapter::Instance() -> SignalPing();
 
     // update model info
-    auto confs = SettingPageModel::Instance()->GetModelConfigs();
-    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(confs);
+    auto infos = SettingPageModel::Instance()->GetBusModelInfos();
+    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(infos);
     if(wgt)
     {
         // TODO sort icon position

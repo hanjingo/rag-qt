@@ -12,7 +12,8 @@
 Config::Config(QObject *parent)
     : QObject(parent)
 {
-    load("./config.json");
+    load(CONFIG_FILE);
+    loadModel(MODEL_CONFIG_FILE);
 }
 
 Config::~Config()
@@ -51,9 +52,52 @@ void Config::load(const QString &filepath)
     m_rootObj = doc.object();
 }
 
+void Config::loadModel(const QString &filepath)
+{
+    QFile         readFile(filepath);
+    QJsonDocument doc;
+    if(readFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray      data = readFile.readAll();
+        QJsonParseError parseError;
+        doc = QJsonDocument::fromJson(data, &parseError);
+        if(parseError.error != QJsonParseError::NoError || !doc.isArray())
+        {
+            qDebug() << "Failed to parse JSON from model config file: "
+                     << filepath
+                     << ", with parse error:" << parseError.errorString();
+            return;
+        }
+        readFile.close();
+    } else
+    {
+        qDebug() << "Failed to open model config file for reading: "
+                 << readFile.errorString();
+        return;
+    }
+
+    m_modelArr = doc.array();
+}
+
 void Config::save(const QString &filepath)
 {
     QJsonDocument doc(m_rootObj);
+    QFile         saveFile(filepath);
+    if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for writing: "
+                 << saveFile.errorString();
+        return;
+    }
+
+    QTextStream out(&saveFile);
+    out << doc.toJson(QJsonDocument::Indented);
+    saveFile.close();
+}
+
+void Config::saveModel(const QString &filepath)
+{
+    QJsonDocument doc(m_modelArr);
     QFile         saveFile(filepath);
     if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -261,4 +305,167 @@ void Config::setNetworkConfigs(QVector<Config::NetworkConfig> &configs)
         arr.append(obj);
     }
     m_rootObj[KEY_NETWORK_CONFIG] = arr;
+}
+
+Config::ModelConfig Config::getModelConfigById(const QString &id)
+{
+    for(const auto &config : modelConfigs())
+    {
+        if(config.id == id)
+            return config;
+    }
+
+    Config::ModelConfig conf;
+    conf.id = "";
+    return conf;
+}
+
+QVector<Config::ModelConfig> Config::modelConfigs()
+{
+    QVector<Config::ModelConfig> configs;
+    if(m_modelArr.isEmpty())
+    {
+        qDebug() << "Config file does not contain model config array.";
+        return configs;
+    }
+
+    for(int i = 0; i < m_modelArr.size(); ++i)
+    {
+        Config::ModelConfig config;
+        auto                obj = m_modelArr[i].toObject();
+
+        // base info
+        config.id        = obj["id"].toString();
+        config.name      = obj["name"].toString();
+        config.publisher = obj["publisher"].toString();
+        config.timestamp = obj["timestamp"].toString();
+        config.addr      = obj["addr"].toString();
+        config.pipeline  = obj["pipeline"].toString();
+        config.cost      = obj["cost"].toInt();
+        config.apiKey    = obj["api_key"].toString();
+        config.hash      = obj["hash"].toString();
+
+        // model params
+        config.mainGPU          = obj["main_gpu"].toString();
+        config.vocabOnly        = obj["vocab_only"].toBool(false);
+        config.useMMap          = obj["use_mmap"].toBool(true);
+        config.useDirectIO      = obj["use_direct_io"].toBool(false);
+        config.useMLock         = obj["use_mlock"].toBool(false);
+        config.checkTensors     = obj["check_tensors"].toBool(false);
+        config.useExtraBufTypes = obj["use_extra_buf_types"].toBool(false);
+        config.noHost           = obj["no_host"].toBool(false);
+        config.noAlloc          = obj["no_alloc"].toBool(false);
+
+        // context params
+        config.nCtx          = obj["n_ctx"].toInt();
+        config.nBatch        = obj["n_batch"].toInt();
+        config.nUbatch       = obj["n_ubatch"].toInt();
+        config.nSeqMax       = obj["n_seq_max"].toInt();
+        config.nThreads      = obj["n_threads"].toInt();
+        config.nThreadsBatch = obj["n_threads_batch"].toInt();
+
+        config.ropeFreqBase   = obj["rope_freq_base"].toDouble();
+        config.ropeFreqScale  = obj["rope_freq_scale"].toDouble();
+        config.yarnExtFactor  = obj["yarn_ext_factor"].toDouble();
+        config.yarnAttnFactor = obj["yarn_attn_factor"].toDouble();
+        config.yarnBetaFast   = obj["yarn_beta_fast"].toDouble();
+        config.yarnBetaSlow   = obj["yarn_beta_slow"].toDouble();
+        config.yarnOrigCtx    = obj["yarn_orig_ctx"].toInt();
+        config.defragThold    = obj["defrag_thold"].toDouble();
+
+        config.embeddings = obj["embeddings"].toBool(false);
+        config.offloadKQV = obj["offload_kqv"].toBool(false);
+        config.noPerf     = obj["no_perf"].toBool(false);
+        config.opOffload  = obj["op_offload"].toBool(false);
+        config.swaFull    = obj["swa_full"].toBool(false);
+        config.kvUnified  = obj["kv_unified"].toBool(false);
+
+        // sampling parameters
+        config.temperature       = obj["temperature"].toDouble();
+        config.topP              = obj["top_p"].toDouble();
+        config.topK              = obj["top_k"].toDouble();
+        config.reputationPenalty = obj["reputation_penalty"].toDouble();
+        config.minP              = obj["min_p"].toDouble();
+
+        // control parameters
+        config.ctxWindowSize = obj["ctx_window_size"].toInt();
+        config.stopWords     = obj["stop_words"].toString();
+
+        // prompt
+        config.prompt = obj["prompt"].toString();
+
+        configs.append(config);
+    }
+    return configs;
+}
+
+void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
+{
+    m_modelArr = QJsonArray();
+    for(auto config : configs)
+    {
+        QJsonObject obj;
+
+        // base info
+        obj["id"]        = config.id;
+        obj["name"]      = config.name;
+        obj["publisher"] = config.publisher;
+        obj["timestamp"] = config.timestamp;
+        obj["addr"]      = config.addr;
+        obj["pipeline"]  = config.pipeline;
+        obj["cost"]      = config.cost;
+        obj["api_key"]   = config.apiKey;
+        obj["hash"]      = config.hash;
+
+        // model params
+        obj["main_gpu"]            = config.mainGPU;
+        obj["vocab_only"]          = config.vocabOnly;
+        obj["use_mmap"]            = config.useMMap;
+        obj["use_direct_io"]       = config.useDirectIO;
+        obj["use_mlock"]           = config.useMLock;
+        obj["check_tensors"]       = config.checkTensors;
+        obj["use_extra_buf_types"] = config.useExtraBufTypes;
+        obj["no_host"]             = config.noHost;
+        obj["no_alloc"]            = config.noAlloc;
+
+        // context params
+        obj["n_ctx"]           = config.nCtx;
+        obj["n_batch"]         = config.nBatch;
+        obj["n_ubatch"]        = config.nUbatch;
+        obj["n_seq_max"]       = config.nSeqMax;
+        obj["n_threads"]       = config.nThreads;
+        obj["n_threads_batch"] = config.nThreadsBatch;
+
+        obj["rope_freq_base"]   = config.ropeFreqBase;
+        obj["rope_freq_scale"]  = config.ropeFreqScale;
+        obj["yarn_ext_factor"]  = config.yarnExtFactor;
+        obj["yarn_attn_factor"] = config.yarnAttnFactor;
+        obj["yarn_beta_fast"]   = config.yarnBetaFast;
+        obj["yarn_beta_slow"]   = config.yarnBetaSlow;
+        obj["yarn_orig_ctx"]    = config.yarnOrigCtx;
+        obj["defrag_thold"]     = config.defragThold;
+
+        obj["embeddings"]  = config.embeddings;
+        obj["offload_kqv"] = config.offloadKQV;
+        obj["no_perf"]     = config.noPerf;
+        obj["op_offload"]  = config.opOffload;
+        obj["swa_full"]    = config.swaFull;
+        obj["kv_unified"]  = config.kvUnified;
+
+        // sampling parameters
+        obj["temperature"]        = config.temperature;
+        obj["top_p"]              = config.topP;
+        obj["top_k"]              = config.topK;
+        obj["reputation_penalty"] = config.reputationPenalty;
+        obj["min_p"]              = config.minP;
+
+        // control parameters
+        obj["ctx_window_size"] = config.ctxWindowSize;
+        obj["stop_words"]      = config.stopWords;
+
+        // prompt
+        obj["prompt"] = config.prompt;
+
+        m_modelArr.append(obj);
+    }
 }

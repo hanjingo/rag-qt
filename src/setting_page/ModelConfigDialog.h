@@ -6,7 +6,7 @@
 #include <QButtonGroup>
 
 #include "ui_ModelConfigDialog.h"
-#include "Bus.h"
+#include "Config.h"
 
 namespace Ui
 {
@@ -18,11 +18,11 @@ class ModelConfigDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit ModelConfigDialog(const Bus::ModelConfig &conf,
-                               QWidget                *parent = nullptr);
+    explicit ModelConfigDialog(const Config::ModelConfig &conf,
+                               QWidget                   *parent = nullptr);
     ~ModelConfigDialog();
 
-    Bus::ModelConfig GetConfig();
+    Config::ModelConfig GetConfig();
 
   private slots:
     void _slotBtnModelAddrClicked();
@@ -35,8 +35,8 @@ class ModelConfigDialog : public QDialog
   private:
     Ui::ModelConfigDialog *ui;
 
-    QButtonGroup    *m_pPipelineBtnGroup;
-    Bus::ModelConfig m_conf;
+    QButtonGroup       *m_pPipelineBtnGroup;
+    Config::ModelConfig m_conf;
 };
 
 #endif // MODELCONFIGDIALOG_H

@@ -191,12 +191,12 @@ void GrpcClient::RegAccount(const QString &username, const QString &password)
         emit SignalRegAccountResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
 }
 
-void GrpcClient::Query(const int64_t           id,
-                       const int64_t           user_id,
-                       const QString          &auth,
-                       const QString          &content,
-                       const QString          &model,
-                       const Bus::ModelConfig &config)
+void GrpcClient::Query(const int64_t              id,
+                       const int64_t              user_id,
+                       const QString             &auth,
+                       const QString             &content,
+                       const QString             &model,
+                       const Config::ModelConfig &config)
 {
     if(!m_pChannel)
     {
@@ -215,14 +215,41 @@ void GrpcClient::Query(const int64_t           id,
     req.set_content(content.toStdString());
     req.set_model(model.toStdString());
 
+    // sampling parameters
     req.mutable_sampling()->set_repetition_penalty(config.reputationPenalty);
     req.mutable_sampling()->set_temperature(config.temperature);
     req.mutable_sampling()->set_top_k(config.topK);
     req.mutable_sampling()->set_top_p(config.topP);
     req.mutable_sampling()->set_min_p(config.minP);
 
+    // context params
     req.mutable_ctx()->set_window_size(config.ctxWindowSize);
     req.mutable_ctx()->set_stop_words(config.stopWords.toStdString());
+
+    req.mutable_ctx()->set_n_ctx(config.nCtx);
+    req.mutable_ctx()->set_n_batch(config.nBatch);
+    req.mutable_ctx()->set_n_ubatch(config.nUbatch);
+    req.mutable_ctx()->set_n_seq_max(config.nSeqMax);
+    req.mutable_ctx()->set_n_threads(config.nThreads);
+    req.mutable_ctx()->set_n_threads_batch(config.nThreadsBatch);
+
+    req.mutable_ctx()->set_rope_freq_base(config.ropeFreqBase);
+    req.mutable_ctx()->set_rope_freq_scale(config.ropeFreqScale);
+    req.mutable_ctx()->set_yarn_ext_factor(config.yarnExtFactor);
+    req.mutable_ctx()->set_yarn_attn_factor(config.yarnAttnFactor);
+    req.mutable_ctx()->set_yarn_beta_fast(config.yarnBetaFast);
+    req.mutable_ctx()->set_yarn_beta_slow(config.yarnBetaSlow);
+    req.mutable_ctx()->set_yarn_orig_ctx(config.yarnOrigCtx);
+    req.mutable_ctx()->set_defrag_thold(config.defragThold);
+
+    req.mutable_ctx()->set_embeddings(config.embeddings);
+    req.mutable_ctx()->set_offload_kqv(config.offloadKQV);
+    req.mutable_ctx()->set_no_perf(config.noPerf);
+    req.mutable_ctx()->set_op_offload(config.opOffload);
+    req.mutable_ctx()->set_swa_full(config.swaFull);
+    req.mutable_ctx()->set_kv_unified(config.kvUnified);
+
+    req.mutable_ctx()->set_prompt(config.prompt.toStdString());
 
     // Prepare the response and context
     GrpcLibrary::QueryResp resp;

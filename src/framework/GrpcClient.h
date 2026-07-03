@@ -11,6 +11,7 @@
 #include "src/api.grpc.pb.h"
 #include "Bus.h"
 #include "Global.h"
+#include "Config.h"
 
 class GrpcClient : public QObject
 {
@@ -30,12 +31,12 @@ class GrpcClient : public QObject
     void Logout(const int64_t user_id, const QString &auth);
     void RegAccount(const QString &username, const QString &password);
 
-    void Query(const int64_t           id,
-               const int64_t           user_id,
-               const QString          &auth,
-               const QString          &content,
-               const QString          &model,
-               const Bus::ModelConfig &config);
+    void Query(const int64_t              id,
+               const int64_t              user_id,
+               const QString             &auth,
+               const QString             &content,
+               const QString             &model,
+               const Config::ModelConfig &config);
     void StopAnswer(const int64_t  session_id,
                     const int64_t  user_id,
                     const QString &auth);
