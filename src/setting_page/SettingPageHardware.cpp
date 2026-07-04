@@ -128,17 +128,24 @@ void SettingPageHardware::_switchAudioConfig(const QString &id)
         ui->ckPrintSpecial->setChecked(conf.printSpecial);
         ui->ckPrintProgress->setChecked(conf.printProgress);
         ui->ckPrintRealTime->setChecked(conf.printRealtime);
+        ui->ckPrintTimeStamp->setChecked(conf.printTimestamps);
         ui->ckCarryInitPrompt->setChecked(conf.carryInitialPrompt);
         ui->editInitPrompt->setText(conf.initialPrompt);
         ui->ckSuppressBlank->setChecked(conf.suppressBlank);
         ui->ckSuppressNst->setChecked(conf.suppressBlank);
         ui->editSuppressRegex->setText(conf.suppressRegex);
-        ui->editTemperature->setText(QString::number(conf.temperature));
-        ui->editTemperatureInc->setText(QString::number(conf.temperatureInc));
-        ui->editMaxInitTs->setText(QString::number(conf.maxInitialTs));
-        ui->editLengthPenalty->setText(QString::number(conf.lengthPenalty));
-        ui->editEntropyThreshold->setText(QString::number(conf.entropyThold));
-        ui->editLogProbThreshold->setText(QString::number(conf.logprobThold));
+        ui->editTemperature->setText(QString::number(conf.temperature, 'f', 1));
+        ui->editTemperatureInc->setText(
+            QString::number(conf.temperatureInc, 'f', 1));
+        ui->editMaxInitTs->setText(QString::number(conf.maxInitialTs, 'f', 1));
+        ui->editLengthPenalty->setText(
+            QString::number(conf.lengthPenalty, 'f', 1));
+        ui->editEntropyThreshold->setText(
+            QString::number(conf.entropyThold, 'f', 1));
+        ui->editLogProbThreshold->setText(
+            QString::number(conf.logprobThold, 'f', 1));
+        ui->editNoSpeechThreshold->setText(
+            QString::number(conf.noSpeechThold, 'f', 1));
 
         ui->editMinNewSampleSize->setText(
             QString::number(conf.minNewSampleSize));
@@ -147,16 +154,14 @@ void SettingPageHardware::_switchAudioConfig(const QString &id)
         ui->editMuteAmplitudeDur->setText(
             QString::number(conf.muteAmplitudeDurationMs));
         ui->editMuteAmplitudeThreshold->setText(
-            QString::number(conf.muteAmplitudeThreshold));
+            QString::number(conf.muteAmplitudeThreshold, 'f', 3));
         ui->editKeepLastAudioBuffer->setText(
             QString::number(conf.keepLastAudioBufferMs));
         ui->editSleepTimeoutMs->setText(QString::number(conf.sleepTimeoutMs));
-        ui->editWakeupThreshold->setText(QString::number(conf.wakeupThreshold));
+        ui->editWakeupThreshold->setText(
+            QString::number(conf.wakeupThreshold, 'f', 3));
         ui->editMaxSameContentCount->setText(
             QString::number(conf.maxSameContentCount));
-
-        ui->editFiltRegex->setText(conf.filtRegex);
-        ui->editNoiseWords->setText(conf.noiseWords.join(","));
     }
 }
 
@@ -186,6 +191,7 @@ void SettingPageHardware::_save()
         confs[i].printSpecial       = ui->ckPrintSpecial->isChecked();
         confs[i].printProgress      = ui->ckPrintProgress->isChecked();
         confs[i].printRealtime      = ui->ckPrintRealTime->isChecked();
+        confs[i].printTimestamps    = ui->ckPrintTimeStamp->isChecked();
         confs[i].carryInitialPrompt = ui->ckCarryInitPrompt->isChecked();
         confs[i].initialPrompt      = ui->editInitPrompt->text();
         confs[i].suppressBlank      = ui->ckSuppressBlank->isChecked();
@@ -195,8 +201,9 @@ void SettingPageHardware::_save()
         confs[i].temperatureInc     = ui->editTemperatureInc->text().toFloat();
         confs[i].maxInitialTs       = ui->editMaxInitTs->text().toFloat();
         confs[i].lengthPenalty      = ui->editLengthPenalty->text().toFloat();
-        confs[i].entropyThold = ui->editEntropyThreshold->text().toFloat();
-        confs[i].logprobThold = ui->editLogProbThreshold->text().toFloat();
+        confs[i].entropyThold  = ui->editEntropyThreshold->text().toFloat();
+        confs[i].logprobThold  = ui->editLogProbThreshold->text().toFloat();
+        confs[i].noSpeechThold = ui->editNoSpeechThreshold->text().toFloat();
 
         confs[i].minNewSampleSize = ui->editMinNewSampleSize->text().toInt();
         confs[i].minAudioBufferSize =
@@ -204,17 +211,13 @@ void SettingPageHardware::_save()
         confs[i].muteAmplitudeDurationMs =
             ui->editMuteAmplitudeDur->text().toInt();
         confs[i].muteAmplitudeThreshold =
-            ui->editMuteAmplitudeThreshold->text().toInt();
+            ui->editMuteAmplitudeThreshold->text().toFloat();
         confs[i].keepLastAudioBufferMs =
             ui->editKeepLastAudioBuffer->text().toInt();
         confs[i].sleepTimeoutMs  = ui->editSleepTimeoutMs->text().toInt();
         confs[i].wakeupThreshold = ui->editWakeupThreshold->text().toInt();
         confs[i].maxSameContentCount =
             ui->editMaxSameContentCount->text().toInt();
-
-        confs[i].filtRegex = ui->editFiltRegex->text();
-        confs[i].noiseWords =
-            ui->editNoiseWords->text().split(",", Qt::SkipEmptyParts);
     }
     Config::Instance().setAudioTranslatorParams(confs);
     Config::Instance().save(QString(CONFIG_FILE));

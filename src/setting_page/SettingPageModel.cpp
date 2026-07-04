@@ -196,9 +196,10 @@ void SettingPageModel::_addModels(const QVector<Config::ModelConfig> &configs,
         m_pLLMListModel->setItem(n_row, 3, new QStandardItem(conf.timestamp));
         m_pLLMListModel->setItem(n_row, 4, new QStandardItem(conf.addr));
         m_pLLMListModel->setItem(n_row, 5, new QStandardItem(conf.pipeline));
-        m_pLLMListModel->setItem(n_row,
-                                 6,
-                                 new QStandardItem(QString::number(conf.cost)));
+        m_pLLMListModel->setItem(
+            n_row,
+            6,
+            new QStandardItem(QString::number(conf.cost, 'f', 1)));
         m_pLLMListModel->setItem(n_row, 7, new QStandardItem(conf.apiKey));
         m_pLLMListModel->setItem(n_row, 8, new QStandardItem(conf.hash));
 

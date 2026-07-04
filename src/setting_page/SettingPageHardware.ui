@@ -192,8 +192,8 @@
                <string notr="true">background-color:#C1CCD6;</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_3">
-               <item row="6" column="1">
-                <widget class="QLabel" name="lblInitPrompt">
+               <item row="10" column="0">
+                <widget class="QLabel" name="lblNoSpeechThreshold">
                  <property name="minimumSize">
                   <size>
                    <width>100</width>
@@ -207,7 +207,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Initial Prompt</string>
+                  <string>No Speech Threshold</string>
                  </property>
                 </widget>
                </item>
@@ -234,13 +234,6 @@
                 <widget class="QCheckBox" name="ckTranslate">
                  <property name="text">
                   <string>Translate</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="4">
-                <widget class="QCheckBox" name="ckPrintProgress">
-                 <property name="text">
-                  <string>Print Progress</string>
                  </property>
                 </widget>
                </item>
@@ -298,22 +291,6 @@
                  </property>
                  <property name="text">
                   <string>Max Text Context</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="2">
-                <widget class="QLineEdit" name="editInitPrompt">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string/>
                  </property>
                 </widget>
                </item>
@@ -387,6 +364,13 @@
                  </property>
                 </widget>
                </item>
+               <item row="5" column="0">
+                <widget class="QCheckBox" name="ckPrintSpecial">
+                 <property name="text">
+                  <string>Print Special</string>
+                 </property>
+                </widget>
+               </item>
                <item row="8" column="4">
                 <widget class="QLabel" name="lblMaxInitTs">
                  <property name="minimumSize">
@@ -410,13 +394,6 @@
                 <widget class="QCheckBox" name="ckNoCtx">
                  <property name="text">
                   <string>No Context</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="5">
-                <widget class="QCheckBox" name="ckPrintRealTime">
-                 <property name="text">
-                  <string>Print Real Time</string>
                  </property>
                 </widget>
                </item>
@@ -478,6 +455,13 @@
                  </property>
                 </widget>
                </item>
+               <item row="5" column="2">
+                <widget class="QCheckBox" name="ckPrintRealTime">
+                 <property name="text">
+                  <string>Print Real Time</string>
+                 </property>
+                </widget>
+               </item>
                <item row="3" column="2">
                 <widget class="QLabel" name="lblLanguage">
                  <property name="minimumSize">
@@ -497,10 +481,19 @@
                  </property>
                 </widget>
                </item>
-               <item row="4" column="3">
-                <widget class="QCheckBox" name="ckPrintSpecial">
+               <item row="10" column="1">
+                <widget class="QLineEdit" name="editNoSpeechThreshold">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
-                  <string>Print Special</string>
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0.0-1.0</string>
                  </property>
                 </widget>
                </item>
@@ -536,6 +529,13 @@
                  </property>
                  <property name="placeholderText">
                   <string>0.0-1.0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QCheckBox" name="ckPrintProgress">
+                 <property name="text">
+                  <string>Print Progress</string>
                  </property>
                 </widget>
                </item>
@@ -647,27 +647,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="6" column="0">
-                <widget class="QCheckBox" name="ckCarryInitPrompt">
-                 <property name="text">
-                  <string>Carry Initial Prompt</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="2">
-                <widget class="QCheckBox" name="ckSingleSegment">
-                 <property name="text">
-                  <string>Single Segment</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QCheckBox" name="ckNoTimestamps">
-                 <property name="text">
-                  <string>No Timestamps</string>
-                 </property>
-                </widget>
-               </item>
                <item row="3" column="3">
                 <widget class="QComboBox" name="comboLanguage">
                  <item>
@@ -685,6 +664,20 @@
                    <string>zh</string>
                   </property>
                  </item>
+                </widget>
+               </item>
+               <item row="4" column="2">
+                <widget class="QCheckBox" name="ckSingleSegment">
+                 <property name="text">
+                  <string>Single Segment</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QCheckBox" name="ckNoTimestamps">
+                 <property name="text">
+                  <string>No Timestamps</string>
+                 </property>
                 </widget>
                </item>
                <item row="9" column="4">
@@ -706,8 +699,31 @@
                  </property>
                 </widget>
                </item>
-               <item row="10" column="0">
-                <widget class="QLabel" name="lblNoSpeechThreshold">
+               <item row="5" column="3">
+                <widget class="QCheckBox" name="ckPrintTimeStamp">
+                 <property name="text">
+                  <string>Print Time Stamps</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="wgtMuteControl_2" native="true">
+              <property name="styleSheet">
+               <string notr="true">background-color:#C1CCD6;</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_6">
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="ckSuppressBlank">
+                 <property name="text">
+                  <string>Suppress Blank</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="lblNoiseControlTitle">
                  <property name="minimumSize">
                   <size>
                    <width>100</width>
@@ -721,12 +737,12 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>No Speech Threshold</string>
+                  <string>Noise Control</string>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="1">
-                <widget class="QLineEdit" name="editNoSpeechThreshold">
+               <item row="2" column="3">
+                <widget class="QLineEdit" name="editSuppressRegex">
                  <property name="font">
                   <font>
                    <italic>false</italic>
@@ -737,25 +753,46 @@
                   <string/>
                  </property>
                  <property name="placeholderText">
-                  <string>0.0-1.0</string>
+                  <string/>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="2">
-                <widget class="QCheckBox" name="ckSuppressBlank">
+               <item row="3" column="1">
+                <widget class="QLabel" name="lblInitPrompt">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
-                  <string>Suppress Blank</string>
+                  <string>Initial Prompt</string>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="3">
-                <widget class="QCheckBox" name="ckSuppressNst">
+               <item row="3" column="3">
+                <widget class="QLineEdit" name="editInitPrompt">
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
-                  <string>Suppress Nst</string>
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string/>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="4">
+               <item row="2" column="1">
                 <widget class="QLabel" name="lblSuppressRegex">
                  <property name="minimumSize">
                   <size>
@@ -774,19 +811,17 @@
                  </property>
                 </widget>
                </item>
-               <item row="10" column="5">
-                <widget class="QLineEdit" name="editSuppressRegex">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="ckSuppressNst">
                  <property name="text">
-                  <string/>
+                  <string>Suppress Nst</string>
                  </property>
-                 <property name="placeholderText">
-                  <string/>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="ckCarryInitPrompt">
+                 <property name="text">
+                  <string>Carry Initial Prompt</string>
                  </property>
                 </widget>
                </item>
@@ -1095,104 +1130,6 @@
                  </property>
                  <property name="placeholderText">
                   <string>3</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QWidget" name="wgtMuteControl_2" native="true">
-              <property name="styleSheet">
-               <string notr="true">background-color:#C1CCD6;</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_6">
-               <item row="2" column="1">
-                <widget class="QLineEdit" name="editNoiseWords">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLineEdit" name="editFiltRegex">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="lblNoiseWords">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Noise Words</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="lblNoiseControlTitle">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Noise Control</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="lblFiltRegex">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Filt Regex</string>
                  </property>
                 </widget>
                </item>

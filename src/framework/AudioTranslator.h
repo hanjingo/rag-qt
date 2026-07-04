@@ -47,8 +47,9 @@ class AudioTranslator : public QObject
     int   keepLastAudioBufferMs() const { return m_keepLastAudioBufferMs; }
 
     // noise control
-    void setFiltRegex(const QString &regex);
-    void setNoiseWords(const QVector<QString> &words) { m_noiseWords = words; }
+    void setLanguage(const QString &lang);
+    void setInitialPrompt(const QString &prompt);
+    void setSuppressRegex(const QString &regex);
 
     // sleep and wake up control
     void  setSleepTimeoutMs(int ms);
@@ -63,7 +64,6 @@ class AudioTranslator : public QObject
     void checkAmplitude();
     bool checkBufSize();
     bool checkNewSampleSize(int newSampleSize);
-    void filt(QString &text);
 
     bool  shouldWakeUp();
     void  trySleep();
@@ -105,8 +105,9 @@ class AudioTranslator : public QObject
     int m_minAudioBufferSize    = 32000;
     int m_keepLastAudioBufferMs = 1000;
 
-    QString          m_filtRegex;
-    QVector<QString> m_noiseWords;
+    QByteArray m_language;
+    QByteArray m_initPrompt;
+    QByteArray m_suppressRegex;
 
     int m_muteCount     = 0;
     int m_newSampleSize = 0;

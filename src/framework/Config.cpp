@@ -153,6 +153,7 @@ QVector<Config::TranslatorParam> Config::audioTranslatorParams()
         param.printSpecial       = obj["print_special"].toBool(false);
         param.printProgress      = obj["print_progress"].toBool(false);
         param.printRealtime      = obj["print_realtime"].toBool(false);
+        param.printTimestamps    = obj["print_timestamps"].toBool(false);
         param.carryInitialPrompt = obj["carry_initial_prompt"].toBool(false);
         param.initialPrompt      = obj["initial_prompt"].toString("");
         param.suppressRegex      = obj["suppress_regex"].toString("");
@@ -180,18 +181,9 @@ QVector<Config::TranslatorParam> Config::audioTranslatorParams()
 
         // sleep and wake up control
         param.sleepTimeoutMs      = obj["sleep_timeout_ms"].toInt(3000);
-        param.wakeupThreshold     = obj["wakeup_threshold"].toDouble(0.01);
+        param.wakeupThreshold     = obj["wakeup_threshold"].toDouble(0.001);
         param.maxSameContentCount = obj["max_same_content_count"].toInt(3);
 
-        // noise control
-        param.filtRegex = obj["filt_regex"].toString();
-        param.noiseWords.clear();
-        if(obj.contains("noise_words") && obj["noise_words"].isArray())
-        {
-            QJsonArray noiseArr = obj["noise_words"].toArray();
-            for(int j = 0; j < noiseArr.size(); ++j)
-                param.noiseWords.append(noiseArr[j].toString());
-        }
         params.append(param);
     }
     return params;
@@ -227,39 +219,35 @@ void Config::setAudioTranslatorParams(QVector<Config::TranslatorParam> &params)
         obj["print_special"]        = param.printSpecial;
         obj["print_progress"]       = param.printProgress;
         obj["print_realtime"]       = param.printRealtime;
+        obj["print_timestamps"]     = param.printTimestamps;
         obj["carry_initial_prompt"] = param.carryInitialPrompt;
         obj["initial_prompt"]       = param.initialPrompt;
         obj["suppress_regex"]       = param.suppressRegex;
         obj["suppress_blank"]       = param.suppressBlank;
         obj["suppress_nst"]         = param.suppressNst;
 
-        obj["temperature"]     = param.temperature;
-        obj["temperature_inc"] = param.temperatureInc;
+        obj["temperature"]     = QString::number(param.temperature, 'f', 1);
+        obj["temperature_inc"] = QString::number(param.temperatureInc, 'f', 1);
 
-        obj["max_initial_ts"]  = param.maxInitialTs;
-        obj["length_penalty"]  = param.lengthPenalty;
-        obj["entropy_thold"]   = param.entropyThold;
-        obj["logprob_thold"]   = param.logprobThold;
-        obj["no_speech_thold"] = param.noSpeechThold;
+        obj["max_initial_ts"]  = QString::number(param.maxInitialTs, 'f', 1);
+        obj["length_penalty"]  = QString::number(param.lengthPenalty, 'f', 1);
+        obj["entropy_thold"]   = QString::number(param.entropyThold, 'f', 1);
+        obj["logprob_thold"]   = QString::number(param.logprobThold, 'f', 1);
+        obj["no_speech_thold"] = QString::number(param.noSpeechThold, 'f', 1);
 
         // mute control
         obj["min_audio_buffer_size"]      = param.minAudioBufferSize;
         obj["min_new_sample_size"]        = param.minNewSampleSize;
         obj["mute_amplitude_duration_ms"] = param.muteAmplitudeDurationMs;
-        obj["mute_amplitude_threshold"]   = param.muteAmplitudeThreshold;
-        obj["keep_last_audio_buffer_ms"]  = param.keepLastAudioBufferMs;
+        obj["mute_amplitude_threshold"] =
+            QString::number(param.muteAmplitudeThreshold, 'f', 3);
+        obj["keep_last_audio_buffer_ms"] = param.keepLastAudioBufferMs;
 
         // sleep and wake up control
-        obj["sleep_timeout_ms"]       = param.sleepTimeoutMs;
-        obj["wakeup_threshold"]       = param.wakeupThreshold;
+        obj["sleep_timeout_ms"] = param.sleepTimeoutMs;
+        obj["wakeup_threshold"] =
+            QString::number(param.wakeupThreshold, 'f', 3);
         obj["max_same_content_count"] = param.maxSameContentCount;
-
-        // noise control
-        obj["filt_regex"] = param.filtRegex;
-        QJsonArray noiseArr;
-        for(auto word : param.noiseWords)
-            noiseArr.append(word);
-        obj["noise_words"] = noiseArr;
 
         arr.append(obj);
     }
@@ -413,7 +401,7 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
         obj["timestamp"] = config.timestamp;
         obj["addr"]      = config.addr;
         obj["pipeline"]  = config.pipeline;
-        obj["cost"]      = config.cost;
+        obj["cost"]      = QString::number(config.cost, 'f', 1);
         obj["api_key"]   = config.apiKey;
         obj["hash"]      = config.hash;
 
@@ -436,14 +424,15 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
         obj["n_threads"]       = config.nThreads;
         obj["n_threads_batch"] = config.nThreadsBatch;
 
-        obj["rope_freq_base"]   = config.ropeFreqBase;
-        obj["rope_freq_scale"]  = config.ropeFreqScale;
-        obj["yarn_ext_factor"]  = config.yarnExtFactor;
-        obj["yarn_attn_factor"] = config.yarnAttnFactor;
-        obj["yarn_beta_fast"]   = config.yarnBetaFast;
-        obj["yarn_beta_slow"]   = config.yarnBetaSlow;
-        obj["yarn_orig_ctx"]    = config.yarnOrigCtx;
-        obj["defrag_thold"]     = config.defragThold;
+        obj["rope_freq_base"]  = QString::number(config.ropeFreqBase, 'f', 1);
+        obj["rope_freq_scale"] = QString::number(config.ropeFreqScale, 'f', 1);
+        obj["yarn_ext_factor"] = QString::number(config.yarnExtFactor, 'f', 1);
+        obj["yarn_attn_factor"] =
+            QString::number(config.yarnAttnFactor, 'f', 1);
+        obj["yarn_beta_fast"] = QString::number(config.yarnBetaFast, 'f', 1);
+        obj["yarn_beta_slow"] = QString::number(config.yarnBetaSlow, 'f', 1);
+        obj["yarn_orig_ctx"]  = config.yarnOrigCtx;
+        obj["defrag_thold"]   = QString::number(config.defragThold, 'f', 1);
 
         obj["embeddings"]  = config.embeddings;
         obj["offload_kqv"] = config.offloadKQV;
@@ -453,11 +442,12 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
         obj["kv_unified"]  = config.kvUnified;
 
         // sampling parameters
-        obj["temperature"]        = config.temperature;
-        obj["top_p"]              = config.topP;
-        obj["top_k"]              = config.topK;
-        obj["reputation_penalty"] = config.reputationPenalty;
-        obj["min_p"]              = config.minP;
+        obj["temperature"] = QString::number(config.temperature, 'f', 1);
+        obj["top_p"]       = QString::number(config.topP, 'f', 1);
+        obj["top_k"]       = QString::number(config.topK, 'f', 1);
+        obj["reputation_penalty"] =
+            QString::number(config.reputationPenalty, 'f', 1);
+        obj["min_p"] = QString::number(config.minP, 'f', 1);
 
         // control parameters
         obj["ctx_window_size"] = config.ctxWindowSize;

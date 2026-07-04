@@ -147,14 +147,17 @@ void ModelConfigDialog::_initUI()
     ui->editNumThreads->setText(QString::number(m_conf.nThreads));
     ui->editNumThreadsBatch->setText(QString::number(m_conf.nThreadsBatch));
 
-    ui->editRopeFreqBase->setText(QString::number(m_conf.ropeFreqBase));
-    ui->editRopeFreqScale->setText(QString::number(m_conf.ropeFreqScale));
-    ui->editYarnExtFactor->setText(QString::number(m_conf.yarnExtFactor));
-    ui->editYarnAttnFactor->setText(QString::number(m_conf.yarnAttnFactor));
-    ui->editYarnBetaFast->setText(QString::number(m_conf.yarnBetaFast));
-    ui->editYarnBetaSlow->setText(QString::number(m_conf.yarnBetaSlow));
+    ui->editRopeFreqBase->setText(QString::number(m_conf.ropeFreqBase, 'f', 1));
+    ui->editRopeFreqScale->setText(
+        QString::number(m_conf.ropeFreqScale, 'f', 1));
+    ui->editYarnExtFactor->setText(
+        QString::number(m_conf.yarnExtFactor, 'f', 1));
+    ui->editYarnAttnFactor->setText(
+        QString::number(m_conf.yarnAttnFactor, 'f', 1));
+    ui->editYarnBetaFast->setText(QString::number(m_conf.yarnBetaFast, 'f', 1));
+    ui->editYarnBetaSlow->setText(QString::number(m_conf.yarnBetaSlow, 'f', 1));
     ui->editYarnOrigContext->setText(QString::number(m_conf.yarnOrigCtx));
-    ui->editDefragThold->setText(QString::number(m_conf.defragThold));
+    ui->editDefragThold->setText(QString::number(m_conf.defragThold, 'f', 1));
 
     ui->ckEmbeddings->setChecked(m_conf.embeddings);
     ui->ckOffloadKQV->setChecked(m_conf.offloadKQV);
@@ -164,12 +167,12 @@ void ModelConfigDialog::_initUI()
     ui->ckKVUnified->setChecked(m_conf.kvUnified);
 
     // sampling parameters
-    ui->editTemperature->setText(QString::number(m_conf.temperature));
-    ui->editTopP->setText(QString::number(m_conf.topP));
-    ui->editTopK->setText(QString::number(m_conf.topK));
+    ui->editTemperature->setText(QString::number(m_conf.temperature, 'f', 1));
+    ui->editTopP->setText(QString::number(m_conf.topP, 'f', 1));
+    ui->editTopK->setText(QString::number(m_conf.topK, 'f', 1));
     ui->editReputationPenalty->setText(
-        QString::number(m_conf.reputationPenalty));
-    ui->editMinP->setText(QString::number(m_conf.minP));
+        QString::number(m_conf.reputationPenalty, 'f', 1));
+    ui->editMinP->setText(QString::number(m_conf.minP, 'f', 1));
 
     // control parameters
     ui->editCtxWindowSize->setText(QString::number(m_conf.ctxWindowSize));

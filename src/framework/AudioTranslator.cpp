@@ -215,9 +215,22 @@ void AudioTranslator::setKeepLastAudioBufferMs(int ms)
     m_keepLastAudioBufferMs = ms;
 }
 
-void AudioTranslator::setFiltRegex(const QString &regex)
+void AudioTranslator::setLanguage(const QString &lang)
 {
-    m_filtRegex = regex;
+    m_language            = lang.toUtf8();
+    m_fullParams.language = m_language.data();
+}
+
+void AudioTranslator::setInitialPrompt(const QString &prompt)
+{
+    m_initPrompt                = prompt.toUtf8();
+    m_fullParams.initial_prompt = m_initPrompt.data();
+}
+
+void AudioTranslator::setSuppressRegex(const QString &regex)
+{
+    m_suppressRegex             = regex.toUtf8();
+    m_fullParams.suppress_regex = m_suppressRegex.data();
 }
 
 void AudioTranslator::setSleepTimeoutMs(int ms)
@@ -287,12 +300,14 @@ void AudioTranslator::trySleep()
     if(m_isSleeping)
         return;
 
-    if(m_muteCount >= 10 || m_lastActivityTimer.elapsed() > m_sleepTimeoutMs)
+    auto elapsed = m_lastActivityTimer.elapsed();
+    if(m_muteCount >= 10 || elapsed > m_sleepTimeoutMs)
     {
         m_isSleeping = true;
         qDebug() << "Translator entering sleep mode (no audio activity for"
                  << m_sleepTimeoutMs << "ms, muteCount:" << m_muteCount
-                 << ", maxSameContentCount:" << maxSameContentCount() << ")";
+                 << ", maxSameContentCount:" << maxSameContentCount() << ")"
+                 << ", elapsed:" << elapsed;
 
         m_pcmBuf.clear();
         m_newSampleSize    = 0;
@@ -308,17 +323,14 @@ void AudioTranslator::trySleep()
 
 void AudioTranslator::wakeUp()
 {
+    m_lastActivityTimer.restart();
     if(m_isSleeping)
     {
         m_isSleeping       = false;
         m_silentFrameCount = 0;
         m_muteCount        = 0;
-        m_lastActivityTimer.restart();
         qDebug() << "Translator woke up (audio activity detected)";
         emit SignalTranslatorWokeUp();
-    } else
-    {
-        m_lastActivityTimer.restart();
     }
 }
 
@@ -340,15 +352,19 @@ void AudioTranslator::SlotCheckSleep()
 
     if(m_hasEverHadActivity)
     {
-        if(m_muteCount >= 10)
-            trySleep();
-        else if(m_lastActivityTimer.elapsed() > m_sleepTimeoutMs)
+        if(m_muteCount >= 10
+           || m_lastActivityTimer.elapsed() > m_sleepTimeoutMs)
             trySleep();
     }
 }
 
 bool AudioTranslator::checkCurrSegmentFinished(const QString &catched)
 {
+    qDebug() << "checkCurrSegmentFinished - catched:" << catched
+             << ", lastTranslation:" << m_lastTranslation
+             << ", sameContentCount:" << m_sameContentCount
+             << ", muteCount:" << m_muteCount
+             << ", buffer size:" << m_pcmBuf.size();
     if(m_muteCount >= 3 && !catched.isEmpty())
         return true;
 
@@ -383,7 +399,8 @@ void AudioTranslator::checkAmplitude()
     float maxAmplitude = getCurrentAmplitude();
     auto  threshold    = muteAmplitudeThreshold();
     qDebug() << "maxAmplitude:" << maxAmplitude << "threshold:" << threshold
-             << "muteCount:" << m_muteCount;
+             << "muteCount:" << m_muteCount
+             << "isSilent:" << (maxAmplitude < threshold);
 
     if(maxAmplitude < threshold)
     {
@@ -391,6 +408,8 @@ void AudioTranslator::checkAmplitude()
         m_silentFrameCount++;
     } else
     {
+        qDebug() << "Audio activity detected, resetting muteCount and "
+                    "silentFrameCount";
         m_muteCount        = 0;
         m_silentFrameCount = 0;
         m_lastActivityTimer.restart();
@@ -412,22 +431,6 @@ bool AudioTranslator::checkNewSampleSize(int newSampleSize)
 {
     m_newSampleSize += newSampleSize;
     return m_newSampleSize > minNewSampleSize();
-}
-
-void AudioTranslator::filt(QString &str)
-{
-    QRegularExpression tagRegex(m_filtRegex);
-    str.remove(tagRegex);
-
-    // remove noise words
-    for(const auto &noise : m_noiseWords)
-    {
-        if(!noise.isEmpty())
-            str.replace(noise, "", Qt::CaseInsensitive);
-    }
-
-    str.replace(QRegularExpression("\\s+"), " ");
-    str = str.trimmed();
 }
 
 int AudioTranslator::translate(QVector<QString> &segments,
@@ -498,9 +501,13 @@ int AudioTranslator::translate(QVector<QString>             &segments,
 
     // translate pcmf32 to text
     auto err = m_ctx.full(params, m_pcmBuf);
-    qDebug() << "m_pcmBuf.size():" << m_pcmBuf.size();
+    qDebug() << "m_pcmBuf.size():" << m_pcmBuf.size() << "error:" << err;
+    qDebug() << "n_segments:" << m_ctx.n_segments();
     if(err != 0)
+    {
+        qDebug() << "ASR full() failed with error:" << err;
         return err;
+    }
 
     // parse segments
     QString tmpStr;
@@ -513,13 +520,6 @@ int AudioTranslator::translate(QVector<QString>             &segments,
         tmpStr += QString::fromStdString(segment);
         qDebug() << "parse segment:" << QString::fromStdString(segment);
     }
-
-    // filt noise
-    filt(tmpStr);
-    qDebug() << "After filt - tmpStr:" << tmpStr
-             << ", muteCount:" << m_muteCount
-             << ", sameContentCount:" << m_sameContentCount
-             << ", buffer size:" << m_pcmBuf.size();
 
     if(tmpStr.isEmpty())
     {

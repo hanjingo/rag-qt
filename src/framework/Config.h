@@ -35,6 +35,7 @@ class Config : public QObject
         bool    printSpecial       = false;
         bool    printProgress      = false;
         bool    printRealtime      = false;
+        bool    printTimestamps    = false;
         bool    carryInitialPrompt = false;
         QString initialPrompt      = "";
         QString suppressRegex      = "";
@@ -57,12 +58,8 @@ class Config : public QObject
 
         // sleep and wake up control
         int   sleepTimeoutMs      = 3000;
-        float wakeupThreshold     = 0.01;
+        float wakeupThreshold     = 0.001;
         int   maxSameContentCount = 3;
-
-        // noise control
-        QString     filtRegex;
-        QStringList noiseWords;
     };
 
     struct NetworkConfig

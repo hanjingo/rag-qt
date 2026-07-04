@@ -778,7 +778,7 @@ void FrameworkWidget::_initAudioTranslator()
 
         full_param.translate       = item.translate;
         full_param.detect_language = item.detectLanguage;
-        full_param.language        = item.language.toStdString().c_str();
+        // full_param.language        = item.language.toStdString().c_str();
 
         full_param.no_context           = item.noCtx;
         full_param.no_timestamps        = item.noTimestamps;
@@ -786,9 +786,10 @@ void FrameworkWidget::_initAudioTranslator()
         full_param.print_special        = item.printSpecial;
         full_param.print_progress       = item.printProgress;
         full_param.print_realtime       = item.printRealtime;
+        full_param.print_timestamps     = item.printTimestamps;
         full_param.carry_initial_prompt = item.carryInitialPrompt;
-        full_param.initial_prompt = item.initialPrompt.toStdString().c_str();
-        full_param.suppress_regex = item.suppressRegex.toStdString().c_str();
+        // full_param.initial_prompt = item.initialPrompt.toStdString().c_str();
+        // full_param.suppress_regex = item.suppressRegex.toStdString().c_str();
         full_param.suppress_blank = item.suppressBlank;
         full_param.suppress_nst   = item.suppressNst;
 
@@ -810,11 +811,12 @@ void FrameworkWidget::_initAudioTranslator()
         trans->setMinAudioBufferSize(item.minAudioBufferSize);
         trans->setMinNewSampleSize(item.minNewSampleSize);
         trans->setKeepLastAudioBufferMs(item.keepLastAudioBufferMs);
-        trans->setFiltRegex(item.filtRegex);
-        trans->setNoiseWords(item.noiseWords);
         trans->setSleepTimeoutMs(item.sleepTimeoutMs);
         trans->setWakeupThreshold(item.wakeupThreshold);
         trans->setMaxSameContentCount(item.maxSameContentCount);
+        trans->setLanguage(item.language);
+        trans->setInitialPrompt(item.initialPrompt);
+        trans->setSuppressRegex(item.suppressRegex);
         qDebug() << "create translator with id:" << item.id
                  << ", model path:" << item.modelPath
                  << ", language:" << item.language
@@ -824,8 +826,6 @@ void FrameworkWidget::_initAudioTranslator()
                  << ", min audio buffer size:" << item.minAudioBufferSize
                  << ", min new sample size:" << item.minNewSampleSize
                  << ", keep last audio buffer ms:" << item.keepLastAudioBufferMs
-                 << ", filt regex:" << item.filtRegex
-                 << ", noise words:" << item.noiseWords
                  << ", sleep timeout ms:" << item.sleepTimeoutMs
                  << ", wakeup threshold:" << item.wakeupThreshold
                  << ", max same content count:" << item.maxSameContentCount;
