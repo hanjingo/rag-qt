@@ -1,4 +1,5 @@
 {
+    "core_run": true,
     "audio translators": [
         {
             "carry_initial_prompt": false,
@@ -42,7 +43,7 @@
             "port": 50051
         },
         {
-            "ip": "www.hango.fun",
+            "ip": "8.134.87.167",
             "isEnable": false,
             "port": 50051
         }

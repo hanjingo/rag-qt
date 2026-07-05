@@ -6,14 +6,15 @@
 #include <QJsonDocument>
 #include <QFileDialog>
 #include <QSaveFile>
+#include <QDir>
 
 #include "Global.h"
 
 Config::Config(QObject *parent)
     : QObject(parent)
 {
-    load(CONFIG_FILE);
-    loadModel(MODEL_CONFIG_FILE);
+    load(QDir::current().filePath(CONFIG_FILE));
+    loadModel(QDir::current().filePath(MODEL_CONFIG_FILE));
 }
 
 Config::~Config()
@@ -109,6 +110,11 @@ void Config::saveModel(const QString &filepath)
     QTextStream out(&saveFile);
     out << doc.toJson(QJsonDocument::Indented);
     saveFile.close();
+}
+
+bool Config::isCoreRun()
+{
+    return m_rootObj.value("core_run").toBool(true);
 }
 
 QVector<Bus::AudioParam> Config::getBusAudioParams()

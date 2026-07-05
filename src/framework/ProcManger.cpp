@@ -4,6 +4,8 @@
 #include <libqt/core/process.h>
 #include <QMessageBox>
 
+#include "Config.h"
+
 ProcManager *ProcManager::m_stProcManagerInst = nullptr;
 ProcManager *ProcManager::Instance()
 {
@@ -31,6 +33,12 @@ ProcManager::~ProcManager()
 
 void ProcManager::init()
 {
+    if(!Config::Instance().isCoreRun())
+    {
+        qDebug() << "Core process is disabled in config.";
+        return;
+    }
+
     // end the current core process if it exists
     if(m_pCore)
     {
@@ -84,6 +92,9 @@ QString ProcManager::readAllStandardOutput()
 
 void ProcManager::_connectCore()
 {
+    if(!m_pCore)
+        return;
+
     connect(m_pCore, &QProcess::started, this, &ProcManager::_slotCoreStarted);
     connect(m_pCore,
             QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -97,6 +108,9 @@ void ProcManager::_connectCore()
 
 void ProcManager::_disconnectCore()
 {
+    if(!m_pCore)
+        return;
+
     disconnect(m_pCore,
                &QProcess::started,
                this,

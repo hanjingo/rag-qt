@@ -4,6 +4,7 @@
 #include "SplashScreen.h"
 #include "LoginWidget.h"
 #include "FrameworkWidget.h"
+#include "Config.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,19 +21,25 @@ int main(int argc, char *argv[])
 
     // init proc manager
     QString output;
-    FrameworkWidget::Instance()->InitCore();
-    for(int i = 0; i <= 50 && splash.getProgress() < 50; i++)
+    if(Config::Instance().isCoreRun())
     {
-        splash.setProgress(i);
-        output = FrameworkWidget::Instance()->ReadAllStandardOutput();
-        splash.appendLog(output);
-        if(output.contains("init core service finish"))
+        FrameworkWidget::Instance()->InitCore();
+        for(int i = 0; i <= 50 && splash.getProgress() < 50; i++)
         {
-            splash.setProgress(50);
-            break;
+            splash.setProgress(i);
+            output = FrameworkWidget::Instance()->ReadAllStandardOutput();
+            splash.appendLog(output);
+            if(output.contains("init core service finish"))
+            {
+                splash.setProgress(50);
+                break;
+            }
+            a.processEvents();
+            QThread::msleep(300);
         }
-        a.processEvents();
-        QThread::msleep(300);
+    } else
+    {
+        splash.setProgress(50);
     }
 
     // init network

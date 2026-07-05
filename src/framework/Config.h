@@ -130,6 +130,8 @@ class Config : public QObject
     void         saveModel(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
+    bool isCoreRun();
+
     QVector<Bus::AudioParam> getBusAudioParams();
     Config::TranslatorParam  getAudioTranslatorParamById(const QString &id);
     QVector<Config::TranslatorParam> audioTranslatorParams();
