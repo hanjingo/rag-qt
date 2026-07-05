@@ -6,6 +6,7 @@
 
 #include "Error.h"
 #include "TimedQueue.h"
+
 #include "GrpcClientReactor.h"
 
 GrpcClient *GrpcClient::m_stGrpcClientInst = nullptr;
@@ -31,6 +32,35 @@ GrpcClient::~GrpcClient()
         delete m_pChannel;
         m_pChannel = nullptr;
     }
+}
+
+std::shared_ptr<RecognizeReactor>
+GrpcClient::GetOrCreateRecognizeReactor(int64_t sessionId)
+{
+    if(!m_bIsConnected.load())
+    {
+        qWarning() << "Not connected to server, cannot create reactor";
+        return nullptr;
+    }
+
+    auto it = m_recognizeReactors.find(sessionId);
+    if(it != m_recognizeReactors.end())
+        return it->second;
+
+    auto reactor = std::make_shared<RecognizeReactor>(this, sessionId);
+    m_recognizeReactors[sessionId] = reactor;
+
+    // first call Recognize to start the reactor
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    stub->async()->Recognize(&reactor->m_context, reactor.get());
+    reactor->StartCall();
+    reactor->StartRead(&reactor->m_resp);
+    return reactor;
+}
+
+void GrpcClient::RemoveRecognizeReactor(int64_t sessionId)
+{
+    m_recognizeReactors.erase(sessionId);
 }
 
 void GrpcClient::Connect(const QString &address)
@@ -293,6 +323,114 @@ void GrpcClient::StopAnswer(const int64_t  session_id,
     else
         emit SignalStopAnswerResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                   session_id);
+}
+
+void GrpcClient::Recognize(const int64_t                  session_id,
+                           const int64_t                  user_id,
+                           const QString                 &auth,
+                           const QByteArray              &data,
+                           const Config::TranslatorParam &params,
+                           const QString                 &translatorId)
+{
+    if(!m_pChannel)
+    {
+        emit SignalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                 QString("Server disconnected"),
+                                 true,
+                                 0.0);
+        return;
+    }
+
+    auto reactor = GetOrCreateRecognizeReactor(session_id);
+    if(!reactor)
+    {
+        emit SignalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                 QString("Server not connected"),
+                                 true,
+                                 0.0);
+        return;
+    }
+
+    GrpcLibrary::RecognitionParam param;
+    param.set_n_threads(params.nThreads);
+    param.set_n_max_text_ctx(params.nMaxTextCtx);
+    param.set_offset_ms(params.offsetMs);
+    param.set_duration_ms(params.durationMs);
+    param.set_translate(params.translate);
+    param.set_detect_language(params.detectLanguage);
+    param.set_language(params.language.toStdString());
+    param.set_no_ctx(params.noCtx);
+    param.set_no_timestamps(params.noTimestamps);
+    param.set_single_segment(params.singleSegment);
+    param.set_print_special(params.printSpecial);
+    param.set_print_progress(params.printProgress);
+    param.set_print_realtime(params.printRealtime);
+    param.set_print_timestamps(params.printTimestamps);
+    param.set_carry_initial_prompt(params.carryInitialPrompt);
+    param.set_initial_prompt(params.initialPrompt.toStdString());
+    param.set_suppress_regex(params.suppressRegex.toStdString());
+    param.set_suppress_blank(params.suppressBlank);
+    param.set_suppress_nst(params.suppressNst);
+    param.set_temperature(params.temperature);
+    param.set_temperature_inc(params.temperatureInc);
+    param.set_max_initial_ts(params.maxInitialTs);
+    param.set_length_penalty(params.lengthPenalty);
+    param.set_entropy_thold(params.entropyThold);
+    param.set_logprob_thold(params.logprobThold);
+    param.set_no_speech_thold(params.noSpeechThold);
+
+    // send config
+    GrpcLibrary::RecognizeReq configReq;
+    configReq.set_ctx_id(translatorId.toStdString());
+    configReq.set_session_id(session_id);
+    configReq.mutable_param()->CopyFrom(param);
+    reactor->SendRequest(configReq);
+
+    // send audio data
+    if(!data.isEmpty())
+    {
+        GrpcLibrary::RecognizeReq audioReq;
+        audioReq.set_ctx_id(translatorId.toStdString());
+        audioReq.set_session_id(session_id);
+        audioReq.set_audio_chunk(data.data(), data.size());
+        reactor->SendRequest(audioReq);
+    }
+
+    qDebug() << "Starting recognition with param:";
+}
+
+void GrpcClient::RecognizeStop(const int64_t  session_id,
+                               const int64_t  user_id,
+                               const QString &auth)
+{
+    if(!m_pChannel)
+    {
+        emit SignalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                     session_id);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::StopRecognizeReq req;
+    req.set_session_id(session_id);
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+
+    // Prepare the response and context
+    GrpcLibrary::StopRecognizeResp resp;
+    grpc::ClientContext            context;
+
+    // Make the RPC call
+    grpc::Status status = stub->StopRecognize(&context, req, &resp);
+
+    if(status.ok())
+        emit SignalStopRecognizeResp(resp.error_code(), session_id);
+    else
+        emit SignalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                     session_id);
 }
 
 void GrpcClient::GetMessageInfo(const int64_t  session_id,
@@ -591,6 +729,17 @@ void GrpcClient::Download(const QString &hash,
 
     QString addr = QString::fromStdString(resp.addr());
     emit    SignalDownloadResp(resp.error_code(), hash, addr, resp.size_kb());
+}
+
+void GrpcClient::OnConnectionLost()
+{
+    m_bIsConnected.store(false);
+    emit SignalGrpcDisconnected(m_strAddress);
+    for(auto &pair : m_recognizeReactors)
+    {
+        if(pair.second)
+            pair.second->OnConnectionLost();
+    }
 }
 
 void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src)

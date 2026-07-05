@@ -141,6 +141,7 @@ class Config : public QObject
     void         saveModel(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
+    Config::TranslatorParam getAudioTranslatorParamById(const QString &id);
     QVector<Config::TranslatorParam> audioTranslatorParams();
     void setAudioTranslatorParams(QVector<Config::TranslatorParam> &parmas);
 

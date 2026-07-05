@@ -115,10 +115,16 @@ class Bus : public QObject
     void SignalAudioCaptureStop(const qint64 id);
     void SignalAudioCaptureStopped(const qint64 id);
 
-    void SignalAudioTranslate(const QByteArray &src, const QString &id);
-    void SignalAudioTranslated(const int               errorCode,
-                               const QByteArray       &src,
-                               const QVector<QString> &segments);
+    void SignalRecognize(const qint64      sessionId,
+                         const QByteArray &src,
+                         const QString    &translatorId);
+    void SignalRecognizeResp(const int      errorCode,
+                             const QString &transcript,
+                             const bool     isFinished,
+                             const double   confidence);
+
+    void SignalStopRecognize(const qint64 sessionId);
+    void SignalStopRecognizeResp(const int errorCode, const qint64 sessionId);
 
   private:
     explicit Bus(QObject *parent = nullptr)

@@ -5,7 +5,6 @@
 #include "Account.h"
 #include "Error.h"
 #include "AudioMgr.h"
-#include "AudioTranslator.h"
 
 BusAdapter *BusAdapter::m_stBusAdapterInst = nullptr;
 BusAdapter *BusAdapter::Instance()
@@ -57,6 +56,16 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::Instance(),
             &Bus::SignalGetMessageInfoResp);
 
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalRecognizeResp,
+            Bus::Instance(),
+            &Bus::SignalRecognizeResp);
+
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalStopRecognizeResp,
+            Bus::Instance(),
+            &Bus::SignalStopRecognizeResp);
+
     connect(AudioMgr::Instance(),
             &AudioMgr::SignalAudioCaptureStarted,
             Bus::Instance(),
@@ -71,11 +80,6 @@ BusAdapter::BusAdapter(QObject *parent)
             &AudioMgr::SignalAudioCaptureStopped,
             Bus::Instance(),
             &Bus::SignalAudioCaptureStopped);
-
-    connect(AudioTranslatorMgr::Instance(),
-            &AudioTranslatorMgr::SignalAudioTranslated,
-            Bus::Instance(),
-            &Bus::SignalAudioTranslated);
 
     // from plugin
     connect(Bus::Instance(), &Bus::SignalPong, this, &BusAdapter::_slotPong);
@@ -106,6 +110,16 @@ BusAdapter::BusAdapter(QObject *parent)
             &BusAdapter::_slotGetMessageInfoFromBus);
 
     connect(Bus::Instance(),
+            &Bus::SignalRecognize,
+            this,
+            &BusAdapter::_slotAudioTranslate);
+
+    connect(Bus::Instance(),
+            &Bus::SignalStopRecognize,
+            this,
+            &BusAdapter::_slotAudioStopTranslate);
+
+    connect(Bus::Instance(),
             &Bus::SignalAudioCaptureStart,
             AudioMgr::Instance(),
             &AudioMgr::SlotAudioCaptureStart);
@@ -114,11 +128,6 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::SignalAudioCaptureStop,
             AudioMgr::Instance(),
             &AudioMgr::SlotAudioCaptureStop);
-
-    connect(Bus::Instance(),
-            &Bus::SignalAudioTranslate,
-            AudioTranslatorMgr::Instance(),
-            &AudioTranslatorMgr::SlotAudioTranslate);
 }
 
 BusAdapter::~BusAdapter()
@@ -206,4 +215,30 @@ void BusAdapter::_slotGetMessageInfoFromBus(const int64_t msgId,
                                            Account::Instance()->Auth(),
                                            msgId,
                                            limit);
+}
+
+void BusAdapter::_slotAudioTranslate(const qint64      sessionId,
+                                     const QByteArray &src,
+                                     const QString    &translatorId)
+{
+    qDebug() << "Receive Bus Audio Translate signal from Bus. session_id: "
+             << sessionId << ", translatorId: " << translatorId;
+
+    auto param = Config::Instance().getAudioTranslatorParamById(translatorId);
+    GrpcClient::Instance()->Recognize(sessionId,
+                                      Account::Instance()->Id(),
+                                      Account::Instance()->Auth(),
+                                      src,
+                                      param,
+                                      translatorId);
+}
+
+void BusAdapter::_slotAudioStopTranslate(const qint64 sessionId)
+{
+    qDebug() << "Receive Bus Audio Stop Translate signal from Bus. session_id: "
+             << sessionId;
+
+    GrpcClient::Instance()->RecognizeStop(sessionId,
+                                          Account::Instance()->Id(),
+                                          Account::Instance()->Auth());
 }

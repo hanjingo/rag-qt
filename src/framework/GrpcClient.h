@@ -13,6 +13,8 @@
 #include "Global.h"
 #include "Config.h"
 
+class RecognizeReactor;
+
 class GrpcClient : public QObject
 {
     Q_OBJECT
@@ -24,6 +26,10 @@ class GrpcClient : public QObject
     static GrpcClient *Instance();
 
     bool IsConnected() const { return m_bIsConnected.load(); }
+
+    std::shared_ptr<RecognizeReactor>
+         GetOrCreateRecognizeReactor(int64_t sessionId);
+    void RemoveRecognizeReactor(int64_t sessionId);
 
     void Connect(const QString &address);
     void Heartbeat(const int64_t timestamp);
@@ -45,6 +51,17 @@ class GrpcClient : public QObject
                         const QString &auth,
                         int64_t        msg_id = -1,
                         int            limit  = 10);
+
+    void Recognize(const int64_t                  session_id,
+                   const int64_t                  user_id,
+                   const QString                 &auth,
+                   const QByteArray              &data,
+                   const Config::TranslatorParam &params,
+                   const QString                 &translatorId);
+
+    void RecognizeStop(const int64_t  session_id,
+                       const int64_t  user_id,
+                       const QString &auth);
 
     void GetSession(const int64_t  id,
                     const int64_t  user_id,
@@ -89,6 +106,12 @@ class GrpcClient : public QObject
     void SignalGetMessageInfoResp(const int                        errorCode,
                                   const QVector<Bus::MessageInfo> &messages);
 
+    void SignalRecognizeResp(const int      errorCode,
+                             const QString &transcript,
+                             const bool     isFinished,
+                             const double   confidence);
+    void SignalStopRecognizeResp(const int errorCode, const int64_t sessionId);
+
     void SignalLogoutResp(const int errorCode, const int64_t user_id);
     void SignalGetSessionResp(const int                    errorCode,
                               const QVector<Bus::Session> &sessions);
@@ -105,6 +128,9 @@ class GrpcClient : public QObject
                             const QString &addr,
                             const int64_t  size_kb);
 
+  public slots:
+    void OnConnectionLost();
+
   private:
     void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src);
     void _convert(Bus::Session &dst, const ::GrpcLibrary::Session &src);
@@ -119,6 +145,9 @@ class GrpcClient : public QObject
 
     std::atomic<bool> m_bIsConnected;
     QString           m_strAddress;
+
+    std::unordered_map<int64_t, std::shared_ptr<RecognizeReactor>>
+        m_recognizeReactors;
 };
 
 #endif

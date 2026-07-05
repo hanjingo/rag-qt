@@ -111,6 +111,20 @@ void Config::saveModel(const QString &filepath)
     saveFile.close();
 }
 
+Config::TranslatorParam Config::getAudioTranslatorParamById(const QString &id)
+{
+    // TODO optimise performance later
+    for(const auto &param : audioTranslatorParams())
+    {
+        if(param.id == id)
+            return param;
+    }
+
+    Config::TranslatorParam param;
+    param.id = "";
+    return param;
+}
+
 QVector<Config::TranslatorParam> Config::audioTranslatorParams()
 {
     QVector<Config::TranslatorParam> params;
