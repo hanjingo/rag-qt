@@ -4,7 +4,7 @@
 #include <QCoreApplication>
 
 #include "Error.h"
-#include "TimedQueue.h"
+#include <libqt/sync/timedqueue.h>
 
 void QueryReactor::OnReadDone(bool ok)
 {

@@ -5,7 +5,7 @@
 #include <QDebug>
 
 #include "Error.h"
-#include "TimedQueue.h"
+#include <libqt/sync/timedqueue.h>
 
 #include "GrpcClientReactor.h"
 

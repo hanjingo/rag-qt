@@ -7,6 +7,8 @@
 #include <QHeaderView>
 #include <QMessageBox>
 
+#include <libqt/encoding/zipper.h>
+
 #include "HomePageWidget.h"
 #include "ui_HomePageWidget.h"
 
@@ -23,7 +25,6 @@
 #include "StyleMgr.h"
 #include "Downloader.h"
 #include "PluginMgr.h"
-#include "Zipper.h"
 #include "Error.h"
 #include "Account.h"
 #include "Config.h"

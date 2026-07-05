@@ -11,6 +11,9 @@ file(GLOB SETTINGS_SOURCE_FILES CONFIGURE_DEPENDS
 list(APPEND PROJECT_SOURCES
     ${SETTINGS_SOURCE_FILES}
     ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/multimedia/AudioStreamReceiver.h
+    ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/sync/timedqueue.h
+    ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/util/screencapture.h
+    ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/util/screencapture.cpp
 )
 
 set(PROJECT_SOURCES "${PROJECT_SOURCES}" PARENT_SCOPE)

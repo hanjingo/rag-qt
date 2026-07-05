@@ -16,6 +16,8 @@
 
 #include <iostream>
 
+#include <libqt/util/screencapture.h>
+
 #include "Bus.h"
 #include "PluginInterface.h"
 #include "FrameworkWidget.h"
@@ -24,7 +26,6 @@
 #include "Error.h"
 #include "SettingPageModel.h"
 #include "System.h"
-#include "ScreenCapture.h"
 #include "SettingPageNetwork.h"
 #include "AudioMgr.h"
 #include "Config.h"
