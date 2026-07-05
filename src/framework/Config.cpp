@@ -111,6 +111,21 @@ void Config::saveModel(const QString &filepath)
     saveFile.close();
 }
 
+QVector<Bus::AudioParam> Config::getBusAudioParams()
+{
+    QVector<Bus::AudioParam> params;
+    for(const auto &param : audioTranslatorParams())
+    {
+        Bus::AudioParam audioParam;
+        audioParam.translatorId       = param.id;
+        audioParam.minNewSampleSize   = param.minNewSampleSize;
+        audioParam.minAudioBufferSize = param.minAudioBufferSize;
+        audioParam.maxAudioBufferSize = param.maxAudioBufferSize;
+        params.append(audioParam);
+    }
+    return params;
+}
+
 Config::TranslatorParam Config::getAudioTranslatorParamById(const QString &id)
 {
     // TODO optimise performance later
@@ -144,12 +159,6 @@ QVector<Config::TranslatorParam> Config::audioTranslatorParams()
         Config::TranslatorParam param;
         auto                    obj = arr[i].toObject();
         param.id                    = obj["id"].toString();
-        param.modelPath             = obj["model_path"].toString();
-
-        // ctx param
-        param.useGPU         = obj["use_gpu"].toBool(false);
-        param.gpuDevice      = obj["gpu_device"].toInt(0);
-        param.flashAttention = obj["flash_attention"].toBool(true);
 
         // full param
         param.nThreads    = obj["n_threads"].toInt(4);
@@ -185,18 +194,8 @@ QVector<Config::TranslatorParam> Config::audioTranslatorParams()
 
         // mute control
         param.minAudioBufferSize = obj["min_audio_buffer_size"].toInt(32000);
+        param.maxAudioBufferSize = obj["max_audio_buffer_size"].toInt(32000);
         param.minNewSampleSize   = obj["min_new_sample_size"].toInt(6400);
-        param.muteAmplitudeDurationMs =
-            obj["mute_amplitude_duration_ms"].toInt(200);
-        param.muteAmplitudeThreshold =
-            obj["mute_amplitude_threshold"].toDouble(0.03);
-        param.keepLastAudioBufferMs =
-            obj["keep_last_audio_buffer_ms"].toInt(1000);
-
-        // sleep and wake up control
-        param.sleepTimeoutMs      = obj["sleep_timeout_ms"].toInt(3000);
-        param.wakeupThreshold     = obj["wakeup_threshold"].toDouble(0.001);
-        param.maxSameContentCount = obj["max_same_content_count"].toInt(3);
 
         params.append(param);
     }
@@ -209,13 +208,7 @@ void Config::setAudioTranslatorParams(QVector<Config::TranslatorParam> &params)
     for(auto param : params)
     {
         QJsonObject obj;
-        obj["id"]         = param.id;
-        obj["model_path"] = param.modelPath;
-
-        // ctx param
-        obj["use_gpu"]         = param.useGPU;
-        obj["gpu_device"]      = param.gpuDevice;
-        obj["flash_attention"] = param.flashAttention;
+        obj["id"] = param.id;
 
         // full param
         obj["n_threads"]      = param.nThreads;
@@ -250,18 +243,9 @@ void Config::setAudioTranslatorParams(QVector<Config::TranslatorParam> &params)
         obj["no_speech_thold"] = QString::number(param.noSpeechThold, 'f', 1);
 
         // mute control
-        obj["min_audio_buffer_size"]      = param.minAudioBufferSize;
-        obj["min_new_sample_size"]        = param.minNewSampleSize;
-        obj["mute_amplitude_duration_ms"] = param.muteAmplitudeDurationMs;
-        obj["mute_amplitude_threshold"] =
-            QString::number(param.muteAmplitudeThreshold, 'f', 3);
-        obj["keep_last_audio_buffer_ms"] = param.keepLastAudioBufferMs;
-
-        // sleep and wake up control
-        obj["sleep_timeout_ms"] = param.sleepTimeoutMs;
-        obj["wakeup_threshold"] =
-            QString::number(param.wakeupThreshold, 'f', 3);
-        obj["max_same_content_count"] = param.maxSameContentCount;
+        obj["min_audio_buffer_size"] = param.minAudioBufferSize;
+        obj["max_audio_buffer_size"] = param.maxAudioBufferSize;
+        obj["min_new_sample_size"]   = param.minNewSampleSize;
 
         arr.append(obj);
     }

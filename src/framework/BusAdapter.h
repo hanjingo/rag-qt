@@ -15,6 +15,7 @@ class BusAdapter : public QObject
   signals:
     void SignalPing();
     void SignalModelInfoUpdateNtf(const QVector<Bus::ModelInfo> &configs);
+    void SignalAudioParamUpdateNtf(const QVector<Bus::AudioParam> &params);
 
   private slots:
     // for BUS signals

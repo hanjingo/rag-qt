@@ -431,6 +431,10 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     // update model info
     auto infos = SettingPageModel::Instance()->GetBusModelInfos();
     emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(infos);
+
+    // update audio param
+    auto params = Config::Instance().getBusAudioParams();
+    emit BusAdapter::Instance() -> SignalAudioParamUpdateNtf(params);
     if(wgt)
     {
         // TODO sort icon position

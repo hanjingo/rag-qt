@@ -25,6 +25,11 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::Instance(),
             &Bus::SignalModelInfoUpdateNtf);
 
+    connect(this,
+            &BusAdapter::SignalAudioParamUpdateNtf,
+            Bus::Instance(),
+            &Bus::SignalAudioParamUpdateNtf);
+
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalQueryResp,
             Bus::Instance(),

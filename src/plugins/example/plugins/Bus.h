@@ -83,6 +83,8 @@ class Bus : public QObject
 
     void SignalModelInfoUpdateNtf(const QVector<Bus::ModelInfo> &modelInfos);
 
+    void SignalAudioParamUpdateNtf(const QVector<Bus::AudioParam> &params);
+
     void SignalNewSession(const QString &title,
                           const QString &content,
                           const QString &model);

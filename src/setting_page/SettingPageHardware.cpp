@@ -10,6 +10,7 @@
 #include "StyleMgr.h"
 #include "Config.h"
 #include "Global.h"
+#include "BusAdapter.h"
 
 SettingPageHardware *SettingPageHardware::m_stInstance = nullptr;
 SettingPageHardware *SettingPageHardware::Instance()
@@ -103,16 +104,6 @@ void SettingPageHardware::_switchAudioConfig(const QString &id)
         if(id != currId)
             continue;
 
-        ui->editModelPath->setText(conf.modelPath);
-        ui->ckUseGPU->setChecked(conf.useGPU);
-        for(int i = 0; i < ui->comboAudioTranslatorGPU->count(); ++i)
-        {
-            if(ui->comboAudioTranslatorGPU->itemText(i).toInt()
-               == conf.gpuDevice)
-                ui->comboAudioTranslatorGPU->setCurrentIndex(i);
-        }
-        ui->ckFlashAttention->setChecked(conf.flashAttention);
-
         ui->editThreadsNum->setText(QString::number(conf.nThreads));
         ui->editMaxTextCtx->setText(QString::number(conf.nMaxTextCtx));
         ui->ckTranslate->setChecked(conf.translate);
@@ -151,17 +142,8 @@ void SettingPageHardware::_switchAudioConfig(const QString &id)
             QString::number(conf.minNewSampleSize));
         ui->editMinAudioBufferSize->setText(
             QString::number(conf.minAudioBufferSize));
-        ui->editMuteAmplitudeDur->setText(
-            QString::number(conf.muteAmplitudeDurationMs));
-        ui->editMuteAmplitudeThreshold->setText(
-            QString::number(conf.muteAmplitudeThreshold, 'f', 3));
-        ui->editKeepLastAudioBuffer->setText(
-            QString::number(conf.keepLastAudioBufferMs));
-        ui->editSleepTimeoutMs->setText(QString::number(conf.sleepTimeoutMs));
-        ui->editWakeupThreshold->setText(
-            QString::number(conf.wakeupThreshold, 'f', 3));
-        ui->editMaxSameContentCount->setText(
-            QString::number(conf.maxSameContentCount));
+        ui->editMaxAudioBufferSize->setText(
+            QString::number(conf.maxAudioBufferSize));
     }
 }
 
@@ -174,11 +156,6 @@ void SettingPageHardware::_save()
     {
         if(confs[i].id != audioId)
             continue;
-
-        confs[i].modelPath = ui->editModelPath->text();
-        confs[i].useGPU    = ui->ckUseGPU->isChecked();
-        confs[i].gpuDevice = ui->comboAudioTranslatorGPU->currentText().toInt();
-        confs[i].flashAttention = ui->ckFlashAttention->isChecked();
 
         confs[i].nThreads           = ui->editThreadsNum->text().toInt();
         confs[i].nMaxTextCtx        = ui->editMaxTextCtx->text().toInt();
@@ -208,19 +185,14 @@ void SettingPageHardware::_save()
         confs[i].minNewSampleSize = ui->editMinNewSampleSize->text().toInt();
         confs[i].minAudioBufferSize =
             ui->editMinAudioBufferSize->text().toInt();
-        confs[i].muteAmplitudeDurationMs =
-            ui->editMuteAmplitudeDur->text().toInt();
-        confs[i].muteAmplitudeThreshold =
-            ui->editMuteAmplitudeThreshold->text().toFloat();
-        confs[i].keepLastAudioBufferMs =
-            ui->editKeepLastAudioBuffer->text().toInt();
-        confs[i].sleepTimeoutMs  = ui->editSleepTimeoutMs->text().toInt();
-        confs[i].wakeupThreshold = ui->editWakeupThreshold->text().toInt();
-        confs[i].maxSameContentCount =
-            ui->editMaxSameContentCount->text().toInt();
+        confs[i].maxAudioBufferSize =
+            ui->editMaxAudioBufferSize->text().toInt();
     }
     Config::Instance().setAudioTranslatorParams(confs);
     Config::Instance().save(QString(CONFIG_FILE));
+
+    auto params = Config::Instance().getBusAudioParams();
+    emit BusAdapter::Instance() -> SignalAudioParamUpdateNtf(params);
 }
 
 void SettingPageHardware::_slotBtnSaveClicked()

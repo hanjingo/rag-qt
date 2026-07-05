@@ -6,6 +6,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+#include "Bus.h"
+
 class Config : public QObject
 {
     Q_OBJECT
@@ -14,12 +16,6 @@ class Config : public QObject
     struct TranslatorParam
     {
         QString id;
-        QString modelPath;
-
-        // ctx param
-        bool useGPU         = false;
-        int  gpuDevice      = 0;
-        bool flashAttention = true;
 
         // full param
         int     nThreads           = 4;
@@ -49,17 +45,10 @@ class Config : public QObject
         float   logprobThold       = -1.0;
         float   noSpeechThold      = 0.6;
 
-        // mute control
-        int   minNewSampleSize        = 6400;
-        int   minAudioBufferSize      = 32000;
-        int   muteAmplitudeDurationMs = 200;
-        float muteAmplitudeThreshold  = 0.03;
-        int   keepLastAudioBufferMs   = 1000;
-
-        // sleep and wake up control
-        int   sleepTimeoutMs      = 3000;
-        float wakeupThreshold     = 0.001;
-        int   maxSameContentCount = 3;
+        // buffer control
+        int minNewSampleSize   = 6400;
+        int minAudioBufferSize = 32000;
+        int maxAudioBufferSize = 96000;
     };
 
     struct NetworkConfig
@@ -141,7 +130,8 @@ class Config : public QObject
     void         saveModel(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
-    Config::TranslatorParam getAudioTranslatorParamById(const QString &id);
+    QVector<Bus::AudioParam> getBusAudioParams();
+    Config::TranslatorParam  getAudioTranslatorParamById(const QString &id);
     QVector<Config::TranslatorParam> audioTranslatorParams();
     void setAudioTranslatorParams(QVector<Config::TranslatorParam> &parmas);
 
