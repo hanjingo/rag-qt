@@ -9,10 +9,10 @@
 #include <QStandardItemModel>
 
 #include <functional>
+#include <libqt/net/downloader.h>
 
 #include "SkillBtn.h"
 #include "GrpcClient.h"
-#include "Downloader.h"
 #include "HistorySettingDialog.h"
 
 namespace Ui

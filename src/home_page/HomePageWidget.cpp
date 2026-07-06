@@ -8,6 +8,7 @@
 #include <QMessageBox>
 
 #include <libqt/encoding/zipper.h>
+#include <libqt/net/downloader.h>
 
 #include "HomePageWidget.h"
 #include "ui_HomePageWidget.h"
@@ -23,7 +24,6 @@
 #include "SkillBtn.h"
 #include "GrpcClient.h"
 #include "StyleMgr.h"
-#include "Downloader.h"
 #include "PluginMgr.h"
 #include "Error.h"
 #include "Account.h"

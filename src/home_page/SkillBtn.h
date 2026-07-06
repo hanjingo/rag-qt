@@ -6,7 +6,7 @@
 #include <QString>
 #include <QDateTime>
 
-#include "Downloader.h"
+#include <libqt/net/downloader.h>
 
 class SkillBtn : public QToolButton
 {

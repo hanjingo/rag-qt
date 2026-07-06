@@ -33,7 +33,7 @@ class Bus : public QObject
         bool    isFinished;
     };
 
-    struct ModelConfig
+    struct ModelInfo
     {
         // base info
         QString id;
@@ -43,14 +43,7 @@ class Bus : public QObject
         QString addr;
         QString pipeline;
         qint32  cost;
-        QString apiKey;
-
-        // sampling parameters
-        float temperature;
-        float topP;
-        float topK;
-        float reputationPenalty;
-        float minP;
+        QString hash;
 
         // context parameters
         int     ctxWindowSize;
@@ -69,6 +62,14 @@ class Bus : public QObject
         QString version;
         QString timestamp;
         qint32  platform;
+    };
+
+    struct AudioParam
+    {
+        QString translatorId;
+        int     minNewSampleSize;
+        int     minAudioBufferSize;
+        int     maxAudioBufferSize;
     };
 
   public:
@@ -100,7 +101,7 @@ class Bus : public QObject
     void SignalQuery(const int64_t         sessionId,
                      const QString        &query,
                      const QString        &model,
-                     const Bus::ModelInfo &config);
+                     const Bus::ModelInfo &infos);
     void SignalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
                          const QString &content,
@@ -123,6 +124,17 @@ class Bus : public QObject
 
     void SignalAudioCaptureStop(const qint64 id);
     void SignalAudioCaptureStopped(const qint64 id);
+
+    void SignalRecognize(const qint64      sessionId,
+                         const QByteArray &src,
+                         const QString    &translatorId);
+    void SignalRecognizeResp(const int      errorCode,
+                             const QString &transcript,
+                             const bool     isFinished,
+                             const double   confidence);
+
+    void SignalStopRecognize(const qint64 sessionId);
+    void SignalStopRecognizeResp(const int errorCode, const qint64 sessionId);
 
   private:
     explicit Bus(QObject *parent = nullptr)

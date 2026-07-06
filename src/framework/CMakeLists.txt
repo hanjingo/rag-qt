@@ -14,6 +14,8 @@ list(APPEND PROJECT_SOURCES
     ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/sync/timedqueue.h
     ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/util/screencapture.h
     ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/util/screencapture.cpp
+    ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/net/downloader.h
+    ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/net/downloader.cpp
 )
 
 set(PROJECT_SOURCES "${PROJECT_SOURCES}" PARENT_SCOPE)
