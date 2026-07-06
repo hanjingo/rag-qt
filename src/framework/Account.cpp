@@ -47,6 +47,9 @@ void Account::SetPrivilege(int32_t privilege)
         case PrivilegeType::Normal:
             ui->lblPrivilege->setText(tr("Normal"));
             break;
+        case PrivilegeType::Developer:
+            ui->lblPrivilege->setText(tr("Developer"));
+            break;
         case PrivilegeType::Admin:
             ui->lblPrivilege->setText(tr("Admin"));
             break;

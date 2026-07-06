@@ -24,6 +24,17 @@ class SettingPageWidget : public QWidget
 
   private slots:
     void _slotTabCurrentChanged(int iIndex);
+    void _slotLoginResp(const int      errorCode,
+                        const int64_t  user_id,
+                        const QString &auth,
+                        const int32_t  privilege,
+                        const QString &account,
+                        const QString &lastLoginTime);
+
+  private:
+    void _initUI();
+    void _initConnections();
+    void _retranslate();
 
   private:
     Ui::SettingPageWidget    *ui;

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingPageDev</class>
+ <widget class="QWidget" name="SettingPageDev">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1140</width>
+    <height>614</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#SettingPageDev{
+background-color:#C1CCD6;
+border-top-left-radius:0px;
+border-top-right-radius:0px;
+border-bottom-left-radius:15px;
+border-bottom-right-radius:15px;}</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

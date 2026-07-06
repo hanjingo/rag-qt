@@ -6,6 +6,8 @@
 #include "ui_SettingPageWidget.h"
 
 #include "StyleMgr.h"
+#include "GrpcClient.h"
+#include "Account.h"
 
 #include "SettingPageNetwork.h"
 #include "SettingPageHistory.h"
@@ -14,6 +16,7 @@
 #include "SettingPageVersion.h"
 #include "SettingPageModel.h"
 #include "SettingPageHardware.h"
+#include "SettingPageDev.h"
 
 SettingPageWidget *SettingPageWidget::m_stMainSettingPageInst = nullptr;
 SettingPageWidget *SettingPageWidget::Instance()
@@ -32,23 +35,9 @@ SettingPageWidget::SettingPageWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->tabWidget->setStyleSheet(StyleMgr::ParseFile(":/styles/tab_widget"));
-
-    ui->tabWidget->addTab(SettingPageHistory::Instance(),
-                          tr("History Settings"));
-    ui->tabWidget->addTab(SettingPageModel::Instance(), tr("Model Settings"));
-    ui->tabWidget->addTab(SettingPageSkill::Instance(), tr("Skill Settings"));
-    ui->tabWidget->addTab(SettingPageSync::Instance(), tr("Sync Settings"));
-    ui->tabWidget->addTab(SettingPageNetwork::Instance(),
-                          tr("Network Settings"));
-    ui->tabWidget->addTab(SettingPageHardware::Instance(),
-                          tr("Hardware Settings"));
-    ui->tabWidget->addTab(SettingPageVersion::Instance(), tr("Version Info"));
-
-    connect(ui->tabWidget,
-            SIGNAL(currentChanged(int)),
-            this,
-            SLOT(_slotTabCurrentChanged(int)));
+    _initUI();
+    _initConnections();
+    _retranslate();
 }
 
 SettingPageWidget::~SettingPageWidget()
@@ -81,8 +70,59 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
         case 6:
             SettingPageVersion::Instance();
             break;
+        case 7:
+            SettingPageDev::Instance();
+            break;
 
         default:
             break;
     }
+}
+
+void SettingPageWidget::_slotLoginResp(const int      errorCode,
+                                       const int64_t  user_id,
+                                       const QString &auth,
+                                       const int32_t  privilege,
+                                       const QString &account,
+                                       const QString &lastLoginTime)
+{
+    qDebug() << "SettingPageWidget::_slotLoginResp enter";
+    if(privilege < static_cast<int>(Account::PrivilegeType::Developer))
+    {
+        ui->tabWidget->setTabEnabled(7, false);
+    }
+}
+
+void SettingPageWidget::_initUI()
+{
+    ui->tabWidget->setStyleSheet(StyleMgr::ParseFile(":/styles/tab_widget"));
+
+    ui->tabWidget->addTab(SettingPageHistory::Instance(),
+                          tr("History Settings"));
+    ui->tabWidget->addTab(SettingPageModel::Instance(), tr("Model Settings"));
+    ui->tabWidget->addTab(SettingPageSkill::Instance(), tr("Skill Settings"));
+    ui->tabWidget->addTab(SettingPageSync::Instance(), tr("Sync Settings"));
+    ui->tabWidget->addTab(SettingPageNetwork::Instance(),
+                          tr("Network Settings"));
+    ui->tabWidget->addTab(SettingPageHardware::Instance(),
+                          tr("Hardware Settings"));
+    ui->tabWidget->addTab(SettingPageVersion::Instance(), tr("Version Info"));
+    ui->tabWidget->addTab(SettingPageDev::Instance(), tr("Developer Settings"));
+}
+
+void SettingPageWidget::_initConnections()
+{
+    connect(ui->tabWidget,
+            SIGNAL(currentChanged(int)),
+            this,
+            SLOT(_slotTabCurrentChanged(int)));
+
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalLoginResp,
+            this,
+            &SettingPageWidget::_slotLoginResp);
+}
+
+void SettingPageWidget::_retranslate()
+{
 }
