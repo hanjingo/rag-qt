@@ -250,7 +250,9 @@ void GrpcClient::Query(const int64_t              id,
     req.mutable_sampling()->set_temperature(config.temperature);
     req.mutable_sampling()->set_top_k(config.topK);
     req.mutable_sampling()->set_top_p(config.topP);
+    req.mutable_sampling()->set_top_p_min_keep(config.topPMinKeep);
     req.mutable_sampling()->set_min_p(config.minP);
+    req.mutable_sampling()->set_min_p_min_keep(config.minPMinKeep);
 
     // context params
     req.mutable_ctx()->set_window_size(config.ctxWindowSize);

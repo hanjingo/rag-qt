@@ -45,9 +45,11 @@
 
         "temperature": 0.7,
         "top_p": 0.1,
+        "top_p_min_keep": 1,
         "top_k": 0.1,
         "reputation_penalty": 0.1,
         "min_p": 0.1,
+        "min_p_min_keep": 1,
 
         "ctx_window_size": 4096,
         "stop_words": "",
@@ -100,9 +102,11 @@
 
         "temperature": 0.7,
         "top_p": 0.1,
+        "top_p_min_keep": 1,
         "top_k": 0.1,
         "reputation_penalty": 0.1,
         "min_p": 0.1,
+        "min_p_min_keep": 1,
 
         "ctx_window_size": 4096,
         "stop_words": "",

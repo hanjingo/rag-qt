@@ -32,18 +32,6 @@
    <item>
     <widget class="QWidget" name="wgtBasic" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="leftMargin">
-       <number>6</number>
-      </property>
-      <property name="topMargin">
-       <number>6</number>
-      </property>
-      <property name="rightMargin">
-       <number>6</number>
-      </property>
-      <property name="bottomMargin">
-       <number>6</number>
-      </property>
       <item>
        <widget class="QWidget" name="wgtBase" native="true">
         <property name="styleSheet">
@@ -1201,8 +1189,8 @@
          <string notr="true">background-color:#C1CCD6;</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="2" column="2">
-          <widget class="QLabel" name="lblTopK">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblSamplingTitle">
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -1216,23 +1204,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Top-K</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="3">
-          <widget class="QLineEdit" name="editTopK">
-           <property name="font">
-            <font>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>0.0-1.0</string>
+            <string>Sampling</string>
            </property>
           </widget>
          </item>
@@ -1255,8 +1227,24 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="lblSamplingTitle">
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="editTopP">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>0.0-1.0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="lblTopPMinKeep">
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -1270,7 +1258,45 @@
             </font>
            </property>
            <property name="text">
-            <string>Sampling</string>
+            <string>Top-P Min Keep</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="6">
+          <widget class="QLabel" name="lblTopK">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Top-K</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="8">
+          <widget class="QLabel" name="lblMinPMinKeep">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Min-P Min Keep</string>
            </property>
           </widget>
          </item>
@@ -1293,7 +1319,23 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="5">
+         <item row="2" column="7">
+          <widget class="QLineEdit" name="editMinP">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>0.0-1.0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
           <widget class="QLineEdit" name="editReputationPenalty">
            <property name="font">
             <font>
@@ -1309,8 +1351,14 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="editTopP">
+         <item row="1" column="2">
+          <widget class="QLabel" name="lblPenalty">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <italic>false</italic>
@@ -1318,10 +1366,7 @@
             </font>
            </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>0.0-1.0</string>
+            <string>Reputation Penalty</string>
            </property>
           </widget>
          </item>
@@ -1341,14 +1386,8 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="4">
-          <widget class="QLabel" name="lblPenalty">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
+         <item row="1" column="7">
+          <widget class="QLineEdit" name="editTopK">
            <property name="font">
             <font>
              <italic>false</italic>
@@ -1356,7 +1395,10 @@
             </font>
            </property>
            <property name="text">
-            <string>Reputation Penalty</string>
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>0.0-1.0</string>
            </property>
           </widget>
          </item>
@@ -1379,8 +1421,8 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="7">
-          <widget class="QLineEdit" name="editMinP">
+         <item row="2" column="3">
+          <widget class="QLineEdit" name="editTopPMinKeep">
            <property name="font">
             <font>
              <italic>false</italic>
@@ -1391,7 +1433,23 @@
             <string/>
            </property>
            <property name="placeholderText">
-            <string>0.0-1.0</string>
+            <string>1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="9">
+          <widget class="QLineEdit" name="editMinPMinKeep">
+           <property name="font">
+            <font>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>1</string>
            </property>
           </widget>
          </item>

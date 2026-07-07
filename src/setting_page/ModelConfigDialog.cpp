@@ -84,9 +84,11 @@ Config::ModelConfig ModelConfigDialog::GetConfig()
     // sampling parameters
     m_conf.temperature       = ui->editTemperature->text().toFloat();
     m_conf.topP              = ui->editTopP->text().toFloat();
+    m_conf.topPMinKeep       = ui->editTopPMinKeep->text().toInt();
     m_conf.topK              = ui->editTopK->text().toInt();
     m_conf.reputationPenalty = ui->editReputationPenalty->text().toFloat();
     m_conf.minP              = ui->editMinP->text().toFloat();
+    m_conf.minPMinKeep       = ui->editMinPMinKeep->text().toInt();
 
     // control parameters
     m_conf.ctxWindowSize = ui->editCtxWindowSize->text().toInt();
@@ -169,10 +171,12 @@ void ModelConfigDialog::_initUI()
     // sampling parameters
     ui->editTemperature->setText(QString::number(m_conf.temperature, 'f', 1));
     ui->editTopP->setText(QString::number(m_conf.topP, 'f', 1));
+    ui->editTopPMinKeep->setText(QString::number(m_conf.topPMinKeep));
     ui->editTopK->setText(QString::number(m_conf.topK, 'f', 1));
     ui->editReputationPenalty->setText(
         QString::number(m_conf.reputationPenalty, 'f', 1));
     ui->editMinP->setText(QString::number(m_conf.minP, 'f', 1));
+    ui->editMinPMinKeep->setText(QString::number(m_conf.minPMinKeep));
 
     // control parameters
     ui->editCtxWindowSize->setText(QString::number(m_conf.ctxWindowSize));

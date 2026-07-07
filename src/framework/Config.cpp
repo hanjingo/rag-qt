@@ -375,9 +375,11 @@ QVector<Config::ModelConfig> Config::modelConfigs()
         // sampling parameters
         config.temperature       = obj["temperature"].toDouble();
         config.topP              = obj["top_p"].toDouble();
+        config.topPMinKeep       = obj["top_p_min_keep"].toInt();
         config.topK              = obj["top_k"].toDouble();
         config.reputationPenalty = obj["reputation_penalty"].toDouble();
         config.minP              = obj["min_p"].toDouble();
+        config.minPMinKeep       = obj["min_p_min_keep"].toInt();
 
         // control parameters
         config.ctxWindowSize = obj["ctx_window_size"].toInt();
@@ -446,12 +448,14 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
         obj["kv_unified"]  = config.kvUnified;
 
         // sampling parameters
-        obj["temperature"] = QString::number(config.temperature, 'f', 1);
-        obj["top_p"]       = QString::number(config.topP, 'f', 1);
-        obj["top_k"]       = QString::number(config.topK, 'f', 1);
+        obj["temperature"]    = QString::number(config.temperature, 'f', 1);
+        obj["top_p"]          = QString::number(config.topP, 'f', 1);
+        obj["top_p_min_keep"] = QString::number(config.topPMinKeep);
+        obj["top_k"]          = QString::number(config.topK, 'f', 1);
         obj["reputation_penalty"] =
             QString::number(config.reputationPenalty, 'f', 1);
-        obj["min_p"] = QString::number(config.minP, 'f', 1);
+        obj["min_p"]          = QString::number(config.minP, 'f', 1);
+        obj["min_p_min_keep"] = QString::number(config.minPMinKeep);
 
         // control parameters
         obj["ctx_window_size"] = config.ctxWindowSize;

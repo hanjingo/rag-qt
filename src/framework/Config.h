@@ -109,9 +109,11 @@ class Config : public QObject
         // sampling parameters
         float temperature;
         float topP;
+        int   topPMinKeep;
         float topK;
         float reputationPenalty;
         float minP;
+        int   minPMinKeep;
 
         // control parameters
         int     ctxWindowSize;
