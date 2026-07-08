@@ -71,17 +71,6 @@ class Config : public QObject
         QString apiKey;
         QString hash;
 
-        // model params
-        QString mainGPU;
-        bool    vocabOnly;
-        bool    useMMap;
-        bool    useDirectIO;
-        bool    useMLock;
-        bool    checkTensors;
-        bool    useExtraBufTypes;
-        bool    noHost;
-        bool    noAlloc;
-
         // context params
         int nCtx;
         int nBatch;
@@ -107,13 +96,20 @@ class Config : public QObject
         bool kvUnified;
 
         // sampling parameters
-        float temperature;
-        float topP;
-        int   topPMinKeep;
-        float topK;
-        float reputationPenalty;
-        float minP;
-        int   minPMinKeep;
+        int      penaltyLastN;
+        float    penaltyRepeat;
+        float    penaltyFreq;
+        float    penaltyPresent;
+        float    temperature;
+        float    temperatureExt;
+        float    temperatureExtDelta;
+        float    temperatureExtExponent;
+        uint32_t seed;
+        float    topP;
+        int      topPMinKeep;
+        int32_t  topK;
+        float    minP;
+        int      minPMinKeep;
 
         // control parameters
         int     ctxWindowSize;

@@ -43,20 +43,6 @@ Config::ModelConfig ModelConfigDialog::GetConfig()
     m_conf.apiKey = ui->editApiKey->text();
     m_conf.hash   = ui->editHash->text();
 
-    // model params
-    m_conf.mainGPU = "";
-    if(ui->ckUseGPU->isChecked() && !ui->comboMainGPU->currentText().isEmpty())
-        m_conf.mainGPU = ui->comboMainGPU->currentText();
-
-    m_conf.vocabOnly        = ui->ckVocabOnly->isChecked();
-    m_conf.useMMap          = ui->ckUseMMap->isChecked();
-    m_conf.useDirectIO      = ui->ckUseDirectIO->isChecked();
-    m_conf.useMLock         = ui->ckUseMLock->isChecked();
-    m_conf.checkTensors     = ui->ckCheckTensors->isChecked();
-    m_conf.useExtraBufTypes = ui->ckUseExtraBufferTypes->isChecked();
-    m_conf.noHost           = ui->ckNoHost->isChecked();
-    m_conf.noAlloc          = ui->ckNoAlloc->isChecked();
-
     // context params
     m_conf.nCtx          = ui->editNumContext->text().toInt();
     m_conf.nBatch        = ui->editNumBatch->text().toInt();
@@ -82,13 +68,24 @@ Config::ModelConfig ModelConfigDialog::GetConfig()
     m_conf.kvUnified  = ui->ckKVUnified->isChecked();
 
     // sampling parameters
-    m_conf.temperature       = ui->editTemperature->text().toFloat();
-    m_conf.topP              = ui->editTopP->text().toFloat();
-    m_conf.topPMinKeep       = ui->editTopPMinKeep->text().toInt();
-    m_conf.topK              = ui->editTopK->text().toInt();
-    m_conf.reputationPenalty = ui->editReputationPenalty->text().toFloat();
-    m_conf.minP              = ui->editMinP->text().toFloat();
-    m_conf.minPMinKeep       = ui->editMinPMinKeep->text().toInt();
+    m_conf.penaltyLastN   = ui->editPenaltyLastN->text().toInt();
+    m_conf.penaltyRepeat  = ui->editPenaltyRepeat->text().toFloat();
+    m_conf.penaltyFreq    = ui->editPenaltyFreq->text().toFloat();
+    m_conf.penaltyPresent = ui->editPenaltyPresent->text().toFloat();
+
+    m_conf.temperature         = ui->editTemperature->text().toFloat();
+    m_conf.temperatureExt      = ui->editTemperatureExt->text().toFloat();
+    m_conf.temperatureExtDelta = ui->editTemperatureExtDelta->text().toFloat();
+    m_conf.temperatureExtExponent =
+        ui->editTemperatureExtExponent->text().toFloat();
+
+    m_conf.seed = ui->editSeed->text().toInt();
+
+    m_conf.topP        = ui->editTopP->text().toFloat();
+    m_conf.topPMinKeep = ui->editTopPMinKeep->text().toInt();
+    m_conf.topK        = ui->editTopK->text().toInt();
+    m_conf.minP        = ui->editMinP->text().toFloat();
+    m_conf.minPMinKeep = ui->editMinPMinKeep->text().toInt();
 
     // control parameters
     m_conf.ctxWindowSize = ui->editCtxWindowSize->text().toInt();
@@ -122,25 +119,6 @@ void ModelConfigDialog::_initUI()
     ui->editApiKey->setText(m_conf.apiKey);
     ui->editHash->setText(m_conf.hash);
 
-    // model params
-    ui->ckUseGPU->setChecked(!m_conf.mainGPU.isEmpty());
-    for(int i = 0; i < ui->comboMainGPU->count(); ++i)
-    {
-        if(ui->comboMainGPU->itemText(i) == m_conf.mainGPU)
-        {
-            ui->comboMainGPU->setCurrentIndex(i);
-            break;
-        }
-    }
-    ui->ckVocabOnly->setChecked(m_conf.vocabOnly);
-    ui->ckUseMMap->setChecked(m_conf.useMMap);
-    ui->ckUseDirectIO->setChecked(m_conf.useDirectIO);
-    ui->ckUseMLock->setChecked(m_conf.useMLock);
-    ui->ckCheckTensors->setChecked(m_conf.checkTensors);
-    ui->ckUseExtraBufferTypes->setChecked(m_conf.useExtraBufTypes);
-    ui->ckNoHost->setChecked(m_conf.noHost);
-    ui->ckNoAlloc->setChecked(m_conf.noAlloc);
-
     // context params
     ui->editNumContext->setText(QString::number(m_conf.nCtx));
     ui->editNumBatch->setText(QString::number(m_conf.nBatch));
@@ -169,12 +147,26 @@ void ModelConfigDialog::_initUI()
     ui->ckKVUnified->setChecked(m_conf.kvUnified);
 
     // sampling parameters
+    ui->editPenaltyLastN->setText(QString::number(m_conf.penaltyLastN));
+    ui->editPenaltyRepeat->setText(
+        QString::number(m_conf.penaltyRepeat, 'f', 1));
+    ui->editPenaltyFreq->setText(QString::number(m_conf.penaltyFreq, 'f', 1));
+    ui->editPenaltyPresent->setText(
+        QString::number(m_conf.penaltyPresent, 'f', 1));
+
     ui->editTemperature->setText(QString::number(m_conf.temperature, 'f', 1));
+    ui->editTemperatureExt->setText(
+        QString::number(m_conf.temperatureExt, 'f', 1));
+    ui->editTemperatureExtDelta->setText(
+        QString::number(m_conf.temperatureExtDelta, 'f', 1));
+    ui->editTemperatureExtExponent->setText(
+        QString::number(m_conf.temperatureExtExponent, 'f', 1));
+
+    ui->editSeed->setText(QString::number(m_conf.seed));
+
     ui->editTopP->setText(QString::number(m_conf.topP, 'f', 1));
     ui->editTopPMinKeep->setText(QString::number(m_conf.topPMinKeep));
-    ui->editTopK->setText(QString::number(m_conf.topK, 'f', 1));
-    ui->editReputationPenalty->setText(
-        QString::number(m_conf.reputationPenalty, 'f', 1));
+    ui->editTopK->setText(QString::number(m_conf.topK));
     ui->editMinP->setText(QString::number(m_conf.minP, 'f', 1));
     ui->editMinPMinKeep->setText(QString::number(m_conf.minPMinKeep));
 

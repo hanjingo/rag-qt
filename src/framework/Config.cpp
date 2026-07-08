@@ -167,10 +167,10 @@ QVector<Config::TranslatorParam> Config::audioTranslatorParams()
         param.id                    = obj["id"].toString();
 
         // full param
-        param.nThreads    = obj["n_threads"].toInt(4);
-        param.nMaxTextCtx = obj["n_max_text_ctx"].toInt(16384);
-        param.offsetMs    = obj["offset_ms"].toInt(0);
-        param.durationMs  = obj["duration_ms"].toInt(0);
+        param.nThreads    = obj["n_threads"].toInt();
+        param.nMaxTextCtx = obj["n_max_text_ctx"].toInt();
+        param.offsetMs    = obj["offset_ms"].toInt();
+        param.durationMs  = obj["duration_ms"].toInt();
 
         param.translate      = obj["translate"].toBool(false);
         param.detectLanguage = obj["detect_language"].toBool(true);
@@ -189,19 +189,19 @@ QVector<Config::TranslatorParam> Config::audioTranslatorParams()
         param.suppressBlank      = obj["suppress_blank"].toBool(true);
         param.suppressNst        = obj["suppress_nst"].toBool(false);
 
-        param.temperature    = obj["temperature"].toDouble(0.0);
-        param.temperatureInc = obj["temperature_inc"].toDouble(0.2);
+        param.temperature    = obj["temperature"].toString().toDouble();
+        param.temperatureInc = obj["temperature_inc"].toString().toDouble();
 
-        param.maxInitialTs  = obj["max_initial_ts"].toDouble(1.0);
-        param.lengthPenalty = obj["length_penalty"].toDouble(-1.0);
-        param.entropyThold  = obj["entropy_thold"].toDouble(2.4);
-        param.logprobThold  = obj["logprob_thold"].toDouble(-1.0);
-        param.noSpeechThold = obj["no_speech_thold"].toDouble(0.6);
+        param.maxInitialTs  = obj["max_initial_ts"].toString().toDouble();
+        param.lengthPenalty = obj["length_penalty"].toString().toDouble();
+        param.entropyThold  = obj["entropy_thold"].toString().toDouble();
+        param.logprobThold  = obj["logprob_thold"].toString().toDouble();
+        param.noSpeechThold = obj["no_speech_thold"].toString().toDouble();
 
         // mute control
-        param.minAudioBufferSize = obj["min_audio_buffer_size"].toInt(32000);
-        param.maxAudioBufferSize = obj["max_audio_buffer_size"].toInt(32000);
-        param.minNewSampleSize   = obj["min_new_sample_size"].toInt(6400);
+        param.minAudioBufferSize = obj["min_audio_buffer_size"].toInt();
+        param.maxAudioBufferSize = obj["max_audio_buffer_size"].toInt();
+        param.minNewSampleSize   = obj["min_new_sample_size"].toInt();
 
         params.append(param);
     }
@@ -337,17 +337,6 @@ QVector<Config::ModelConfig> Config::modelConfigs()
         config.apiKey    = obj["api_key"].toString();
         config.hash      = obj["hash"].toString();
 
-        // model params
-        config.mainGPU          = obj["main_gpu"].toString();
-        config.vocabOnly        = obj["vocab_only"].toBool(false);
-        config.useMMap          = obj["use_mmap"].toBool(true);
-        config.useDirectIO      = obj["use_direct_io"].toBool(false);
-        config.useMLock         = obj["use_mlock"].toBool(false);
-        config.checkTensors     = obj["check_tensors"].toBool(false);
-        config.useExtraBufTypes = obj["use_extra_buf_types"].toBool(false);
-        config.noHost           = obj["no_host"].toBool(false);
-        config.noAlloc          = obj["no_alloc"].toBool(false);
-
         // context params
         config.nCtx          = obj["n_ctx"].toInt();
         config.nBatch        = obj["n_batch"].toInt();
@@ -356,14 +345,14 @@ QVector<Config::ModelConfig> Config::modelConfigs()
         config.nThreads      = obj["n_threads"].toInt();
         config.nThreadsBatch = obj["n_threads_batch"].toInt();
 
-        config.ropeFreqBase   = obj["rope_freq_base"].toDouble();
-        config.ropeFreqScale  = obj["rope_freq_scale"].toDouble();
-        config.yarnExtFactor  = obj["yarn_ext_factor"].toDouble();
-        config.yarnAttnFactor = obj["yarn_attn_factor"].toDouble();
-        config.yarnBetaFast   = obj["yarn_beta_fast"].toDouble();
-        config.yarnBetaSlow   = obj["yarn_beta_slow"].toDouble();
+        config.ropeFreqBase   = obj["rope_freq_base"].toString().toDouble();
+        config.ropeFreqScale  = obj["rope_freq_scale"].toString().toDouble();
+        config.yarnExtFactor  = obj["yarn_ext_factor"].toString().toDouble();
+        config.yarnAttnFactor = obj["yarn_attn_factor"].toString().toDouble();
+        config.yarnBetaFast   = obj["yarn_beta_fast"].toString().toDouble();
+        config.yarnBetaSlow   = obj["yarn_beta_slow"].toString().toDouble();
         config.yarnOrigCtx    = obj["yarn_orig_ctx"].toInt();
-        config.defragThold    = obj["defrag_thold"].toDouble();
+        config.defragThold    = obj["defrag_thold"].toString().toDouble();
 
         config.embeddings = obj["embeddings"].toBool(false);
         config.offloadKQV = obj["offload_kqv"].toBool(false);
@@ -373,13 +362,25 @@ QVector<Config::ModelConfig> Config::modelConfigs()
         config.kvUnified  = obj["kv_unified"].toBool(false);
 
         // sampling parameters
-        config.temperature       = obj["temperature"].toDouble();
-        config.topP              = obj["top_p"].toDouble();
-        config.topPMinKeep       = obj["top_p_min_keep"].toInt();
-        config.topK              = obj["top_k"].toDouble();
-        config.reputationPenalty = obj["reputation_penalty"].toDouble();
-        config.minP              = obj["min_p"].toDouble();
-        config.minPMinKeep       = obj["min_p_min_keep"].toInt();
+        config.penaltyLastN   = obj["penalty_last_n"].toInt();
+        config.penaltyRepeat  = obj["penalty_repeat"].toString().toDouble();
+        config.penaltyFreq    = obj["penalty_freq"].toString().toDouble();
+        config.penaltyPresent = obj["penalty_present"].toString().toDouble();
+
+        config.temperature    = obj["temperature"].toString().toDouble();
+        config.temperatureExt = obj["temperature_ext"].toString().toDouble();
+        config.temperatureExtDelta =
+            obj["temperature_ext_delta"].toString().toDouble();
+        config.temperatureExtExponent =
+            obj["temperature_ext_exponent"].toString().toDouble();
+
+        config.seed = obj["seed"].toInt();
+
+        config.topP        = obj["top_p"].toString().toDouble();
+        config.topPMinKeep = obj["top_p_min_keep"].toInt();
+        config.topK        = obj["top_k"].toInt();
+        config.minP        = obj["min_p"].toString().toDouble();
+        config.minPMinKeep = obj["min_p_min_keep"].toInt();
 
         // control parameters
         config.ctxWindowSize = obj["ctx_window_size"].toInt();
@@ -411,17 +412,6 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
         obj["api_key"]   = config.apiKey;
         obj["hash"]      = config.hash;
 
-        // model params
-        obj["main_gpu"]            = config.mainGPU;
-        obj["vocab_only"]          = config.vocabOnly;
-        obj["use_mmap"]            = config.useMMap;
-        obj["use_direct_io"]       = config.useDirectIO;
-        obj["use_mlock"]           = config.useMLock;
-        obj["check_tensors"]       = config.checkTensors;
-        obj["use_extra_buf_types"] = config.useExtraBufTypes;
-        obj["no_host"]             = config.noHost;
-        obj["no_alloc"]            = config.noAlloc;
-
         // context params
         obj["n_ctx"]           = config.nCtx;
         obj["n_batch"]         = config.nBatch;
@@ -448,12 +438,23 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
         obj["kv_unified"]  = config.kvUnified;
 
         // sampling parameters
-        obj["temperature"]    = QString::number(config.temperature, 'f', 1);
+        obj["penalty_last_n"]  = QString::number(config.penaltyLastN);
+        obj["penalty_repeat"]  = QString::number(config.penaltyRepeat, 'f', 1);
+        obj["penalty_freq"]    = QString::number(config.penaltyFreq, 'f', 1);
+        obj["penalty_present"] = QString::number(config.penaltyPresent, 'f', 1);
+
+        obj["temperature"]     = QString::number(config.temperature, 'f', 1);
+        obj["temperature_ext"] = QString::number(config.temperatureExt, 'f', 1);
+        obj["temperature_ext_delta"] =
+            QString::number(config.temperatureExtDelta, 'f', 1);
+        obj["temperature_ext_exponent"] =
+            QString::number(config.temperatureExtExponent, 'f', 1);
+
+        obj["seed"] = QString::number(config.seed);
+
         obj["top_p"]          = QString::number(config.topP, 'f', 1);
         obj["top_p_min_keep"] = QString::number(config.topPMinKeep);
-        obj["top_k"]          = QString::number(config.topK, 'f', 1);
-        obj["reputation_penalty"] =
-            QString::number(config.reputationPenalty, 'f', 1);
+        obj["top_k"]          = QString::number(config.topK);
         obj["min_p"]          = QString::number(config.minP, 'f', 1);
         obj["min_p_min_keep"] = QString::number(config.minPMinKeep);
 

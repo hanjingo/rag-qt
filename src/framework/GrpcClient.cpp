@@ -246,8 +246,20 @@ void GrpcClient::Query(const int64_t              id,
     req.set_model(model.toStdString());
 
     // sampling parameters
-    req.mutable_sampling()->set_repetition_penalty(config.reputationPenalty);
+    req.mutable_sampling()->set_penalty_last_n(config.penaltyLastN);
+    req.mutable_sampling()->set_penalty_repeat(config.penaltyRepeat);
+    req.mutable_sampling()->set_penalty_freq(config.penaltyFreq);
+    req.mutable_sampling()->set_penalty_present(config.penaltyPresent);
+
     req.mutable_sampling()->set_temperature(config.temperature);
+    req.mutable_sampling()->set_temperature_ext(config.temperatureExt);
+    req.mutable_sampling()->set_temperature_ext_delta(
+        config.temperatureExtDelta);
+    req.mutable_sampling()->set_temperature_ext_exponent(
+        config.temperatureExtExponent);
+
+    req.mutable_sampling()->set_seed(config.seed);
+
     req.mutable_sampling()->set_top_k(config.topK);
     req.mutable_sampling()->set_top_p(config.topP);
     req.mutable_sampling()->set_top_p_min_keep(config.topPMinKeep);
