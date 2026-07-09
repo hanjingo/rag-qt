@@ -146,6 +146,8 @@ class Config : public QObject
     explicit Config(QObject *parent = nullptr);
     ~Config();
 
+    void _convert(Config::ModelConfig &config, const QJsonObject &obj);
+
   private:
     QJsonObject m_rootObj;
     QJsonArray  m_modelArr;

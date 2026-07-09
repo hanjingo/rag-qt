@@ -301,14 +301,19 @@ void Config::setNetworkConfigs(QVector<Config::NetworkConfig> &configs)
 
 Config::ModelConfig Config::getModelConfigById(const QString &id)
 {
-    for(const auto &config : modelConfigs())
-    {
-        if(config.id == id)
-            return config;
-    }
-
     Config::ModelConfig conf;
     conf.id = "";
+
+    for(int i = 0; i < m_modelArr.size(); ++i)
+    {
+        auto obj = m_modelArr[i].toObject();
+        if(obj["id"].toString() == id)
+        {
+            _convert(conf, obj);
+            return conf;
+        }
+    }
+
     return conf;
 }
 
@@ -325,70 +330,7 @@ QVector<Config::ModelConfig> Config::modelConfigs()
     {
         Config::ModelConfig config;
         auto                obj = m_modelArr[i].toObject();
-
-        // base info
-        config.id        = obj["id"].toString();
-        config.name      = obj["name"].toString();
-        config.publisher = obj["publisher"].toString();
-        config.timestamp = obj["timestamp"].toString();
-        config.addr      = obj["addr"].toString();
-        config.pipeline  = obj["pipeline"].toString();
-        config.cost      = obj["cost"].toInt();
-        config.apiKey    = obj["api_key"].toString();
-        config.hash      = obj["hash"].toString();
-
-        // context params
-        config.nCtx          = obj["n_ctx"].toInt();
-        config.nBatch        = obj["n_batch"].toInt();
-        config.nUbatch       = obj["n_ubatch"].toInt();
-        config.nSeqMax       = obj["n_seq_max"].toInt();
-        config.nThreads      = obj["n_threads"].toInt();
-        config.nThreadsBatch = obj["n_threads_batch"].toInt();
-
-        config.ropeFreqBase   = obj["rope_freq_base"].toString().toDouble();
-        config.ropeFreqScale  = obj["rope_freq_scale"].toString().toDouble();
-        config.yarnExtFactor  = obj["yarn_ext_factor"].toString().toDouble();
-        config.yarnAttnFactor = obj["yarn_attn_factor"].toString().toDouble();
-        config.yarnBetaFast   = obj["yarn_beta_fast"].toString().toDouble();
-        config.yarnBetaSlow   = obj["yarn_beta_slow"].toString().toDouble();
-        config.yarnOrigCtx    = obj["yarn_orig_ctx"].toInt();
-        config.defragThold    = obj["defrag_thold"].toString().toDouble();
-
-        config.embeddings = obj["embeddings"].toBool(false);
-        config.offloadKQV = obj["offload_kqv"].toBool(false);
-        config.noPerf     = obj["no_perf"].toBool(false);
-        config.opOffload  = obj["op_offload"].toBool(false);
-        config.swaFull    = obj["swa_full"].toBool(false);
-        config.kvUnified  = obj["kv_unified"].toBool(false);
-
-        // sampling parameters
-        config.penaltyLastN   = obj["penalty_last_n"].toInt();
-        config.penaltyRepeat  = obj["penalty_repeat"].toString().toDouble();
-        config.penaltyFreq    = obj["penalty_freq"].toString().toDouble();
-        config.penaltyPresent = obj["penalty_present"].toString().toDouble();
-
-        config.temperature    = obj["temperature"].toString().toDouble();
-        config.temperatureExt = obj["temperature_ext"].toString().toDouble();
-        config.temperatureExtDelta =
-            obj["temperature_ext_delta"].toString().toDouble();
-        config.temperatureExtExponent =
-            obj["temperature_ext_exponent"].toString().toDouble();
-
-        config.seed = obj["seed"].toInt();
-
-        config.topP        = obj["top_p"].toString().toDouble();
-        config.topPMinKeep = obj["top_p_min_keep"].toInt();
-        config.topK        = obj["top_k"].toInt();
-        config.minP        = obj["min_p"].toString().toDouble();
-        config.minPMinKeep = obj["min_p_min_keep"].toInt();
-
-        // control parameters
-        config.ctxWindowSize = obj["ctx_window_size"].toInt();
-        config.stopWords     = obj["stop_words"].toString();
-
-        // prompt
-        config.prompt = obj["prompt"].toString();
-
+        _convert(config, obj);
         configs.append(config);
     }
     return configs;
@@ -467,4 +409,70 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
 
         m_modelArr.append(obj);
     }
+}
+
+void Config::_convert(Config::ModelConfig &config, const QJsonObject &obj)
+{
+    // base info
+    config.id        = obj["id"].toString();
+    config.name      = obj["name"].toString();
+    config.publisher = obj["publisher"].toString();
+    config.timestamp = obj["timestamp"].toString();
+    config.addr      = obj["addr"].toString();
+    config.pipeline  = obj["pipeline"].toString();
+    config.cost      = obj["cost"].toInt();
+    config.apiKey    = obj["api_key"].toString();
+    config.hash      = obj["hash"].toString();
+
+    // context params
+    config.nCtx          = obj["n_ctx"].toInt();
+    config.nBatch        = obj["n_batch"].toInt();
+    config.nUbatch       = obj["n_ubatch"].toInt();
+    config.nSeqMax       = obj["n_seq_max"].toInt();
+    config.nThreads      = obj["n_threads"].toInt();
+    config.nThreadsBatch = obj["n_threads_batch"].toInt();
+
+    config.ropeFreqBase   = obj["rope_freq_base"].toString().toDouble();
+    config.ropeFreqScale  = obj["rope_freq_scale"].toString().toDouble();
+    config.yarnExtFactor  = obj["yarn_ext_factor"].toString().toDouble();
+    config.yarnAttnFactor = obj["yarn_attn_factor"].toString().toDouble();
+    config.yarnBetaFast   = obj["yarn_beta_fast"].toString().toDouble();
+    config.yarnBetaSlow   = obj["yarn_beta_slow"].toString().toDouble();
+    config.yarnOrigCtx    = obj["yarn_orig_ctx"].toInt();
+    config.defragThold    = obj["defrag_thold"].toString().toDouble();
+
+    config.embeddings = obj["embeddings"].toBool(false);
+    config.offloadKQV = obj["offload_kqv"].toBool(false);
+    config.noPerf     = obj["no_perf"].toBool(false);
+    config.opOffload  = obj["op_offload"].toBool(false);
+    config.swaFull    = obj["swa_full"].toBool(false);
+    config.kvUnified  = obj["kv_unified"].toBool(false);
+
+    // sampling parameters
+    config.penaltyLastN   = obj["penalty_last_n"].toInt();
+    config.penaltyRepeat  = obj["penalty_repeat"].toString().toDouble();
+    config.penaltyFreq    = obj["penalty_freq"].toString().toDouble();
+    config.penaltyPresent = obj["penalty_present"].toString().toDouble();
+
+    config.temperature    = obj["temperature"].toString().toDouble();
+    config.temperatureExt = obj["temperature_ext"].toString().toDouble();
+    config.temperatureExtDelta =
+        obj["temperature_ext_delta"].toString().toDouble();
+    config.temperatureExtExponent =
+        obj["temperature_ext_exponent"].toString().toDouble();
+
+    config.seed = obj["seed"].toInt();
+
+    config.topP        = obj["top_p"].toString().toDouble();
+    config.topPMinKeep = obj["top_p_min_keep"].toInt();
+    config.topK        = obj["top_k"].toInt();
+    config.minP        = obj["min_p"].toString().toDouble();
+    config.minPMinKeep = obj["min_p_min_keep"].toInt();
+
+    // control parameters
+    config.ctxWindowSize = obj["ctx_window_size"].toInt();
+    config.stopWords     = obj["stop_words"].toString();
+
+    // prompt
+    config.prompt = obj["prompt"].toString();
 }

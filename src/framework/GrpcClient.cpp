@@ -244,6 +244,8 @@ void GrpcClient::Query(const int64_t              id,
     req.set_auth(auth.toStdString());
     req.set_content(content.toStdString());
     req.set_model(model.toStdString());
+    req.set_pipeline(config.pipeline.toStdString());
+    req.set_api_key(config.apiKey.toStdString());
 
     // sampling parameters
     req.mutable_sampling()->set_penalty_last_n(config.penaltyLastN);
