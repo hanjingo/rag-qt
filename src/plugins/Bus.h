@@ -136,6 +136,9 @@ class Bus : public QObject
     void SignalStopRecognize(const qint64 sessionId);
     void SignalStopRecognizeResp(const int errorCode, const qint64 sessionId);
 
+    void SignalUpload(const QString &filePath);
+    void SignalUploadResp(const int errorCode, const QString &filePath);
+
   private:
     explicit Bus(QObject *parent = nullptr)
         : QObject(parent) {};

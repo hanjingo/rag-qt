@@ -747,6 +747,46 @@ void GrpcClient::Download(const QString &hash,
     emit    SignalDownloadResp(resp.error_code(), hash, addr, resp.size_kb());
 }
 
+void GrpcClient::Upload(const QString &hash,
+                        const int64_t  user_id,
+                        const QString &auth,
+                        const QString &addr,
+                        const int64_t  size_kb)
+{
+    if(!m_pChannel)
+    {
+        emit SignalUploadResp(ErrorCode::ERR_SERVER_DISCONNECTED, addr);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::UploadReq req;
+    req.set_hash(hash.toStdString());
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+    req.set_addr(addr.toStdString());
+    req.set_size_kb(size_kb);
+
+    // Prepare the response and context
+    GrpcLibrary::UploadResp resp;
+    grpc::ClientContext     context;
+
+    // Make the RPC call
+    grpc::Status status = stub->Upload(&context, req, &resp);
+
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit SignalUploadResp(ec, addr);
+        return;
+    }
+
+    emit SignalUploadResp(resp.error_code(), addr);
+}
+
 void GrpcClient::OnConnectionLost()
 {
     m_bIsConnected.store(false);

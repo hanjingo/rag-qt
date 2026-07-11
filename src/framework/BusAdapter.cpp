@@ -5,6 +5,7 @@
 #include "Account.h"
 #include "Error.h"
 #include "AudioMgr.h"
+#include "File.h"
 
 BusAdapter *BusAdapter::m_stBusAdapterInst = nullptr;
 BusAdapter *BusAdapter::Instance()
@@ -71,6 +72,11 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::Instance(),
             &Bus::SignalStopRecognizeResp);
 
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalUploadResp,
+            Bus::Instance(),
+            &Bus::SignalUploadResp);
+
     connect(AudioMgr::Instance(),
             &AudioMgr::SignalAudioCaptureStarted,
             Bus::Instance(),
@@ -123,6 +129,11 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::SignalStopRecognize,
             this,
             &BusAdapter::_slotAudioStopTranslate);
+
+    connect(Bus::Instance(),
+            &Bus::SignalUpload,
+            this,
+            &BusAdapter::_slotUploadFromBus);
 
     connect(Bus::Instance(),
             &Bus::SignalAudioCaptureStart,
@@ -246,4 +257,22 @@ void BusAdapter::_slotAudioStopTranslate(const qint64 sessionId)
     GrpcClient::Instance()->RecognizeStop(sessionId,
                                           Account::Instance()->Id(),
                                           Account::Instance()->Auth());
+}
+
+void BusAdapter::_slotUploadFromBus(const QString &filePath)
+{
+    qDebug() << "Receive Bus Upload signal from Bus. filePath: " << filePath;
+    if(File::isFileExist(filePath) == false)
+    {
+        qDebug() << "File does not exist: " << filePath;
+        emit Bus::Instance()
+            -> SignalUploadResp(ErrorCode::ERR_FILE_NOT_FOUND, "");
+        return;
+    }
+
+    GrpcClient::Instance()->Upload(File::md5(filePath),
+                                   Account::Instance()->Id(),
+                                   Account::Instance()->Auth(),
+                                   filePath,
+                                   File::fileSizeKB(filePath));
 }

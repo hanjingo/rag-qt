@@ -85,6 +85,12 @@ class GrpcClient : public QObject
     void
     Download(const QString &hash, const int64_t user_id, const QString &auth);
 
+    void Upload(const QString &hash,
+                const int64_t  user_id,
+                const QString &auth,
+                const QString &addr,
+                const int64_t size_kb);
+
   signals:
     void SignalGrpcConnected(const QString &address);
     void SignalGrpcConnectFailed(const QString &address);
@@ -127,6 +133,7 @@ class GrpcClient : public QObject
                             const QString &hash,
                             const QString &addr,
                             const int64_t  size_kb);
+    void SignalUploadResp(const int errorCode, const QString &hash);
 
   public slots:
     void OnConnectionLost();

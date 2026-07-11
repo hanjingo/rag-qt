@@ -9,6 +9,7 @@ enum ErrorCode
 
     // FOR CLIENT ERROR [10000, 19999]
     ERR_SERVER_DISCONNECTED = 10000,
+    ERR_FILE_NOT_FOUND      = 10001,
 };
 
 #endif
