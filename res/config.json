@@ -1,5 +1,6 @@
 {
     "core_run": true,
+    "default_index_path": "./memorys",
     "audio translators": [
         {
             "carry_initial_prompt": false,

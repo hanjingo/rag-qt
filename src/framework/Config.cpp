@@ -15,6 +15,7 @@ Config::Config(QObject *parent)
 {
     load(QDir::current().filePath(CONFIG_FILE));
     loadModel(QDir::current().filePath(MODEL_CONFIG_FILE));
+    loadMemory(QDir::current().filePath(MEMORY_CONFIG_FILE));
 }
 
 Config::~Config()
@@ -80,6 +81,33 @@ void Config::loadModel(const QString &filepath)
     m_modelArr = doc.array();
 }
 
+void Config::loadMemory(const QString &filepath)
+{
+    QFile         readFile(filepath);
+    QJsonDocument doc;
+    if(readFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray      data = readFile.readAll();
+        QJsonParseError parseError;
+        doc = QJsonDocument::fromJson(data, &parseError);
+        if(parseError.error != QJsonParseError::NoError || !doc.isArray())
+        {
+            qDebug() << "Failed to parse JSON from memory config file: "
+                     << filepath
+                     << ", with parse error:" << parseError.errorString();
+            return;
+        }
+        readFile.close();
+    } else
+    {
+        qDebug() << "Failed to open memory config file for reading: "
+                 << readFile.errorString();
+        return;
+    }
+
+    m_memoryArr = doc.array();
+}
+
 void Config::save(const QString &filepath)
 {
     QJsonDocument doc(m_rootObj);
@@ -99,6 +127,22 @@ void Config::save(const QString &filepath)
 void Config::saveModel(const QString &filepath)
 {
     QJsonDocument doc(m_modelArr);
+    QFile         saveFile(filepath);
+    if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for writing: "
+                 << saveFile.errorString();
+        return;
+    }
+
+    QTextStream out(&saveFile);
+    out << doc.toJson(QJsonDocument::Indented);
+    saveFile.close();
+}
+
+void Config::saveMemory(const QString &filepath)
+{
+    QJsonDocument doc(m_memoryArr);
     QFile         saveFile(filepath);
     if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -475,4 +519,94 @@ void Config::_convert(Config::ModelConfig &config, const QJsonObject &obj)
 
     // prompt
     config.prompt = obj["prompt"].toString();
+}
+
+QString Config::getDefaultIndexPath()
+{
+    return m_rootObj.value("default_index_path").toString();
+}
+
+Config::MemoryConfig Config::getMemoryConfigById(const int id)
+{
+    Config::MemoryConfig conf;
+    conf.id = -1;
+    if(m_memoryArr.isEmpty())
+    {
+        qDebug() << "Config file does not contain memory config array.";
+        return conf;
+    }
+
+    for(int i = 0; i < m_memoryArr.size(); ++i)
+    {
+        auto obj = m_memoryArr[i].toObject();
+        if(obj["id"].toInt() != id)
+            continue;
+
+        conf.id             = obj["id"].toInt();
+        conf.indexFilePath  = obj["index_file_path"].toString();
+        conf.metaFilePath   = obj["meta_file_path"].toString();
+        conf.originFilePath = obj["origin_file_path"].toString();
+        conf.dimension      = obj["dimension"].toInt();
+
+        // chunk param
+        conf.chunkSize         = obj["chunk_size"].toInt();
+        conf.overlap           = obj["overlap"].toInt();
+        conf.respectSentences  = obj["respect_sentences"].toBool();
+        conf.respectParagraphs = obj["respect_paragraphs"].toBool();
+        conf.encoding          = obj["encoding"].toString();
+        return conf;
+    }
+    return conf;
+}
+
+QVector<Config::MemoryConfig> Config::memoryConfigs()
+{
+    QVector<Config::MemoryConfig> configs;
+    if(m_memoryArr.isEmpty())
+    {
+        qDebug() << "Config file does not contain memory config array.";
+        return configs;
+    }
+
+    for(int i = 0; i < m_memoryArr.size(); ++i)
+    {
+        Config::MemoryConfig config;
+        auto                 obj = m_memoryArr[i].toObject();
+        config.id                = obj["id"].toInt();
+        config.indexFilePath     = obj["index_file_path"].toString();
+        config.metaFilePath      = obj["meta_file_path"].toString();
+        config.originFilePath    = obj["origin_file_path"].toString();
+        config.dimension         = obj["dimension"].toInt();
+
+        // chunk param
+        config.chunkSize         = obj["chunk_size"].toInt();
+        config.overlap           = obj["overlap"].toInt();
+        config.respectSentences  = obj["respect_sentences"].toBool();
+        config.respectParagraphs = obj["respect_paragraphs"].toBool();
+        config.encoding          = obj["encoding"].toString();
+        configs.append(config);
+    }
+    return configs;
+}
+
+void Config::setMemoryConfigs(QVector<Config::MemoryConfig> &configs)
+{
+    m_memoryArr = QJsonArray();
+    for(const auto &config : configs)
+    {
+        QJsonObject obj;
+        obj["id"]               = config.id;
+        obj["index_file_path"]  = config.indexFilePath;
+        obj["meta_file_path"]   = config.metaFilePath;
+        obj["origin_file_path"] = config.originFilePath;
+        obj["dimension"]        = config.dimension;
+
+        // chunk param
+        obj["chunk_size"]         = config.chunkSize;
+        obj["overlap"]            = config.overlap;
+        obj["respect_sentences"]  = config.respectSentences;
+        obj["respect_paragraphs"] = config.respectParagraphs;
+        obj["encoding"]           = config.encoding;
+        m_memoryArr.append(obj);
+    }
 }

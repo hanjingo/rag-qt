@@ -9,6 +9,11 @@
 
 #include "GrpcClientReactor.h"
 
+static std::unordered_map<int64_t, std::shared_ptr<RecognizeReactor>>
+    m_recognizeReactors;
+static std::unordered_map<int64_t, std::shared_ptr<EmbeddingReactor>>
+    m_embeddingRectors;
+
 GrpcClient *GrpcClient::m_stGrpcClientInst = nullptr;
 GrpcClient *GrpcClient::Instance()
 {
@@ -34,33 +39,14 @@ GrpcClient::~GrpcClient()
     }
 }
 
-std::shared_ptr<RecognizeReactor>
-GrpcClient::GetOrCreateRecognizeReactor(int64_t sessionId)
-{
-    if(!m_bIsConnected.load())
-    {
-        qWarning() << "Not connected to server, cannot create reactor";
-        return nullptr;
-    }
-
-    auto it = m_recognizeReactors.find(sessionId);
-    if(it != m_recognizeReactors.end())
-        return it->second;
-
-    auto reactor = std::make_shared<RecognizeReactor>(this, sessionId);
-    m_recognizeReactors[sessionId] = reactor;
-
-    // first call Recognize to start the reactor
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
-    stub->async()->Recognize(&reactor->m_context, reactor.get());
-    reactor->StartCall();
-    reactor->StartRead(&reactor->m_resp);
-    return reactor;
-}
-
 void GrpcClient::RemoveRecognizeReactor(int64_t sessionId)
 {
     m_recognizeReactors.erase(sessionId);
+}
+
+void GrpcClient::RemoveEmbeddingReactor(int64_t taskId)
+{
+    m_embeddingRectors.erase(taskId);
 }
 
 void GrpcClient::Connect(const QString &address)
@@ -348,7 +334,7 @@ void GrpcClient::Recognize(const int64_t                  session_id,
                            const Config::TranslatorParam &params,
                            const QString                 &translatorId)
 {
-    if(!m_pChannel)
+    if(!m_pChannel || !m_bIsConnected.load())
     {
         emit SignalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                  QString("Server disconnected"),
@@ -357,14 +343,22 @@ void GrpcClient::Recognize(const int64_t                  session_id,
         return;
     }
 
-    auto reactor = GetOrCreateRecognizeReactor(session_id);
-    if(!reactor)
+    // get or make reactor
+    std::shared_ptr<RecognizeReactor> reactor;
+    auto                              it = m_recognizeReactors.find(session_id);
+    if(it == m_recognizeReactors.end())
     {
-        emit SignalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                 QString("Server not connected"),
-                                 true,
-                                 0.0);
-        return;
+        reactor = std::make_shared<RecognizeReactor>(this, session_id);
+        m_recognizeReactors[session_id] = reactor;
+
+        // first call Recognize to start the reactor
+        auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+        stub->async()->Recognize(&reactor->m_context, reactor.get());
+        reactor->StartCall();
+        reactor->StartRead(&reactor->m_resp);
+    } else
+    {
+        reactor = m_recognizeReactors[session_id];
     }
 
     GrpcLibrary::RecognitionParam param;
@@ -447,6 +441,108 @@ void GrpcClient::RecognizeStop(const int64_t  session_id,
     else
         emit SignalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                      session_id);
+}
+
+void GrpcClient::Embedding(const int64_t               task_id,
+                           const int64_t               user_id,
+                           const QString              &auth,
+                           const int64_t               chunk_id,
+                           const QByteArray           &chunk_data,
+                           const int64_t               start_pos,
+                           const int64_t               end_pos,
+                           const Config::MemoryConfig &params)
+{
+    qDebug() << "Embedding entry";
+    if(!m_pChannel || !m_bIsConnected.load())
+    {
+        emit SignalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                 task_id,
+                                 0,
+                                 "");
+        return;
+    }
+
+    std::shared_ptr<EmbeddingReactor> reactor;
+    auto                              it = m_embeddingRectors.find(task_id);
+    if(it == m_embeddingRectors.end())
+    {
+        reactor = std::make_shared<EmbeddingReactor>(this, task_id);
+        m_embeddingRectors[task_id] = reactor;
+
+        // first call Embedding to start the reactor
+        auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+        stub->async()->Embedding(&reactor->m_context, reactor.get());
+        reactor->StartCall();
+        reactor->StartRead(&reactor->m_resp);
+        qDebug() << "create new EmbeddingReactor for task_id:" << task_id;
+    } else
+    {
+        reactor = m_embeddingRectors[task_id];
+    }
+
+    if(params.id != -1)
+    {
+        GrpcLibrary::EmbeddingParam param;
+        param.set_dimension(params.dimension);
+
+        GrpcLibrary::EmbeddingReq req;
+        req.set_task_id(task_id);
+        req.mutable_param()->CopyFrom(param);
+        reactor->SendRequest(req);
+        qDebug() << "Starting embedding with param: dimension="
+                 << params.dimension;
+    }
+
+    if(!chunk_data.isEmpty())
+    {
+        GrpcLibrary::FileChunk chunk;
+        chunk.set_id(chunk_id);
+        chunk.set_start_pos(start_pos);
+        chunk.set_end_pos(end_pos);
+        chunk.set_filename(params.originFilePath.toStdString());
+        chunk.set_data(chunk_data.data(), chunk_data.size());
+
+        GrpcLibrary::EmbeddingReq req;
+        req.set_task_id(task_id);
+        req.mutable_chunk()->CopyFrom(chunk);
+        reactor->SendRequest(req);
+        qDebug() << "Starting embedding with chunk: id=" << chunk_id
+                 << "start_pos=" << start_pos << "end_pos=" << end_pos;
+    }
+}
+
+void GrpcClient::EmbeddingStop(const int64_t  task_id,
+                               const int64_t  user_id,
+                               const QString &auth)
+{
+    if(!m_pChannel)
+    {
+        emit SignalStopEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                     task_id);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibrary::StopEmbeddingReq req;
+    req.set_task_id(task_id);
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+
+    // Prepare the response and context
+    GrpcLibrary::StopEmbeddingResp resp;
+    grpc::ClientContext            context;
+
+    // Make the RPC call
+    grpc::Status status = stub->StopEmbedding(&context, req, &resp);
+
+    if(status.ok())
+        emit SignalStopEmbeddingResp(resp.error_code(), task_id);
+    else
+        emit SignalStopEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                     task_id);
 }
 
 void GrpcClient::GetMessageInfo(const int64_t  session_id,

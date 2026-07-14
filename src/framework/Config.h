@@ -119,13 +119,31 @@ class Config : public QObject
         QString prompt;
     };
 
+    struct MemoryConfig
+    {
+        int     id = -1;
+        QString indexFilePath;
+        QString metaFilePath;
+        QString originFilePath;
+        int     dimension = -1;
+
+        // chunk param
+        int     chunkSize         = -1;
+        int     overlap           = -1;
+        bool    respectSentences  = false;
+        bool    respectParagraphs = false;
+        QString encoding;
+    };
+
   public:
     static Config &Instance();
 
     void         load(const QString &filepath);
     void         loadModel(const QString &filepath);
+    void         loadMemory(const QString &filepath);
     void         save(const QString &filepath);
     void         saveModel(const QString &filepath);
+    void         saveMemory(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
     bool isCoreRun();
@@ -142,6 +160,11 @@ class Config : public QObject
     QVector<Config::ModelConfig> modelConfigs();
     void setModelConfigs(QVector<Config::ModelConfig> &configs);
 
+    QString                       getDefaultIndexPath();
+    Config::MemoryConfig          getMemoryConfigById(const int id);
+    QVector<Config::MemoryConfig> memoryConfigs();
+    void setMemoryConfigs(QVector<Config::MemoryConfig> &configs);
+
   private:
     explicit Config(QObject *parent = nullptr);
     ~Config();
@@ -151,6 +174,7 @@ class Config : public QObject
   private:
     QJsonObject m_rootObj;
     QJsonArray  m_modelArr;
+    QJsonArray  m_memoryArr;
 };
 
 #endif // CONFIG_H

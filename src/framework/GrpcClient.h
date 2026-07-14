@@ -25,12 +25,10 @@ class GrpcClient : public QObject
 
     static GrpcClient *Instance();
 
-    bool IsConnected() const { return m_bIsConnected.load(); }
-
-    std::shared_ptr<RecognizeReactor>
-         GetOrCreateRecognizeReactor(int64_t sessionId);
     void RemoveRecognizeReactor(int64_t sessionId);
+    void RemoveEmbeddingReactor(int64_t taskId);
 
+    bool IsConnected() const { return m_bIsConnected.load(); }
     void Connect(const QString &address);
     void Heartbeat(const int64_t timestamp);
     void Login(const QString &username, const QString &password);
@@ -63,6 +61,18 @@ class GrpcClient : public QObject
                        const int64_t  user_id,
                        const QString &auth);
 
+    void Embedding(const int64_t               task_id,
+                   const int64_t               user_id,
+                   const QString              &auth,
+                   const int64_t               chunk_id,
+                   const QByteArray           &chunk_data,
+                   const int64_t               start_pos,
+                   const int64_t               end_pos,
+                   const Config::MemoryConfig &params = Config::MemoryConfig());
+    void EmbeddingStop(const int64_t  task_id,
+                       const int64_t  user_id,
+                       const QString &auth);
+
     void GetSession(const int64_t  id,
                     const int64_t  user_id,
                     const QString &auth,
@@ -89,7 +99,7 @@ class GrpcClient : public QObject
                 const int64_t  user_id,
                 const QString &auth,
                 const QString &addr,
-                const int64_t size_kb);
+                const int64_t  size_kb);
 
   signals:
     void SignalGrpcConnected(const QString &address);
@@ -117,6 +127,12 @@ class GrpcClient : public QObject
                              const bool     isFinished,
                              const double   confidence);
     void SignalStopRecognizeResp(const int errorCode, const int64_t sessionId);
+
+    void SignalEmbeddingResp(const int      errorCode,
+                             const int64_t  taskId,
+                             const int64_t  chunkId,
+                             const QString &vectorIndexs);
+    void SignalStopEmbeddingResp(const int errorCode, const int64_t taskId);
 
     void SignalLogoutResp(const int errorCode, const int64_t user_id);
     void SignalGetSessionResp(const int                    errorCode,
@@ -152,9 +168,6 @@ class GrpcClient : public QObject
 
     std::atomic<bool> m_bIsConnected;
     QString           m_strAddress;
-
-    std::unordered_map<int64_t, std::shared_ptr<RecognizeReactor>>
-        m_recognizeReactors;
 };
 
 #endif
