@@ -195,6 +195,7 @@ EmbeddingReactor::EmbeddingReactor(GrpcClient *client, int64_t taskId)
     , m_taskId(taskId)
     , m_writeCh(10)
     , m_isWriting(false)
+    , m_isReading(false)
     , m_isDone(false)
 {
     qDebug() << "EmbeddingReactor created for task_id:" << taskId;
@@ -207,10 +208,10 @@ EmbeddingReactor::~EmbeddingReactor()
 
 void EmbeddingReactor::SendRequest(const GrpcLibrary::EmbeddingReq &req)
 {
-    if(m_isDone.load())
+    if(!m_client || !m_client->IsConnected())
     {
-        qWarning() << "Cannot send request, stream is done for task_id:"
-                   << req.task_id();
+        qWarning() << "Client disconnected, cannot send request for task_id:"
+                   << m_taskId;
         emit m_client->SignalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                            m_taskId,
                                            0,
@@ -218,17 +219,8 @@ void EmbeddingReactor::SendRequest(const GrpcLibrary::EmbeddingReq &req)
         return;
     }
 
-    if(!m_client || !m_client->IsConnected())
-    {
-        qWarning() << "Client disconnected, cannot send request for task_id:"
-                   << m_taskId;
-        m_isDone.store(true);
-        emit m_client->SignalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                           m_taskId,
-                                           0,
-                                           "");
+    if(m_isDone.load())
         return;
-    }
 
     qDebug() << "send request for task_id:" << req.task_id()
              << ", has_chunk:" << req.has_chunk()
@@ -249,8 +241,15 @@ void EmbeddingReactor::_flush()
     if(!m_writeCh.try_dequeue(req))
         return;
 
-    m_isWriting.store(true);
-    qDebug() << "Flushing request for task_id:" << req.task_id();
+    bool expected = false;
+    if(!m_isWriting.compare_exchange_strong(expected, true))
+    {
+        m_writeCh.enqueue(req);
+        return;
+    }
+
+    qDebug() << "Flushing request for task_id:" << req.task_id()
+             << ", chunk_id:" << (req.has_chunk() ? req.chunk().id() : 0);
     StartWrite(&req);
 }
 
@@ -259,25 +258,25 @@ void EmbeddingReactor::_pull()
     if(m_isDone.load())
         return;
 
-    auto ec           = m_resp.error_code();
-    auto taskId       = m_resp.task_id();
-    auto chunkId      = m_resp.chunk_id();
-    auto vectorIndexs = QString::fromStdString(m_resp.vector_indexs());
-    // qDebug() << "Received embedding result for task_id:" << m_taskId
-    //          << "error_code=" << ec << "vector_indexs=" << vectorIndexs;
-
-    TimedQueue::Instance().enqueue([ec, taskId, chunkId, vectorIndexs]() {
-        emit GrpcClient::Instance()
-            -> SignalEmbeddingResp(ec, taskId, chunkId, vectorIndexs);
-    });
-
-    if(!m_isDone.load())
+    if(m_isReading.load())
     {
-        StartRead(&m_resp);
-    } else
-    {
-        m_isDone.store(true);
+        qWarning() << "Already reading, cannot pull for task_id:" << m_taskId;
+        return;
     }
+
+    m_isReading.store(true);
+    auto ec      = m_resp.error_code();
+    auto taskId  = m_resp.task_id();
+    auto chunkId = m_resp.chunk_id();
+
+    const std::string &vectorIndexs = m_resp.vector_indexs();
+    QByteArray data(vectorIndexs.data(), static_cast<int>(vectorIndexs.size()));
+    qDebug() << "Received embedding result for task_id:" << m_taskId
+             << "error_code=" << ec << "data size=" << data.size();
+
+    emit GrpcClient::Instance()
+        -> SignalEmbeddingResp(ec, taskId, chunkId, data);
+    StartRead(&m_resp);
 }
 
 void EmbeddingReactor::OnWriteDone(bool ok)
@@ -287,13 +286,6 @@ void EmbeddingReactor::OnWriteDone(bool ok)
     if(!ok)
     {
         qWarning() << "Write failed for task_id:" << m_taskId << ", cancelling";
-        m_isDone.store(true);
-
-        emit m_client->SignalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                           m_taskId,
-                                           0,
-                                           "");
-        m_client->RemoveEmbeddingReactor(m_taskId);
         return;
     }
 
@@ -302,11 +294,11 @@ void EmbeddingReactor::OnWriteDone(bool ok)
 
 void EmbeddingReactor::OnReadDone(bool ok)
 {
+    m_isReading.store(false);
     if(!ok)
     {
         qDebug() << "Read completed (no more responses) for task_id:"
                  << m_taskId;
-        m_isDone.store(true);
         return;
     }
 
@@ -319,24 +311,39 @@ void EmbeddingReactor::OnDone(const grpc::Status &status)
              << "status ok?" << status.ok()
              << "error:" << status.error_message().c_str();
 
+    if(m_isDone.load())
+    {
+        qDebug() << "Stream already marked as done, not emitting signal "
+                    "for task_id:"
+                 << m_taskId;
+        return;
+    }
+
     if(!status.ok())
     {
-        QString errorMsg = QString::fromStdString(status.error_message());
-        emit m_client->SignalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                           m_taskId,
-                                           0,
-                                           "");
+        // filt some error
+        if(status.error_code() != grpc::StatusCode::CANCELLED)
+        {
+            QString errorMsg = QString::fromStdString(status.error_message());
+            emit    m_client->SignalEmbeddingResp(
+                ErrorCode::ERR_SERVER_DISCONNECTED,
+                m_taskId,
+                0,
+                "");
+        }
     }
 
     m_isDone.store(true);
     m_isWriting.store(false);
-    m_client->RemoveEmbeddingReactor(m_taskId);
+    m_isReading.store(false);
+    if(m_client)
+        m_client->RemoveEmbeddingReactor(m_taskId);
 }
 
 void EmbeddingReactor::OnConnectionLost()
 {
-    m_isDone.store(true);
     m_isWriting.store(false);
+    m_isReading.store(false);
     GrpcLibrary::EmbeddingReq req;
     while(m_writeCh.try_dequeue(req))
     {

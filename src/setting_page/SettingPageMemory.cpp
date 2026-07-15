@@ -28,6 +28,7 @@ SettingPageMemory::SettingPageMemory(QWidget *parent)
     , ui(new Ui::SettingPageMemory)
     , m_pMemCtlBtnGroup(new QButtonGroup(this))
     , m_pMemListModel(nullptr)
+    , m_mapTaskChunkIds()
 {
     ui->setupUi(this);
 
@@ -489,10 +490,10 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
     }
 }
 
-void SettingPageMemory::_slotEmbeddingResp(const int      errorCode,
-                                           const int64_t  taskId,
-                                           const int64_t  chunkId,
-                                           const QString &vectorIndexs)
+void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
+                                           const int64_t     taskId,
+                                           const int64_t     chunkId,
+                                           const QByteArray &vectorIndexs)
 {
     if(errorCode != 0)
     {
@@ -504,6 +505,7 @@ void SettingPageMemory::_slotEmbeddingResp(const int      errorCode,
         return;
     }
 
+    m_mu.lock();
     if(m_mapTaskChunkIds.contains(taskId))
     {
         qDebug() << "Received embedding response for taskId: " << taskId
@@ -523,6 +525,7 @@ void SettingPageMemory::_slotEmbeddingResp(const int      errorCode,
                                                   Account::Instance()->Auth());
         }
     }
+    m_mu.unlock();
 
     if(!vectorIndexs.isEmpty())
     {
@@ -549,8 +552,7 @@ void SettingPageMemory::_slotEmbeddingResp(const int      errorCode,
         // write index to tmp file
         QString tmpFilePath =
             tmpDir.absoluteFilePath(QString("chunk_%1.index").arg(chunkId));
-        QByteArray data = vectorIndexs.toUtf8();
-        QFile      file(tmpFilePath);
+        QFile file(tmpFilePath);
         if(!file.open(QIODevice::WriteOnly))
         {
             qDebug() << "Failed to open file for writing: " << tmpFilePath;
@@ -560,7 +562,7 @@ void SettingPageMemory::_slotEmbeddingResp(const int      errorCode,
                 tr("Failed to write embedding index to file."));
             return;
         }
-        file.write(data);
+        file.write(vectorIndexs);
         file.close();
         qDebug() << "Embedding index saved to: " << tmpFilePath;
     }
@@ -580,7 +582,7 @@ void SettingPageMemory::_slotEmbeddingStopResp(const int     errorCode,
         return;
     }
 
-    qDebug() << "Embedding stop response received, taskId: " << taskId;
+    qDebug() << "Embedding stop response success, taskId: " << taskId;
 }
 
 QVector<Config::MemoryConfig>

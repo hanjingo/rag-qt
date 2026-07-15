@@ -101,6 +101,7 @@ class EmbeddingReactor
     hj::channel<GrpcLibrary::EmbeddingReq> m_writeCh;
 
     std::atomic<bool> m_isWriting{false};
+    std::atomic<bool> m_isReading{false};
     std::atomic<bool> m_isDone{false};
 };
 

@@ -128,10 +128,10 @@ class GrpcClient : public QObject
                              const double   confidence);
     void SignalStopRecognizeResp(const int errorCode, const int64_t sessionId);
 
-    void SignalEmbeddingResp(const int      errorCode,
-                             const int64_t  taskId,
-                             const int64_t  chunkId,
-                             const QString &vectorIndexs);
+    void SignalEmbeddingResp(const int         errorCode,
+                             const int64_t     taskId,
+                             const int64_t     chunkId,
+                             const QByteArray &vectorIndexs);
     void SignalStopEmbeddingResp(const int errorCode, const int64_t taskId);
 
     void SignalLogoutResp(const int errorCode, const int64_t user_id);

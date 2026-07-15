@@ -6,6 +6,7 @@
 #include <QStandardItemModel>
 #include <QPushButton>
 #include <QButtonGroup>
+#include <QMutex>
 
 #include "Config.h"
 
@@ -48,10 +49,10 @@ class SettingPageMemory : public QWidget
   private slots:
     void _slotMemCtlBtnGroupClicked(int id);
     void _slotGenerateMemory(const Config::MemoryConfig &conf);
-    void _slotEmbeddingResp(const int      errorCode,
-                            const int64_t  taskId,
-                            const int64_t  chunkId,
-                            const QString &vectorIndexs);
+    void _slotEmbeddingResp(const int         errorCode,
+                            const int64_t     taskId,
+                            const int64_t     chunkId,
+                            const QByteArray &vectorIndexs);
     void _slotEmbeddingStopResp(const int errorCode, const int64_t taskId);
 
   private:
@@ -71,6 +72,7 @@ class SettingPageMemory : public QWidget
     QStandardItemModel *m_pMemListModel;
 
     // key: taskId, value: chunkIds
+    QMutex                       m_mu;
     QMap<int64_t, QSet<int64_t>> m_mapTaskChunkIds;
 };
 
