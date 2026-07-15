@@ -27,6 +27,11 @@ class MemoryConfigDialog : public QDialog
   signals:
     void SignalGenerateMemory(const Config::MemoryConfig &conf);
 
+  public slots:
+    void SlotEmbeddingProgressUpdate(const Config::MemoryConfig &conf,
+                                     const int64_t finishedChunkNum,
+                                     const int64_t totalChunkNum);
+
   private slots:
     void _slotBtnIndexFilePathClicked();
     void _slotBtnMetaFilePathClicked();

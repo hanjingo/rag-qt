@@ -11,7 +11,6 @@
 
 #include "StyleMgr.h"
 #include "SettingPageMemory.h"
-#include "MemoryConfigDialog.h"
 #include "ui_SettingPageMemory.h"
 
 #include "Global.h"
@@ -138,9 +137,7 @@ void SettingPageMemory::_addMemorys(
     for(int i = 0; i < configs.size(); i++)
     {
         const auto conf = configs.at(i);
-        m_pMemListModel->setItem(n_row,
-                                 0,
-                                 new QStandardItem(QString::number(conf.id)));
+        m_pMemListModel->setItem(n_row, 0, new QStandardItem(conf.id));
         m_pMemListModel->setItem(n_row,
                                  1,
                                  new QStandardItem(conf.indexFilePath));
@@ -200,7 +197,7 @@ void SettingPageMemory::_setMemorys(
     if(m_pMemListModel == nullptr)
         return;
 
-    QVector<int> ids;
+    QVector<QString> ids;
     for(auto conf : configs)
         ids.append(conf.id);
 
@@ -208,22 +205,22 @@ void SettingPageMemory::_setMemorys(
     {
         // id
         auto pIdItem = m_pMemListModel->item(i, 0);
-        if(pIdItem == nullptr || !ids.contains(pIdItem->text().toInt()))
+        if(pIdItem == nullptr || !ids.contains(pIdItem->text()))
             continue;
 
         Config::MemoryConfig conf;
-        conf.id = -1;
+        conf.id = "";
         for(auto item : configs)
         {
-            if(item.id == pIdItem->text().toInt())
+            if(item.id == pIdItem->text())
             {
                 conf = item;
                 break;
             }
         }
-        if(conf.id == -1)
+        if(conf.id.isEmpty())
             continue;
-        pIdItem->setText(QString::number(conf.id));
+        pIdItem->setText(conf.id);
 
         // index file path
         auto pIndexFilePath = m_pMemListModel->item(i, 1);
@@ -301,17 +298,18 @@ void SettingPageMemory::_slotMemCtlBtnGroupClicked(int id)
         {
             qDebug() << "Add memory button clicked";
             Config::MemoryConfig conf;
-            if(!rows.empty())
+            if(!rows.isEmpty())
             {
                 auto infos = _getMemoryInfos(rows);
-                if(!infos.empty())
+                if(!infos.isEmpty())
                     conf = infos.first();
             }
-            MemoryConfigDialog dlg(conf, this);
-            auto               result = dlg.exec();
+
+            MemoryConfigDialog *dlg    = _createMemoryConfigDialog(conf);
+            auto                result = dlg->exec();
             if(result == QDialog::Accepted)
             {
-                conf       = dlg.GetConfig();
+                conf       = dlg->GetConfig();
                 auto confs = Config::Instance().memoryConfigs();
                 confs.append(conf);
                 Config::Instance().setMemoryConfigs(confs);
@@ -350,7 +348,7 @@ void SettingPageMemory::_slotMemCtlBtnGroupClicked(int id)
             }
             auto id   = infos.first().id;
             auto conf = Config::Instance().getMemoryConfigById(id);
-            if(conf.id == -1)
+            if(conf.id.isEmpty())
             {
                 QMessageBox::warning(
                     this,
@@ -359,13 +357,8 @@ void SettingPageMemory::_slotMemCtlBtnGroupClicked(int id)
                 return;
             }
 
-            MemoryConfigDialog *dlg = new MemoryConfigDialog(conf, this);
-            connect(dlg,
-                    &MemoryConfigDialog::SignalGenerateMemory,
-                    this,
-                    &SettingPageMemory::_slotGenerateMemory);
-
-            auto result = dlg->exec();
+            MemoryConfigDialog *dlg    = _createMemoryConfigDialog(conf);
+            auto                result = dlg->exec();
             if(result == QDialog::Accepted)
             {
                 conf = dlg->GetConfig();
@@ -411,7 +404,8 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
             if(chunk.chunkIndex == 0 && chunk.startPos == 0)
             {
                 chunk.chunkIndex++;
-                m_mapTaskChunkIds[taskId] = QSet<int64_t>();
+                _setChunkProcessState(taskId, -1, false);
+                _setTaskConfig(taskId, conf);
                 // send chunk
                 GrpcClient::Instance()->Embedding(taskId,
                                                   Account::Instance()->Id(),
@@ -468,7 +462,7 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
                 return false;
             }
 
-            m_mapTaskChunkIds[taskId].insert(chunk.chunkIndex);
+            _setChunkProcessState(taskId, chunk.chunkIndex, false);
             // send chunk
             GrpcClient::Instance()->Embedding(taskId,
                                               Account::Instance()->Id(),
@@ -504,28 +498,6 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
             tr("Failed to generate embeddings. Error code: %1").arg(errorCode));
         return;
     }
-
-    m_mu.lock();
-    if(m_mapTaskChunkIds.contains(taskId))
-    {
-        qDebug() << "Received embedding response for taskId: " << taskId
-                 << ", chunkId: " << chunkId
-                 << ", remove record from map. left chunks: "
-                 << m_mapTaskChunkIds[taskId].size();
-        m_mapTaskChunkIds[taskId].remove(chunkId);
-        if(m_mapTaskChunkIds[taskId].isEmpty())
-        {
-            qDebug() << "All chunks for taskId " << taskId
-                     << " have been processed. stop it.";
-            m_mapTaskChunkIds.remove(taskId);
-
-            // stop embedding for this task
-            GrpcClient::Instance()->EmbeddingStop(taskId,
-                                                  Account::Instance()->Id(),
-                                                  Account::Instance()->Auth());
-        }
-    }
-    m_mu.unlock();
 
     if(!vectorIndexs.isEmpty())
     {
@@ -566,6 +538,98 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
         file.close();
         qDebug() << "Embedding index saved to: " << tmpFilePath;
     }
+
+    // combine all chunk index files into one index file if all chunks are processed
+    if(_isHadTask(taskId))
+    {
+        qDebug() << "Received embedding response for taskId: " << taskId
+                 << ", chunkId: " << chunkId << ", remove record from map.";
+        _setChunkProcessState(taskId, chunkId, true);
+        if(_isChunkProcessed(taskId, -1))
+        {
+            qDebug() << "All chunks for taskId " << taskId
+                     << " have been processed. stop it.";
+            // combine all chunk index files into one index file
+            auto conf = _getTaskConfig(taskId);
+            if(!conf.id.isEmpty())
+            {
+                auto idxFilePath = conf.indexFilePath.toStdString();
+                hj::vector_index<hj::vindex_flat_l2_t> index;
+                index.build(conf.dimension);
+
+                // combine all chunk index files
+                QDir tmpDir(Config::Instance().getDefaultIndexPath() + "/"
+                            + QString::number(taskId));
+                auto chunkIds = _getChunkIdsForTask(taskId);
+                std::sort(chunkIds.begin(), chunkIds.end());
+                int total_vectors = 0;
+                for(auto chunkId : chunkIds)
+                {
+                    QString tmpFilePath = tmpDir.absoluteFilePath(
+                        QString("chunk_%1.index").arg(chunkId));
+                    hj::vector_index<hj::vindex_flat_l2_t> chunkIndex;
+                    qDebug() << "Load chunk index file:" << tmpFilePath;
+                    if(!File::exists(tmpFilePath.toStdString().c_str())
+                       || !chunkIndex.load(tmpFilePath.toStdString().c_str()))
+                    {
+                        qDebug() << "Failed to load chunk index file: "
+                                 << tmpFilePath;
+                        continue;
+                    }
+
+                    int num_vectors = chunkIndex.total();
+                    if(num_vectors <= 0)
+                        continue;
+
+                    int                dim = conf.dimension;
+                    std::vector<float> vectors(num_vectors * dim);
+                    for(int i = 0; i < num_vectors; i++)
+                        chunkIndex.reconstruct(i, vectors.data() + i * dim);
+
+                    index.add(num_vectors, vectors.data());
+                    total_vectors += num_vectors;
+                    qDebug() << "Merged chunk index file:" << tmpFilePath
+                             << ", vectors:" << num_vectors
+                             << ", total vectors:" << total_vectors;
+                }
+
+                if(!index.save(idxFilePath.c_str()))
+                {
+                    qDebug() << "Failed to save combined index file: "
+                             << idxFilePath.c_str();
+                    QMessageBox::warning(
+                        this,
+                        tr("Index Save Error"),
+                        tr("Failed to save combined index file: %1")
+                            .arg(QString::fromStdString(idxFilePath)));
+                } else
+                {
+                    qDebug()
+                        << "Combined index file saved: " << idxFilePath.c_str();
+                    // remove tmp dir
+                    if(tmpDir.exists() && tmpDir.isReadable())
+                    {
+                        tmpDir.removeRecursively();
+                        qDebug() << "Temporary directory removed: "
+                                 << tmpDir.absolutePath();
+                    }
+                    QMessageBox::information(
+                        this,
+                        tr("Index Save Successful"),
+                        tr("Combined index file saved: %1")
+                            .arg(QString::fromStdString(idxFilePath)));
+                }
+            }
+
+            // remove task record from map
+            _removeTaskRecord(taskId);
+
+            // stop embedding for this task
+            GrpcClient::Instance()->EmbeddingStop(taskId,
+                                                  Account::Instance()->Id(),
+                                                  Account::Instance()->Auth());
+        }
+    };
 }
 
 void SettingPageMemory::_slotEmbeddingStopResp(const int     errorCode,
@@ -598,7 +662,7 @@ SettingPageMemory::_getMemoryInfos(const QVector<int> &rows)
         if(!rows.isEmpty() && !rows.contains(i))
             continue;
 
-        int                  id   = m_pMemListModel->item(i, 0)->text().toInt();
+        auto                 id   = m_pMemListModel->item(i, 0)->text();
         Config::MemoryConfig conf = Config::Instance().getMemoryConfigById(id);
 
         conf.indexFilePath  = m_pMemListModel->item(i, 1)->text();
@@ -648,4 +712,144 @@ void SettingPageMemory::_importMemoryConfigs()
     Config::Instance().loadMemory(filePath);
     auto confs = Config::Instance().memoryConfigs();
     _addMemorys(confs, "Staged");
+}
+
+bool SettingPageMemory::_setChunkProcessState(const int64_t taskId,
+                                              const int64_t chunkId,
+                                              const bool    isProcessed)
+{
+    QMutexLocker locker(&m_mu);
+    if(!m_mapTaskChunkIds.contains(taskId))
+        m_mapTaskChunkIds[taskId] = QMap<int64_t, bool>();
+
+    if(chunkId == -1)
+    {
+        // If chunkId is -1, we are setting the overall task state
+        // If isProcessed is true, we mark all chunks as processed
+        // If isProcessed is false, we mark all chunks as not processed
+        for(auto it = m_mapTaskChunkIds[taskId].begin();
+            it != m_mapTaskChunkIds[taskId].end();
+            ++it)
+        {
+            it.value() = isProcessed;
+        }
+    } else
+    {
+        m_mapTaskChunkIds[taskId][chunkId] = isProcessed;
+    }
+
+    // count the number of processed chunks for this task
+    if(isProcessed)
+    {
+        int processedCount = 0;
+        for(auto it = m_mapTaskChunkIds[taskId].begin();
+            it != m_mapTaskChunkIds[taskId].end();
+            ++it)
+        {
+            if(it.value())
+                processedCount++;
+        }
+
+        if(m_mapTaskConfigs.contains(taskId))
+        {
+            auto conf = m_mapTaskConfigs[taskId];
+            emit SignalEmbeddingProgressUpdate(
+                conf,
+                processedCount,
+                m_mapTaskChunkIds[taskId].size());
+        }
+        qDebug() << "TaskId: " << taskId
+                 << ", Processed Chunks: " << processedCount
+                 << ", Total Chunks: " << m_mapTaskChunkIds[taskId].size();
+    }
+    return true;
+}
+
+bool SettingPageMemory::_isChunkProcessed(const int64_t taskId,
+                                          const int64_t chunkId)
+{
+    QMutexLocker locker(&m_mu);
+    if(!m_mapTaskChunkIds.contains(taskId))
+        return false;
+
+    if(chunkId == -1)
+    {
+        for(auto it = m_mapTaskChunkIds[taskId].begin();
+            it != m_mapTaskChunkIds[taskId].end();
+            ++it)
+        {
+            if(!it.value())
+                return false;
+        }
+        return true;
+    }
+
+    if(!m_mapTaskChunkIds[taskId].contains(chunkId))
+        return false;
+
+    return m_mapTaskChunkIds[taskId][chunkId];
+}
+
+QVector<int64_t> SettingPageMemory::_getChunkIdsForTask(const int64_t taskId)
+{
+    QMutexLocker     locker(&m_mu);
+    QVector<int64_t> chunkIds;
+    if(!m_mapTaskChunkIds.contains(taskId))
+        return chunkIds;
+
+    for(auto it = m_mapTaskChunkIds[taskId].begin();
+        it != m_mapTaskChunkIds[taskId].end();
+        ++it)
+    {
+        chunkIds.append(it.key());
+    }
+    return chunkIds;
+}
+
+bool SettingPageMemory::_isHadTask(const int64_t taskId)
+{
+    QMutexLocker locker(&m_mu);
+    return m_mapTaskChunkIds.contains(taskId);
+}
+
+bool SettingPageMemory::_setTaskConfig(const int64_t               taskId,
+                                       const Config::MemoryConfig &conf)
+{
+    QMutexLocker locker(&m_mu);
+    m_mapTaskConfigs[taskId] = conf;
+    return true;
+}
+
+Config::MemoryConfig SettingPageMemory::_getTaskConfig(const int64_t taskId)
+{
+    QMutexLocker locker(&m_mu);
+    if(m_mapTaskConfigs.contains(taskId))
+        return m_mapTaskConfigs[taskId];
+
+    return Config::MemoryConfig();
+}
+
+void SettingPageMemory::_removeTaskRecord(const int64_t taskId)
+{
+    QMutexLocker locker(&m_mu);
+    m_mapTaskChunkIds.remove(taskId);
+    m_mapTaskConfigs.remove(taskId);
+}
+
+MemoryConfigDialog *
+SettingPageMemory::_createMemoryConfigDialog(const Config::MemoryConfig &conf)
+{
+    auto dlg = new MemoryConfigDialog(conf, this);
+
+    // connect the SignalGenerateMemory signal to the _slotGenerateMemory slot
+    connect(dlg,
+            &MemoryConfigDialog::SignalGenerateMemory,
+            this,
+            &SettingPageMemory::_slotGenerateMemory);
+
+    connect(this,
+            &SettingPageMemory::SignalEmbeddingProgressUpdate,
+            dlg,
+            &MemoryConfigDialog::SlotEmbeddingProgressUpdate);
+    return dlg;
 }

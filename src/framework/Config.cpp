@@ -526,10 +526,10 @@ QString Config::getDefaultIndexPath()
     return m_rootObj.value("default_index_path").toString();
 }
 
-Config::MemoryConfig Config::getMemoryConfigById(const int id)
+Config::MemoryConfig Config::getMemoryConfigById(const QString &id)
 {
     Config::MemoryConfig conf;
-    conf.id = -1;
+    conf.id = "";
     if(m_memoryArr.isEmpty())
     {
         qDebug() << "Config file does not contain memory config array.";
@@ -539,10 +539,10 @@ Config::MemoryConfig Config::getMemoryConfigById(const int id)
     for(int i = 0; i < m_memoryArr.size(); ++i)
     {
         auto obj = m_memoryArr[i].toObject();
-        if(obj["id"].toInt() != id)
+        if(obj["id"].toString() != id)
             continue;
 
-        conf.id             = obj["id"].toInt();
+        conf.id             = obj["id"].toString();
         conf.indexFilePath  = obj["index_file_path"].toString();
         conf.metaFilePath   = obj["meta_file_path"].toString();
         conf.originFilePath = obj["origin_file_path"].toString();
@@ -572,7 +572,7 @@ QVector<Config::MemoryConfig> Config::memoryConfigs()
     {
         Config::MemoryConfig config;
         auto                 obj = m_memoryArr[i].toObject();
-        config.id                = obj["id"].toInt();
+        config.id                = obj["id"].toString();
         config.indexFilePath     = obj["index_file_path"].toString();
         config.metaFilePath      = obj["meta_file_path"].toString();
         config.originFilePath    = obj["origin_file_path"].toString();

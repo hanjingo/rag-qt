@@ -9,6 +9,7 @@
 #include <QMutex>
 
 #include "Config.h"
+#include "MemoryConfigDialog.h"
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -31,6 +32,11 @@ class SettingPageMemory : public QWidget
         static SettingPageMemory inst;
         return &inst;
     }
+
+  signals:
+    void SignalEmbeddingProgressUpdate(const Config::MemoryConfig &conf,
+                                       const int64_t finishedChunkNum,
+                                       const int64_t totalChunkNum);
 
   protected:
     explicit SettingPageMemory(QWidget *parent = nullptr);
@@ -64,6 +70,19 @@ class SettingPageMemory : public QWidget
     void _saveMemoryConfigs();
     void _importMemoryConfigs();
 
+    bool _setChunkProcessState(const int64_t taskId,
+                               const int64_t chunkId,
+                               const bool    isProcessed);
+    bool _isChunkProcessed(const int64_t taskId, const int64_t chunkId = -1);
+    QVector<int64_t> _getChunkIdsForTask(const int64_t taskId);
+    bool             _isHadTask(const int64_t taskId);
+    bool _setTaskConfig(const int64_t taskId, const Config::MemoryConfig &conf);
+    Config::MemoryConfig _getTaskConfig(const int64_t taskId);
+    void                 _removeTaskRecord(const int64_t taskId);
+
+    MemoryConfigDialog *
+    _createMemoryConfigDialog(const Config::MemoryConfig &conf);
+
   private:
     Ui::SettingPageMemory *ui;
 
@@ -72,8 +91,9 @@ class SettingPageMemory : public QWidget
     QStandardItemModel *m_pMemListModel;
 
     // key: taskId, value: chunkIds
-    QMutex                       m_mu;
-    QMap<int64_t, QSet<int64_t>> m_mapTaskChunkIds;
+    QMutex                              m_mu;
+    QMap<int64_t, QMap<int64_t, bool>>  m_mapTaskChunkIds;
+    QMap<int64_t, Config::MemoryConfig> m_mapTaskConfigs;
 };
 
 #endif // SETTINGPAGEMEMORY_H

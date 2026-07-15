@@ -121,7 +121,7 @@ class Config : public QObject
 
     struct MemoryConfig
     {
-        int     id = -1;
+        QString id = "";
         QString indexFilePath;
         QString metaFilePath;
         QString originFilePath;
@@ -161,7 +161,7 @@ class Config : public QObject
     void setModelConfigs(QVector<Config::ModelConfig> &configs);
 
     QString                       getDefaultIndexPath();
-    Config::MemoryConfig          getMemoryConfigById(const int id);
+    Config::MemoryConfig          getMemoryConfigById(const QString &id);
     QVector<Config::MemoryConfig> memoryConfigs();
     void setMemoryConfigs(QVector<Config::MemoryConfig> &configs);
 

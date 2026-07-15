@@ -480,7 +480,7 @@ void GrpcClient::Embedding(const int64_t               task_id,
         reactor = m_embeddingRectors[task_id];
     }
 
-    if(params.id != -1)
+    if(!params.id.isEmpty())
     {
         GrpcLibrary::EmbeddingParam param;
         param.set_dimension(params.dimension);

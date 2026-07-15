@@ -29,7 +29,7 @@ MemoryConfigDialog::~MemoryConfigDialog()
 
 Config::MemoryConfig MemoryConfigDialog::GetConfig()
 {
-    m_conf.id             = ui->editId->text().toLongLong();
+    m_conf.id             = ui->editId->text();
     m_conf.indexFilePath  = ui->editIndexFilePath->text();
     m_conf.metaFilePath   = ui->editMetaFilePath->text();
     m_conf.originFilePath = ui->editOriginFilePath->text();
@@ -49,7 +49,7 @@ void MemoryConfigDialog::_retranslate()
 
 void MemoryConfigDialog::_initUI()
 {
-    ui->editId->setText(QString::number(m_conf.id));
+    ui->editId->setText(m_conf.id);
     ui->editIndexFilePath->setText(m_conf.indexFilePath);
     ui->editMetaFilePath->setText(m_conf.metaFilePath);
     ui->editOriginFilePath->setText(m_conf.originFilePath);
@@ -180,4 +180,16 @@ void MemoryConfigDialog::_slotBtnGenerateClicked()
 void MemoryConfigDialog::_slotBtnCancelClicked()
 {
     qDebug() << "Cancel button clicked.";
+}
+
+void MemoryConfigDialog::SlotEmbeddingProgressUpdate(
+    const Config::MemoryConfig &conf,
+    const int64_t               finishedChunkNum,
+    const int64_t               totalChunkNum)
+{
+    if(conf.id != m_conf.id)
+        return;
+
+    ui->progressBuildIndex->setRange(0, totalChunkNum);
+    ui->progressBuildIndex->setValue(finishedChunkNum);
 }

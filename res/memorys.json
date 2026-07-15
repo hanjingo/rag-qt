@@ -1,6 +1,6 @@
 [
     {
-        "id": 1,
+        "id": "test",
         "index_file_path": "./memorys/test.faiss",
         "meta_file_path": "./memorys/test.json",
         "origin_file_path": "./memorys/test.txt",
