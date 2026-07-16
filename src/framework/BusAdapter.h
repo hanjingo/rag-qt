@@ -15,6 +15,7 @@ class BusAdapter : public QObject
   signals:
     void SignalPing();
     void SignalModelInfoUpdateNtf(const QVector<Bus::ModelInfo> &configs);
+    void SignalMemoryInfoUpdateNtf(const QVector<Bus::MemoryInfo> &configs);
     void SignalAudioParamUpdateNtf(const QVector<Bus::AudioParam> &params);
 
   private slots:
@@ -38,6 +39,9 @@ class BusAdapter : public QObject
                              const QString    &translatorId);
     void _slotAudioStopTranslate(const qint64 sessionId);
     void _slotUploadFromBus(const QString &filePath);
+    void _slotRetrieveFromBus(const QString          &question,
+                              const int               topK,
+                              const QVector<QString> &memoryIds);
 
   private:
     explicit BusAdapter(QObject *parent = nullptr);

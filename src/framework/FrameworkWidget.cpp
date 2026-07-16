@@ -25,6 +25,7 @@
 #include "ui_FrameworkWidget.h"
 #include "Error.h"
 #include "SettingPageModel.h"
+#include "SettingPageMemory.h"
 #include "System.h"
 #include "SettingPageNetwork.h"
 #include "AudioMgr.h"
@@ -432,6 +433,10 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     // update model info
     auto infos = SettingPageModel::Instance()->GetBusModelInfos();
     emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(infos);
+
+    // update memory info
+    auto memInfos = SettingPageMemory::Instance()->GetBusMemoryInfos();
+    emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(memInfos);
 
     // update audio param
     auto params = Config::Instance().getBusAudioParams();

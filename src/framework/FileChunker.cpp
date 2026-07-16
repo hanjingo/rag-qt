@@ -5,7 +5,8 @@
 
 qint64 FileChunker::chunkText(const QString       &text,
                               const qint64         chunkSize,
-                              const ChunkCallback &cb)
+                              const ChunkCallback &cb,
+                              const QString       &filePathName)
 {
     if(text.isEmpty())
     {
@@ -16,9 +17,10 @@ qint64 FileChunker::chunkText(const QString       &text,
     m_totalChunks   = 0;
     qint64 totalLen = text.length();
     Chunk  chunk;
-    chunk.startPos   = 0;
-    chunk.chunkIndex = 0;
-    chunk.offset     = qMin(chunkSize, totalLen);
+    chunk.startPos     = 0;
+    chunk.Id           = 0;
+    chunk.offset       = qMin(chunkSize, totalLen);
+    chunk.filePathName = filePathName;
     while(cb(chunk))
     {
         chunk.offset = qMin(chunkSize, totalLen - chunk.startPos);
@@ -53,7 +55,7 @@ qint64 FileChunker::chunkFile(const QString       &filePath,
 
     QString content = stream.readAll();
     file.close();
-    return chunkText(content, chunkSize, cb);
+    return chunkText(content, chunkSize, cb, filePath);
 }
 
 qint64 FileChunker::chunkFiles(const QStringList   &filePaths,

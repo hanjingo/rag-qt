@@ -156,9 +156,9 @@ void SettingPageMemory::_addMemorys(
         n_row++;
     }
 
-    // // notify bus
-    // auto busModelInfos = _GetBusModelInfos();
-    // emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
+    // notify bus
+    auto busModelInfos = GetBusMemoryInfos();
+    emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(busModelInfos);
 }
 
 void SettingPageMemory::_delMemorys(const QVector<QString> &hashs)
@@ -186,9 +186,9 @@ void SettingPageMemory::_delMemorys(const QVector<QString> &hashs)
     }
     Config::Instance().setMemoryConfigs(confs);
 
-    // // notify bus
-    // auto busModelInfos = _GetBusModelInfos();
-    // emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
+    // notify bus
+    auto busModelInfos = GetBusMemoryInfos();
+    emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(busModelInfos);
 }
 
 void SettingPageMemory::_setMemorys(
@@ -262,8 +262,9 @@ void SettingPageMemory::_setMemorys(
     }
     Config::Instance().setMemoryConfigs(confs);
 
-    // auto infos = _GetBusModelInfos();
-    // emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(infos);
+    // notify bus
+    auto busModelInfos = GetBusMemoryInfos();
+    emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(busModelInfos);
 }
 
 void SettingPageMemory::_filterMemTable(const QString &filterText)
@@ -401,16 +402,16 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
         conf.originFilePath,
         conf.chunkSize,
         [this, taskId, conf, totalLength](FileChunker::Chunk &chunk) -> qint64 {
-            if(chunk.chunkIndex == 0 && chunk.startPos == 0)
+            if(chunk.Id == 0 && chunk.startPos == 0)
             {
-                chunk.chunkIndex++;
+                chunk.Id = static_cast<int64_t>(hj::uuid::gen_u64());
                 _setChunkProcessState(taskId, -1, false);
                 _setTaskConfig(taskId, conf);
                 // send chunk
                 GrpcClient::Instance()->Embedding(taskId,
                                                   Account::Instance()->Id(),
                                                   Account::Instance()->Auth(),
-                                                  chunk.chunkIndex,
+                                                  chunk.Id,
                                                   chunk.data,
                                                   chunk.startPos,
                                                   chunk.startPos + chunk.offset,
@@ -449,8 +450,8 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
             chunk.startPos = startPos;
             chunk.offset   = endPos - startPos;
             chunk.data     = chunk.data.mid(0, chunk.offset);
-            chunk.chunkIndex++;
-            qDebug() << "Generated chunk: index=" << chunk.chunkIndex
+            chunk.Id       = static_cast<int64_t>(hj::uuid::gen_u64());
+            qDebug() << "Generated chunk: index=" << chunk.Id
                      << ", startPos=" << chunk.startPos
                      << ", offset=" << chunk.offset
                      << ", dataSize=" << chunk.data.size();
@@ -462,15 +463,35 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
                 return false;
             }
 
-            _setChunkProcessState(taskId, chunk.chunkIndex, false);
+            _setChunkProcessState(taskId, chunk.Id, false);
             // send chunk
             GrpcClient::Instance()->Embedding(taskId,
                                               Account::Instance()->Id(),
                                               Account::Instance()->Auth(),
-                                              chunk.chunkIndex,
+                                              chunk.Id,
                                               chunk.data,
                                               chunk.startPos,
                                               chunk.startPos + chunk.offset);
+
+            // build meta file
+            QString    metaFilePath = conf.metaFilePath;
+            QJsonArray metaArray;
+            if(!File::isFileExist(metaFilePath))
+                File::writeJsonFile(metaFilePath, metaArray);
+
+            File::readJsonFile(metaFilePath, metaArray);
+            QJsonObject obj;
+            obj["chunk_id"]       = QString::number(chunk.Id);
+            obj["content"]        = QString::fromUtf8(chunk.data);
+            obj["start_pos"]      = chunk.startPos;
+            obj["end_pos"]        = chunk.startPos + chunk.offset;
+            obj["chunk_size"]     = chunk.offset;
+            obj["file_path_name"] = chunk.filePathName;
+            obj["timestamp"] =
+                QDateTime::currentDateTime().toString(Qt::ISODate);
+            metaArray.append(obj);
+            File::writeJsonFile(metaFilePath, metaArray);
+
             return true;
         });
 
@@ -553,7 +574,8 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
             auto conf = _getTaskConfig(taskId);
             if(!conf.id.isEmpty())
             {
-                auto idxFilePath = conf.indexFilePath.toStdString();
+                auto idxFilePath  = conf.indexFilePath.toStdString();
+                auto metaFilePath = conf.metaFilePath.toStdString();
                 hj::vector_index<hj::vindex_flat_l2_t> index;
                 index.build(conf.dimension);
 
@@ -616,8 +638,10 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
                     QMessageBox::information(
                         this,
                         tr("Index Save Successful"),
-                        tr("Combined index file saved: %1")
-                            .arg(QString::fromStdString(idxFilePath)));
+                        tr("Combined index file saved: %1 \nWrite meta file: "
+                           "%2")
+                            .arg(QString::fromStdString(idxFilePath))
+                            .arg(QString::fromStdString(metaFilePath)));
                 }
             }
 
@@ -647,6 +671,19 @@ void SettingPageMemory::_slotEmbeddingStopResp(const int     errorCode,
     }
 
     qDebug() << "Embedding stop response success, taskId: " << taskId;
+}
+
+QVector<Bus::MemoryInfo> SettingPageMemory::GetBusMemoryInfos()
+{
+    QVector<Bus::MemoryInfo> ret;
+    auto                     confs = _getMemoryInfos({});
+    for(auto conf : confs)
+    {
+        Bus::MemoryInfo info;
+        info.id = conf.id;
+        ret.append(info);
+    }
+    return ret;
 }
 
 QVector<Config::MemoryConfig>

@@ -6,6 +6,7 @@
 #include "Error.h"
 #include "AudioMgr.h"
 #include "File.h"
+#include "MemMgr.h"
 
 BusAdapter *BusAdapter::m_stBusAdapterInst = nullptr;
 BusAdapter *BusAdapter::Instance()
@@ -25,6 +26,10 @@ BusAdapter::BusAdapter(QObject *parent)
             &BusAdapter::SignalModelInfoUpdateNtf,
             Bus::Instance(),
             &Bus::SignalModelInfoUpdateNtf);
+    connect(this,
+            &BusAdapter::SignalMemoryInfoUpdateNtf,
+            Bus::Instance(),
+            &Bus::SignalMemoryInfoUpdateNtf);
 
     connect(this,
             &BusAdapter::SignalAudioParamUpdateNtf,
@@ -110,6 +115,7 @@ BusAdapter::BusAdapter(QObject *parent)
             this,
             &BusAdapter::_slotGetSessionFromBus);
 
+
     connect(Bus::Instance(),
             &Bus::SignalNewSession,
             this,
@@ -134,6 +140,11 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::SignalUpload,
             this,
             &BusAdapter::_slotUploadFromBus);
+
+    connect(Bus::Instance(),
+            &Bus::SignalRetrieve,
+            this,
+            &BusAdapter::_slotRetrieveFromBus);
 
     connect(Bus::Instance(),
             &Bus::SignalAudioCaptureStart,
@@ -275,4 +286,14 @@ void BusAdapter::_slotUploadFromBus(const QString &filePath)
                                    Account::Instance()->Auth(),
                                    filePath,
                                    File::fileSizeKB(filePath));
+}
+
+void BusAdapter::_slotRetrieveFromBus(const QString          &question,
+                                      const int               topK,
+                                      const QVector<QString> &memoryIds)
+{
+    qDebug() << "Receive Bus Retrieve signal from Bus. question: " << question
+             << ", topK: " << topK << ", memoryIds: " << memoryIds;
+
+    //     MemMgr::Instance()->Retrieve(question, topK, memoryIds);
 }

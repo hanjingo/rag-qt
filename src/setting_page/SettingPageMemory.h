@@ -33,6 +33,8 @@ class SettingPageMemory : public QWidget
         return &inst;
     }
 
+    QVector<Bus::MemoryInfo> GetBusMemoryInfos();
+
   signals:
     void SignalEmbeddingProgressUpdate(const Config::MemoryConfig &conf,
                                        const int64_t finishedChunkNum,

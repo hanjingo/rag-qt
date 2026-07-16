@@ -1,5 +1,5 @@
-#ifndef FILECHUNKDER_H
-#define FILECHUNKDER_H
+#ifndef FILECHUNKER_H
+#define FILECHUNKER_H
 
 #include <QString>
 #include <QVector>
@@ -12,9 +12,10 @@ class FileChunker
     struct Chunk
     {
         QByteArray data;
-        qint64     startPos   = 0;
-        qint64     offset     = 0;
-        qint64     chunkIndex = 0;
+        qint64     startPos = 0;
+        qint64     offset   = 0;
+        qint64     Id       = 0;
+        QString    filePathName;
     };
 
     using ChunkCallback = std::function<bool(Chunk &)>;
@@ -25,7 +26,8 @@ class FileChunker
 
     qint64 chunkText(const QString       &text,
                      const qint64         chunkSize,
-                     const ChunkCallback &cb);
+                     const ChunkCallback &cb,
+                     const QString       &filePathName = QString());
 
     qint64 chunkFile(const QString       &filePath,
                      const qint64         chunkSize,
@@ -39,4 +41,4 @@ class FileChunker
     qint64 m_totalChunks = 0;
 };
 
-#endif // FILECHUNKDER_H
+#endif // FILECHUNKER_H

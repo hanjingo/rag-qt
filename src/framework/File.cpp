@@ -97,3 +97,72 @@ File::findParagraphBoundary(const QString &text, qint64 start, qint64 end)
     }
     return end;
 }
+
+bool File::writeJsonFile(const QString &filePath, const QJsonDocument &doc)
+{
+    QFile saveFile(filePath);
+    if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+
+    saveFile.write(doc.toJson());
+    return true;
+}
+
+bool File::writeJsonFile(const QString &filePath, const QJsonObject &jsonObj)
+{
+    QJsonDocument doc(jsonObj);
+    QFile         saveFile(filePath);
+    if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+
+    saveFile.write(doc.toJson());
+    return true;
+}
+
+bool File::writeJsonFile(const QString &filePath, const QJsonArray &jsonArr)
+{
+    QJsonDocument doc(jsonArr);
+    QFile         saveFile(filePath);
+    if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+
+    saveFile.write(doc.toJson());
+    return true;
+}
+
+bool File::readJsonFile(const QString &filePath, QJsonDocument &doc)
+{
+    QFile file(filePath);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
+
+    QByteArray data = file.readAll();
+    doc             = QJsonDocument::fromJson(data);
+    return !doc.isNull();
+}
+
+bool File::readJsonFile(const QString &filePath, QJsonObject &jsonObj)
+{
+    QJsonDocument doc;
+    if(!readJsonFile(filePath, doc))
+        return false;
+
+    if(!doc.isObject())
+        return false;
+
+    jsonObj = doc.object();
+    return true;
+}
+
+bool File::readJsonFile(const QString &filePath, QJsonArray &jsonArr)
+{
+    QJsonDocument doc;
+    if(!readJsonFile(filePath, doc))
+        return false;
+
+    if(!doc.isArray())
+        return false;
+
+    jsonArr = doc.array();
+    return true;
+}
