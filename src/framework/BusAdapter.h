@@ -39,9 +39,9 @@ class BusAdapter : public QObject
                              const QString    &translatorId);
     void _slotAudioStopTranslate(const qint64 sessionId);
     void _slotUploadFromBus(const QString &filePath);
-    void _slotRetrieveFromBus(const QString          &question,
-                              const int               topK,
-                              const QVector<QString> &memoryIds);
+    void _slotRetrieveFromBus(const QString &question,
+                              const int      topK,
+                              const QString &memoryId);
 
   private:
     explicit BusAdapter(QObject *parent = nullptr);

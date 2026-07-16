@@ -11,11 +11,12 @@ class FileChunker
   public:
     struct Chunk
     {
+        int64_t    id = 0;
         QByteArray data;
-        qint64     startPos = 0;
-        qint64     offset   = 0;
-        qint64     Id       = 0;
+        int64_t    startPos = 0;
+        int64_t    offset   = 0;
         QString    filePathName;
+        QString    timestamp;
     };
 
     using ChunkCallback = std::function<bool(Chunk &)>;

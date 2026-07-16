@@ -21,6 +21,7 @@
 #include "Config.h"
 #include "FileChunker.h"
 #include "File.h"
+#include "MemMgr.h"
 
 SettingPageMemory::SettingPageMemory(QWidget *parent)
     : QWidget(parent)
@@ -402,16 +403,16 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
         conf.originFilePath,
         conf.chunkSize,
         [this, taskId, conf, totalLength](FileChunker::Chunk &chunk) -> qint64 {
-            if(chunk.Id == 0 && chunk.startPos == 0)
+            if(chunk.id == 0 && chunk.startPos == 0)
             {
-                chunk.Id = static_cast<int64_t>(hj::uuid::gen_u64());
+                chunk.id = static_cast<int64_t>(hj::uuid::gen_u64());
                 _setChunkProcessState(taskId, -1, false);
                 _setTaskConfig(taskId, conf);
                 // send chunk
                 GrpcClient::Instance()->Embedding(taskId,
                                                   Account::Instance()->Id(),
                                                   Account::Instance()->Auth(),
-                                                  chunk.Id,
+                                                  chunk.id,
                                                   chunk.data,
                                                   chunk.startPos,
                                                   chunk.startPos + chunk.offset,
@@ -450,8 +451,8 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
             chunk.startPos = startPos;
             chunk.offset   = endPos - startPos;
             chunk.data     = chunk.data.mid(0, chunk.offset);
-            chunk.Id       = static_cast<int64_t>(hj::uuid::gen_u64());
-            qDebug() << "Generated chunk: index=" << chunk.Id
+            chunk.id       = static_cast<int64_t>(hj::uuid::gen_u64());
+            qDebug() << "Generated chunk: index=" << chunk.id
                      << ", startPos=" << chunk.startPos
                      << ", offset=" << chunk.offset
                      << ", dataSize=" << chunk.data.size();
@@ -463,35 +464,19 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
                 return false;
             }
 
-            _setChunkProcessState(taskId, chunk.Id, false);
+            _setChunkProcessState(taskId, chunk.id, false);
+            // build meta file
+            auto memoryId = conf.id;
+            MemMgr::Instance()->add(memoryId.toStdString(), chunk);
+
             // send chunk
             GrpcClient::Instance()->Embedding(taskId,
                                               Account::Instance()->Id(),
                                               Account::Instance()->Auth(),
-                                              chunk.Id,
+                                              chunk.id,
                                               chunk.data,
                                               chunk.startPos,
                                               chunk.startPos + chunk.offset);
-
-            // build meta file
-            QString    metaFilePath = conf.metaFilePath;
-            QJsonArray metaArray;
-            if(!File::isFileExist(metaFilePath))
-                File::writeJsonFile(metaFilePath, metaArray);
-
-            File::readJsonFile(metaFilePath, metaArray);
-            QJsonObject obj;
-            obj["chunk_id"]       = QString::number(chunk.Id);
-            obj["content"]        = QString::fromUtf8(chunk.data);
-            obj["start_pos"]      = chunk.startPos;
-            obj["end_pos"]        = chunk.startPos + chunk.offset;
-            obj["chunk_size"]     = chunk.offset;
-            obj["file_path_name"] = chunk.filePathName;
-            obj["timestamp"] =
-                QDateTime::currentDateTime().toString(Qt::ISODate);
-            metaArray.append(obj);
-            File::writeJsonFile(metaFilePath, metaArray);
-
             return true;
         });
 
@@ -520,45 +505,32 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
         return;
     }
 
-    if(!vectorIndexs.isEmpty())
+    if(vectorIndexs.isEmpty())
     {
-        // qDebug() << "Embedding response received, taskId: " << taskId
-        //          << ", chunkId: " << chunkId
-        //          << ", vectorIndexs: " << vectorIndexs;
-        // create tmp dir
-        QDir tmpDir(Config::Instance().getDefaultIndexPath() + "/"
-                    + QString::number(taskId));
-        if(!tmpDir.exists() || !tmpDir.isReadable())
-        {
-            if(!tmpDir.mkpath("."))
-            {
-                qDebug() << "Failed to create tmp directory: "
-                         << tmpDir.absolutePath();
-                QMessageBox::warning(
-                    this,
-                    tr("Directory Error"),
-                    tr("Failed to create temporary directory for embeddings."));
-                return;
-            }
-        }
-
-        // write index to tmp file
-        QString tmpFilePath =
-            tmpDir.absoluteFilePath(QString("chunk_%1.index").arg(chunkId));
-        QFile file(tmpFilePath);
-        if(!file.open(QIODevice::WriteOnly))
-        {
-            qDebug() << "Failed to open file for writing: " << tmpFilePath;
-            QMessageBox::warning(
-                this,
-                tr("File Error"),
-                tr("Failed to write embedding index to file."));
-            return;
-        }
-        file.write(vectorIndexs);
-        file.close();
-        qDebug() << "Embedding index saved to: " << tmpFilePath;
+        qDebug() << "Empty embedding data for taskId:" << taskId
+                 << ", chunkId:" << chunkId;
+        _setChunkProcessState(taskId, chunkId, true);
+        return;
     }
+
+    auto conf = _getTaskConfig(taskId);
+    if(conf.id.isEmpty())
+    {
+        qDebug() << "Task config not found for taskId: " << taskId;
+        return;
+    }
+
+    auto                 memoryId = conf.id;
+    std::vector<uint8_t> embeddings(vectorIndexs.begin(), vectorIndexs.end());
+    if(!MemMgr::Instance()->add(memoryId.toStdString(),
+                                std::move(embeddings),
+                                conf.dimension))
+    {
+        qDebug() << "Failed to add embedding index for chunkId " << chunkId;
+        _setChunkProcessState(taskId, chunkId, true);
+        return;
+    }
+    qDebug() << "Embedding index " << chunkId << " saved";
 
     // combine all chunk index files into one index file if all chunks are processed
     if(_isHadTask(taskId))
@@ -570,80 +542,6 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
         {
             qDebug() << "All chunks for taskId " << taskId
                      << " have been processed. stop it.";
-            // combine all chunk index files into one index file
-            auto conf = _getTaskConfig(taskId);
-            if(!conf.id.isEmpty())
-            {
-                auto idxFilePath  = conf.indexFilePath.toStdString();
-                auto metaFilePath = conf.metaFilePath.toStdString();
-                hj::vector_index<hj::vindex_flat_l2_t> index;
-                index.build(conf.dimension);
-
-                // combine all chunk index files
-                QDir tmpDir(Config::Instance().getDefaultIndexPath() + "/"
-                            + QString::number(taskId));
-                auto chunkIds = _getChunkIdsForTask(taskId);
-                std::sort(chunkIds.begin(), chunkIds.end());
-                int total_vectors = 0;
-                for(auto chunkId : chunkIds)
-                {
-                    QString tmpFilePath = tmpDir.absoluteFilePath(
-                        QString("chunk_%1.index").arg(chunkId));
-                    hj::vector_index<hj::vindex_flat_l2_t> chunkIndex;
-                    qDebug() << "Load chunk index file:" << tmpFilePath;
-                    if(!File::exists(tmpFilePath.toStdString().c_str())
-                       || !chunkIndex.load(tmpFilePath.toStdString().c_str()))
-                    {
-                        qDebug() << "Failed to load chunk index file: "
-                                 << tmpFilePath;
-                        continue;
-                    }
-
-                    int num_vectors = chunkIndex.total();
-                    if(num_vectors <= 0)
-                        continue;
-
-                    int                dim = conf.dimension;
-                    std::vector<float> vectors(num_vectors * dim);
-                    for(int i = 0; i < num_vectors; i++)
-                        chunkIndex.reconstruct(i, vectors.data() + i * dim);
-
-                    index.add(num_vectors, vectors.data());
-                    total_vectors += num_vectors;
-                    qDebug() << "Merged chunk index file:" << tmpFilePath
-                             << ", vectors:" << num_vectors
-                             << ", total vectors:" << total_vectors;
-                }
-
-                if(!index.save(idxFilePath.c_str()))
-                {
-                    qDebug() << "Failed to save combined index file: "
-                             << idxFilePath.c_str();
-                    QMessageBox::warning(
-                        this,
-                        tr("Index Save Error"),
-                        tr("Failed to save combined index file: %1")
-                            .arg(QString::fromStdString(idxFilePath)));
-                } else
-                {
-                    qDebug()
-                        << "Combined index file saved: " << idxFilePath.c_str();
-                    // remove tmp dir
-                    if(tmpDir.exists() && tmpDir.isReadable())
-                    {
-                        tmpDir.removeRecursively();
-                        qDebug() << "Temporary directory removed: "
-                                 << tmpDir.absolutePath();
-                    }
-                    QMessageBox::information(
-                        this,
-                        tr("Index Save Successful"),
-                        tr("Combined index file saved: %1 \nWrite meta file: "
-                           "%2")
-                            .arg(QString::fromStdString(idxFilePath))
-                            .arg(QString::fromStdString(metaFilePath)));
-                }
-            }
 
             // remove task record from map
             _removeTaskRecord(taskId);
@@ -652,6 +550,11 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
             GrpcClient::Instance()->EmbeddingStop(taskId,
                                                   Account::Instance()->Id(),
                                                   Account::Instance()->Auth());
+
+            // save index and meta files
+            MemMgr::Instance()->save(memoryId.toStdString(),
+                                     conf.indexFilePath.toStdString(),
+                                     conf.metaFilePath.toStdString());
         }
     };
 }

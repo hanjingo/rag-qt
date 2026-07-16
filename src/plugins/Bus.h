@@ -145,13 +145,13 @@ class Bus : public QObject
     void SignalUpload(const QString &filePath);
     void SignalUploadResp(const int errorCode, const QString &filePath);
 
-    void SignalRetrieve(const QString          &question,
-                        const int               topK,
-                        const QVector<QString> &memoryIds);
+    void SignalRetrieve(const QString &question,
+                        const int      topK,
+                        const QString &memoryId);
     void SignalRetrieveResp(const int                       errorCode,
                             const QString                  &question,
                             const int                       topK,
-                            const QVector<QString>         &memoryIds,
+                            const QString                  &memoryId,
                             const QVector<Bus::MemoryInfo> &results);
 
   private:

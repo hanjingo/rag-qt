@@ -288,12 +288,12 @@ void BusAdapter::_slotUploadFromBus(const QString &filePath)
                                    File::fileSizeKB(filePath));
 }
 
-void BusAdapter::_slotRetrieveFromBus(const QString          &question,
-                                      const int               topK,
-                                      const QVector<QString> &memoryIds)
+void BusAdapter::_slotRetrieveFromBus(const QString &question,
+                                      const int      topK,
+                                      const QString &memoryId)
 {
     qDebug() << "Receive Bus Retrieve signal from Bus. question: " << question
-             << ", topK: " << topK << ", memoryIds: " << memoryIds;
+             << ", topK: " << topK << ", memoryId: " << memoryId;
 
-    //     MemMgr::Instance()->Retrieve(question, topK, memoryIds);
+    //     MemMgr::Instance()->retrieve(question, topK, memoryId);
 }

@@ -147,6 +147,7 @@ class Config : public QObject
     QJsonObject &rootObj() { return m_rootObj; }
 
     bool isCoreRun();
+    size_t getRetrieveTaskQueueSize();
 
     QVector<Bus::AudioParam> getBusAudioParams();
     Config::TranslatorParam  getAudioTranslatorParamById(const QString &id);

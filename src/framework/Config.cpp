@@ -161,6 +161,11 @@ bool Config::isCoreRun()
     return m_rootObj.value("core_run").toBool(true);
 }
 
+size_t Config::getRetrieveTaskQueueSize()
+{
+    return static_cast<size_t>(m_rootObj.value("retrieve_task_queue_size").toInt(10));
+}
+
 QVector<Bus::AudioParam> Config::getBusAudioParams()
 {
     QVector<Bus::AudioParam> params;

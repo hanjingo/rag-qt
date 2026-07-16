@@ -18,7 +18,7 @@ qint64 FileChunker::chunkText(const QString       &text,
     qint64 totalLen = text.length();
     Chunk  chunk;
     chunk.startPos     = 0;
-    chunk.Id           = 0;
+    chunk.id           = 0;
     chunk.offset       = qMin(chunkSize, totalLen);
     chunk.filePathName = filePathName;
     while(cb(chunk))
