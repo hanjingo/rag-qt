@@ -1,13 +1,17 @@
 #include "MemMgr.h"
 
 #include <hj/ai/vector_index.hpp>
+#include <hj/algo/uuid.hpp>
 
 #include "GrpcClient.h"
 #include "Account.h"
+#include "BusAdapter.h"
+#include "Error.h"
 
 bool MemMgr::add(const std::string     &memoryId,
                  std::vector<uint8_t> &&embedding,
-                 const int              dimension)
+                 const int              dimension,
+                 const int64_t          chunkId)
 {
     if(embedding.empty() || dimension <= 0)
     {
@@ -23,14 +27,6 @@ bool MemMgr::add(const std::string     &memoryId,
         return false;
     }
 
-    if(m_mapIndexes.find(memoryId) == m_mapIndexes.end())
-    {
-        hj::vector_index<hj::vindex_flat_l2_t> mainIndex;
-        mainIndex.build(dimension);
-        m_mapIndexes[memoryId] = std::move(mainIndex);
-    }
-
-    auto              &mainIndex = m_mapIndexes[memoryId];
     std::vector<float> vectors;
     if(!index.get_all_vectors(vectors))
     {
@@ -39,9 +35,26 @@ bool MemMgr::add(const std::string     &memoryId,
     }
 
     int numVectors = vectors.size() / dimension;
-    mainIndex.add(numVectors, vectors.data());
-    qDebug() << "Added" << numVectors << "vectors to memoryId:" << memoryId
-             << ", total:" << mainIndex.total();
+    if(m_mapIndexes.find(memoryId) == m_mapIndexes.end())
+    {
+        hj::vector_index<hj::vindex_idmap_t> mainIndex(
+            new hj::vindex_idmap_t(new hj::vindex_flat_l2_t(dimension)));
+        m_mapIndexes[memoryId] = std::move(mainIndex);
+    }
+
+    auto                     &mainIndex = m_mapIndexes[memoryId];
+    std::vector<faiss::idx_t> ids       = {chunkId};
+
+    if(!mainIndex.add_with_ids(numVectors, vectors.data(), ids.data()))
+    {
+        qDebug() << "Added vector with chunk_id:" << chunkId
+                 << "to memoryId:" << memoryId
+                 << ", total:" << mainIndex.total();
+        return false;
+    }
+
+    qDebug() << "Added vector with chunk_id:" << chunkId
+             << "to memoryId:" << memoryId << ", total:" << mainIndex.total();
     return true;
 }
 
@@ -82,7 +95,7 @@ bool MemMgr::load(const std::string &memoryId,
         return false;
     }
 
-    hj::vector_index<hj::vindex_flat_l2_t> index;
+    hj::vector_index<hj::vindex_idmap_t> index;
     if(!index.load(indexFilePath.c_str()))
     {
         qDebug() << "Failed to load index file: " << indexFilePath;
@@ -114,7 +127,8 @@ bool MemMgr::save(const std::string &memoryId,
     auto &index = m_mapIndexes[memoryId];
     if(!index.save(indexFilePath.c_str()))
     {
-        qDebug() << "Failed to save combined index file: " << indexFilePath;
+        qDebug() << "Failed to save combined index file befor save: "
+                 << indexFilePath;
         return false;
     }
 
@@ -137,11 +151,24 @@ void MemMgr::retrieve(const std::string &question,
     // 4. return results
 
     RetrieveTask task;
+    task.id       = std::abs(static_cast<int64_t>(hj::uuid::gen_u64()));
     task.question = QString::fromStdString(question);
     task.topK     = topK;
     task.memoryId = QString::fromStdString(memoryId);
-    m_retrieveCh.enqueue(task);
-    _sendTask();
+
+    m_mu.lock();
+    m_mapTasks[task.id] = task;
+    m_mu.unlock();
+
+    auto conf = Config::Instance().getMemoryConfigById(task.memoryId);
+    GrpcClient::Instance()->Embedding(task.id,
+                                      Account::Instance()->Id(),
+                                      Account::Instance()->Auth(),
+                                      1,
+                                      task.question.toUtf8(),
+                                      0,
+                                      task.question.size() - 1,
+                                      conf);
 }
 
 void MemMgr::SlotEmbeddingResp(const int         errorCode,
@@ -149,29 +176,55 @@ void MemMgr::SlotEmbeddingResp(const int         errorCode,
                                const int64_t     chunkId,
                                const QByteArray &vectorIndexs)
 {
-    _sendTask();
+    std::lock_guard<std::mutex> guard(m_mu);
+    if(m_mapTasks.find(taskId) == m_mapTasks.end())
+    {
+        return;
+    }
+
+    qDebug() << "SlotEmbeddingResp get taskId:" << taskId
+             << ", vectorIndexs.size():" << vectorIndexs.size();
+    RetrieveTask task     = m_mapTasks[taskId];
+    auto         question = task.question;
+    auto         topK     = task.topK;
+    auto         memoryId = task.memoryId;
     if(errorCode != 0)
     {
         qDebug() << "Embedding response error, code: " << errorCode;
+        // notify bus
+        emit BusAdapter::Instance()
+            -> SignalRetrieveResp(errorCode, question, topK, memoryId, {});
+
+        // remove record
+        m_mapTasks.erase(taskId);
+
+        // stop embedding for this task
+        GrpcClient::Instance()->EmbeddingStop(taskId,
+                                              Account::Instance()->Id(),
+                                              Account::Instance()->Auth());
         return;
     }
 
-    RetrieveTask task;
-    if(!m_retrieveCh.try_dequeue(task))
+    if(chunkId == 0)
     {
-        qDebug() << "No retrieve task found for embedding response.";
+        qDebug() << "Embedding response set param, skip.";
         return;
     }
 
-    auto conf = Config::Instance().getMemoryConfigById(task.memoryId);
+    // remove record first
+    m_mapTasks.erase(taskId);
+    // stop embedding for this task first
+    GrpcClient::Instance()->EmbeddingStop(taskId,
+                                          Account::Instance()->Id(),
+                                          Account::Instance()->Auth());
+
+    auto conf = Config::Instance().getMemoryConfigById(memoryId);
     if(conf.id.isEmpty())
     {
-        qDebug() << "Memory config not found for memoryId: " << task.memoryId;
+        qDebug() << "Memory config not found for memoryId: " << memoryId;
         return;
     }
 
-    auto                 topK      = task.topK;
-    auto                 memoryId  = task.memoryId.toStdString();
     auto                 dimension = conf.dimension;
     std::vector<uint8_t> buffer(vectorIndexs.begin(), vectorIndexs.end());
     std::vector<float>   vectors;
@@ -180,11 +233,26 @@ void MemMgr::SlotEmbeddingResp(const int         errorCode,
         qDebug() << "Failed to convert embedding data to float vectors.";
         return;
     }
-    _retrieve(vectors, topK, memoryId);
+    QVector<FileChunker::Chunk> chunks =
+        _retrieve(vectors, topK, memoryId.toStdString());
+    QVector<QJsonObject> memorys;
+    for(auto chunk : chunks)
+    {
+        QJsonObject obj;
+        convert(obj, chunk);
+        memorys.append(obj);
+    }
+    emit BusAdapter::Instance()
+        -> SignalRetrieveResp(OK, task.question, topK, memoryId, memorys);
 }
 
 void MemMgr::_init()
 {
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalEmbeddingResp,
+            this,
+            &MemMgr::SlotEmbeddingResp);
+
     // Initialization code here
     auto confs = Config::Instance().memoryConfigs();
     for(auto conf : confs)
@@ -198,23 +266,6 @@ void MemMgr::_init()
             continue;
         }
     }
-}
-
-void MemMgr::_sendTask()
-{
-    RetrieveTask task;
-    if(!m_retrieveCh.try_dequeue(task))
-        return;
-
-    auto conf = Config::Instance().getMemoryConfigById(task.memoryId);
-    GrpcClient::Instance()->Embedding(0,
-                                      Account::Instance()->Id(),
-                                      Account::Instance()->Auth(),
-                                      0,
-                                      task.question.toUtf8(),
-                                      0,
-                                      task.question.size(),
-                                      conf);
 }
 
 QVector<FileChunker::Chunk>
@@ -239,16 +290,18 @@ MemMgr::_retrieve(const std::vector<float> embeddings,
     for(int i = 0; i < topK; ++i)
     {
         auto idx = indices[i];
-        if(idx < 0 || idx >= meta.size())
+        qDebug() << "idx:" << idx;
+        auto key = QString::number(idx);
+        if(!meta.contains(key))
             continue;
 
-        auto               obj = meta[QString::number(idx)].toObject();
+        auto               obj = meta[key].toObject();
         FileChunker::Chunk chunk;
         convert(chunk, obj);
         results.append(chunk);
         qDebug() << "Retrieved from memoryId: " << memoryId
                  << ", index: " << idx
-                 << ", content: " << obj.value("content").toString()
+                 << ", data: " << obj.value("data").toString()
                  << ", distance: " << distances[i];
     }
 

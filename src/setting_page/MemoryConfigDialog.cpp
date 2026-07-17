@@ -141,38 +141,30 @@ void MemoryConfigDialog::_slotBtnOriginFilePathClicked()
 {
     qDebug() << "Origin File Path button clicked.";
     // choose origin file path
-    QString filePath = QFileDialog::getOpenFileName(this,
-                                                    tr("Select Origin File"),
-                                                    "",
-                                                    tr("Origin Files (*.txt)"));
-    if(filePath.isEmpty())
+    QString dirPath = QFileDialog::getExistingDirectory(
+        this,
+        tr("Select Directory"),
+        "",
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if(dirPath.isEmpty())
         return;
 
-    // check if file exists
-    QFileInfo fileInfo(filePath);
-    if(!fileInfo.exists() || !fileInfo.isFile())
+    QFileInfo fileInfo(dirPath);
+    if(!fileInfo.exists() || !fileInfo.isDir())
     {
         QMessageBox::warning(this,
-                             tr("File Not Found"),
-                             tr("The selected file does not exist."));
+                             tr("Directory Not Found"),
+                             tr("The selected directory does not exist."));
         return;
     }
 
-    ui->editOriginFilePath->setText(filePath);
+    ui->editOriginFilePath->setText(dirPath);
 }
 
 void MemoryConfigDialog::_slotBtnGenerateClicked()
 {
     qDebug() << "Generate button clicked.";
-    qint64 totalLength = File::fileSize(ui->editOriginFilePath->text());
-    if(totalLength <= 0)
-    {
-        QMessageBox::warning(this,
-                             tr("Error"),
-                             tr("Failed to get file size or file is empty."));
-        return;
-    }
-
     auto conf = GetConfig();
     emit SignalGenerateMemory(conf);
 }

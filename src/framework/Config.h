@@ -146,8 +146,8 @@ class Config : public QObject
     void         saveMemory(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
-    bool isCoreRun();
-    size_t getRetrieveTaskQueueSize();
+    bool          isCoreRun();
+    QSet<QString> getSupportedDocTypes();
 
     QVector<Bus::AudioParam> getBusAudioParams();
     Config::TranslatorParam  getAudioTranslatorParamById(const QString &id);
@@ -176,6 +176,8 @@ class Config : public QObject
     QJsonObject m_rootObj;
     QJsonArray  m_modelArr;
     QJsonArray  m_memoryArr;
+
+    QSet<QString> m_supportedDocTypes;
 };
 
 #endif // CONFIG_H

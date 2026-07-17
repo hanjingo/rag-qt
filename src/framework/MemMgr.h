@@ -5,6 +5,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <mutex>
 
 #include <hj/ai/vector_index.hpp>
 #include <hj/sync/channel.hpp>
@@ -20,17 +21,14 @@ class MemMgr : public QObject
   public:
     struct RetrieveTask
     {
+        int64_t id;
         int     topK;
         QString question;
         QString memoryId;
     };
 
   public:
-    explicit MemMgr(QObject *parent = nullptr)
-        : m_retrieveCh{Config::Instance().getRetrieveTaskQueueSize()}
-    {
-        _init();
-    };
+    explicit MemMgr(QObject *parent = nullptr) { _init(); };
     ~MemMgr() {};
 
     static MemMgr *Instance()
@@ -41,7 +39,8 @@ class MemMgr : public QObject
 
     bool add(const std::string     &memoryId,
              std::vector<uint8_t> &&embedding,
-             const int              dimension);
+             const int              dimension,
+             const int64_t          chunkId);
     bool add(const std::string &memoryId, const FileChunker::Chunk &chunk);
 
     bool load(const std::string &memoryId,
@@ -62,9 +61,6 @@ class MemMgr : public QObject
                  std::vector<uint8_t> &&src,
                  const int              dimension);
 
-  signals:
-    void SignalRetrieveResp();
-
   public slots:
     void SlotEmbeddingResp(const int         errorCode,
                            const int64_t     taskId,
@@ -73,17 +69,17 @@ class MemMgr : public QObject
 
   private:
     void                        _init();
-    void                        _sendTask();
     QVector<FileChunker::Chunk> _retrieve(const std::vector<float> embeddings,
                                           const int                topK,
                                           const std::string       &memoryId);
 
   private:
-    std::unordered_map<std::string, hj::vector_index<hj::vindex_flat_l2_t>>
+    std::unordered_map<std::string, hj::vector_index<hj::vindex_idmap_t>>
                                                  m_mapIndexes;
     std::unordered_map<std::string, QJsonObject> m_mapMetas;
 
-    hj::channel<RetrieveTask> m_retrieveCh;
+    std::mutex                                m_mu;
+    std::unordered_map<int64_t, RetrieveTask> m_mapTasks;
 };
 
 #endif // MEMMGR_H

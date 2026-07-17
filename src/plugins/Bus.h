@@ -5,6 +5,7 @@
 #include <QString>
 #include <QVector>
 #include <QAudioFormat>
+#include <QJsonObject>
 
 #define BUS_VERSION_MAJOR 0
 #define BUS_VERSION_MINOR 0
@@ -148,11 +149,11 @@ class Bus : public QObject
     void SignalRetrieve(const QString &question,
                         const int      topK,
                         const QString &memoryId);
-    void SignalRetrieveResp(const int                       errorCode,
-                            const QString                  &question,
-                            const int                       topK,
-                            const QString                  &memoryId,
-                            const QVector<Bus::MemoryInfo> &results);
+    void SignalRetrieveResp(const int                   errorCode,
+                            const QString              &question,
+                            const int                   topK,
+                            const QString              &memoryId,
+                            const QVector<QJsonObject> &memorys);
 
   private:
     explicit Bus(QObject *parent = nullptr)

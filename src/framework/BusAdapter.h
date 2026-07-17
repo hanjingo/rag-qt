@@ -17,6 +17,11 @@ class BusAdapter : public QObject
     void SignalModelInfoUpdateNtf(const QVector<Bus::ModelInfo> &configs);
     void SignalMemoryInfoUpdateNtf(const QVector<Bus::MemoryInfo> &configs);
     void SignalAudioParamUpdateNtf(const QVector<Bus::AudioParam> &params);
+    void SignalRetrieveResp(const int                   errorCode,
+                            const QString              &question,
+                            const int                   topK,
+                            const QString              &memoryId,
+                            const QVector<QJsonObject> &memorys);
 
   private slots:
     // for BUS signals

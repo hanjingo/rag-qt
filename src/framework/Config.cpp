@@ -52,6 +52,14 @@ void Config::load(const QString &filepath)
     }
 
     m_rootObj = doc.object();
+
+    // build supported doc types
+    if(m_rootObj.contains("supported_doc_types"))
+    {
+        auto arr = m_rootObj["supported_doc_types"].toArray();
+        for(auto typ : arr)
+            m_supportedDocTypes.insert(typ.toString());
+    }
 }
 
 void Config::loadModel(const QString &filepath)
@@ -161,9 +169,9 @@ bool Config::isCoreRun()
     return m_rootObj.value("core_run").toBool(true);
 }
 
-size_t Config::getRetrieveTaskQueueSize()
+QSet<QString> Config::getSupportedDocTypes()
 {
-    return static_cast<size_t>(m_rootObj.value("retrieve_task_queue_size").toInt(10));
+    return m_supportedDocTypes;
 }
 
 QVector<Bus::AudioParam> Config::getBusAudioParams()

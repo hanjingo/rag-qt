@@ -395,14 +395,30 @@ void SettingPageMemory::_slotMemCtlBtnGroupClicked(int id)
 
 void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
 {
-    int64_t taskId      = std::abs(static_cast<int64_t>(hj::uuid::gen_u64()));
-    auto    totalLength = File::fileSize(conf.originFilePath);
-
-    FileChunker chunker;
-    auto        chunkCount = chunker.chunkFile(
+    QStringList files;
+    File::walk(
         conf.originFilePath,
+        [&](QFileInfo &info, int depth) -> bool {
+            if(!info.isFile())
+                return true;
+
+            auto suffix = info.suffix().toLower();
+            auto types  = Config::Instance().getSupportedDocTypes();
+            if(types.contains(suffix))
+            {
+                files.append(info.absoluteFilePath());
+                qDebug() << "find file:" << info.absoluteFilePath();
+            }
+            return true;
+        },
+        true);
+
+    int64_t     taskId = std::abs(static_cast<int64_t>(hj::uuid::gen_u64()));
+    FileChunker chunker;
+    auto        chunkCount = chunker.chunkFiles(
+        files,
         conf.chunkSize,
-        [this, taskId, conf, totalLength](FileChunker::Chunk &chunk) -> qint64 {
+        [this, taskId, conf](FileChunker::Chunk &chunk) -> qint64 {
             if(chunk.id == 0 && chunk.startPos == 0)
             {
                 chunk.id = static_cast<int64_t>(hj::uuid::gen_u64());
@@ -425,7 +441,8 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
             if(startPos <= chunk.startPos)
                 startPos = chunk.startPos + chunk.offset; // ensure progress
 
-            qint64 endPos = qMin(startPos + chunk.offset, totalLength);
+            auto   totalLength = File::fileSize(chunk.filePathName);
+            qint64 endPos      = qMin(startPos + chunk.offset, totalLength);
             if(conf.respectParagraphs)
             {
                 qint64 newEndPos =
@@ -524,7 +541,8 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
     std::vector<uint8_t> embeddings(vectorIndexs.begin(), vectorIndexs.end());
     if(!MemMgr::Instance()->add(memoryId.toStdString(),
                                 std::move(embeddings),
-                                conf.dimension))
+                                conf.dimension,
+                                chunkId))
     {
         qDebug() << "Failed to add embedding index for chunkId " << chunkId;
         _setChunkProcessState(taskId, chunkId, true);

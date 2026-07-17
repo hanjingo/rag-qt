@@ -1,6 +1,13 @@
 #include "File.h"
 
 #include <QCryptographicHash>
+#include <QDirIterator>
+
+bool File::isFile(const QString &filePath)
+{
+    QFileInfo info(filePath);
+    return info.isFile();
+}
 
 bool File::isFileExist(const QString &filePath)
 {
@@ -49,6 +56,51 @@ QString File::md5(const QString &filePath)
     }
 
     return hash.result().toHex();
+}
+
+void File::walk(const QString                        &filePath,
+                std::function<bool(QFileInfo &, int)> cb,
+                bool                                  recursive)
+{
+    if(!cb)
+        return;
+
+    QFileInfo fileInfo(filePath);
+    if(!fileInfo.exists())
+        return;
+
+    if(fileInfo.isFile())
+    {
+        cb(fileInfo, 0);
+        return;
+    }
+
+    if(fileInfo.isDir())
+    {
+        QStringList                 nameFilters;
+        QDirIterator::IteratorFlags flags = recursive
+                                                ? QDirIterator::Subdirectories
+                                                : QDirIterator::NoIteratorFlags;
+
+        QDirIterator it(filePath,
+                        nameFilters,
+                        QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot
+                            | QDir::NoSymLinks | QDir::Readable,
+                        flags);
+
+        int baseDepth = filePath.count('/');
+        while(it.hasNext())
+        {
+            it.next();
+            QFileInfo currentInfo = it.fileInfo();
+            int       depth       = 0;
+            if(recursive)
+                depth = currentInfo.absoluteFilePath().count('/') - baseDepth;
+
+            if(!cb(currentInfo, depth))
+                break;
+        }
+    }
 }
 
 qint64 File::findSentenceBoundary(const QString &text, qint64 start, qint64 end)

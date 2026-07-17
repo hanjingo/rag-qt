@@ -36,6 +36,11 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::Instance(),
             &Bus::SignalAudioParamUpdateNtf);
 
+    connect(this,
+            &BusAdapter::SignalRetrieveResp,
+            Bus::Instance(),
+            &Bus::SignalRetrieveResp);
+
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalQueryResp,
             Bus::Instance(),
@@ -295,5 +300,7 @@ void BusAdapter::_slotRetrieveFromBus(const QString &question,
     qDebug() << "Receive Bus Retrieve signal from Bus. question: " << question
              << ", topK: " << topK << ", memoryId: " << memoryId;
 
-    //     MemMgr::Instance()->retrieve(question, topK, memoryId);
+    MemMgr::Instance()->retrieve(question.toStdString(),
+                                 topK,
+                                 memoryId.toStdString());
 }

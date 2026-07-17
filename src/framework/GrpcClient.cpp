@@ -507,7 +507,8 @@ void GrpcClient::Embedding(const int64_t               task_id,
         req.mutable_chunk()->CopyFrom(chunk);
         reactor->SendRequest(req);
         qDebug() << "Starting embedding with chunk: id=" << chunk_id
-                 << "start_pos=" << start_pos << "end_pos=" << end_pos;
+                 << ",start_pos=" << start_pos << ",end_pos=" << end_pos
+                 << ",data.size()=" << chunk_data.size();
     }
 }
 
