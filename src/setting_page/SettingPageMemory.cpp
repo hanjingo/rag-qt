@@ -9,6 +9,9 @@
 #include <hj/ai/vector_index.hpp>
 #include <hj/algo/uuid.hpp>
 
+#include <libqt/io/filechunker.h>
+#include <libqt/io/file.h>
+
 #include "StyleMgr.h"
 #include "SettingPageMemory.h"
 #include "ui_SettingPageMemory.h"
@@ -19,8 +22,6 @@
 #include "Account.h"
 #include "BusAdapter.h"
 #include "Config.h"
-#include "FileChunker.h"
-#include "File.h"
 #include "MemMgr.h"
 
 SettingPageMemory::SettingPageMemory(QWidget *parent)

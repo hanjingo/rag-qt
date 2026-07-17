@@ -1,11 +1,12 @@
 #include <QDebug>
 #include <QCoreApplication>
 
+#include <libqt/io/file.h>
+
 #include "BusAdapter.h"
 #include "Account.h"
 #include "Error.h"
 #include "AudioMgr.h"
-#include "File.h"
 #include "MemMgr.h"
 
 BusAdapter *BusAdapter::m_stBusAdapterInst = nullptr;
@@ -201,6 +202,7 @@ void BusAdapter::_slotQueryFromBus(const int64_t         sessionId,
     qDebug() << "Received Bus Query signal from Bus. sessionId: " << sessionId
              << ", query: " << query;
     auto conf          = Config::Instance().getModelConfigById(info.id);
+    conf.pipeline      = info.pipeline;
     conf.hash          = info.hash;
     conf.ctxWindowSize = info.ctxWindowSize;
     conf.stopWords     = info.stopWords;
@@ -278,7 +280,7 @@ void BusAdapter::_slotAudioStopTranslate(const qint64 sessionId)
 void BusAdapter::_slotUploadFromBus(const QString &filePath)
 {
     qDebug() << "Receive Bus Upload signal from Bus. filePath: " << filePath;
-    if(File::isFileExist(filePath) == false)
+    if(File::isExist(filePath) == false)
     {
         qDebug() << "File does not exist: " << filePath;
         emit Bus::Instance()

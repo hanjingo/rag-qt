@@ -6,8 +6,9 @@
 
 #include <hj/algo/uuid.hpp>
 
+#include <libqt/io/file.h>
+
 #include "Global.h"
-#include "File.h"
 
 MemoryConfigDialog::MemoryConfigDialog(const Config::MemoryConfig &conf,
                                        QWidget                    *parent)

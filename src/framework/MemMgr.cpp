@@ -3,6 +3,8 @@
 #include <hj/ai/vector_index.hpp>
 #include <hj/algo/uuid.hpp>
 
+#include <libqt/encoding/json.h>
+
 #include "GrpcClient.h"
 #include "Account.h"
 #include "BusAdapter.h"
@@ -86,8 +88,8 @@ bool MemMgr::load(const std::string &memoryId,
         return false;
     }
 
-    if(!File::isFileExist(QString::fromStdString(indexFilePath))
-       || !File::isFileExist(QString::fromStdString(metaFilePath)))
+    if(!File::isExist(QString::fromStdString(indexFilePath))
+       || !File::isExist(QString::fromStdString(metaFilePath)))
     {
         qDebug() << "Index file or meta file does not exist: " << indexFilePath
                  << ", " << metaFilePath
@@ -104,7 +106,7 @@ bool MemMgr::load(const std::string &memoryId,
     m_mapIndexes[memoryId] = std::move(index);
 
     QJsonObject meta;
-    if(!File::readJsonFile(QString::fromStdString(metaFilePath), meta))
+    if(!JSON::readFile(meta, QString::fromStdString(metaFilePath)))
     {
         qDebug() << "Failed to load meta file: " << metaFilePath;
         return false;
@@ -133,7 +135,7 @@ bool MemMgr::save(const std::string &memoryId,
     }
 
     auto &meta = m_mapMetas[memoryId];
-    File::writeJsonFile(QString::fromStdString(metaFilePath), meta);
+    JSON::writeFile(QString::fromStdString(metaFilePath), meta);
     qDebug() << "Saved index and meta files for memoryId: " << memoryId
              << ", indexFilePath: " << indexFilePath
              << ", metaFilePath: " << metaFilePath;

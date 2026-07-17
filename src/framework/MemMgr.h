@@ -10,9 +10,10 @@
 #include <hj/ai/vector_index.hpp>
 #include <hj/sync/channel.hpp>
 
+#include <libqt/io/file.h>
+#include <libqt/io/filechunker.h>
+
 #include "Config.h"
-#include "File.h"
-#include "FileChunker.h"
 
 class MemMgr : public QObject
 {
