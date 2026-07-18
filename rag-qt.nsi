@@ -8,14 +8,14 @@ Unicode true
 !include "FileFunc.nsh"
 
 !define APP_NAME "rag-qt"
-!define APP_VERSION "0.1.0"
+!define APP_VERSION "0.0.1"
 !define APP_PUBLISHER "hanjingo"
 !define APP_EXE "rag-qt.exe"
 
 ; This script assumes it is compiled from repository root.
 !define SOURCE_DIR "bin\\Release"
-!define INSTALL_ROOT "$PROGRAMFILES64"
-!define INSTALL_DIR "${INSTALL_ROOT}\\${APP_NAME}"
+!define INSTALL_ROOT "C:\rag-qt"
+!define INSTALL_DIR "${INSTALL_ROOT}"
 !define STARTMENU_DIR "$SMPROGRAMS\\${APP_NAME}"
 !define UNINST_KEY "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${APP_NAME}"
 

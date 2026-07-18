@@ -52,7 +52,7 @@
         <translation>Verlauf</translation>
     </message>
     <message>
-        <source>Skills</source>
+        <source>Plugins</source>
         <translation>Fertigkeiten</translation>
     </message>
     <message>
@@ -80,7 +80,7 @@
         <translation>Titel</translation>
     </message>
     <message>
-        <source>Skill</source>
+        <source>Plugin</source>
         <translation>Fertigkeit</translation>
     </message>
     <message>

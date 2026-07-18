@@ -205,7 +205,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="wgtSkills" native="true">
+    <widget class="QWidget" name="wgtPlugins" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
        <number>1</number>
@@ -223,7 +223,7 @@
        <number>1</number>
       </property>
       <item>
-       <widget class="QLabel" name="lblSkillsTitle">
+       <widget class="QLabel" name="lblPluginsTitle">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -231,7 +231,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Skills:</string>
+         <string>Plugins:</string>
         </property>
        </widget>
       </item>
@@ -252,7 +252,7 @@
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
-        <widget class="QWidget" name="scrollAreaSkills">
+        <widget class="QWidget" name="scrollAreaPlugins">
          <property name="geometry">
           <rect>
            <x>0</x>

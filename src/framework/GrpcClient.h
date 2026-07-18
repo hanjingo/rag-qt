@@ -90,7 +90,7 @@ class GrpcClient : public QObject
                     const QString          &auth,
                     const QVector<int64_t> &ids);
 
-    void GetSkillInfo(const QString &hash = "", int limit = 50);
+    void GetPluginInfo(const QString &hash = "", int limit = 50);
 
     void
     Download(const QString &hash, const int64_t user_id, const QString &auth);
@@ -143,8 +143,8 @@ class GrpcClient : public QObject
                                       const QString &title);
     void SignalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
-    void SignalGetSkillInfoResp(const int                  errorCode,
-                                const QVector<Bus::Skill> &skills);
+    void SignalGetPluginInfoResp(const int                   errorCode,
+                                 const QVector<Bus::Plugin> &plugins);
     void SignalDownloadResp(const int      errorCode,
                             const QString &hash,
                             const QString &addr,
@@ -157,8 +157,8 @@ class GrpcClient : public QObject
   private:
     void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src);
     void _convert(Bus::Session &dst, const ::GrpcLibrary::Session &src);
-    void _convert(::GrpcLibrary::Skill &dst, const Bus::Skill &src);
-    void _convert(Bus::Skill &dst, const ::GrpcLibrary::Skill &src);
+    void _convert(::GrpcLibrary::Plugin &dst, const Bus::Plugin &src);
+    void _convert(Bus::Plugin &dst, const ::GrpcLibrary::Plugin &src);
     void _convert(::GrpcLibrary::MessageInfo &dst, const Bus::MessageInfo &src);
     void _convert(Bus::MessageInfo &dst, const ::GrpcLibrary::MessageInfo &src);
 

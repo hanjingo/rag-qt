@@ -763,12 +763,12 @@ void GrpcClient::DelSession(const int64_t           user_id,
     emit SignalDelSessionResp(resp.error_code(), ret);
 }
 
-void GrpcClient::GetSkillInfo(const QString &hash, int limit)
+void GrpcClient::GetPluginInfo(const QString &hash, int limit)
 {
-    QVector<Bus::Skill> ret;
+    QVector<Bus::Plugin> ret;
     if(!m_pChannel)
     {
-        emit SignalGetSkillInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        emit SignalGetPluginInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -776,32 +776,32 @@ void GrpcClient::GetSkillInfo(const QString &hash, int limit)
     auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::GetSkillInfoReq req;
+    GrpcLibrary::GetPluginInfoReq req;
     req.set_hash(hash.toStdString());
     req.set_limit(limit);
 
     // Prepare the response and context
-    GrpcLibrary::GetSkillInfoResp resp;
-    grpc::ClientContext           context;
+    GrpcLibrary::GetPluginInfoResp resp;
+    grpc::ClientContext            context;
 
     // Make the RPC call
-    grpc::Status status = stub->GetSkillInfo(&context, req, &resp);
+    grpc::Status status = stub->GetPluginInfo(&context, req, &resp);
 
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalGetSkillInfoResp(ec, ret);
+        emit SignalGetPluginInfoResp(ec, ret);
         return;
     }
 
-    for(int i = 0; i < resp.skills_size(); i++)
+    for(int i = 0; i < resp.plugins_size(); i++)
     {
-        const auto &h = resp.skills(i);
-        Bus::Skill  skill;
-        _convert(skill, h);
-        ret.append(skill);
+        const auto &h = resp.plugins(i);
+        Bus::Plugin plugin;
+        _convert(plugin, h);
+        ret.append(plugin);
     }
-    emit SignalGetSkillInfoResp(resp.error_code(), ret);
+    emit SignalGetPluginInfoResp(resp.error_code(), ret);
 }
 
 void GrpcClient::Download(const QString &hash,
@@ -911,7 +911,7 @@ void GrpcClient::_convert(Bus::Session &dst, const ::GrpcLibrary::Session &src)
     dst.timestamp = QString::fromStdString(src.timestamp());
 }
 
-void GrpcClient::_convert(::GrpcLibrary::Skill &dst, const Bus::Skill &src)
+void GrpcClient::_convert(::GrpcLibrary::Plugin &dst, const Bus::Plugin &src)
 {
     dst.set_hash(src.hash.toStdString());
     dst.set_name(src.name.toStdString());
@@ -922,7 +922,7 @@ void GrpcClient::_convert(::GrpcLibrary::Skill &dst, const Bus::Skill &src)
     dst.set_platform(src.platform);
 }
 
-void GrpcClient::_convert(Bus::Skill &dst, const ::GrpcLibrary::Skill &src)
+void GrpcClient::_convert(Bus::Plugin &dst, const ::GrpcLibrary::Plugin &src)
 {
     dst.hash      = QString::fromStdString(src.hash());
     dst.name      = QString::fromStdString(src.name());

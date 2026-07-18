@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SettingPageSkill</class>
- <widget class="QWidget" name="SettingPageSkill">
+ <class>SettingPagePlugin</class>
+ <widget class="QWidget" name="SettingPagePlugin">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,7 +20,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget#SettingPageSkill{background-color:#C1CCD6;}</string>
+   <string notr="true">QWidget#SettingPagePlugin{background-color:#C1CCD6;}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -136,7 +136,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableView" name="tbviewSkill">
+    <widget class="QTableView" name="tbviewPlugin">
      <property name="minimumSize">
       <size>
        <width>10</width>

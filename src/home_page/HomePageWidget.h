@@ -11,7 +11,7 @@
 #include <functional>
 #include <libqt/net/downloader.h>
 
-#include "SkillBtn.h"
+#include "PluginBtn.h"
 #include "GrpcClient.h"
 #include "HistorySettingDialog.h"
 
@@ -29,7 +29,7 @@ class HomePageWidget : public QWidget
     explicit HomePageWidget(QWidget *parent = nullptr);
     ~HomePageWidget();
 
-    QVector<Bus::Skill> GetSkillInfos();
+    QVector<Bus::Plugin> GetPluginInfos();
 
   protected:
     void changeEvent(QEvent *event) override;
@@ -37,7 +37,7 @@ class HomePageWidget : public QWidget
   signals:
 
   private slots:
-    void _slotSkillBtnClicked(QAbstractButton *);
+    void _slotPluginBtnClicked(QAbstractButton *);
     void _slotGrpcConnected(const QString &address);
     void _slotEditFilterTextChanged(const QString &content);
 
@@ -50,20 +50,20 @@ class HomePageWidget : public QWidget
                                      const QString &title);
     void _slotDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
-    void _slotGetSkillInfoResp(const int                  errorCode,
-                               const QVector<Bus::Skill> &skills);
+    void _slotGetPluginInfoResp(const int                   errorCode,
+                                const QVector<Bus::Plugin> &plugins);
 
     void _slotDownloadResp(const int      errorCode,
                            const QString &hash,
                            const QString &addr,
                            const int64_t  size_kb);
 
-    void _slotSkillBtnStateChanged(SkillBtn *btn, SkillBtn::State state);
+    void _slotPluginBtnStateChanged(PluginBtn *btn, PluginBtn::State state);
 
     void _slotPluginUnloaded(const QString &pluginId);
 
   private:
-    void _initSkillsArea();
+    void _initPluginsArea();
     void _initHistoryArea();
     void _initConnections();
     void _retranslate();
@@ -73,23 +73,23 @@ class HomePageWidget : public QWidget
     void _refreshSessionTable(bool clearFirst = false);
     void _filterSessionTable(const QString &filterText);
 
-    void _addSkills(const QVector<Bus::Skill> &skills);
-    void _getSkills(
-        QVector<Bus::Skill>              &skills,
-        std::function<bool(Bus::Skill &)> filter = [](Bus::Skill &) {
+    void _addPlugins(const QVector<Bus::Plugin> &plugins);
+    void _getPlugins(
+        QVector<Bus::Plugin>              &plugins,
+        std::function<bool(Bus::Plugin &)> filter = [](Bus::Plugin &) {
             return true;
         });
-    void _clearSkills();
-    void _drawSkillsArea();
+    void _clearPlugins();
+    void _drawPluginsArea();
 
-    void _download(SkillBtn *btn, const QUrl &url);
-    // QString _unzip(SkillBtn *btn);
+    void _download(PluginBtn *btn, const QUrl &url);
+    // QString _unzip(PluginBtn *btn);
 
   private:
     Ui::HomePageWidget    *ui;
     static HomePageWidget *m_stMainHomePageInst;
 
-    QButtonGroup *m_pSkillsBtnGroup;
+    QButtonGroup *m_pPluginsBtnGroup;
     QButtonGroup *m_pSessionCtlBtnGroup;
 
     QStandardItemModel *m_pHistoryModel;

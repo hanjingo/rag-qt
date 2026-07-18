@@ -6,9 +6,9 @@
 #include <QIcon>
 #include <QStyleOptionToolButton>
 
-#include "SkillBtn.h"
+#include "PluginBtn.h"
 
-SkillBtn::SkillBtn(QWidget *parent)
+PluginBtn::PluginBtn(QWidget *parent)
     : QToolButton(parent)
     , m_name("")
     , m_desc("")
@@ -24,11 +24,11 @@ SkillBtn::SkillBtn(QWidget *parent)
     _init();
 }
 
-SkillBtn::~SkillBtn()
+PluginBtn::~PluginBtn()
 {
 }
 
-void SkillBtn::paintEvent(QPaintEvent *e)
+void PluginBtn::paintEvent(QPaintEvent *e)
 {
     QStyleOptionToolButton opt;
     initStyleOption(&opt);
@@ -91,12 +91,12 @@ void SkillBtn::paintEvent(QPaintEvent *e)
     overlayIcon.paint(&painter, iconRect, Qt::AlignCenter);
 }
 
-void SkillBtn::Resize(int w, int h)
+void PluginBtn::Resize(int w, int h)
 {
     setFixedSize(w, h);
 }
 
-void SkillBtn::SetState(State state)
+void PluginBtn::SetState(State state)
 {
     if(m_state == state)
         return;
@@ -104,36 +104,37 @@ void SkillBtn::SetState(State state)
     switch(state)
     {
         case State::Unknown: {
-            qDebug() << "SkillBtn state changed to Unknown, hash: " << Hash();
+            qDebug() << "PluginBtn state changed to Unknown, hash: " << Hash();
             this->setCheckable(true);
         }
         break;
         case State::WaitDownload: {
-            qDebug() << "SkillBtn state changed to WaitDownload, hash: "
+            qDebug() << "PluginBtn state changed to WaitDownload, hash: "
                      << Hash();
             this->setCheckable(false);
         }
         break;
         case State::Downloading: {
-            qDebug() << "SkillBtn state changed to Downloading, hash: "
+            qDebug() << "PluginBtn state changed to Downloading, hash: "
                      << Hash();
             this->setCheckable(false); // disable the button while downloading
         }
         break;
         case State::Downloaded: {
-            qDebug() << "SkillBtn state changed to Downloaded, hash: "
+            qDebug() << "PluginBtn state changed to Downloaded, hash: "
                      << Hash();
             this->setCheckable(false);
         }
         break;
         case State::Installing: {
-            qDebug() << "SkillBtn state changed to Installing, hash: "
+            qDebug() << "PluginBtn state changed to Installing, hash: "
                      << Hash();
             this->setCheckable(false); // disable the button while installing
         }
         break;
         case State::Installed: {
-            qDebug() << "SkillBtn state changed to Installed, hash: " << Hash();
+            qDebug() << "PluginBtn state changed to Installed, hash: "
+                     << Hash();
             this->setCheckable(false); // disable the button when installed
         }
         break;
@@ -146,13 +147,13 @@ void SkillBtn::SetState(State state)
     update(); // trigger a repaint to reflect the new state
 }
 
-void SkillBtn::_init()
+void PluginBtn::_init()
 {
     this->setCheckable(true);
     SetState(State::Unknown);
 }
 
-void SkillBtn::_refreshText()
+void PluginBtn::_refreshText()
 {
     const QString timestampText =
         m_timestamp.isValid() ? m_timestamp.toString(Qt::TextDate) : "-";
@@ -171,41 +172,41 @@ void SkillBtn::_refreshText()
                 .arg(m_downloadTimes));
 }
 
-void SkillBtn::SlotProgressChanged(int progress)
+void PluginBtn::SlotProgressChanged(int progress)
 {
-    qDebug() << "Update skill button " << m_hash << ", progress:" << progress;
+    qDebug() << "Update plugin button " << m_hash << ", progress:" << progress;
     SetState(State::Downloading);
     m_progress = progress;
     // refresh the button display to show the new progress state
     update();
 }
 
-void SkillBtn::SlotProgressFinished(bool success)
+void PluginBtn::SlotProgressFinished(bool success)
 {
     m_downloader->deleteLater();
     m_downloader = nullptr;
     if(success)
     {
-        qDebug() << "Download finished successfully for skill button "
+        qDebug() << "Download finished successfully for plugin button "
                  << m_hash;
         m_progress = 100;
         SetState(State::Downloaded);
     } else
     {
-        qDebug() << "Download failed for skill button " << m_hash;
+        qDebug() << "Download failed for plugin button " << m_hash;
         m_progress = -1; // reset progress on failure
         SetState(State::Unknown);
     }
     update();
 }
 
-void SkillBtn::Download(const QUrl &url, const QString &saveFilePath)
+void PluginBtn::Download(const QUrl &url, const QString &saveFilePath)
 {
     if(saveFilePath.isEmpty() || url.isEmpty())
     {
         qDebug()
-            << "Invalid URL or save file path for downloading skill content.";
-        SetState(SkillBtn::State::Unknown);
+            << "Invalid URL or save file path for downloading plugin content.";
+        SetState(PluginBtn::State::Unknown);
         return;
     }
 
@@ -218,25 +219,25 @@ void SkillBtn::Download(const QUrl &url, const QString &saveFilePath)
     m_downloader = new Downloader(this);
     m_progress   = -1;
     // m_url        = url;
-    qDebug() << "Started downloading skill content from " << url.toString()
+    qDebug() << "Started downloading plugin content from " << url.toString()
              << " to " << saveFilePath;
     connect(m_downloader,
             &Downloader::SignalDownloadProgress,
             this,
-            &SkillBtn::SlotProgressChanged);
+            &PluginBtn::SlotProgressChanged);
 
     connect(m_downloader,
             &Downloader::SignalDownloadFinished,
             this,
-            &SkillBtn::SlotProgressFinished);
+            &PluginBtn::SlotProgressFinished);
 
-    SetState(SkillBtn::State::Downloading);
+    SetState(PluginBtn::State::Downloading);
     m_downloader->Download(url, saveFilePath);
 }
 
-void SkillBtn::Reset()
+void PluginBtn::Reset()
 {
-    qDebug() << "Resetting skill button " << m_hash;
+    qDebug() << "Resetting plugin button " << m_hash;
     SetState(State::Unknown);
     m_progress = -1;
     m_url      = QString();

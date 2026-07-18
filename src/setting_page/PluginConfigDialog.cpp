@@ -1,15 +1,14 @@
-#include "SkillConfigDialog.h"
-#include "ui_SkillConfigDialog.h"
+#include "PluginConfigDialog.h"
+#include "ui_PluginConfigDialog.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 
 #include "Global.h"
 
-SkillConfigDialog::SkillConfigDialog(const QString &filepath,
-                                     QWidget       *parent)
+PluginConfigDialog::PluginConfigDialog(const QString &filepath, QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::SkillConfigDialog)
+    , ui(new Ui::PluginConfigDialog)
     , m_filepath(filepath)
 {
     ui->setupUi(this);
@@ -19,44 +18,44 @@ SkillConfigDialog::SkillConfigDialog(const QString &filepath,
     _initConnections();
 }
 
-SkillConfigDialog::~SkillConfigDialog()
+PluginConfigDialog::~PluginConfigDialog()
 {
     delete ui;
 }
 
-void SkillConfigDialog::GetAddr(QString &filepath)
+void PluginConfigDialog::GetAddr(QString &filepath)
 {
     m_filepath = ui->editAddr->text();
 
     filepath = m_filepath;
 }
 
-void SkillConfigDialog::_retranslate()
+void PluginConfigDialog::_retranslate()
 {
 }
 
-void SkillConfigDialog::_initUI()
+void PluginConfigDialog::_initUI()
 {
     ui->editAddr->setText(m_filepath);
 }
 
-void SkillConfigDialog::_initConnections()
+void PluginConfigDialog::_initConnections()
 {
-    connect(ui->btnSkillAddr,
+    connect(ui->btnPluginAddr,
             &QPushButton::clicked,
             this,
-            &SkillConfigDialog::_slotBtnSkillAddrClicked);
+            &PluginConfigDialog::_slotBtnPluginAddrClicked);
 }
 
-void SkillConfigDialog::_slotBtnSkillAddrClicked()
+void PluginConfigDialog::_slotBtnPluginAddrClicked()
 {
     qDebug() << "Plugin Addr button clicked.";
-    // choose skill file path
+    // choose plugin file path
     QString filePath =
         QFileDialog::getOpenFileName(this,
                                      tr("Select Plugin File"),
                                      "",
-                                     tr("Skill Files (*.so, *.dll, *.dylib)"));
+                                     tr("Plugin Files (*.so, *.dll, *.dylib)"));
     if(filePath.isEmpty())
         return;
 

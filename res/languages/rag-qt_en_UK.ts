@@ -52,8 +52,8 @@
         <translation>History</translation>
     </message>
     <message>
-        <source>Skills</source>
-        <translation>Skills</translation>
+        <source>Plugins</source>
+        <translation>Plugins</translation>
     </message>
     <message>
         <source>Date Time</source>
@@ -84,8 +84,8 @@
         <translation>Please input session title</translation>
     </message>
     <message>
-        <source>Skill</source>
-        <translation>Skill</translation>
+        <source>Plugin</source>
+        <translation>Plugin</translation>
     </message>
     <message>
         <source>Local Server</source>

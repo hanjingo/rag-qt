@@ -52,8 +52,8 @@
         <translation>历史记录</translation>
     </message>
     <message>
-        <source>Skills</source>
-        <translation>技能</translation>
+        <source>Plugins</source>
+        <translation>插件</translation>
     </message>
     <message>
         <source>Date Time</source>
@@ -80,8 +80,8 @@
         <translation>标题</translation>
     </message>
     <message>
-        <source>Skill</source>
-        <translation>技能</translation>
+        <source>Plugin</source>
+        <translation>插件</translation>
     </message>
     <message>
         <source>Local Server</source>

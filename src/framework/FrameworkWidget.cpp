@@ -237,8 +237,8 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
     // query history after login in
     GrpcClient::Instance()->GetSession(-1, user_id, auth, 50);
 
-    // query skill info after login in
-    GrpcClient::Instance()->GetSkillInfo();
+    // query plugin info after login in
+    GrpcClient::Instance()->GetPluginInfo();
 
     return;
 }

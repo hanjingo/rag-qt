@@ -11,7 +11,7 @@
 
 #include "SettingPageNetwork.h"
 #include "SettingPageHistory.h"
-#include "SettingPageSkill.h"
+#include "SettingPagePlugin.h"
 #include "SettingPageMemory.h"
 #include "SettingPageVersion.h"
 #include "SettingPageModel.h"
@@ -56,7 +56,7 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
             SettingPageModel::Instance();
             break;
         case 2:
-            SettingPageSkill::Instance();
+            SettingPagePlugin::Instance();
             break;
         case 3:
             SettingPageMemory::Instance();
@@ -100,7 +100,7 @@ void SettingPageWidget::_initUI()
     ui->tabWidget->addTab(SettingPageHistory::Instance(),
                           tr("History Settings"));
     ui->tabWidget->addTab(SettingPageModel::Instance(), tr("Model Settings"));
-    ui->tabWidget->addTab(SettingPageSkill::Instance(), tr("Skill Settings"));
+    ui->tabWidget->addTab(SettingPagePlugin::Instance(), tr("Plugin Settings"));
     ui->tabWidget->addTab(SettingPageMemory::Instance(), tr("Memory Settings"));
     ui->tabWidget->addTab(SettingPageNetwork::Instance(),
                           tr("Network Settings"));

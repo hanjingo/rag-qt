@@ -1,5 +1,5 @@
-#ifndef SKILLBTN_H
-#define SKILLBTN_H
+#ifndef PLUGINBTN_H
+#define PLUGINBTN_H
 
 #include <QToolButton>
 #include <QPixmap>
@@ -8,7 +8,7 @@
 
 #include <libqt/net/downloader.h>
 
-class SkillBtn : public QToolButton
+class PluginBtn : public QToolButton
 {
     Q_OBJECT
   public:
@@ -23,8 +23,8 @@ class SkillBtn : public QToolButton
     };
 
   public:
-    explicit SkillBtn(QWidget *parent = nullptr);
-    ~SkillBtn();
+    explicit PluginBtn(QWidget *parent = nullptr);
+    ~PluginBtn();
 
     void    SetHash(const QString &hash) { m_hash = hash; }
     QString Hash() const { return m_hash; }
@@ -85,7 +85,7 @@ class SkillBtn : public QToolButton
     void Reset();
 
   signals:
-    void SignalStateChanged(SkillBtn *btn, SkillBtn::State state);
+    void SignalStateChanged(PluginBtn *btn, PluginBtn::State state);
 
   public:
     void SlotProgressChanged(int progress);
@@ -113,4 +113,4 @@ class SkillBtn : public QToolButton
     Downloader *m_downloader = nullptr;
 };
 
-#endif // SKILLBTN_H
+#endif // PLUGINBTN_H

@@ -21,7 +21,7 @@
 
 #include "SettingPageModel.h"
 
-#include "SkillBtn.h"
+#include "PluginBtn.h"
 #include "GrpcClient.h"
 #include "StyleMgr.h"
 #include "PluginMgr.h"
@@ -44,7 +44,7 @@ HomePageWidget *HomePageWidget::GetMainHomePageInst()
 HomePageWidget::HomePageWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::HomePageWidget)
-    , m_pSkillsBtnGroup(new QButtonGroup(this))
+    , m_pPluginsBtnGroup(new QButtonGroup(this))
     , m_pSessionCtlBtnGroup(new QButtonGroup(this))
     , m_pHistoryModel(nullptr)
     , m_colNum(3)
@@ -53,7 +53,7 @@ HomePageWidget::HomePageWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    _initSkillsArea();
+    _initPluginsArea();
     _initHistoryArea();
     _retranslate();
     _initConnections();
@@ -61,8 +61,8 @@ HomePageWidget::HomePageWidget(QWidget *parent)
 
 HomePageWidget::~HomePageWidget()
 {
-    delete m_pSkillsBtnGroup;
-    m_pSkillsBtnGroup = nullptr;
+    delete m_pPluginsBtnGroup;
+    m_pPluginsBtnGroup = nullptr;
 
     delete m_pSessionCtlBtnGroup;
     m_pSessionCtlBtnGroup = nullptr;
@@ -70,28 +70,28 @@ HomePageWidget::~HomePageWidget()
     delete ui;
 }
 
-QVector<Bus::Skill> HomePageWidget::GetSkillInfos()
+QVector<Bus::Plugin> HomePageWidget::GetPluginInfos()
 {
-    QVector<Bus::Skill> skills;
-    for(auto item : m_pSkillsBtnGroup->buttons())
+    QVector<Bus::Plugin> plugins;
+    for(auto item : m_pPluginsBtnGroup->buttons())
     {
         if(!item)
             continue;
 
-        SkillBtn *btn = qobject_cast<SkillBtn *>(item);
-        if(!btn || btn->GetState() != SkillBtn::State::Installed)
+        PluginBtn *btn = qobject_cast<PluginBtn *>(item);
+        if(!btn || btn->GetState() != PluginBtn::State::Installed)
             continue;
 
-        Bus::Skill skill;
-        skill.hash      = btn->Hash();
-        skill.name      = btn->Name();
-        skill.desc      = btn->Desc();
-        skill.publisher = btn->Publisher();
-        skill.version   = btn->Version();
-        skill.timestamp = btn->Timestamp().toString("%Y-%m-%d %H:%M:%S");
-        skills.append(skill);
+        Bus::Plugin plugin;
+        plugin.hash      = btn->Hash();
+        plugin.name      = btn->Name();
+        plugin.desc      = btn->Desc();
+        plugin.publisher = btn->Publisher();
+        plugin.version   = btn->Version();
+        plugin.timestamp = btn->Timestamp().toString("%Y-%m-%d %H:%M:%S");
+        plugins.append(plugin);
     }
-    return skills;
+    return plugins;
 }
 
 void HomePageWidget::changeEvent(QEvent *event)
@@ -105,10 +105,10 @@ void HomePageWidget::changeEvent(QEvent *event)
     }
 }
 
-void HomePageWidget::_initSkillsArea()
+void HomePageWidget::_initPluginsArea()
 {
-    _clearSkills();
-    _drawSkillsArea();
+    _clearPlugins();
+    _drawPluginsArea();
 }
 
 void HomePageWidget::_initHistoryArea()
@@ -150,7 +150,7 @@ void HomePageWidget::_initHistoryArea()
 
 void HomePageWidget::_retranslate()
 {
-    ui->lblSkillsTitle->setText(tr("Skills"));
+    ui->lblPluginsTitle->setText(tr("Plugins"));
     ui->lblHistoryTitle->setText(tr("History"));
 
     ui->editFilter->setPlaceholderText(tr("Filter"));
@@ -159,10 +159,10 @@ void HomePageWidget::_retranslate()
 
 void HomePageWidget::_initConnections()
 {
-    connect(m_pSkillsBtnGroup,
+    connect(m_pPluginsBtnGroup,
             &QButtonGroup::buttonClicked,
             this,
-            &HomePageWidget::_slotSkillBtnClicked);
+            &HomePageWidget::_slotPluginBtnClicked);
 
     connect(m_pSessionCtlBtnGroup,
             &QButtonGroup::idClicked,
@@ -205,9 +205,9 @@ void HomePageWidget::_initConnections()
             &HomePageWidget::_slotDelSessionResp);
 
     connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetSkillInfoResp,
+            &GrpcClient::SignalGetPluginInfoResp,
             this,
-            &HomePageWidget::_slotGetSkillInfoResp);
+            &HomePageWidget::_slotGetPluginInfoResp);
 
     connect(GrpcClient::Instance(),
             &GrpcClient::SignalDownloadResp,
@@ -215,20 +215,20 @@ void HomePageWidget::_initConnections()
             &HomePageWidget::_slotDownloadResp);
 }
 
-void HomePageWidget::_slotSkillBtnClicked(QAbstractButton *pBtn)
+void HomePageWidget::_slotPluginBtnClicked(QAbstractButton *pBtn)
 {
     if(!pBtn || !pBtn->isCheckable())
     {
-        qDebug() << "Skill button can not be click";
+        qDebug() << "Plugin button can not be click";
         return;
     }
 
-    qDebug() << "Skill button clicked:" << pBtn;
-    SkillBtn *pSkillBtn = qobject_cast<SkillBtn *>(pBtn);
-    if(!pSkillBtn)
+    qDebug() << "Plugin button clicked:" << pBtn;
+    PluginBtn *pPluginBtn = qobject_cast<PluginBtn *>(pBtn);
+    if(!pPluginBtn)
         return;
 
-    QString hash    = pSkillBtn->Hash();
+    QString hash    = pPluginBtn->Hash();
     int64_t user_id = Account::Instance()->Id();
     QString auth    = Account::Instance()->Auth();
 
@@ -369,12 +369,12 @@ void HomePageWidget::_slotDelSessionResp(const int               errorCode,
                                        50);
 }
 
-void HomePageWidget::_slotGetSkillInfoResp(const int                  errorCode,
-                                           const QVector<Bus::Skill> &skills)
+void HomePageWidget::_slotGetPluginInfoResp(const int errorCode,
+                                            const QVector<Bus::Plugin> &plugins)
 {
-    qDebug() << "Get skill info response received with " << skills.size()
+    qDebug() << "Get plugin info response received with " << plugins.size()
              << " items.";
-    _addSkills(skills);
+    _addPlugins(plugins);
 }
 
 void HomePageWidget::_slotDownloadResp(const int      errorCode,
@@ -388,45 +388,45 @@ void HomePageWidget::_slotDownloadResp(const int      errorCode,
     if(errorCode != OK)
         return;
 
-    // handle downloaded skill content, e.g. save to file and load into UI
-    for(auto item : m_pSkillsBtnGroup->buttons())
+    // handle downloaded plugin content, e.g. save to file and load into UI
+    for(auto item : m_pPluginsBtnGroup->buttons())
     {
-        SkillBtn *btn = qobject_cast<SkillBtn *>(item);
+        PluginBtn *btn = qobject_cast<PluginBtn *>(item);
         if(!btn || btn->Hash() != hash)
             continue;
 
         btn->SetUrl(addr);
-        btn->SetState(SkillBtn::State::WaitDownload);
+        btn->SetState(PluginBtn::State::WaitDownload);
         break;
     }
 }
 
-void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
-                                               SkillBtn::State state)
+void HomePageWidget::_slotPluginBtnStateChanged(PluginBtn       *btn,
+                                                PluginBtn::State state)
 {
-    qDebug() << "Skill button state changed, hash: " << btn->Hash()
+    qDebug() << "Plugin button state changed, hash: " << btn->Hash()
              << ", new state: " << static_cast<int>(state);
-    // Handle skill button state change, e.g. update UI or trigger actions
+    // Handle plugin button state change, e.g. update UI or trigger actions
     switch(state)
     {
-        case SkillBtn::State::Unknown: {
-            qDebug() << "SkillBtn state is Unknown, hash: " << btn->Hash();
+        case PluginBtn::State::Unknown: {
+            qDebug() << "PluginBtn state is Unknown, hash: " << btn->Hash();
         }
         break;
-        case SkillBtn::State::WaitDownload: {
-            qDebug() << "SkillBtn is waiting to download, hash: "
+        case PluginBtn::State::WaitDownload: {
+            qDebug() << "PluginBtn is waiting to download, hash: "
                      << btn->Hash();
             _download(btn, btn->Url());
         }
         break;
-        case SkillBtn::State::Downloading: {
-            qDebug() << "SkillBtn is downloading, hash: " << btn->Hash();
+        case PluginBtn::State::Downloading: {
+            qDebug() << "PluginBtn is downloading, hash: " << btn->Hash();
         }
         break;
-        case SkillBtn::State::Downloaded: {
-            qDebug() << "SkillBtn has been downloaded, hash: " << btn->Hash();
+        case PluginBtn::State::Downloaded: {
+            qDebug() << "PluginBtn has been downloaded, hash: " << btn->Hash();
 
-            // start installing the skill plugin
+            // start installing the plugin plugin
             QString zipPath = QString("%1/tmp/%2.zip")
                                   .arg(QCoreApplication::applicationDirPath())
                                   .arg(btn->Name());
@@ -436,26 +436,27 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
             Zipper  zipper{zipPath, this};
             if(!zipper.UnZip(destDir))
             {
-                qDebug() << "Failed to unzip skill plugin from " << zipPath
+                qDebug() << "Failed to unzip plugin plugin from " << zipPath
                          << " to " << destDir;
                 QDir(destDir).removeRecursively(); // clean up
                 QFile::remove(zipPath);            // remove the zip file
-                btn->SetState(SkillBtn::State::Unknown);
-                QMessageBox::critical(
-                    this,
-                    tr("Download Failed"),
-                    tr("Failed to download skill plugin: %1").arg(btn->Name()));
+                btn->SetState(PluginBtn::State::Unknown);
+                QMessageBox::critical(this,
+                                      tr("Download Failed"),
+                                      tr("Failed to download plugin plugin: %1")
+                                          .arg(btn->Name()));
             } else
             {
-                qDebug() << "Successfully unzipped skill plugin to " << destDir;
-                btn->SetState(SkillBtn::State::Installing);
+                qDebug() << "Successfully unzipped plugin plugin to "
+                         << destDir;
+                btn->SetState(PluginBtn::State::Installing);
                 QFile::remove(
                     zipPath); // remove the zip file after installation
             }
         }
         break;
-        case SkillBtn::State::Installing: {
-            qDebug() << "SkillBtn is installing, hash: " << btn->Hash();
+        case PluginBtn::State::Installing: {
+            qDebug() << "PluginBtn is installing, hash: " << btn->Hash();
             QString destDir = QString("%1/plugins/%2")
                                   .arg(QCoreApplication::applicationDirPath())
                                   .arg(btn->Name());
@@ -479,25 +480,25 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
                 if(plugin)
                 {
                     qDebug()
-                        << "Successfully loaded skill plugin from " << destDir;
-                    btn->SetState(SkillBtn::State::Installed);
+                        << "Successfully loaded plugin plugin from " << destDir;
+                    btn->SetState(PluginBtn::State::Installed);
                 } else
                 {
-                    qDebug() << "Failed to load skill plugin from " << destDir;
+                    qDebug() << "Failed to load plugin plugin from " << destDir;
                     QDir(destDir).removeRecursively(); // clean up
-                    btn->SetState(
-                        SkillBtn::State::Unknown); // reset state to allow retry
+                    btn->SetState(PluginBtn::State::
+                                      Unknown); // reset state to allow retry
                     QMessageBox::critical(
                         this,
                         tr("Installation Failed"),
-                        tr("Failed to install skill plugin: %1")
+                        tr("Failed to install plugin plugin: %1")
                             .arg(btn->Name()));
                 }
             }
         }
         break;
-        case SkillBtn::State::Installed: {
-            qDebug() << "SkillBtn is installed, hash: " << btn->Hash();
+        case PluginBtn::State::Installed: {
+            qDebug() << "PluginBtn is installed, hash: " << btn->Hash();
         }
         break;
         default:
@@ -508,14 +509,14 @@ void HomePageWidget::_slotSkillBtnStateChanged(SkillBtn       *btn,
 void HomePageWidget::_slotPluginUnloaded(const QString &pluginId)
 {
     qDebug() << "Plugin unloaded: " << pluginId;
-    // remove the skill button associated with the unloaded plugin
-    for(auto item : m_pSkillsBtnGroup->buttons())
+    // remove the plugin button associated with the unloaded plugin
+    for(auto item : m_pPluginsBtnGroup->buttons())
     {
-        SkillBtn *btn = qobject_cast<SkillBtn *>(item);
+        PluginBtn *btn = qobject_cast<PluginBtn *>(item);
         if(!btn || btn->Name() != pluginId)
             continue;
 
-        qDebug() << "Removing skill button for unloaded plugin: " << pluginId;
+        qDebug() << "Removing plugin button for unloaded plugin: " << pluginId;
         btn->Reset();
         break;
     }
@@ -616,91 +617,91 @@ void HomePageWidget::_filterSessionTable(const QString &filterText)
     }
 }
 
-void HomePageWidget::_addSkills(const QVector<Bus::Skill> &skills)
+void HomePageWidget::_addPlugins(const QVector<Bus::Plugin> &plugins)
 {
     int idx = 0;
-    foreach(const Bus::Skill &skill, skills)
+    foreach(const Bus::Plugin &item, plugins)
     {
-        SkillBtn *btn = new SkillBtn(ui->scrollAreaSkills);
-        btn->SetHash(skill.hash);
-        btn->SetName(skill.name);
-        btn->SetDesc(skill.desc);
-        btn->SetPublisher(skill.publisher);
-        btn->SetVersion(skill.version);
-        btn->SetTimestamp(skill.timestamp);
-        btn->SetState(SkillBtn::State::Unknown);
+        PluginBtn *btn = new PluginBtn(ui->scrollAreaPlugins);
+        btn->SetHash(item.hash);
+        btn->SetName(item.name);
+        btn->SetDesc(item.desc);
+        btn->SetPublisher(item.publisher);
+        btn->SetVersion(item.version);
+        btn->SetTimestamp(item.timestamp);
+        btn->SetState(PluginBtn::State::Unknown);
 
         auto name   = btn->Name();
         auto plugin = PluginMgr::Instance()->Get(name);
         if(plugin && plugin->Version() == btn->Version())
         {
-            qDebug() << "Skill " << btn->Name() << " is already installed.";
-            btn->SetState(SkillBtn::State::Installed);
+            qDebug() << "Plugin " << btn->Name() << " is already installed.";
+            btn->SetState(PluginBtn::State::Installed);
         }
 
         connect(btn,
-                &SkillBtn::SignalStateChanged,
+                &PluginBtn::SignalStateChanged,
                 this,
-                &HomePageWidget::_slotSkillBtnStateChanged);
+                &HomePageWidget::_slotPluginBtnStateChanged);
 
-        m_pSkillsBtnGroup->addButton(btn);
+        m_pPluginsBtnGroup->addButton(btn);
         idx++;
     }
 
-    _drawSkillsArea();
+    _drawPluginsArea();
 }
 
-void HomePageWidget::_getSkills(QVector<Bus::Skill>              &skills,
-                                std::function<bool(Bus::Skill &)> filter)
+void HomePageWidget::_getPlugins(QVector<Bus::Plugin>              &plugins,
+                                 std::function<bool(Bus::Plugin &)> filter)
 {
-    for(auto item : m_pSkillsBtnGroup->buttons())
+    for(auto item : m_pPluginsBtnGroup->buttons())
     {
         if(!item)
             continue;
 
-        SkillBtn *btn = qobject_cast<SkillBtn *>(item);
+        PluginBtn *btn = qobject_cast<PluginBtn *>(item);
         if(!btn)
             continue;
 
 
-        Bus::Skill skill;
-        skill.hash      = btn->Hash();
-        skill.name      = btn->Name();
-        skill.desc      = btn->Desc();
-        skill.publisher = btn->Publisher();
-        skill.version   = btn->Version();
-        skill.timestamp = btn->Timestamp().toString("%Y-%m-%d %H:%M:%S");
-        if(!filter(skill))
+        Bus::Plugin plugin;
+        plugin.hash      = btn->Hash();
+        plugin.name      = btn->Name();
+        plugin.desc      = btn->Desc();
+        plugin.publisher = btn->Publisher();
+        plugin.version   = btn->Version();
+        plugin.timestamp = btn->Timestamp().toString("%Y-%m-%d %H:%M:%S");
+        if(!filter(plugin))
             continue;
 
-        skills.append(skill);
+        plugins.append(plugin);
     }
 }
 
-void HomePageWidget::_clearSkills()
+void HomePageWidget::_clearPlugins()
 {
-    foreach(QAbstractButton *btn, m_pSkillsBtnGroup->buttons())
+    foreach(QAbstractButton *btn, m_pPluginsBtnGroup->buttons())
     {
         ui->grid_ProScroll->removeWidget(btn);
         btn->deleteLater();
     }
-    m_pSkillsBtnGroup->buttons().clear();
+    m_pPluginsBtnGroup->buttons().clear();
 
-    _drawSkillsArea();
+    _drawPluginsArea();
 }
 
-void HomePageWidget::_drawSkillsArea()
+void HomePageWidget::_drawPluginsArea()
 {
     int width  = 150;
-    width      = qMax(width, ui->scrollAreaSkills->width() / m_colNum - 20);
-    int height = width; // make skill button square
-    for(int i = 0; i < m_pSkillsBtnGroup->buttons().count(); i++)
+    width      = qMax(width, ui->scrollAreaPlugins->width() / m_colNum - 20);
+    int height = width; // make plugin button square
+    for(int i = 0; i < m_pPluginsBtnGroup->buttons().count(); i++)
     {
-        QAbstractButton *item = m_pSkillsBtnGroup->buttons().at(i);
+        QAbstractButton *item = m_pPluginsBtnGroup->buttons().at(i);
         if(!item)
             continue;
 
-        SkillBtn *pBtn = qobject_cast<SkillBtn *>(item);
+        PluginBtn *pBtn = qobject_cast<PluginBtn *>(item);
         if(!pBtn)
             continue;
 
@@ -709,7 +710,7 @@ void HomePageWidget::_drawSkillsArea()
     }
 }
 
-void HomePageWidget::_download(SkillBtn *btn, const QUrl &url)
+void HomePageWidget::_download(PluginBtn *btn, const QUrl &url)
 {
     auto saveFilePath = QString("%1/tmp/%2.zip")
                             .arg(QCoreApplication::applicationDirPath())

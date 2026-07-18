@@ -59,7 +59,7 @@ class Bus : public QObject
         QString id;
     };
 
-    struct Skill
+    struct Plugin
     {
         QString hash;
         QString name;
