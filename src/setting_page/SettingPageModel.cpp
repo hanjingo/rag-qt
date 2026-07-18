@@ -436,11 +436,11 @@ void SettingPageModel::_saveModelConfigs()
         }
     }
     Config::Instance().setModelConfigs(confs);
-    Config::Instance().saveModel(MODEL_CONFIG_FILE);
-    QMessageBox::information(
-        this,
-        tr("Save Successful"),
-        tr("Model config exported to file: %1").arg(MODEL_CONFIG_FILE));
+    Config::Instance().saveModel(Config::getModelConfigFilePath());
+    QMessageBox::information(this,
+                             tr("Save Successful"),
+                             tr("Model config exported to file: %1")
+                                 .arg(Config::getModelConfigFilePath()));
 }
 
 void SettingPageModel::_importModelConfigs()

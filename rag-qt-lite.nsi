@@ -8,24 +8,24 @@ Unicode true
 !include "FileFunc.nsh"
 
 !define APP_NAME "rag-qt"
-!define APP_VERSION "0.1.0"
+!define APP_VERSION "0.0.1"
 !define APP_PUBLISHER "hanjingo"
 !define APP_EXE "rag-qt.exe"
 
 ; This script assumes it is compiled from repository root.
-!define SOURCE_DIR "bin\\Release"
+!define SOURCE_DIR "bin\\Release-Lite"
 !define INSTALL_ROOT "$PROGRAMFILES64"
 !define INSTALL_DIR "${INSTALL_ROOT}\\${APP_NAME}"
 !define STARTMENU_DIR "$SMPROGRAMS\\${APP_NAME}"
 !define UNINST_KEY "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${APP_NAME}"
 
 Name "${APP_NAME} ${APP_VERSION}"
-OutFile "build\\${APP_NAME}-${APP_VERSION}-setup.exe"
+OutFile "build\\${APP_NAME}-lite-${APP_VERSION}-setup.exe"
 InstallDir "${INSTALL_DIR}"
 InstallDirRegKey HKLM "${UNINST_KEY}" "InstallLocation"
 RequestExecutionLevel admin
 
-VIProductVersion "0.1.0.0"
+VIProductVersion "0.0.1.0"
 VIAddVersionKey "ProductName" "${APP_NAME}"
 VIAddVersionKey "ProductVersion" "${APP_VERSION}"
 VIAddVersionKey "CompanyName" "${APP_PUBLISHER}"
@@ -55,7 +55,7 @@ VIAddVersionKey "LegalCopyright" "Copyright (C) ${APP_PUBLISHER}"
 Section "Install" SEC_MAIN
 	SetOutPath "$INSTDIR"
 
-	; Copy Release runtime recursively, skip debug/test, transient files, and log/tmp directories.
+	; Copy Release-Lite runtime recursively, skip debug/test, transient files, and models directory.
 	; Note: log and tmp directories are excluded from packaging but will be created at install time.
 	File /r \
 		/x "*.ilk" \
@@ -69,6 +69,8 @@ Section "Install" SEC_MAIN
 		/x "log\\*" \
 		/x "tmp" \
 		/x "tmp\\*" \
+		/x "models" \
+		/x "models\\*" \
 		"${SOURCE_DIR}\\*"
 
 	; Ensure data folders exist even if excluded from source package.

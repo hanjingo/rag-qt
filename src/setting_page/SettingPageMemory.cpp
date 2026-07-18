@@ -652,11 +652,11 @@ void SettingPageMemory::_saveMemoryConfigs()
         }
     }
     Config::Instance().setMemoryConfigs(confs);
-    Config::Instance().saveMemory(MEMORY_CONFIG_FILE);
-    QMessageBox::information(
-        this,
-        tr("Save Successful"),
-        tr("Memory config exported to file: %1").arg(MEMORY_CONFIG_FILE));
+    Config::Instance().saveMemory(Config::getMemoryConfigFilePath());
+    QMessageBox::information(this,
+                             tr("Save Successful"),
+                             tr("Memory config exported to file: %1")
+                                 .arg(Config::getMemoryConfigFilePath()));
 }
 
 void SettingPageMemory::_importMemoryConfigs()

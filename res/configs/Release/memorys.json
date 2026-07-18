@@ -1,0 +1,14 @@
+[
+    {
+        "id": "default",
+        "index_file_path": "./memorys/default.faiss",
+        "meta_file_path": "./memorys/default.json",
+        "origin_file_path": "./memorys",
+        "dimension": 384,
+        "chunk_size": 64,
+        "overlap": 16,
+        "respect_sentences": true,
+        "respect_paragraphs": true,
+        "encoding": "UTF-8"
+    }
+]

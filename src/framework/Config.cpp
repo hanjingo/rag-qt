@@ -7,15 +7,24 @@
 #include <QFileDialog>
 #include <QSaveFile>
 #include <QDir>
+#include <QMessageBox>
 
 #include "Global.h"
 
 Config::Config(QObject *parent)
     : QObject(parent)
 {
-    load(QDir::current().filePath(CONFIG_FILE));
-    loadModel(QDir::current().filePath(MODEL_CONFIG_FILE));
-    loadMemory(QDir::current().filePath(MEMORY_CONFIG_FILE));
+    if(!load(Config::getConfigFilePath()))
+    {
+        QMessageBox::critical(nullptr,
+                              tr("Load Config File Failed"),
+                              tr("Failed to load config file: %1")
+                                  .arg(Config::getConfigFilePath()));
+        return;
+    }
+
+    loadModel(Config::getModelConfigFilePath());
+    loadMemory(Config::getMemoryConfigFilePath());
 }
 
 Config::~Config()
@@ -28,7 +37,22 @@ Config &Config::Instance()
     return instance;
 }
 
-void Config::load(const QString &filepath)
+QString Config::getConfigFilePath()
+{
+    return QDir::current().filePath(CONFIG_FILE);
+}
+
+QString Config::getModelConfigFilePath()
+{
+    return QDir::current().filePath(MODEL_CONFIG_FILE);
+}
+
+QString Config::getMemoryConfigFilePath()
+{
+    return QDir::current().filePath(MEMORY_CONFIG_FILE);
+}
+
+bool Config::load(const QString &filepath)
 {
     QFile         readFile(filepath);
     QJsonDocument doc;
@@ -41,14 +65,14 @@ void Config::load(const QString &filepath)
         {
             qDebug() << "Failed to parse JSON from config file: "
                      << parseError.errorString();
-            return;
+            return false;
         }
         readFile.close();
     } else
     {
         qDebug() << "Failed to open config file for reading: "
                  << readFile.errorString();
-        return;
+        return false;
     }
 
     m_rootObj = doc.object();
@@ -60,9 +84,10 @@ void Config::load(const QString &filepath)
         for(auto typ : arr)
             m_supportedDocTypes.insert(typ.toString());
     }
+    return true;
 }
 
-void Config::loadModel(const QString &filepath)
+bool Config::loadModel(const QString &filepath)
 {
     QFile         readFile(filepath);
     QJsonDocument doc;
@@ -76,20 +101,21 @@ void Config::loadModel(const QString &filepath)
             qDebug() << "Failed to parse JSON from model config file: "
                      << filepath
                      << ", with parse error:" << parseError.errorString();
-            return;
+            return false;
         }
         readFile.close();
     } else
     {
         qDebug() << "Failed to open model config file for reading: "
                  << readFile.errorString();
-        return;
+        return false;
     }
 
     m_modelArr = doc.array();
+    return true;
 }
 
-void Config::loadMemory(const QString &filepath)
+bool Config::loadMemory(const QString &filepath)
 {
     QFile         readFile(filepath);
     QJsonDocument doc;
@@ -103,20 +129,21 @@ void Config::loadMemory(const QString &filepath)
             qDebug() << "Failed to parse JSON from memory config file: "
                      << filepath
                      << ", with parse error:" << parseError.errorString();
-            return;
+            return false;
         }
         readFile.close();
     } else
     {
         qDebug() << "Failed to open memory config file for reading: "
                  << readFile.errorString();
-        return;
+        return false;
     }
 
     m_memoryArr = doc.array();
+    return true;
 }
 
-void Config::save(const QString &filepath)
+bool Config::save(const QString &filepath)
 {
     QJsonDocument doc(m_rootObj);
     QFile         saveFile(filepath);
@@ -124,15 +151,16 @@ void Config::save(const QString &filepath)
     {
         qDebug() << "Failed to open file for writing: "
                  << saveFile.errorString();
-        return;
+        return false;
     }
 
     QTextStream out(&saveFile);
     out << doc.toJson(QJsonDocument::Indented);
     saveFile.close();
+    return true;
 }
 
-void Config::saveModel(const QString &filepath)
+bool Config::saveModel(const QString &filepath)
 {
     QJsonDocument doc(m_modelArr);
     QFile         saveFile(filepath);
@@ -140,15 +168,16 @@ void Config::saveModel(const QString &filepath)
     {
         qDebug() << "Failed to open file for writing: "
                  << saveFile.errorString();
-        return;
+        return false;
     }
 
     QTextStream out(&saveFile);
     out << doc.toJson(QJsonDocument::Indented);
     saveFile.close();
+    return true;
 }
 
-void Config::saveMemory(const QString &filepath)
+bool Config::saveMemory(const QString &filepath)
 {
     QJsonDocument doc(m_memoryArr);
     QFile         saveFile(filepath);
@@ -156,12 +185,13 @@ void Config::saveMemory(const QString &filepath)
     {
         qDebug() << "Failed to open file for writing: "
                  << saveFile.errorString();
-        return;
+        return false;
     }
 
     QTextStream out(&saveFile);
     out << doc.toJson(QJsonDocument::Indented);
     saveFile.close();
+    return true;
 }
 
 bool Config::isCoreRun()

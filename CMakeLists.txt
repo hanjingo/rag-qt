@@ -14,6 +14,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(BUILD_RELEASE_LITE "Build release lite model" OFF)
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network Multimedia)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network Multimedia)
 find_package(hj REQUIRED)
@@ -108,10 +110,18 @@ endif()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
 endif()
+if (BUILD_RELEASE_LITE)
+    set(CONFIG_FILES_PATH ${CMAKE_CURRENT_SOURCE_DIR}/res/configs/Release-Lite)
+    set(OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin/Release-Lite)
+    message(STATUS "Build Release-Lite")
+else()
+    set(CONFIG_FILES_PATH ${CMAKE_CURRENT_SOURCE_DIR}/res/configs/${CMAKE_BUILD_TYPE})
+    set(OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+endif()
 
 # set output path
 if (NOT EXECUTABLE_OUTPUT_PATH)
-    set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+    set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATH})
 endif()
 if (NOT LIBRARY_OUTPUT_DIRECTORY)
     set(LIBRARY_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/plugins)
@@ -212,22 +222,22 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 # ----------------------------------------------------------------------------
-# Resource Files
+# Config Files
 # ----------------------------------------------------------------------------
-file(GLOB RAG_QT_RESOURCE_FILES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/res/*.json"
+file(GLOB RAG_QT_CONFIG_FILES CONFIGURE_DEPENDS
+    "${CONFIG_FILES_PATH}/*.json"
 )
-if (RAG_QT_RESOURCE_FILES)
-    add_custom_target(rag_qt_copy_resources ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${EXECUTABLE_OUTPUT_PATH}"
+if (RAG_QT_CONFIG_FILES)
+    add_custom_target(rag_qt_copy_config_files ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${EXECUTABLE_OUTPUT_PATH}/configs"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${RAG_QT_RESOURCE_FILES}
-            "${EXECUTABLE_OUTPUT_PATH}"
-        DEPENDS ${RAG_QT_RESOURCE_FILES}
-        COMMENT "Copying rag_qt resource files to output dir ${EXECUTABLE_OUTPUT_PATH}"
+            ${RAG_QT_CONFIG_FILES}
+            "${EXECUTABLE_OUTPUT_PATH}/configs"
+        DEPENDS ${RAG_QT_CONFIG_FILES}
+        COMMENT "Copying rag_qt config files to output dir ${EXECUTABLE_OUTPUT_PATH}"
     )
 else()
-    message(STATUS "No Rag-Qt resource files to copy for ${PROJECT_NAME}")
+    message(STATUS "No Rag-Qt config files to copy for ${PROJECT_NAME}")
 endif()
 
 # ----------------------------------------------------------------------------

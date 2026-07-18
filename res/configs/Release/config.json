@@ -1,0 +1,53 @@
+{
+    "core_run": true,
+    "default_index_path": "./memorys",
+    "supported_doc_types": ["txt"],
+    "audio translators": [
+        {
+            "carry_initial_prompt": false,
+            "detect_language": false,
+            "duration_ms": 0,
+            "entropy_thold": 3.0,
+            "filt_regex": "\\[[^\\]]*\\]|\\([^\\)]*\\)",
+            "id": "ggml/ggml-small-q8_0",
+            "initial_prompt": "",
+            "language": "en",
+            "length_penalty": -1.0,
+            "logprob_thold": -2.0,
+            "max_initial_ts": 1.0,
+            "max_audio_buffer_size": 96000,
+            "min_audio_buffer_size": 32000,
+            "min_new_sample_size": 6400,
+            "model_path": "./models/ggml-small-q8_0.bin",
+            "n_max_text_ctx": 16384,
+            "n_threads": 4,
+            "no_ctx": false,
+            "no_speech_thold": 0.8,
+            "no_timestamps": false,
+            "offset_ms": 0,
+            "print_progress": false,
+            "print_realtime": false,
+            "print_special": false,
+            "print_timestamps": false,
+            "single_segment": false,
+            "suppress_blank": true,
+            "suppress_nst": true,
+            "suppress_regex": "",
+            "temperature": 0.0,
+            "temperature_inc": 0.2,
+            "translate": false
+        }
+    ],
+    "networks": [
+        {
+            "ip": "127.0.0.1",
+            "isEnable": true,
+            "port": 50051
+        },
+        {
+            "ip": "8.134.87.167",
+            "isEnable": false,
+            "port": 50051
+        }
+    ]
+}

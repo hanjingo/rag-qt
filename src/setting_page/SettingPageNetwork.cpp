@@ -163,7 +163,7 @@ void SettingPageNetwork::_saveConfigFiles()
 {
     auto confs = GetNetworkConfigs();
     Config::Instance().setNetworkConfigs(confs);
-    Config::Instance().save(CONFIG_FILE);
+    Config::Instance().save(Config::getConfigFilePath());
 }
 
 void SettingPageNetwork::_loadConfigFiles()

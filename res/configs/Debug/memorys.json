@@ -1,8 +1,8 @@
 [
     {
-        "id": "test",
-        "index_file_path": "./memorys/test.faiss",
-        "meta_file_path": "./memorys/test.json",
+        "id": "default",
+        "index_file_path": "./memorys/default.faiss",
+        "meta_file_path": "./memorys/default.json",
         "origin_file_path": "./memorys",
         "dimension": 384,
         "chunk_size": 64,

@@ -189,7 +189,7 @@ void SettingPageHardware::_save()
             ui->editMaxAudioBufferSize->text().toInt();
     }
     Config::Instance().setAudioTranslatorParams(confs);
-    Config::Instance().save(QString(CONFIG_FILE));
+    Config::Instance().save(Config::getConfigFilePath());
 
     auto params = Config::Instance().getBusAudioParams();
     emit BusAdapter::Instance() -> SignalAudioParamUpdateNtf(params);

@@ -83,7 +83,7 @@ void LoginPage::_initUI()
     ui->lblForgotPasswd->setStyleSheet(
         StyleMgr::ParseFile(":/styles/red_label"));
     ui->lblForgotPasswd->setText(
-        "<a style='color:red;' href=http://www.baidu.com> Forgot "
+        "<a style='color:red;' href=http://8.134.87.167> Forgot "
         "Password?</a>");
     ui->lblForgotPasswd->setOpenExternalLinks(true);
 }

@@ -138,12 +138,16 @@ class Config : public QObject
   public:
     static Config &Instance();
 
-    void         load(const QString &filepath);
-    void         loadModel(const QString &filepath);
-    void         loadMemory(const QString &filepath);
-    void         save(const QString &filepath);
-    void         saveModel(const QString &filepath);
-    void         saveMemory(const QString &filepath);
+    static QString getConfigFilePath();
+    static QString getModelConfigFilePath();
+    static QString getMemoryConfigFilePath();
+
+    bool         load(const QString &filepath);
+    bool         loadModel(const QString &filepath);
+    bool         loadMemory(const QString &filepath);
+    bool         save(const QString &filepath);
+    bool         saveModel(const QString &filepath);
+    bool         saveMemory(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
     bool          isCoreRun();
