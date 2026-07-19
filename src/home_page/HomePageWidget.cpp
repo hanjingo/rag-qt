@@ -115,7 +115,7 @@ void HomePageWidget::_initHistoryArea()
 {
     // init filter edit
     ui->editFilter->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
-    ui->editFilter->setText(tr("Filter"));
+    ui->editFilter->setPlaceholderText(tr("Filter"));
 
     // init session control buttons
     ui->btnAdd->setIcon(QIcon(":/icons/add"));

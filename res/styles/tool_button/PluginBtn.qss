@@ -1,0 +1,23 @@
+PluginBtn {
+    background: transparent;
+    border: none;
+}
+
+PluginBtn[theme="glass"] {
+    qproperty-toolButtonStyle: Qt::ToolButtonIconOnly;
+    
+    border-radius: 16px;
+    padding: 14px;
+}
+
+PluginBtn[state="normal"] {
+    background-color: rgba(255, 255, 255, 235);
+    border-color: rgba(255, 255, 255, 240);
+    color: rgb(17, 17, 17);
+}
+
+PluginBtn[state="hover"] {
+    background-color: rgba(255, 255, 255, 255); 
+    border-color: rgba(255, 255, 255, 240);     
+    color: rgb(17, 17, 17);                      
+}

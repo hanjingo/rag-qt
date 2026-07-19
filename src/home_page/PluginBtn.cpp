@@ -7,6 +7,7 @@
 #include <QStyleOptionToolButton>
 
 #include "PluginBtn.h"
+#include "StyleMgr.h"
 
 PluginBtn::PluginBtn(QWidget *parent)
     : QToolButton(parent)
@@ -30,34 +31,137 @@ PluginBtn::~PluginBtn()
 
 void PluginBtn::paintEvent(QPaintEvent *e)
 {
-    QStyleOptionToolButton opt;
-    initStyleOption(&opt);
+    Q_UNUSED(e);
+    QString curState = underMouse() ? "hover" : "normal";
+    if(property("state").toString() != curState)
+    {
+        setProperty("state", curState);
+        setProperty("theme", "glass");
+        style()->unpolish(this);
+        style()->polish(this);
+    }
+
+    setStyleSheet(StyleMgr::ParseFile(":/styles/plugin_btn"));
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::TextAntialiasing);
 
-    // layer1: draw background
-    opt.text = "";
-    opt.icon = QIcon(); // use default icon painting
-    style()->drawControl(QStyle::CE_ToolButtonLabel, &opt, &painter, this);
+    QRect fillRect = rect().adjusted(2, 2, -2, -2);
 
-    // layer2: draw the text (will be covered by the overlay icon, but we want
-    //      it to be there for accessibility and tooltips)
-    painter.setFont(font());
-    painter.setPen(palette().color(QPalette::ButtonText));
-    QTextOption textOpt;
-    textOpt.setAlignment(Qt::AlignCenter);
-    textOpt.setWrapMode(QTextOption::WordWrap);
-    QRect textRect = rect().adjusted(5, 5, -5, -5); // add some padding
-    painter.drawText(textRect, text(), textOpt);
+    int radius  = 16;
+    int padding = 14;
+    if(rect().width() > 0)
+    {
+        // TODO:
+    }
 
-    // layer3: draw the overlay icon based on the download progress
+    QColor baseBgColor =
+        underMouse() ? QColor(255, 255, 255, 255) : QColor(255, 255, 255, 235);
+    QColor baseBorderColor = QColor(255, 255, 255, 240);
+    QColor mainTextColor   = QColor(17, 17, 17);
+
+    QColor bgGradientStart = baseBgColor;
+    QColor bgGradientEnd =
+        underMouse() ? QColor(255, 255, 255, 220) : QColor(255, 255, 255, 195);
+    QColor borderColorTop = baseBorderColor;
+    QColor borderColorBottom =
+        underMouse() ? QColor(0, 0, 0, 40) : QColor(0, 0, 0, 30);
+
+    QColor titleColor = mainTextColor;
+    QColor descColor  = QColor(mainTextColor.red() + 33,
+                               mainTextColor.green() + 33,
+                               mainTextColor.blue() + 33);
+    QColor infoColor  = QColor(mainTextColor.red() + 83,
+                               mainTextColor.green() + 83,
+                               mainTextColor.blue() + 83);
+
+    painter.save();
+    QColor shadowColor(10, 20, 40, 30);
+    for(int i = 1; i <= 4; ++i)
+    {
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(shadowColor);
+        painter.drawRoundedRect(fillRect.adjusted(-i / 2, i, i / 2, i),
+                                radius,
+                                radius); //[cite: 19]
+    }
+    painter.restore();
+
+    QLinearGradient bgGradient(fillRect.topLeft(),
+                               fillRect.bottomLeft()); //[cite: 19]
+    bgGradient.setColorAt(0.0, bgGradientStart);       //[cite: 19]
+    bgGradient.setColorAt(1.0, bgGradientEnd);         //[cite: 19]
+
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(bgGradient);
+    painter.drawRoundedRect(fillRect, radius, radius); //[cite: 19]
+
+    QPen borderPen;
+    borderPen.setWidthF(1.2);
+    QLinearGradient borderGradient(fillRect.topLeft(),
+                                   fillRect.bottomLeft()); //[cite: 19]
+    borderGradient.setColorAt(0.0, borderColorTop);        //[cite: 19]
+    borderGradient.setColorAt(1.0, borderColorBottom);     //[cite: 19]
+
+    borderPen.setBrush(borderGradient);
+    painter.setPen(borderPen);
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRoundedRect(fillRect, radius, radius); //[cite: 19]
+
+    QFont nameFont = font();
+    nameFont.setBold(true);
+    nameFont.setPixelSize(15);
+    painter.setFont(nameFont);
+    painter.setPen(titleColor);
+    QRect nameRect(fillRect.left() + padding,
+                   fillRect.top() + padding,
+                   fillRect.width() - padding * 2 - 35,
+                   22);
+    painter.drawText(nameRect,
+                     Qt::AlignLeft | Qt::AlignVCenter,
+                     m_name.isEmpty() ? "-" : m_name);
+
+    QFont infoFont = font();
+    infoFont.setPixelSize(11);
+    painter.setFont(infoFont);
+    painter.setPen(infoColor);
+    QString botText = QString("V%1 · %2")
+                          .arg(m_version.isEmpty() ? "0.0" : m_version)
+                          .arg(m_publisher.isEmpty() ? "admin" : m_publisher);
+    QRect   botRect(fillRect.left() + padding,
+                    fillRect.bottom() - padding - 15,
+                    fillRect.width() - padding * 2,
+                    18);
+    painter.drawText(botRect, Qt::AlignLeft | Qt::AlignVCenter, botText);
+
+    QFont descFont = font();
+    descFont.setPixelSize(12);
+    painter.setFont(descFont);
+    painter.setPen(descColor);
+
+    int   descTop    = nameRect.bottom() + 6;
+    int   descBottom = botRect.top() - 6;
+    QRect descRect(fillRect.left() + padding,
+                   descTop,
+                   fillRect.width() - padding * 2,
+                   descBottom - descTop);
+
+    QTextOption descOpt;
+    descOpt.setWrapMode(QTextOption::WordWrap);
+    descOpt.setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+    painter.drawText(descRect, m_desc.isEmpty() ? "-" : m_desc, descOpt);
+
+    QSize iconSize(26, 26);
+    int   margin = 12;
+    int   iconX  = fillRect.right() - iconSize.width() - margin;
+    int   iconY  = fillRect.top() + margin;
+    QRect iconRect(iconX, iconY, iconSize.width(), iconSize.height());
+
     QIcon overlayIcon;
     switch(m_state)
     {
-        case State::WaitDownload:
-            overlayIcon = QIcon(":/icons/download");
-            break;
         case State::Downloading:
             overlayIcon = QIcon(":/icons/downloading");
             break;
@@ -75,19 +179,21 @@ void PluginBtn::paintEvent(QPaintEvent *e)
             break;
     }
 
-    QSize iconSize(30, 30);
-    //// calculate the centered coordinates to overlap the icon center with the button center
-    //int x = (width() - iconSize.width()) / 2;
-    //int y = (height() - iconSize.height()) / 2;
+    if(m_state == State::Downloading && m_progress >= 0)
+    {
+        QPen trackPen(QColor(0, 0, 0, 25), 2);
+        painter.setPen(trackPen);
+        painter.drawEllipse(iconRect.adjusted(-2, -2, 2, 2));
 
-    // calculate the top right coordinates to overlap the icon center with the button center
-    int margin = 5;
-    int x      = width() - iconSize.width() - margin;
-    int y      = margin;
+        QPen progressPen(QColor(0, 122, 255), 2);
+        progressPen.setCapStyle(Qt::RoundCap);
+        painter.setPen(progressPen);
 
-    QRect iconRect(x, y, iconSize.width(), iconSize.height());
+        int startAngle = 90 * 16;
+        int spanAngle  = -((m_progress * 360) / 100) * 16;
+        painter.drawArc(iconRect.adjusted(-2, -2, 2, 2), startAngle, spanAngle);
+    }
 
-    // draw the overlay icon
     overlayIcon.paint(&painter, iconRect, Qt::AlignCenter);
 }
 
@@ -155,21 +261,23 @@ void PluginBtn::_init()
 
 void PluginBtn::_refreshText()
 {
-    const QString timestampText =
-        m_timestamp.isValid() ? m_timestamp.toString(Qt::TextDate) : "-";
+    // const QString timestampText =
+    //     m_timestamp.isValid() ? m_timestamp.toString(Qt::TextDate) : "-";
 
-    setText(QString("%1\n"
-                    "%2\n"
-                    "V%3\n"
-                    "Publisher:%4\n"
-                    "%5\n"
-                    "⤓: %6")
-                .arg(m_name.isEmpty() ? "-" : m_name)
-                .arg(m_desc.isEmpty() ? "-" : m_desc)
-                .arg(m_version.isEmpty() ? "-" : m_version)
-                .arg(m_publisher.isEmpty() ? "-" : m_publisher)
-                .arg(timestampText)
-                .arg(m_downloadTimes));
+    // setText(QString("%1\n"
+    //                 "%2\n"
+    //                 "V%3\n"
+    //                 "Publisher:%4\n"
+    //                 "%5\n"
+    //                 "⤓: %6")
+    //             .arg(m_name.isEmpty() ? "-" : m_name)
+    //             .arg(m_desc.isEmpty() ? "-" : m_desc)
+    //             .arg(m_version.isEmpty() ? "-" : m_version)
+    //             .arg(m_publisher.isEmpty() ? "-" : m_publisher)
+    //             .arg(timestampText)
+    //             .arg(m_downloadTimes));
+
+    update();
 }
 
 void PluginBtn::SlotProgressChanged(int progress)
