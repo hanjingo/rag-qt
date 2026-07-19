@@ -79,7 +79,8 @@ class FrameworkWidget : public QWidget
     void _slotSwitchAccount();
 
     void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
-    void _slotPluginUnloaded(const QString &pluginId);
+    void _slotPluginUnloaded(const QString &pluginId,
+                             const QString &pluginName);
 
     void _slotCoreStarted();
     void _slotCoreFinished(int exitCode, QProcess::ExitStatus exitStatus);

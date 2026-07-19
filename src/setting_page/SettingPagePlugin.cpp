@@ -1,4 +1,8 @@
-﻿#include "Bus.h"
+﻿#include <libqt/io/file.h>
+
+#include <QTimer>
+
+#include "Bus.h"
 #include "GrpcClient.h"
 
 #include "Error.h"
@@ -101,7 +105,9 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
 
             for(auto name : names)
             {
-                emit PluginMgr::Instance() -> Unload(name);
+                auto plugin = PluginMgr::Instance()->GetByName(name);
+                if(plugin)
+                    emit PluginMgr::Instance() -> Unload(plugin->Id());
             }
         }
         break;
@@ -124,10 +130,13 @@ void SettingPagePlugin::_slotPluginLoaded(PluginInterface *plugin,
     _addPlugins(name, version, filePath, "Loaded");
 }
 
-void SettingPagePlugin::_slotPluginUnloaded(const QString &pluginId)
+void SettingPagePlugin::_slotPluginUnloaded(const QString &pluginId,
+                                            const QString &pluginName)
 {
-    qDebug() << "_slotPluginUnloaded";
-    _delPlugins({pluginId});
+    qDebug() << "SettingPagePlugin::_slotPluginUnloaded with pluginId: "
+             << pluginId << ", pluginName: " << pluginName;
+
+    _delPlugins({pluginName});
 }
 
 void SettingPagePlugin::_initUI()
@@ -215,6 +224,13 @@ void SettingPagePlugin::_delPlugins(const QVector<QString> &names)
 
         auto name = pIdItem->text();
         if(names.contains(name))
+        {
+            auto addr = m_pPluginListModel->item(i, 2)->text();
             m_pPluginListModel->removeRow(i);
+
+            // remove from local
+            QTimer::singleShot(500,
+                               [addr]() { File::removeIfExists(addr, true); });
+        }
     }
 }

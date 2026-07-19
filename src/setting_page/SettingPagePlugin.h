@@ -32,7 +32,8 @@ class SettingPagePlugin : public QWidget
 
   private slots:
     void _slotPluginLoaded(PluginInterface *plugin, const QString &filePath);
-    void _slotPluginUnloaded(const QString &pluginId);
+    void _slotPluginUnloaded(const QString &pluginId,
+                             const QString &pluginName);
 
     void _slotPluginCtlBtnClicked(int id);
 
@@ -45,7 +46,7 @@ class SettingPagePlugin : public QWidget
                      const QString &version,
                      const QString &filepath,
                      const QString &tag);
-    void _delPlugins(const QVector<QString> &hashs);
+    void _delPlugins(const QVector<QString> &names);
 
   private:
   private:

@@ -452,16 +452,18 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     }
 }
 
-void FrameworkWidget::_slotPluginUnloaded(const QString &pluginId)
+void FrameworkWidget::_slotPluginUnloaded(const QString &pluginId,
+                                          const QString &pluginName)
 {
-    qDebug() << "Plugin unloaded: " << pluginId;
+    qDebug() << "FrameworkWidget::_slotPluginUnloaded with pluginId: "
+             << pluginId << ", pluginName: " << pluginName;
 
     // remove app bar item
     int index = -1;
     for(int i = 0; i < ui->listWidgetAppBar->count(); ++i)
     {
         auto item = ui->listWidgetAppBar->item(i);
-        if(item && item->text() == pluginId)
+        if(item && item->text() == pluginName)
         {
             index = i;
             delete ui->listWidgetAppBar->takeItem(i);

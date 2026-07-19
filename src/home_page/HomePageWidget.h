@@ -60,7 +60,8 @@ class HomePageWidget : public QWidget
 
     void _slotPluginBtnStateChanged(PluginBtn *btn, PluginBtn::State state);
 
-    void _slotPluginUnloaded(const QString &pluginId);
+    void _slotPluginUnloaded(const QString &pluginId,
+                             const QString &pluginName);
 
   private:
     void _initPluginsArea();

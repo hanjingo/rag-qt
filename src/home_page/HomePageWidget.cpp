@@ -506,17 +506,21 @@ void HomePageWidget::_slotPluginBtnStateChanged(PluginBtn       *btn,
     }
 }
 
-void HomePageWidget::_slotPluginUnloaded(const QString &pluginId)
+void HomePageWidget::_slotPluginUnloaded(const QString &pluginId,
+                                         const QString &pluginName)
 {
-    qDebug() << "Plugin unloaded: " << pluginId;
+    qDebug() << "HomePageWidget::_slotPluginUnloaded with pluginId: "
+             << pluginId << ", pluginName: " << pluginName;
+
     // remove the plugin button associated with the unloaded plugin
     for(auto item : m_pPluginsBtnGroup->buttons())
     {
         PluginBtn *btn = qobject_cast<PluginBtn *>(item);
-        if(!btn || btn->Name() != pluginId)
+        if(!btn || btn->Name() != pluginName)
             continue;
 
-        qDebug() << "Removing plugin button for unloaded plugin: " << pluginId;
+        qDebug() << "Removing plugin button for unloaded plugin: "
+                 << pluginName;
         btn->Reset();
         break;
     }

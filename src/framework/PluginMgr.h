@@ -22,18 +22,24 @@ class PluginMgr : public QObject
     explicit PluginMgr(QObject *parent = nullptr);
     ~PluginMgr();
 
-    static PluginMgr *Instance();
+    static PluginMgr *Instance()
+    {
+        static PluginMgr inst;
+        return &inst;
+    }
 
     PluginInterface *Get(const QString &pluginId);
+    PluginInterface *GetByName(const QString &pluginName);
     PluginInterface *Load(const QString &filePathName);
-    void             Unload(const QString &plugin);
+    void             Unload(const QString &pluginId);
     QStringList      Search(
         const QString    &path,
         const FilterFunc &filter = [](const QJsonObject &) { return true; });
 
   signals:
     void SignalPluginLoaded(PluginInterface *plugin, const QString &filePath);
-    void SignalPluginUnloaded(const QString &pluginId);
+    void SignalPluginUnloaded(const QString &pluginId,
+                              const QString &pluginName);
 
   private:
     static PluginMgr              *m_stPluginMgrInst;
