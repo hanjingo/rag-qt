@@ -55,6 +55,7 @@ class SettingPageMemory : public QWidget
                      const QString                       &tag = "Staged");
 
   private slots:
+    void _slotEditFilterTextChanged(const QString &content);
     void _slotMemCtlBtnGroupClicked(int id);
     void _slotGenerateMemory(const Config::MemoryConfig &conf);
     void _slotEmbeddingResp(const int         errorCode,
@@ -64,6 +65,7 @@ class SettingPageMemory : public QWidget
     void _slotEmbeddingStopResp(const int errorCode, const int64_t taskId);
 
   private:
+    void _filteMemTable(const QString &filterText);
     QVector<Config::MemoryConfig>
          _getMemoryInfos(const QVector<int> &rows = {});
     void _refreshMemTable(bool clearFirst = false);

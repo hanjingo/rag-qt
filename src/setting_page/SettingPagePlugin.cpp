@@ -75,6 +75,11 @@ void SettingPagePlugin::_initConnections()
             &QButtonGroup::idClicked,
             this,
             &SettingPagePlugin::_slotPluginCtlBtnClicked);
+
+    connect(ui->editFilter,
+            &QLineEdit::textChanged,
+            this,
+            &SettingPagePlugin::_slotEditFilterTextChanged);
 }
 
 void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
@@ -114,11 +119,33 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
         case 2: // setting plugin
         {
             qDebug() << "Setting plugin button clicked.";
+            QString addr;
+            auto    rows = ui->tbviewPlugin->selectionModel()->selectedRows();
+            for(auto row : rows)
+            {
+                addr = row.siblingAtColumn(2).data().toString();
+                break;
+            }
+
+            PluginConfigDialog dlg{addr};
+            dlg.SetAddrEditable(false);
+            dlg.SetAddrBtnEnable(false);
+            auto result = dlg.exec();
+            if(result == QDialog::Accepted)
+            {
+                qDebug() << "plugin config dialog closed";
+            }
         }
         break;
         default:
             break;
     }
+}
+
+void SettingPagePlugin::_slotEditFilterTextChanged(const QString &content)
+{
+    qDebug() << "Filter text changed:" << content;
+    _filtePluginTable(content);
 }
 
 void SettingPagePlugin::_slotPluginLoaded(PluginInterface *plugin,
@@ -143,7 +170,7 @@ void SettingPagePlugin::_initUI()
 {
     // init filter edit
     ui->editFilter->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
-    ui->editFilter->setText(tr("Filter"));
+    ui->editFilter->setPlaceholderText(tr("Filter"));
 
     // init model control buttons
     ui->btnAdd->setIcon(QIcon(":/icons/add"));
@@ -232,5 +259,22 @@ void SettingPagePlugin::_delPlugins(const QVector<QString> &names)
             QTimer::singleShot(500,
                                [addr]() { File::removeIfExists(addr, true); });
         }
+    }
+}
+
+void SettingPagePlugin::_filtePluginTable(const QString &filterText)
+{
+    if(m_pPluginListModel == nullptr)
+        return;
+
+    for(int i = 0; i < m_pPluginListModel->rowCount(); i++)
+    {
+        QStandardItem *pNameItem = m_pPluginListModel->item(i, 0);
+        if(pNameItem == nullptr)
+            continue;
+
+        bool match =
+            pNameItem->text().contains(filterText, Qt::CaseInsensitive);
+        ui->tbviewPlugin->setRowHidden(i, !match);
     }
 }

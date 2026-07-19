@@ -101,6 +101,8 @@
 
         <file alias="data_table_view">res/styles/table_view/DataTableView.qss</file>
 
+        <file alias="tool_btn_glass">res/styles/tool_button/ToolButtonGlass.qss</file>
+
         <file alias="transparent_widget">res/styles/widget/TransparentWidget.qss</file>
     </qresource>
 </RCC>

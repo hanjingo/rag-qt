@@ -94,7 +94,7 @@ void SettingPageModel::_initUI()
 {
     // init filter edit
     ui->editFilter->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
-    ui->editFilter->setText(tr("Filter"));
+    ui->editFilter->setPlaceholderText(tr("Filter"));
 
     // init model control buttons
     ui->btnAdd->setIcon(QIcon(":/icons/add"));
@@ -141,6 +141,11 @@ void SettingPageModel::_retranslate()
 
 void SettingPageModel::_initConnections()
 {
+    connect(ui->editFilter,
+            &QLineEdit::textChanged,
+            this,
+            &SettingPageModel::_slotEditFilterTextChanged);
+
     connect(m_pModelCtlBtnGroup,
             &QButtonGroup::idClicked,
             this,
@@ -178,6 +183,11 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
     m_pLLMListModel->setHeaderData(11, Qt::Horizontal, tr("Prompt"));
 
     m_pLLMListModel->setHeaderData(12, Qt::Horizontal, tr("Tag"));
+
+    ui->tbviewModel->hideColumn(6);  // hide cost column
+    ui->tbviewModel->hideColumn(8);  // hide hash column
+    ui->tbviewModel->hideColumn(10); // hide stop words column
+    ui->tbviewModel->hideColumn(11); // hide prompt column
 }
 
 void SettingPageModel::_addModels(const QVector<Config::ModelConfig> &configs,
@@ -457,6 +467,12 @@ void SettingPageModel::_importModelConfigs()
     _addModels(confs, "Staged");
 }
 
+void SettingPageModel::_slotEditFilterTextChanged(const QString &content)
+{
+    qDebug() << "Filter text changed:" << content;
+    _filterModelTable(content);
+}
+
 void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
 {
     auto       indexs = ui->tbviewModel->selectionModel()->selectedIndexes();
@@ -585,18 +601,18 @@ void SettingPageModel::_slotLoginResp(const int      errorCode,
                                       const QString &account,
                                       const QString &lastLoginTime)
 {
-    // hide add/delete/config button if no privilege
-    if(errorCode != ErrorCode::OK
-       || static_cast<Account::PrivilegeType>(privilege)
-              < Account::PrivilegeType::Admin)
-    {
-        ui->btnAdd->setEnabled(false);
-        ui->btnDel->setEnabled(false);
-        ui->btnSetting->setEnabled(false);
-    } else
-    {
-        ui->btnAdd->setEnabled(true);
-        ui->btnDel->setEnabled(true);
-        ui->btnSetting->setEnabled(true);
-    }
+    // // hide add/delete/config button if no privilege
+    // if(errorCode != ErrorCode::OK
+    //    || static_cast<Account::PrivilegeType>(privilege)
+    //           < Account::PrivilegeType::Admin)
+    // {
+    //     ui->btnAdd->setEnabled(false);
+    //     ui->btnDel->setEnabled(false);
+    //     ui->btnSetting->setEnabled(false);
+    // } else
+    // {
+    //     ui->btnAdd->setEnabled(true);
+    //     ui->btnDel->setEnabled(true);
+    //     ui->btnSetting->setEnabled(true);
+    // }
 }

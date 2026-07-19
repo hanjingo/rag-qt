@@ -49,7 +49,7 @@ void SettingPageMemory::_initUI()
 {
     // init filter edit
     ui->editFilter->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
-    ui->editFilter->setText(tr("Filter"));
+    ui->editFilter->setPlaceholderText(tr("Filter"));
 
     // init model control buttons
     ui->btnAdd->setIcon(QIcon(":/icons/add"));
@@ -95,6 +95,11 @@ void SettingPageMemory::_retranslate()
 
 void SettingPageMemory::_initConnections()
 {
+    connect(ui->editFilter,
+            &QLineEdit::textChanged,
+            this,
+            &SettingPageMemory::_slotEditFilterTextChanged);
+
     connect(m_pMemCtlBtnGroup,
             &QButtonGroup::idClicked,
             this,
@@ -286,6 +291,11 @@ void SettingPageMemory::_filterMemTable(const QString &filterText)
     }
 }
 
+void SettingPageMemory::_slotEditFilterTextChanged(const QString &content)
+{
+    qDebug() << "Filter text changed:" << content;
+    _filteMemTable(content);
+}
 
 void SettingPageMemory::_slotMemCtlBtnGroupClicked(int id)
 {
@@ -606,6 +616,22 @@ QVector<Bus::MemoryInfo> SettingPageMemory::GetBusMemoryInfos()
         ret.append(info);
     }
     return ret;
+}
+
+void SettingPageMemory::_filteMemTable(const QString &filterText)
+{
+    if(m_pMemListModel == nullptr)
+        return;
+
+    for(int i = 0; i < m_pMemListModel->rowCount(); i++)
+    {
+        QStandardItem *pIdItem = m_pMemListModel->item(i, 0);
+        if(pIdItem == nullptr)
+            continue;
+
+        bool match = pIdItem->text().contains(filterText, Qt::CaseInsensitive);
+        ui->tbviewMem->setRowHidden(i, !match);
+    }
 }
 
 QVector<Config::MemoryConfig>

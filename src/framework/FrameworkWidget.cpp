@@ -328,19 +328,13 @@ void FrameworkWidget::_slotCtlBtnGroupClicked(int id)
             _selectScreen();
         }
         break;
-        case 3: // Alarm
-        {
-            qDebug() << "Alarm button clicked.";
-            _showAlarmDialog();
-        }
-        break;
-        case 4: // switch account
+        case 3: // switch account
         {
             qDebug() << "Switch account button clicked.";
             _switchAccount();
         }
         break;
-        case 5: // Exit
+        case 4: // Exit
         {
             qDebug() << "Exit button clicked.";
             _exit();
@@ -622,9 +616,8 @@ void FrameworkWidget::_initControlBar()
     m_pCtlBtnGroup->addButton(ui->btnMinimize, 0);
     m_pCtlBtnGroup->addButton(ui->btnAudio, 1);
     m_pCtlBtnGroup->addButton(ui->btnSelectScreen, 2);
-    m_pCtlBtnGroup->addButton(ui->btnAlarm, 3);
-    m_pCtlBtnGroup->addButton(ui->btnSwitch, 4);
-    m_pCtlBtnGroup->addButton(ui->btnExit, 5);
+    m_pCtlBtnGroup->addButton(ui->btnSwitch, 3);
+    m_pCtlBtnGroup->addButton(ui->btnExit, 4);
     for(auto btn : m_pCtlBtnGroup->buttons())
     {
         btn->setStyleSheet(StyleMgr::ParseFile(":/styles/ctl_push_button"));

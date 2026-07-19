@@ -35,6 +35,7 @@ class SettingPageModel : public QWidget
     void changeEvent(QEvent *event) override;
 
   private slots:
+    void _slotEditFilterTextChanged(const QString &content);
     void _slotModelCtlBtnGroupClicked(int id);
 
     void _slotLoginResp(const int      errorCode,

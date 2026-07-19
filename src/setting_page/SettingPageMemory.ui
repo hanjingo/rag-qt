@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1220</width>
-    <height>863</height>
+    <width>1169</width>
+    <height>697</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,23 +25,7 @@ border-bottom-right-radius:15px;}</string>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLineEdit" name="editFilter">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="inputMask">
-        <string>Filter</string>
-       </property>
-      </widget>
+      <widget class="QLineEdit" name="editFilter"/>
      </item>
      <item>
       <widget class="QPushButton" name="btnAdd">

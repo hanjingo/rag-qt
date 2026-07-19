@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>New Plugin Config</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QWidget" name="wgtBasic" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -54,23 +54,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="editAddr">
-             <property name="font">
-              <font>
-               <italic>false</italic>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="inputMask">
-              <string>./plugins</string>
-             </property>
-             <property name="text">
-              <string>./plugins</string>
-             </property>
-             <property name="placeholderText">
-              <string>./plugins/xxx.dll</string>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="editAddr"/>
            </item>
            <item>
             <widget class="QPushButton" name="btnPluginAddr">

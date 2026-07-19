@@ -36,6 +36,7 @@ class SettingPagePlugin : public QWidget
                              const QString &pluginName);
 
     void _slotPluginCtlBtnClicked(int id);
+    void _slotEditFilterTextChanged(const QString &content);
 
   private:
     void _initUI();
@@ -47,6 +48,7 @@ class SettingPagePlugin : public QWidget
                      const QString &filepath,
                      const QString &tag);
     void _delPlugins(const QVector<QString> &names);
+    void _filtePluginTable(const QString &filterText);
 
   private:
   private:

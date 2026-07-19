@@ -23,6 +23,8 @@ class PluginConfigDialog : public QDialog
     ~PluginConfigDialog();
 
     void GetAddr(QString &filepath);
+    void SetAddrEditable(bool editable);
+    void SetAddrBtnEnable(bool enable);
 
   private slots:
     void _slotBtnPluginAddrClicked();
