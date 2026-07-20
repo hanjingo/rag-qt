@@ -261,7 +261,7 @@
            <height>683</height>
           </rect>
          </property>
-         <layout class="QGridLayout" name="grid_ProScroll"/>
+         <layout class="QGridLayout" name="gridPluginScroll"/>
         </widget>
        </widget>
       </item>

@@ -8,6 +8,8 @@
 
 #include "ui_PluginConfigDialog.h"
 
+#include "GrpcClient.h"
+
 namespace Ui
 {
 class PluginConfigDialog;
@@ -18,13 +20,15 @@ class PluginConfigDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit PluginConfigDialog(const QString &filepath,
-                                QWidget       *parent = nullptr);
+    explicit PluginConfigDialog(const Bus::Plugin &conf,
+                                QWidget           *parent = nullptr);
     ~PluginConfigDialog();
 
-    void GetAddr(QString &filepath);
-    void SetAddrEditable(bool editable);
-    void SetAddrBtnEnable(bool enable);
+    QString     GetPackAddr();
+    Bus::Plugin GetConfig();
+    void        SetAddrEditable(bool editable);
+    void        SetAddrBtnEnable(bool enable);
+    void        SetAllEnabled(const bool enabled);
 
   private slots:
     void _slotBtnPluginAddrClicked();
@@ -37,7 +41,7 @@ class PluginConfigDialog : public QDialog
   private:
     Ui::PluginConfigDialog *ui;
 
-    QString m_filepath;
+    Bus::Plugin m_conf;
 };
 
 #endif // PLUGINCONFIGDIALOG_H

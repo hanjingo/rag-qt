@@ -108,7 +108,6 @@ void HomePageWidget::changeEvent(QEvent *event)
 void HomePageWidget::_initPluginsArea()
 {
     _clearPlugins();
-    _drawPluginsArea();
 }
 
 void HomePageWidget::_initHistoryArea()
@@ -372,8 +371,15 @@ void HomePageWidget::_slotDelSessionResp(const int               errorCode,
 void HomePageWidget::_slotGetPluginInfoResp(const int errorCode,
                                             const QVector<Bus::Plugin> &plugins)
 {
+    if(errorCode != OK)
+    {
+        qDebug() << "Error in getting plugin info, error code: " << errorCode;
+        return;
+    }
+
     qDebug() << "Get plugin info response received with " << plugins.size()
              << " items.";
+    _clearPlugins();
     _addPlugins(plugins);
 }
 
@@ -621,7 +627,7 @@ void HomePageWidget::_filterSessionTable(const QString &filterText)
     }
 }
 
-void HomePageWidget::_addPlugins(const QVector<Bus::Plugin> &plugins)
+int HomePageWidget::_addPlugins(const QVector<Bus::Plugin> &plugins)
 {
     int idx = 0;
     foreach(const Bus::Plugin &item, plugins)
@@ -634,25 +640,35 @@ void HomePageWidget::_addPlugins(const QVector<Bus::Plugin> &plugins)
         btn->SetVersion(item.version);
         btn->SetTimestamp(item.timestamp);
         btn->SetState(PluginBtn::State::Unknown);
-
-        auto name   = btn->Name();
-        auto plugin = PluginMgr::Instance()->Get(name);
-        if(plugin && plugin->Version() == btn->Version())
-        {
-            qDebug() << "Plugin " << btn->Name() << " is already installed.";
-            btn->SetState(PluginBtn::State::Installed);
-        }
-
         connect(btn,
                 &PluginBtn::SignalStateChanged,
                 this,
                 &HomePageWidget::_slotPluginBtnStateChanged);
+
+        // if the plugin is already installed a higher version,
+        // reset the button state to installed
+        auto plugin = PluginMgr::Instance()->GetByName(item.name);
+        if(plugin)
+        {
+            auto oldVer = QVersionNumber::fromString(plugin->Version());
+            auto newVer = QVersionNumber::fromString(item.version);
+            if(oldVer >= newVer)
+            {
+                qDebug() << "Plugin:" << item.name
+                         << " is already installed a higher version:"
+                         << plugin->Version();
+
+                btn->SetVersion(plugin->Version());
+                btn->SetState(PluginBtn::State::Installed);
+            }
+        }
 
         m_pPluginsBtnGroup->addButton(btn);
         idx++;
     }
 
     _drawPluginsArea();
+    return idx;
 }
 
 void HomePageWidget::_getPlugins(QVector<Bus::Plugin>              &plugins,
@@ -684,18 +700,21 @@ void HomePageWidget::_getPlugins(QVector<Bus::Plugin>              &plugins,
 
 void HomePageWidget::_clearPlugins()
 {
-    foreach(QAbstractButton *btn, m_pPluginsBtnGroup->buttons())
+    auto buttons = m_pPluginsBtnGroup->buttons();
+    for(auto btn : buttons)
     {
-        ui->grid_ProScroll->removeWidget(btn);
+        m_pPluginsBtnGroup->removeButton(btn);
+        ui->gridPluginScroll->removeWidget(btn);
         btn->deleteLater();
     }
-    m_pPluginsBtnGroup->buttons().clear();
 
     _drawPluginsArea();
 }
 
 void HomePageWidget::_drawPluginsArea()
 {
+    qDebug() << "Drawing plugins area with "
+             << m_pPluginsBtnGroup->buttons().count() << " buttons.";
     int width  = 150;
     width      = qMax(width, ui->scrollAreaPlugins->width() / m_colNum - 20);
     int height = width; // make plugin button square
@@ -710,7 +729,9 @@ void HomePageWidget::_drawPluginsArea()
             continue;
 
         pBtn->Resize(width, height);
-        ui->grid_ProScroll->addWidget(pBtn, i / m_colNum, i % m_colNum);
+        qDebug() << "Adding plugin button to grid layout at row: "
+                 << i / m_colNum << ", column: " << i % m_colNum;
+        ui->gridPluginScroll->addWidget(pBtn, i / m_colNum, i % m_colNum);
     }
 }
 

@@ -234,11 +234,11 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
     m_pLoginWgtInst->hide();
     this->show();
 
+    // switch to home page after login
+    ui->listWidgetAppBar->setCurrentRow(0);
+
     // query history after login in
     GrpcClient::Instance()->GetSession(-1, user_id, auth, 50);
-
-    // query plugin info after login in
-    GrpcClient::Instance()->GetPluginInfo();
 
     return;
 }
@@ -302,6 +302,27 @@ void FrameworkWidget::_slotLogoutResp(const int     errorCode,
 
     m_pLoginWgtInst->close();
     _exit();
+}
+
+void FrameworkWidget::_slotSwitchAppBar(int index)
+{
+    ui->stackedWidget->setCurrentIndex(index);
+    switch(index)
+    {
+        case 0: {
+            qDebug() << "Switched to Home Page.";
+            // update plugin info when switch to home page
+            GrpcClient::Instance()->GetPluginInfo();
+        }
+        break;
+        case 1: {
+            qDebug() << "Switched to Settings Page.";
+        }
+        break;
+        default:
+            qDebug() << "Switched to app page index:" << index;
+            break;
+    }
 }
 
 void FrameworkWidget::_slotCtlBtnGroupClicked(int id)
@@ -605,7 +626,6 @@ void FrameworkWidget::_initAppBar()
 
     _addAppBarItem(tr("Home"), ":/icons/home", 0);
     _addAppBarItem(tr("Setting"), ":/icons/settings", 1);
-    ui->listWidgetAppBar->setCurrentRow(0);
 }
 
 void FrameworkWidget::_initControlBar()
@@ -667,8 +687,8 @@ void FrameworkWidget::_initConnections()
 
     connect(ui->listWidgetAppBar,
             &QListWidget::currentRowChanged,
-            ui->stackedWidget,
-            &QStackedWidget::setCurrentIndex);
+            this,
+            &FrameworkWidget::_slotSwitchAppBar);
 
     connect(m_pCtlBtnGroup,
             &QButtonGroup::idClicked,

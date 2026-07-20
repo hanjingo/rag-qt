@@ -71,6 +71,7 @@ class FrameworkWidget : public QWidget
     void _slotLogoutResp(const int errorCode, const int64_t user_id);
     void _slotUserBtnClicked(bool checked);
 
+    void _slotSwitchAppBar(int index);
     void _slotCtlBtnGroupClicked(int);
     void _slotUpdateRealTime();
     void _slotGrpcConnected(const QString &address);

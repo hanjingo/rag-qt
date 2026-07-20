@@ -90,7 +90,9 @@ class GrpcClient : public QObject
                     const QString          &auth,
                     const QVector<int64_t> &ids);
 
-    void GetPluginInfo(const QString &hash = "", int limit = 50);
+    void GetPluginInfo(const QString &hash      = "",
+                       const QString &publisher = "",
+                       int            limit     = 50);
 
     void
     Download(const QString &hash, const int64_t user_id, const QString &auth);

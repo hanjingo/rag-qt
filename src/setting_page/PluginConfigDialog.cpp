@@ -3,14 +3,15 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QVersionNumber>
 
-#include "Global.h"
+#include "Bus.h"
 #include "StyleMgr.h"
 
-PluginConfigDialog::PluginConfigDialog(const QString &filepath, QWidget *parent)
+PluginConfigDialog::PluginConfigDialog(const Bus::Plugin &conf, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::PluginConfigDialog)
-    , m_filepath(filepath)
+    , m_conf(conf)
 {
     ui->setupUi(this);
 
@@ -24,21 +25,32 @@ PluginConfigDialog::~PluginConfigDialog()
     delete ui;
 }
 
-void PluginConfigDialog::GetAddr(QString &filepath)
+QString PluginConfigDialog::GetPackAddr()
 {
-    m_filepath = ui->editAddr->text();
+    return ui->editPackAddr->text();
+}
 
-    filepath = m_filepath;
+Bus::Plugin PluginConfigDialog::GetConfig()
+{
+    m_conf.name      = ui->editName->text();
+    m_conf.publisher = ui->editPublisher->text();
+    m_conf.version   = QString("%1.%2.%3")
+                           .arg(ui->editVersionMajor->text())
+                           .arg(ui->editVersionMinor->text())
+                           .arg(ui->editVersionPatch->text());
+    m_conf.platform  = ui->comboPlatform->currentIndex();
+    m_conf.desc      = ui->editDesc->text();
+    return m_conf;
 }
 
 void PluginConfigDialog::SetAddrEditable(bool editable)
 {
-    ui->editAddr->setEnabled(editable);
+    ui->editPackAddr->setEnabled(editable);
 }
 
 void PluginConfigDialog::SetAddrBtnEnable(bool enable)
 {
-    ui->btnPluginAddr->setEnabled(enable);
+    ui->btnPackAddr->setEnabled(enable);
 }
 
 void PluginConfigDialog::_retranslate()
@@ -47,16 +59,23 @@ void PluginConfigDialog::_retranslate()
 
 void PluginConfigDialog::_initUI()
 {
-    //ui->editAddr->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
-    ui->editAddr->setPlaceholderText(tr("Plugin Addr"));
+    //ui->editPackAddr->setStyleSheet(StyleMgr::ParseFile(":/styles/line_edit"));
+    ui->editPackAddr->setPlaceholderText(tr("Plugin Addr"));
 
-    if(!m_filepath.isEmpty())
-        ui->editAddr->setText(m_filepath);
+    ui->editName->setText(m_conf.name);
+    ui->editPublisher->setText(m_conf.publisher);
+    QVersionNumber version = QVersionNumber::fromString(m_conf.version);
+    ui->editVersionMajor->setText(QString::number(version.majorVersion()));
+    ui->editVersionMinor->setText(QString::number(version.minorVersion()));
+    ui->editVersionPatch->setText(QString::number(version.microVersion()));
+
+    ui->comboPlatform->setCurrentIndex(m_conf.platform);
+    ui->editDesc->setText(m_conf.desc);
 }
 
 void PluginConfigDialog::_initConnections()
 {
-    connect(ui->btnPluginAddr,
+    connect(ui->btnPackAddr,
             &QPushButton::clicked,
             this,
             &PluginConfigDialog::_slotBtnPluginAddrClicked);
@@ -93,5 +112,30 @@ void PluginConfigDialog::_slotBtnPluginAddrClicked()
         return;
     }
 
-    ui->editAddr->setText(filePath);
+    ui->editPackAddr->setText(filePath);
+}
+
+void PluginConfigDialog::SetAllEnabled(const bool enabled)
+{
+    ui->editPackAddr->setEnabled(enabled);
+    ui->btnPackAddr->setEnabled(enabled);
+
+    ui->ckBuildPack->setEnabled(enabled);
+
+    ui->editDllPath->setEnabled(enabled);
+    ui->btnDllPath->setEnabled(enabled);
+
+    ui->editIconPath->setEnabled(enabled);
+    ui->btnIconPath->setEnabled(enabled);
+
+    ui->editId->setEnabled(enabled);
+    ui->editName->setEnabled(enabled);
+    ui->editPublisher->setEnabled(enabled);
+    ui->editVersionMajor->setEnabled(enabled);
+    ui->editVersionMinor->setEnabled(enabled);
+    ui->editVersionPatch->setEnabled(enabled);
+    ui->comboPlatform->setEnabled(enabled);
+
+    ui->editDesc->setEnabled(enabled);
+    ui->btnUpload->setEnabled(enabled);
 }

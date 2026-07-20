@@ -90,12 +90,14 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
         case 0: // add plugin
         {
             qDebug() << "Add plugin button clicked.";
-            QString            addr;
-            PluginConfigDialog dlg{addr};
-            auto               result = dlg.exec();
+            Bus::Plugin        conf;
+            PluginConfigDialog dlg{conf};
+            dlg.SetAllEnabled(true);
+            auto result = dlg.exec();
             if(result == QDialog::Accepted)
             {
-                dlg.GetAddr(addr);
+                conf      = dlg.GetConfig();
+                auto addr = dlg.GetPackAddr();
                 emit PluginMgr::Instance() -> Load(addr);
             }
         }
@@ -119,17 +121,17 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
         case 2: // setting plugin
         {
             qDebug() << "Setting plugin button clicked.";
-            QString addr;
-            auto    rows = ui->tbviewPlugin->selectionModel()->selectedRows();
+            Bus::Plugin conf;
+            auto rows = ui->tbviewPlugin->selectionModel()->selectedRows();
             for(auto row : rows)
             {
-                addr = row.siblingAtColumn(2).data().toString();
+                conf.name    = row.siblingAtColumn(0).data().toString();
+                conf.version = row.siblingAtColumn(1).data().toString();
                 break;
             }
 
-            PluginConfigDialog dlg{addr};
-            dlg.SetAddrEditable(false);
-            dlg.SetAddrBtnEnable(false);
+            PluginConfigDialog dlg{conf};
+            dlg.SetAllEnabled(false);
             auto result = dlg.exec();
             if(result == QDialog::Accepted)
             {
@@ -216,7 +218,7 @@ void SettingPagePlugin::_refreshPluginTable(bool clearFirst)
         m_pPluginListModel->clear();
 
     ui->tbviewPlugin->setModel(m_pPluginListModel);
-    m_pPluginListModel->setColumnCount(3);
+    m_pPluginListModel->setColumnCount(4);
     m_pPluginListModel->setHeaderData(0, Qt::Horizontal, tr("Name"));
     m_pPluginListModel->setHeaderData(1, Qt::Horizontal, tr("Version"));
     m_pPluginListModel->setHeaderData(2, Qt::Horizontal, tr("Addr"));

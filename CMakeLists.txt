@@ -144,8 +144,10 @@ message(STATUS "C++ flags, minimal Release configuration:         ${CMAKE_CXX_FL
 # ----------------------------------------------------------------------------
 # submodules
 # ----------------------------------------------------------------------------
-add_subdirectory(3rd/rag-core)
 add_subdirectory(3rd/libqt)
+if (NOT BUILD_RELEASE_LITE)
+    add_subdirectory(3rd/rag-core)
+endif()
 
 # ----------------------------------------------------------------------------
 # Source Code

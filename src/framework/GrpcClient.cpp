@@ -763,7 +763,9 @@ void GrpcClient::DelSession(const int64_t           user_id,
     emit SignalDelSessionResp(resp.error_code(), ret);
 }
 
-void GrpcClient::GetPluginInfo(const QString &hash, int limit)
+void GrpcClient::GetPluginInfo(const QString &hash,
+                               const QString &publisher,
+                               int            limit)
 {
     QVector<Bus::Plugin> ret;
     if(!m_pChannel)
@@ -778,6 +780,7 @@ void GrpcClient::GetPluginInfo(const QString &hash, int limit)
     // Prepare the request
     GrpcLibrary::GetPluginInfoReq req;
     req.set_hash(hash.toStdString());
+    req.set_publisher(publisher.toStdString());
     req.set_limit(limit);
 
     // Prepare the response and context

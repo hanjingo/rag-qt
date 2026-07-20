@@ -74,7 +74,7 @@ class HomePageWidget : public QWidget
     void _refreshSessionTable(bool clearFirst = false);
     void _filterSessionTable(const QString &filterText);
 
-    void _addPlugins(const QVector<Bus::Plugin> &plugins);
+    int  _addPlugins(const QVector<Bus::Plugin> &plugins);
     void _getPlugins(
         QVector<Bus::Plugin>              &plugins,
         std::function<bool(Bus::Plugin &)> filter = [](Bus::Plugin &) {

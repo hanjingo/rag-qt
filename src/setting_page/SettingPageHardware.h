@@ -15,9 +15,14 @@ class SettingPageHardware : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageHardware *Instance();
     explicit SettingPageHardware(QWidget *parent = nullptr);
     ~SettingPageHardware();
+
+    static SettingPageHardware *Instance()
+    {
+        static SettingPageHardware inst;
+        return &inst;
+    };
 
   signals:
 
