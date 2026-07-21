@@ -34,12 +34,14 @@ class PluginUploadDialog : public QDialog
     void _slotBtnPackClicked();
     void _slotBtnDllAddrClicked();
     void _slotBtnIconAddrClicked();
+    void _slotDllPathChanged(const QString &text);
 
   private:
     void _retranslate();
     void _initUI();
     void _initConnections();
     bool _parsePackedFile(Bus::Plugin &conf, const QString &packedFilePath);
+    void _parseDllFile();
 
   private:
     Ui::PluginUploadDialog *ui;

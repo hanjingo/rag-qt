@@ -28,6 +28,8 @@ class PluginMgr : public QObject
         return &inst;
     }
 
+    static QMap<QString, QString> Parse(const QString &absDllPath);
+
     PluginInterface *Get(const QString &pluginId);
     PluginInterface *GetByName(const QString &pluginName);
     PluginInterface *Load(const QString &filePathName);

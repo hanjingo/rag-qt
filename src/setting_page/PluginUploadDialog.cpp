@@ -91,6 +91,11 @@ void PluginUploadDialog::_initConnections()
             this,
             &PluginUploadDialog::_slotBtnDllAddrClicked);
 
+    connect(ui->editDllPath,
+            &QLineEdit::textChanged,
+            this,
+            &PluginUploadDialog::_slotDllPathChanged);
+
     connect(ui->btnIconPath,
             &QPushButton::clicked,
             this,
@@ -135,20 +140,39 @@ void PluginUploadDialog::_slotBtnPackClicked()
 {
     qDebug() << "Pack button clicked.";
     // check if the plugin file exists
-    auto      dllPath  = ui->editDllPath->text();
-    auto      iconPath = ui->editIconPath->text();
+    auto      dllPath = ui->editDllPath->text();
     QFileInfo dll(dllPath);
-    QFileInfo icon(iconPath);
-    if(!dll.exists() || !dll.isFile() || !icon.exists() || !icon.isFile())
+    if(!dll.exists() || !dll.isFile())
     {
-        QMessageBox::warning(
-            this,
-            tr("File Not Found"),
-            tr("The selected DLL or icon file does not exist."));
+        QMessageBox::warning(this,
+                             tr("File Not Found"),
+                             tr("The selected DLL file does not exist."));
+        return;
+    }
+    _parseDllFile();
+
+    auto      iconPath = ui->editIconPath->text();
+    QFileInfo icon(iconPath);
+    if(!icon.exists() || !icon.isFile())
+    {
+        QMessageBox::warning(this,
+                             tr("File Not Found"),
+                             tr("The selected icon file does not exist."));
         return;
     }
 
-    auto   packPath = ui->editPackAddr->text();
+    auto packPath = ui->editPackAddr->text();
+    if(packPath.isEmpty())
+    {
+        // example: chatbox-windows-v0.0.3.zip
+        packPath = QFileInfo(dllPath).absolutePath() + "/" + ui->editName->text()
+                   + "-" + ui->comboPlatform->currentText() + "-v"
+                   + ui->editVersionMajor->text() + "."
+                   + ui->editVersionMinor->text() + "."
+                   + ui->editVersionPatch->text() + ".zip";
+        qDebug() << "Pack path is empty, using default: " << packPath;
+        ui->editPackAddr->setText(packPath);
+    }
     Zipper zipper;
     if(!zipper.zip(packPath, {dllPath, iconPath}))
     {
@@ -221,6 +245,12 @@ void PluginUploadDialog::_slotBtnIconAddrClicked()
     ui->editIconPath->setText(filePath);
 }
 
+void PluginUploadDialog::_slotDllPathChanged(const QString &text)
+{
+    Q_UNUSED(text);
+    _parseDllFile();
+}
+
 bool PluginUploadDialog::_parsePackedFile(Bus::Plugin   &conf,
                                           const QString &packedFilePath)
 {
@@ -257,4 +287,59 @@ bool PluginUploadDialog::_parsePackedFile(Bus::Plugin   &conf,
 
     QDir(tmpPath).removeRecursively();
     return result.isEmpty() ? false : true;
+}
+
+void PluginUploadDialog::_parseDllFile()
+{
+    if(ui->editDllPath->text().isEmpty())
+        return;
+
+    auto dllPath = ui->editDllPath->text();
+    auto params  = PluginMgr::Parse(dllPath);
+    if(params.contains("Icon"))
+    {
+        auto iconPath =
+            QFileInfo(dllPath).absolutePath() + "/" + params.value("Icon");
+        if(ui->editIconPath->text().isEmpty())
+            ui->editIconPath->setText(iconPath);
+    }
+
+    if(params.contains("Name"))
+    {
+        auto name = params.value("Name");
+        if(ui->editName->text().isEmpty())
+            ui->editName->setText(name);
+    }
+
+    if(params.contains("Version"))
+    {
+        auto           version = params.value("Version");
+        QVersionNumber ver     = QVersionNumber::fromString(version);
+        if(ui->editVersionMajor->text().isEmpty())
+            ui->editVersionMajor->setText(QString::number(ver.majorVersion()));
+        if(ui->editVersionMinor->text().isEmpty())
+            ui->editVersionMinor->setText(QString::number(ver.minorVersion()));
+        if(ui->editVersionPatch->text().isEmpty())
+            ui->editVersionPatch->setText(QString::number(ver.microVersion()));
+    }
+
+    if(params.contains("Author"))
+    {
+        auto publisher = params.value("Author");
+        if(ui->editPublisher->text().isEmpty())
+            ui->editPublisher->setText(publisher);
+    }
+
+    if(params.contains("Platform"))
+    {
+        auto platform = params.value("Platform").toInt();
+        ui->comboPlatform->setCurrentIndex(platform);
+    }
+
+    if(params.contains("Description"))
+    {
+        auto desc = params.value("Description");
+        if(ui->editDesc->text().isEmpty())
+            ui->editDesc->setText(desc);
+    }
 }

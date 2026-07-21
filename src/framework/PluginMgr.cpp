@@ -21,6 +21,46 @@ PluginMgr::~PluginMgr()
         Unload(id);
 }
 
+QMap<QString, QString> PluginMgr::Parse(const QString &absDllPath)
+{
+    QMap<QString, QString> result;
+    if(!QFile::exists(absDllPath))
+        return result;
+
+    QPluginLoader loader(absDllPath);
+    if(loader.metaData().value("MetaData").isNull())
+        return result;
+
+    QJsonObject metaData = loader.metaData().value("MetaData").toObject();
+    if(metaData.contains("PluginId"))
+        result.insert("PluginId", metaData.value("PluginId").toString());
+
+    if(metaData.contains("Version"))
+        result.insert("Version", metaData.value("Version").toString());
+
+    if(metaData.contains("Name"))
+        result.insert("Name", metaData.value("Name").toString());
+
+    if(metaData.contains("Icon"))
+        result.insert("Icon", metaData.value("Icon").toString());
+
+    if(metaData.contains("Platform"))
+        result.insert("Platform",
+                      QString::number(metaData.value("Platform").toInt()));
+
+    if(metaData.contains("Description"))
+        result.insert("Description", metaData.value("Description").toString());
+
+    if(metaData.contains("Author"))
+        result.insert("Author", metaData.value("Author").toString());
+
+    if(metaData.contains("Organization"))
+        result.insert("Organization",
+                      metaData.value("Organization").toString());
+
+    return result;
+}
+
 PluginInterface *PluginMgr::Get(const QString &pluginId)
 {
     if(!m_mLoaders.contains(pluginId))
