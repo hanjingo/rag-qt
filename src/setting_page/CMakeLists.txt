@@ -10,6 +10,9 @@ file(GLOB SETTINGS_SOURCE_FILES CONFIGURE_DEPENDS
 
 list(APPEND PROJECT_SOURCES
     ${SETTINGS_SOURCE_FILES}
+
+    ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/net/uploader.h
+    ${CMAKE_SOURCE_DIR}/3rd/libqt/libqt/net/uploader.cpp
 )
 
 set(PROJECT_SOURCES "${PROJECT_SOURCES}" PARENT_SCOPE)

@@ -204,6 +204,22 @@ QSet<QString> Config::getSupportedDocTypes()
     return m_supportedDocTypes;
 }
 
+QVector<QString> Config::getPluginUploadUrls()
+{
+    QVector<QString> urls;
+    if(m_rootObj.contains("plugin_upload_urls")
+       && m_rootObj["plugin_upload_urls"].isArray())
+    {
+        QJsonArray arr = m_rootObj["plugin_upload_urls"].toArray();
+        for(const auto &url : arr)
+            urls.append(url.toString());
+
+        return urls;
+    }
+
+    return urls;
+}
+
 QVector<Bus::AudioParam> Config::getBusAudioParams()
 {
     QVector<Bus::AudioParam> params;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PluginConfigDialog</class>
- <widget class="QDialog" name="PluginConfigDialog">
+ <class>PluginUploadDialog</class>
+ <widget class="QDialog" name="PluginUploadDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -328,9 +328,9 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="btnUnPack">
+         <widget class="QPushButton" name="btnPack">
           <property name="text">
-           <string>UnPackage</string>
+           <string>Package</string>
           </property>
          </widget>
         </item>
@@ -375,7 +375,7 @@
   <connection>
    <sender>btnBoxConfirm</sender>
    <signal>accepted()</signal>
-   <receiver>PluginConfigDialog</receiver>
+   <receiver>PluginUploadDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -391,7 +391,7 @@
   <connection>
    <sender>btnBoxConfirm</sender>
    <signal>rejected()</signal>
-   <receiver>PluginConfigDialog</receiver>
+   <receiver>PluginUploadDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

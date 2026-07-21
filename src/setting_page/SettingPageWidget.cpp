@@ -16,7 +16,6 @@
 #include "SettingPageVersion.h"
 #include "SettingPageModel.h"
 #include "SettingPageHardware.h"
-#include "SettingPageDev.h"
 
 SettingPageWidget *SettingPageWidget::m_stMainSettingPageInst = nullptr;
 SettingPageWidget *SettingPageWidget::Instance()
@@ -70,9 +69,6 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
         case 6:
             SettingPageVersion::Instance();
             break;
-        case 7:
-            SettingPageDev::Instance();
-            break;
 
         default:
             break;
@@ -87,10 +83,9 @@ void SettingPageWidget::_slotLoginResp(const int      errorCode,
                                        const QString &lastLoginTime)
 {
     qDebug() << "SettingPageWidget::_slotLoginResp enter";
-    if(privilege < static_cast<int>(Account::PrivilegeType::Developer))
-    {
-        ui->tabWidget->setTabEnabled(7, false);
-    }
+    auto isDeveloper =
+        (privilege >= static_cast<int>(Account::PrivilegeType::Developer));
+    SettingPagePlugin::Instance()->setDeveloperMode(isDeveloper);
 }
 
 void SettingPageWidget::_initUI()
@@ -107,7 +102,6 @@ void SettingPageWidget::_initUI()
     ui->tabWidget->addTab(SettingPageHardware::Instance(),
                           tr("Hardware Settings"));
     ui->tabWidget->addTab(SettingPageVersion::Instance(), tr("Version Info"));
-    ui->tabWidget->addTab(SettingPageDev::Instance(), tr("Developer Settings"));
 }
 
 void SettingPageWidget::_initConnections()

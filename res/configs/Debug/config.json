@@ -2,6 +2,7 @@
     "core_run": true,
     "default_index_path": "./memorys",
     "supported_doc_types": ["txt"],
+    "plugin_upload_urls": ["http://8.134.87.167/upload"],
     "audio translators": [
         {
             "carry_initial_prompt": false,

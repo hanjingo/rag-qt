@@ -150,8 +150,9 @@ class Config : public QObject
     bool         saveMemory(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
-    bool          isCoreRun();
-    QSet<QString> getSupportedDocTypes();
+    bool             isCoreRun();
+    QSet<QString>    getSupportedDocTypes();
+    QVector<QString> getPluginUploadUrls();
 
     QVector<Bus::AudioParam> getBusAudioParams();
     Config::TranslatorParam  getAudioTranslatorParamById(const QString &id);

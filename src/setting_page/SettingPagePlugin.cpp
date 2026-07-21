@@ -1,10 +1,12 @@
 ﻿#include <libqt/io/file.h>
 
 #include <QTimer>
+#include <QMessageBox>
 
 #include "Bus.h"
 #include "GrpcClient.h"
 
+#include "Account.h"
 #include "Error.h"
 #include "StyleMgr.h"
 
@@ -12,25 +14,15 @@
 #include "ui_SettingPagePlugin.h"
 
 #include "PluginConfigDialog.h"
+#include "PluginUploadDialog.h"
 #include "PluginMgr.h"
-
-SettingPagePlugin *SettingPagePlugin::m_stSettingPagePluginInst = nullptr;
-
-SettingPagePlugin *SettingPagePlugin::Instance()
-{
-    if(nullptr == m_stSettingPagePluginInst)
-    {
-        m_stSettingPagePluginInst = new SettingPagePlugin();
-    }
-
-    return m_stSettingPagePluginInst;
-}
 
 SettingPagePlugin::SettingPagePlugin(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SettingPagePlugin)
     , m_pPluginCtlBtnGroup(new QButtonGroup(this))
-    , m_pPluginListModel(nullptr)
+    , m_pPluginListModel(new QStandardItemModel(this))
+    , m_pUploaders()
 {
     ui->setupUi(this);
 
@@ -45,6 +37,11 @@ SettingPagePlugin::~SettingPagePlugin()
     m_pPluginListModel = nullptr;
 
     delete ui;
+}
+
+void SettingPagePlugin::setDeveloperMode(bool isDeveloper)
+{
+    ui->btnUpload->setEnabled(isDeveloper);
 }
 
 void SettingPagePlugin::changeEvent(QEvent *event)
@@ -71,6 +68,11 @@ void SettingPagePlugin::_initConnections()
             this,
             &SettingPagePlugin::_slotPluginUnloaded);
 
+    connect(GrpcClient::Instance(),
+            &GrpcClient::SignalGetPluginInfoResp,
+            this,
+            &SettingPagePlugin::_slotGetPluginInfoResp);
+
     connect(m_pPluginCtlBtnGroup,
             &QButtonGroup::idClicked,
             this,
@@ -92,13 +94,20 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
             qDebug() << "Add plugin button clicked.";
             Bus::Plugin        conf;
             PluginConfigDialog dlg{conf};
-            dlg.SetAllEnabled(true);
-            auto result = dlg.exec();
+            auto               result = dlg.exec();
             if(result == QDialog::Accepted)
             {
-                conf      = dlg.GetConfig();
-                auto addr = dlg.GetPackAddr();
-                emit PluginMgr::Instance() -> Load(addr);
+                conf = dlg.GetConfig();
+                if(conf.filePath.isEmpty())
+                {
+                    qDebug() << "Plugin address is empty, cannot load plugin.";
+                    QMessageBox::warning(
+                        this,
+                        tr("Load Plugin"),
+                        tr("Plugin address is empty, cannot load plugin."));
+                    return;
+                }
+                emit PluginMgr::Instance() -> Load(conf.filePath);
             }
         }
         break;
@@ -118,25 +127,53 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
             }
         }
         break;
-        case 2: // setting plugin
+        case 2: // upload plugin
         {
-            qDebug() << "Setting plugin button clicked.";
+            qDebug() << "Upload plugin button clicked.";
             Bus::Plugin conf;
+
             auto rows = ui->tbviewPlugin->selectionModel()->selectedRows();
+            // if(rows.isEmpty())
+            // {
+            //     qDebug() << "No plugin selected for upload.";
+            //     QMessageBox::warning(this,
+            //                          tr("Upload Plugin"),
+            //                          tr("Please select a plugin to upload."));
+            //     return;
+            // }
             for(auto row : rows)
             {
-                conf.name    = row.siblingAtColumn(0).data().toString();
-                conf.version = row.siblingAtColumn(1).data().toString();
+                conf.name      = row.siblingAtColumn(0).data().toString();
+                conf.version   = row.siblingAtColumn(1).data().toString();
+                conf.timestamp = row.siblingAtColumn(2).data().toString();
+                conf.platform  = row.siblingAtColumn(3).data().toInt();
+                conf.publisher = row.siblingAtColumn(4).data().toString();
+                conf.hash      = row.siblingAtColumn(5).data().toString();
+                conf.filePath  = row.siblingAtColumn(6).data().toString();
+                conf.desc      = row.siblingAtColumn(7).data().toString();
                 break;
             }
 
-            PluginConfigDialog dlg{conf};
-            dlg.SetAllEnabled(false);
-            auto result = dlg.exec();
-            if(result == QDialog::Accepted)
+            PluginUploadDialog dlg{conf};
+            auto               result = dlg.exec();
+            conf                      = dlg.GetConfig();
+            auto packedFilePath       = dlg.GetPackedFilePath();
+            if(result != QDialog::Accepted)
             {
-                qDebug() << "plugin config dialog closed";
+                qDebug() << "Plugin upload dialog canceled.";
+                return;
             }
+
+            if(packedFilePath.isEmpty())
+            {
+                qDebug() << "Packed file path is empty, cannot upload plugin.";
+                QMessageBox::warning(
+                    this,
+                    tr("Upload Plugin"),
+                    tr("Packed file path is empty, cannot upload plugin."));
+                return;
+            }
+            _upload(packedFilePath);
         }
         break;
         default:
@@ -156,7 +193,12 @@ void SettingPagePlugin::_slotPluginLoaded(PluginInterface *plugin,
     qDebug() << "_slotPluginLoaded";
     QString name    = plugin->Name();
     QString version = plugin->Version();
-    _addPlugins(name, version, filePath, "Loaded");
+
+    auto conf     = _findStagedPlugin(name, version);
+    conf.name     = name;
+    conf.version  = version;
+    conf.filePath = filePath;
+    _addPlugins({conf}, "Loaded");
 }
 
 void SettingPagePlugin::_slotPluginUnloaded(const QString &pluginId,
@@ -166,6 +208,112 @@ void SettingPagePlugin::_slotPluginUnloaded(const QString &pluginId,
              << pluginId << ", pluginName: " << pluginName;
 
     _delPlugins({pluginName});
+}
+
+void SettingPagePlugin::_slotGetPluginInfoResp(
+    const int errorCode, const QVector<Bus::Plugin> &plugins)
+{
+    qDebug() << "Get plugin info response received with " << plugins.size()
+             << " items.";
+    m_stagedPlugins.clear();
+    for(auto plugin : plugins)
+    {
+        qDebug() << "Get Remote Plugin Info Name: " << plugin.name
+                 << ", Hash: " << plugin.hash << ", Version: " << plugin.version
+                 << ", Publisher: " << plugin.publisher
+                 << ", Platform: " << plugin.platform
+                 << ", Description: " << plugin.desc;
+        m_stagedPlugins.append(plugin);
+    }
+
+    // attach staged plugins to the table with tag "Staged"
+    for(int i = 0; i < m_pPluginListModel->rowCount(); i++)
+    {
+        QStandardItem *pTagItem = m_pPluginListModel->item(i, 8);
+        if(pTagItem == nullptr || pTagItem->text() != "Loaded")
+            continue;
+
+        QStandardItem *pNameItem = m_pPluginListModel->item(i, 0);
+        QStandardItem *pVerItem  = m_pPluginListModel->item(i, 1);
+        if(!pNameItem || !pVerItem)
+            continue;
+
+        auto name    = pNameItem->text();
+        auto version = pVerItem->text();
+        auto conf    = _findStagedPlugin(name, version);
+        if(conf.name.isEmpty())
+            continue;
+
+        m_pPluginListModel->setItem(i, 0, new QStandardItem(conf.name));
+        m_pPluginListModel->setItem(i, 1, new QStandardItem(conf.version));
+        m_pPluginListModel->setItem(i, 2, new QStandardItem(conf.timestamp));
+        m_pPluginListModel->setItem(i, 3, new QStandardItem(conf.platform));
+        m_pPluginListModel->setItem(i, 4, new QStandardItem(conf.publisher));
+        m_pPluginListModel->setItem(i, 5, new QStandardItem(conf.hash));
+        m_pPluginListModel->setItem(i, 7, new QStandardItem(conf.desc));
+    }
+}
+
+void SettingPagePlugin::_upload(const QString &filePath)
+{
+    qDebug() << "SettingPagePlugin::_slotUpload with filePath: " << filePath;
+
+    auto urls = Config::Instance().getPluginUploadUrls();
+    if(urls.isEmpty())
+    {
+        qDebug() << "No plugin upload URL configured.";
+        QMessageBox::critical(this,
+                              tr("Upload Error"),
+                              tr("No plugin upload URL configured."));
+        return;
+    }
+
+    auto url      = QUrl(urls.first());
+    auto uploader = new Uploader(this);
+    if(!uploader)
+    {
+        qDebug() << "Failed to create Uploader instance.";
+        QMessageBox::critical(this,
+                              tr("Upload Error"),
+                              tr("Failed to create Uploader instance."));
+        return;
+    }
+
+    connect(uploader,
+            &Uploader::signalUploadFinished,
+            this,
+            [uploader](bool           success,
+                       const QString &filePath,
+                       const QString &response) {
+                SettingPagePlugin::Instance()->erase(uploader);
+
+                if(success)
+                {
+                    qDebug() << "Upload successful, response: " << response;
+                    QMessageBox::information(
+                        SettingPagePlugin::Instance(),
+                        QObject::tr("Upload Successful"),
+                        QObject::tr("Plugin uploaded successfully."));
+                } else
+                {
+                    qDebug() << "Upload failed, response: " << response;
+                    QMessageBox::critical(
+                        SettingPagePlugin::Instance(),
+                        QObject::tr("Upload Failed"),
+                        QObject::tr("Plugin upload failed. Response: %1")
+                            .arg(response));
+                }
+            });
+    connect(uploader,
+            &Uploader::signalUploadError,
+            this,
+            [uploader, filePath](const QString &errorString) {
+                qDebug() << "Upload error for file: " << filePath
+                         << ", error: " << errorString;
+                SettingPagePlugin::Instance()->erase(uploader);
+            });
+    m_pUploaders.insert(uploader);
+    uploader->upload(url, filePath);
 }
 
 void SettingPagePlugin::_initUI()
@@ -179,11 +327,11 @@ void SettingPagePlugin::_initUI()
     ui->btnAdd->setVisible(true);
     ui->btnDel->setIcon(QIcon(":/icons/del"));
     ui->btnDel->setVisible(true);
-    ui->btnSetting->setIcon(QIcon(":/icons/settings"));
-    ui->btnSetting->setVisible(true);
+    ui->btnUpload->setIcon(QIcon(":/icons/upload"));
+    ui->btnUpload->setVisible(true);
     m_pPluginCtlBtnGroup->addButton(ui->btnAdd, 0);
     m_pPluginCtlBtnGroup->addButton(ui->btnDel, 1);
-    m_pPluginCtlBtnGroup->addButton(ui->btnSetting, 2);
+    m_pPluginCtlBtnGroup->addButton(ui->btnUpload, 2);
     m_pPluginCtlBtnGroup->setExclusive(true);
 
     // init model table
@@ -218,26 +366,57 @@ void SettingPagePlugin::_refreshPluginTable(bool clearFirst)
         m_pPluginListModel->clear();
 
     ui->tbviewPlugin->setModel(m_pPluginListModel);
-    m_pPluginListModel->setColumnCount(4);
+    m_pPluginListModel->setColumnCount(9);
     m_pPluginListModel->setHeaderData(0, Qt::Horizontal, tr("Name"));
     m_pPluginListModel->setHeaderData(1, Qt::Horizontal, tr("Version"));
-    m_pPluginListModel->setHeaderData(2, Qt::Horizontal, tr("Addr"));
-    m_pPluginListModel->setHeaderData(3, Qt::Horizontal, tr("Tag"));
+    m_pPluginListModel->setHeaderData(2, Qt::Horizontal, tr("Timestamp"));
+    m_pPluginListModel->setHeaderData(3, Qt::Horizontal, tr("Platform"));
+    m_pPluginListModel->setHeaderData(4, Qt::Horizontal, tr("Publisher"));
+    m_pPluginListModel->setHeaderData(5, Qt::Horizontal, tr("Hash"));
+    m_pPluginListModel->setHeaderData(6, Qt::Horizontal, tr("Address"));
+    m_pPluginListModel->setHeaderData(7, Qt::Horizontal, tr("Desc"));
+    m_pPluginListModel->setHeaderData(8, Qt::Horizontal, tr("Tag"));
 }
 
-void SettingPagePlugin::_addPlugins(const QString &name,
-                                    const QString &version,
-                                    const QString &filepath,
-                                    const QString &tag)
+void SettingPagePlugin::_addPlugins(const QVector<Bus::Plugin> &plugins,
+                                    const QString              &tag)
 {
     if(m_pPluginListModel == nullptr)
         return;
 
-    int n_row = m_pPluginListModel->rowCount();
-    m_pPluginListModel->setItem(n_row, 0, new QStandardItem(name));
-    m_pPluginListModel->setItem(n_row, 1, new QStandardItem(version));
-    m_pPluginListModel->setItem(n_row, 2, new QStandardItem(filepath));
-    m_pPluginListModel->setItem(n_row, 3, new QStandardItem(tag));
+    for(auto plugin : plugins)
+    {
+        qDebug() << "Plugin Name: " << plugin.name << ", Hash: " << plugin.hash
+                 << ", Version: " << plugin.version
+                 << ", Publisher: " << plugin.publisher
+                 << ", Platform: " << plugin.platform
+                 << ", addr: " << plugin.filePath
+                 << ", Description: " << plugin.desc;
+        if(plugin.publisher != Account::Instance()->Name())
+            continue;
+
+        int n_row = m_pPluginListModel->rowCount();
+        m_pPluginListModel->setItem(n_row, 0, new QStandardItem(plugin.name));
+        m_pPluginListModel->setItem(n_row,
+                                    1,
+                                    new QStandardItem(plugin.version));
+        m_pPluginListModel->setItem(n_row,
+                                    2,
+                                    new QStandardItem(plugin.timestamp));
+        m_pPluginListModel->setItem(
+            n_row,
+            3,
+            new QStandardItem(QString::number(plugin.platform)));
+        m_pPluginListModel->setItem(n_row,
+                                    4,
+                                    new QStandardItem(plugin.publisher));
+        m_pPluginListModel->setItem(n_row, 5, new QStandardItem(plugin.hash));
+        m_pPluginListModel->setItem(n_row,
+                                    6,
+                                    new QStandardItem(plugin.filePath));
+        m_pPluginListModel->setItem(n_row, 7, new QStandardItem(plugin.desc));
+        m_pPluginListModel->setItem(n_row, 8, new QStandardItem(tag));
+    }
 }
 
 void SettingPagePlugin::_delPlugins(const QVector<QString> &names)
@@ -247,17 +426,18 @@ void SettingPagePlugin::_delPlugins(const QVector<QString> &names)
 
     for(int i = m_pPluginListModel->rowCount() - 1; i >= 0; i--)
     {
-        QStandardItem *pIdItem = m_pPluginListModel->item(i, 0);
-        if(pIdItem == nullptr)
+        QStandardItem *pNameItem = m_pPluginListModel->item(i, 0);
+        if(pNameItem == nullptr)
             continue;
 
-        auto name = pIdItem->text();
+        auto name = pNameItem->text();
         if(names.contains(name))
         {
-            auto addr = m_pPluginListModel->item(i, 2)->text();
+            auto addr = m_pPluginListModel->item(i, 6)->text();
             m_pPluginListModel->removeRow(i);
 
             // remove from local
+            qDebug() << "Removing plugin file at address: " << addr;
             QTimer::singleShot(500,
                                [addr]() { File::removeIfExists(addr, true); });
         }
@@ -279,4 +459,16 @@ void SettingPagePlugin::_filtePluginTable(const QString &filterText)
             pNameItem->text().contains(filterText, Qt::CaseInsensitive);
         ui->tbviewPlugin->setRowHidden(i, !match);
     }
+}
+
+Bus::Plugin SettingPagePlugin::_findStagedPlugin(const QString &name,
+                                                 const QString &version)
+{
+    for(auto plugin : m_stagedPlugins)
+    {
+        if(plugin.name == name && plugin.version == version)
+            return plugin;
+    }
+
+    return Bus::Plugin{};
 }

@@ -68,6 +68,9 @@ class Bus : public QObject
         QString version;
         QString timestamp;
         qint32  platform;
+
+        // external file path, used for staging plugin info before loading
+        QString filePath;
     };
 
     struct AudioParam

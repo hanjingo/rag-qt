@@ -88,7 +88,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnSetting">
+      <widget class="QPushButton" name="btnUpload">
        <property name="minimumSize">
         <size>
          <width>30</width>
@@ -106,7 +106,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normalon>:/icons/settings</normalon>
+         <normalon>:/icons/upload</normalon>
         </iconset>
        </property>
        <property name="iconSize">

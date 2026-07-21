@@ -1,5 +1,5 @@
-#ifndef PLUGINCONFIGDIALOG_H
-#define PLUGINCONFIGDIALOG_H
+#ifndef PLUGINUPLOADDIALOG_H
+#define PLUGINUPLOADDIALOG_H
 
 #include <QDialog>
 #include <QVector>
@@ -8,41 +8,43 @@
 
 #include <libqt/net/uploader.h>
 
-#include "ui_PluginConfigDialog.h"
+#include "ui_PluginUploadDialog.h"
 
 #include "GrpcClient.h"
 
 namespace Ui
 {
-class PluginConfigDialog;
+class PluginUploadDialog;
 }
 
-class PluginConfigDialog : public QDialog
+class PluginUploadDialog : public QDialog
 {
     Q_OBJECT
 
   public:
-    explicit PluginConfigDialog(const Bus::Plugin &conf,
+    explicit PluginUploadDialog(const Bus::Plugin &conf,
                                 QWidget           *parent = nullptr);
-    ~PluginConfigDialog();
+    ~PluginUploadDialog();
 
     Bus::Plugin GetConfig();
+    QString     GetPackedFilePath();
 
   private slots:
     void _slotBtnPackAddrClicked();
+    void _slotBtnPackClicked();
     void _slotBtnDllAddrClicked();
     void _slotBtnIconAddrClicked();
-    void _slotBtnUnPackClicked();
 
   private:
     void _retranslate();
     void _initUI();
     void _initConnections();
+    bool _parsePackedFile(Bus::Plugin &conf, const QString &packedFilePath);
 
   private:
-    Ui::PluginConfigDialog *ui;
+    Ui::PluginUploadDialog *ui;
 
     Bus::Plugin m_conf;
 };
 
-#endif // PLUGINCONFIGDIALOG_H
+#endif // PLUGINUPLOADDIALOG_H

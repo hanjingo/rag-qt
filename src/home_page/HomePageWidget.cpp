@@ -439,8 +439,8 @@ void HomePageWidget::_slotPluginBtnStateChanged(PluginBtn       *btn,
             QString destDir = QString("%1/plugins/%2")
                                   .arg(QCoreApplication::applicationDirPath())
                                   .arg(btn->Name());
-            Zipper  zipper{zipPath, this};
-            if(!zipper.UnZip(destDir))
+            Zipper  zipper{nullptr};
+            if(!zipper.unZip(destDir, zipPath))
             {
                 qDebug() << "Failed to unzip plugin plugin from " << zipPath
                          << " to " << destDir;

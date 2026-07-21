@@ -3,8 +3,11 @@
         "PluginId": "example-v0.0.1",
         "Version": "0.0.1",
         "Name": "example",
+        "Icon": "example.png",
+        "Platform": 1,
         "Description": "this plugin provided a example widget for the framework",
         "Author": "hehehunanchina@live.com",
+        "Organization": "rag-qt",
         "Dependencies": []
     }
 }
