@@ -8,6 +8,7 @@
 #include <libqt/sync/timedqueue.h>
 
 #include "GrpcClientReactor.h"
+#include "System.h"
 
 static std::unordered_map<int64_t, std::shared_ptr<RecognizeReactor>>
     m_recognizeReactors;
@@ -77,14 +78,14 @@ void GrpcClient::Heartbeat(const int64_t timestamp)
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::Ping req;
+    GrpcLibraryV1::Ping req;
     req.set_timestamp(timestamp);
 
     // Prepare the response and context
-    GrpcLibrary::Pong   resp;
+    GrpcLibraryV1::Pong resp;
     grpc::ClientContext context;
 
     // Make the RPC call
@@ -114,39 +115,46 @@ void GrpcClient::Login(const QString &username, const QString &password)
                              "",
                              -1,
                              username,
-                             "");
+                             "",
+                             false);
         return;
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::LoginReq req;
+    GrpcLibraryV1::LoginReq req;
     req.set_account(username.toStdString());
     req.set_passwd(password.toStdString());
+    req.set_platform(System::Instance()->Platform().toStdString());
+    req.set_arch(System::Instance()->Arch().toStdString());
+    req.set_client_version(System::Instance()->Version().toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::LoginResp resp;
-    grpc::ClientContext    context;
+    GrpcLibraryV1::LoginResp resp;
+    grpc::ClientContext      context;
 
     // Make the RPC call
     grpc::Status status = stub->Login(&context, req, &resp);
 
+    bool is_force_update = resp.update_info().force_update();
     if(status.ok())
         emit SignalLoginResp(resp.error_code(),
                              resp.user_id(),
                              QString::fromStdString(resp.auth()),
                              resp.privilege(),
                              QString::fromStdString(resp.account()),
-                             QString::fromStdString(resp.last_login_time()));
+                             QString::fromStdString(resp.last_login_time()),
+                             is_force_update);
     else
         emit SignalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                              -1,
                              "",
                              -1,
                              username,
-                             "");
+                             "",
+                             false);
 }
 
 void GrpcClient::Logout(const int64_t user_id, const QString &auth)
@@ -158,16 +166,16 @@ void GrpcClient::Logout(const int64_t user_id, const QString &auth)
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::LogoutReq req;
+    GrpcLibraryV1::LogoutReq req;
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::LogoutResp resp;
-    grpc::ClientContext     context;
+    GrpcLibraryV1::LogoutResp resp;
+    grpc::ClientContext       context;
 
     // Make the RPC call
     grpc::Status status = stub->Logout(&context, req, &resp);
@@ -187,16 +195,16 @@ void GrpcClient::RegAccount(const QString &username, const QString &password)
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::RegAccountReq req;
+    GrpcLibraryV1::RegAccountReq req;
     req.set_account(username.toStdString());
     req.set_passwd(password.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::RegAccountResp resp;
-    grpc::ClientContext         context;
+    GrpcLibraryV1::RegAccountResp resp;
+    grpc::ClientContext           context;
 
     // Make the RPC call
     grpc::Status status = stub->RegAccount(&context, req, &resp);
@@ -221,10 +229,10 @@ void GrpcClient::Query(const int64_t              id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::QueryReq req;
+    GrpcLibraryV1::QueryReq req;
     req.set_id(id);
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
@@ -284,8 +292,8 @@ void GrpcClient::Query(const int64_t              id,
     req.mutable_ctx()->set_prompt(config.prompt.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::QueryResp resp;
-    grpc::ClientContext    context;
+    GrpcLibraryV1::QueryResp resp;
+    grpc::ClientContext      context;
 
     QueryReactor *reactor = new QueryReactor(this, id);
     stub->async()->Query(&reactor->m_context, &req, reactor);
@@ -305,17 +313,17 @@ void GrpcClient::StopAnswer(const int64_t  session_id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::StopAnswerReq req;
+    GrpcLibraryV1::StopAnswerReq req;
     req.set_session_id(session_id);
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::StopAnswerResp resp;
-    grpc::ClientContext         context;
+    GrpcLibraryV1::StopAnswerResp resp;
+    grpc::ClientContext           context;
 
     // Make the RPC call
     grpc::Status status = stub->StopAnswer(&context, req, &resp);
@@ -352,7 +360,7 @@ void GrpcClient::Recognize(const int64_t                  session_id,
         m_recognizeReactors[session_id] = reactor;
 
         // first call Recognize to start the reactor
-        auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+        auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
         stub->async()->Recognize(&reactor->m_context, reactor.get());
         reactor->StartCall();
         reactor->StartRead(&reactor->m_resp);
@@ -361,7 +369,7 @@ void GrpcClient::Recognize(const int64_t                  session_id,
         reactor = m_recognizeReactors[session_id];
     }
 
-    GrpcLibrary::RecognitionParam param;
+    GrpcLibraryV1::RecognitionParam param;
     param.set_n_threads(params.nThreads);
     param.set_n_max_text_ctx(params.nMaxTextCtx);
     param.set_offset_ms(params.offsetMs);
@@ -390,7 +398,7 @@ void GrpcClient::Recognize(const int64_t                  session_id,
     param.set_no_speech_thold(params.noSpeechThold);
 
     // send config
-    GrpcLibrary::RecognizeReq configReq;
+    GrpcLibraryV1::RecognizeReq configReq;
     configReq.set_ctx_id(translatorId.toStdString());
     configReq.set_session_id(session_id);
     configReq.mutable_param()->CopyFrom(param);
@@ -399,7 +407,7 @@ void GrpcClient::Recognize(const int64_t                  session_id,
     // send audio data
     if(!data.isEmpty())
     {
-        GrpcLibrary::RecognizeReq audioReq;
+        GrpcLibraryV1::RecognizeReq audioReq;
         audioReq.set_ctx_id(translatorId.toStdString());
         audioReq.set_session_id(session_id);
         audioReq.set_audio_chunk(data.data(), data.size());
@@ -421,17 +429,17 @@ void GrpcClient::RecognizeStop(const int64_t  session_id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::StopRecognizeReq req;
+    GrpcLibraryV1::StopRecognizeReq req;
     req.set_session_id(session_id);
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::StopRecognizeResp resp;
-    grpc::ClientContext            context;
+    GrpcLibraryV1::StopRecognizeResp resp;
+    grpc::ClientContext              context;
 
     // Make the RPC call
     grpc::Status status = stub->StopRecognize(&context, req, &resp);
@@ -470,7 +478,7 @@ void GrpcClient::Embedding(const int64_t               task_id,
         m_embeddingRectors[task_id] = reactor;
 
         // first call Embedding to start the reactor
-        auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+        auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
         stub->async()->Embedding(&reactor->m_context, reactor.get());
         reactor->StartCall();
         reactor->StartRead(&reactor->m_resp);
@@ -482,10 +490,10 @@ void GrpcClient::Embedding(const int64_t               task_id,
 
     if(!params.id.isEmpty())
     {
-        GrpcLibrary::EmbeddingParam param;
+        GrpcLibraryV1::EmbeddingParam param;
         param.set_dimension(params.dimension);
 
-        GrpcLibrary::EmbeddingReq req;
+        GrpcLibraryV1::EmbeddingReq req;
         req.set_task_id(task_id);
         req.mutable_param()->CopyFrom(param);
         reactor->SendRequest(req);
@@ -495,14 +503,14 @@ void GrpcClient::Embedding(const int64_t               task_id,
 
     if(!chunk_data.isEmpty())
     {
-        GrpcLibrary::FileChunk chunk;
+        GrpcLibraryV1::FileChunk chunk;
         chunk.set_id(chunk_id);
         chunk.set_start_pos(start_pos);
         chunk.set_end_pos(end_pos);
         chunk.set_filename(params.originFilePath.toStdString());
         chunk.set_data(chunk_data.data(), chunk_data.size());
 
-        GrpcLibrary::EmbeddingReq req;
+        GrpcLibraryV1::EmbeddingReq req;
         req.set_task_id(task_id);
         req.mutable_chunk()->CopyFrom(chunk);
         reactor->SendRequest(req);
@@ -524,17 +532,17 @@ void GrpcClient::EmbeddingStop(const int64_t  task_id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::StopEmbeddingReq req;
+    GrpcLibraryV1::StopEmbeddingReq req;
     req.set_task_id(task_id);
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::StopEmbeddingResp resp;
-    grpc::ClientContext            context;
+    GrpcLibraryV1::StopEmbeddingResp resp;
+    grpc::ClientContext              context;
 
     // Make the RPC call
     grpc::Status status = stub->StopEmbedding(&context, req, &resp);
@@ -560,10 +568,10 @@ void GrpcClient::GetMessageInfo(const int64_t  session_id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::GetMessageInfoReq req;
+    GrpcLibraryV1::GetMessageInfoReq req;
     req.set_id(msg_id);
     req.set_session_id(session_id);
     req.set_limit(limit);
@@ -571,8 +579,8 @@ void GrpcClient::GetMessageInfo(const int64_t  session_id,
     req.set_auth(auth.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::GetMessageInfoResp resp;
-    grpc::ClientContext             context;
+    GrpcLibraryV1::GetMessageInfoResp resp;
+    grpc::ClientContext               context;
 
     // Make the RPC call
     grpc::Status status = stub->GetMessageInfo(&context, req, &resp);
@@ -607,18 +615,18 @@ void GrpcClient::GetSession(const int64_t  id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::GetSessionReq req;
+    GrpcLibraryV1::GetSessionReq req;
     req.set_id(id);
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
     req.set_limit(limit);
 
     // Prepare the response and context
-    GrpcLibrary::GetSessionResp resp;
-    grpc::ClientContext         context;
+    GrpcLibraryV1::GetSessionResp resp;
+    grpc::ClientContext           context;
 
     // Make the RPC call
     grpc::Status status = stub->GetSession(&context, req, &resp);
@@ -654,10 +662,10 @@ void GrpcClient::NewSession(const int64_t  user_id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::NewSessionReq req;
+    GrpcLibraryV1::NewSessionReq req;
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
     req.set_title(title.toStdString());
@@ -665,8 +673,8 @@ void GrpcClient::NewSession(const int64_t  user_id,
     req.set_model(model.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::NewSessionResp resp;
-    grpc::ClientContext         context;
+    GrpcLibraryV1::NewSessionResp resp;
+    grpc::ClientContext           context;
 
     // Make the RPC call
     grpc::Status status = stub->NewSession(&context, req, &resp);
@@ -696,18 +704,18 @@ void GrpcClient::ModifySessionTitle(const int64_t  user_id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::ModifySessionTitleReq req;
+    GrpcLibraryV1::ModifySessionTitleReq req;
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
     req.set_id(id);
     req.set_title(title.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::ModifySessionTitleResp resp;
-    grpc::ClientContext                 context;
+    GrpcLibraryV1::ModifySessionTitleResp resp;
+    grpc::ClientContext                   context;
 
     // Make the RPC call
     grpc::Status status = stub->ModifySessionTitle(&context, req, &resp);
@@ -734,18 +742,18 @@ void GrpcClient::DelSession(const int64_t           user_id,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::DelSessionReq req;
+    GrpcLibraryV1::DelSessionReq req;
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
     for(const auto &id : ids)
         req.add_ids(id);
 
     // Prepare the response and context
-    GrpcLibrary::DelSessionResp resp;
-    grpc::ClientContext         context;
+    GrpcLibraryV1::DelSessionResp resp;
+    grpc::ClientContext           context;
 
     // Make the RPC call
     grpc::Status status = stub->DelSession(&context, req, &resp);
@@ -775,17 +783,17 @@ void GrpcClient::GetPluginInfo(const QString &hash,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::GetPluginInfoReq req;
+    GrpcLibraryV1::GetPluginInfoReq req;
     req.set_hash(hash.toStdString());
     req.set_publisher(publisher.toStdString());
     req.set_limit(limit);
 
     // Prepare the response and context
-    GrpcLibrary::GetPluginInfoResp resp;
-    grpc::ClientContext            context;
+    GrpcLibraryV1::GetPluginInfoResp resp;
+    grpc::ClientContext              context;
 
     // Make the RPC call
     grpc::Status status = stub->GetPluginInfo(&context, req, &resp);
@@ -821,17 +829,17 @@ void GrpcClient::Download(const QString &hash,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::DownloadReq req;
+    GrpcLibraryV1::DownloadReq req;
     req.set_hash(hash.toStdString());
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
 
     // Prepare the response and context
-    GrpcLibrary::DownloadResp resp;
-    grpc::ClientContext       context;
+    GrpcLibraryV1::DownloadResp resp;
+    grpc::ClientContext         context;
 
     // Make the RPC call
     grpc::Status status = stub->Download(&context, req, &resp);
@@ -860,10 +868,10 @@ void GrpcClient::Upload(const QString &hash,
     }
 
     // Create a stub for the gRPC service
-    auto stub = GrpcLibrary::GrpcService::NewStub(m_pChannel->get());
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibrary::UploadReq req;
+    GrpcLibraryV1::UploadReq req;
     req.set_hash(hash.toStdString());
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
@@ -871,8 +879,8 @@ void GrpcClient::Upload(const QString &hash,
     req.set_size_kb(size_kb);
 
     // Prepare the response and context
-    GrpcLibrary::UploadResp resp;
-    grpc::ClientContext     context;
+    GrpcLibraryV1::UploadResp resp;
+    grpc::ClientContext       context;
 
     // Make the RPC call
     grpc::Status status = stub->Upload(&context, req, &resp);
@@ -898,7 +906,7 @@ void GrpcClient::OnConnectionLost()
     }
 }
 
-void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src)
+void _convert(::GrpcLibraryV1::Session &dst, const Bus::Session &src)
 {
     dst.set_id(src.id);
     dst.set_user_id(src.userId);
@@ -906,7 +914,8 @@ void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src)
     dst.set_timestamp(src.timestamp.toStdString());
 }
 
-void GrpcClient::_convert(Bus::Session &dst, const ::GrpcLibrary::Session &src)
+void GrpcClient::_convert(Bus::Session                   &dst,
+                          const ::GrpcLibraryV1::Session &src)
 {
     dst.id        = src.id();
     dst.userId    = src.user_id();
@@ -914,7 +923,7 @@ void GrpcClient::_convert(Bus::Session &dst, const ::GrpcLibrary::Session &src)
     dst.timestamp = QString::fromStdString(src.timestamp());
 }
 
-void GrpcClient::_convert(::GrpcLibrary::Plugin &dst, const Bus::Plugin &src)
+void GrpcClient::_convert(::GrpcLibraryV1::Plugin &dst, const Bus::Plugin &src)
 {
     dst.set_hash(src.hash.toStdString());
     dst.set_name(src.name.toStdString());
@@ -925,7 +934,7 @@ void GrpcClient::_convert(::GrpcLibrary::Plugin &dst, const Bus::Plugin &src)
     dst.set_platform(src.platform);
 }
 
-void GrpcClient::_convert(Bus::Plugin &dst, const ::GrpcLibrary::Plugin &src)
+void GrpcClient::_convert(Bus::Plugin &dst, const ::GrpcLibraryV1::Plugin &src)
 {
     dst.hash      = QString::fromStdString(src.hash());
     dst.name      = QString::fromStdString(src.name());
@@ -936,8 +945,8 @@ void GrpcClient::_convert(Bus::Plugin &dst, const ::GrpcLibrary::Plugin &src)
     dst.platform  = src.platform();
 }
 
-void GrpcClient::_convert(::GrpcLibrary::MessageInfo &dst,
-                          const Bus::MessageInfo     &src)
+void GrpcClient::_convert(::GrpcLibraryV1::MessageInfo &dst,
+                          const Bus::MessageInfo       &src)
 {
     dst.set_id(src.id);
     dst.set_session_id(src.sessionId);
@@ -947,8 +956,8 @@ void GrpcClient::_convert(::GrpcLibrary::MessageInfo &dst,
     dst.set_timestamp(src.timestamp.toStdString());
 }
 
-void GrpcClient::_convert(Bus::MessageInfo                 &dst,
-                          const ::GrpcLibrary::MessageInfo &src)
+void GrpcClient::_convert(Bus::MessageInfo                   &dst,
+                          const ::GrpcLibraryV1::MessageInfo &src)
 {
     dst.id            = src.id();
     dst.sessionId     = src.session_id();

@@ -152,6 +152,7 @@ class Config : public QObject
 
     bool             isCoreRun();
     QSet<QString>    getSupportedDocTypes();
+    QVector<QString> getAppUpgradeUrls();
     QVector<QString> getPluginUploadUrls();
 
     QVector<Bus::AudioParam> getBusAudioParams();

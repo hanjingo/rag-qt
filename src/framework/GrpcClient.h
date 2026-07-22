@@ -113,7 +113,8 @@ class GrpcClient : public QObject
                          const QString &auth,
                          const int32_t  privilege,
                          const QString &account,
-                         const QString &lastLoginTime);
+                         const QString &lastLoginTime,
+                         const bool     isForceUpdate);
     void SignalRegAccountResp(const int errorCode, const int64_t user_id);
 
     void SignalQueryResp(const int      errorCode,
@@ -157,12 +158,14 @@ class GrpcClient : public QObject
     void OnConnectionLost();
 
   private:
-    void _convert(::GrpcLibrary::Session &dst, const Bus::Session &src);
-    void _convert(Bus::Session &dst, const ::GrpcLibrary::Session &src);
-    void _convert(::GrpcLibrary::Plugin &dst, const Bus::Plugin &src);
-    void _convert(Bus::Plugin &dst, const ::GrpcLibrary::Plugin &src);
-    void _convert(::GrpcLibrary::MessageInfo &dst, const Bus::MessageInfo &src);
-    void _convert(Bus::MessageInfo &dst, const ::GrpcLibrary::MessageInfo &src);
+    void _convert(::GrpcLibraryV1::Session &dst, const Bus::Session &src);
+    void _convert(Bus::Session &dst, const ::GrpcLibraryV1::Session &src);
+    void _convert(::GrpcLibraryV1::Plugin &dst, const Bus::Plugin &src);
+    void _convert(Bus::Plugin &dst, const ::GrpcLibraryV1::Plugin &src);
+    void _convert(::GrpcLibraryV1::MessageInfo &dst,
+                  const Bus::MessageInfo       &src);
+    void _convert(Bus::MessageInfo                   &dst,
+                  const ::GrpcLibraryV1::MessageInfo &src);
 
   private:
     static GrpcClient *m_stGrpcClientInst;

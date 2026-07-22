@@ -599,7 +599,8 @@ void SettingPageModel::_slotLoginResp(const int      errorCode,
                                       const QString &auth,
                                       const int32_t  privilege,
                                       const QString &account,
-                                      const QString &lastLoginTime)
+                                      const QString &lastLoginTime,
+                                      const bool     isForceUpdate)
 {
     // // hide add/delete/config button if no privilege
     // if(errorCode != ErrorCode::OK

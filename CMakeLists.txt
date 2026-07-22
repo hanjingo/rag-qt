@@ -103,6 +103,12 @@ endif()
 # ----------------------------------------------------------------------------
 # Build Configuration
 # ----------------------------------------------------------------------------
+
+# definitions
+if (BUILD_RELEASE_LITE)
+add_definitions(-DLITE_APP)
+endif()
+
 # Build Type
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type config" FORCE)

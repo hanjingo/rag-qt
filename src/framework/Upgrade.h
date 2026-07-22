@@ -1,0 +1,36 @@
+#ifndef UPGRADE_H
+#define UPGRADE_H
+
+#include <QObject>
+#include <QString>
+
+#include "Global.h"
+#include "System.h"
+#include "Config.h"
+
+class Upgrade : public QObject
+{
+    Q_OBJECT
+
+  public:
+    explicit Upgrade(QObject *parent = nullptr) {};
+    ~Upgrade() {};
+
+    static Upgrade *Instance()
+    {
+        static Upgrade inst;
+        return &inst;
+    }
+
+    QString GetUpgradeAddr()
+    {
+        QVector<QString> urls = Config::Instance().getAppUpgradeUrls();
+        QString          addr;
+        if(!urls.isEmpty())
+            addr = urls.first();
+
+        return addr;
+    }
+};
+
+#endif // UPGRADE_H

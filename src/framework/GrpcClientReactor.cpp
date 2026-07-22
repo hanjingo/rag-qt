@@ -60,7 +60,7 @@ RecognizeReactor::~RecognizeReactor()
     qDebug() << "RecognizeReactor destroyed for session_id:" << m_sessionId;
 }
 
-void RecognizeReactor::SendRequest(const GrpcLibrary::RecognizeReq &req)
+void RecognizeReactor::SendRequest(const GrpcLibraryV1::RecognizeReq &req)
 {
     if(m_isDone.load())
     {
@@ -85,7 +85,7 @@ void RecognizeReactor::_flush()
     if(m_isWriting.load())
         return;
 
-    GrpcLibrary::RecognizeReq req;
+    GrpcLibraryV1::RecognizeReq req;
     if(!m_writeCh.try_dequeue(req))
         return;
 
@@ -183,7 +183,7 @@ void RecognizeReactor::OnConnectionLost()
 {
     m_isDone.store(true);
     m_isWriting.store(false);
-    GrpcLibrary::RecognizeReq req;
+    GrpcLibraryV1::RecognizeReq req;
     while(m_writeCh.try_dequeue(req))
     {
     }
@@ -206,7 +206,7 @@ EmbeddingReactor::~EmbeddingReactor()
     qDebug() << "EmbeddingReactor destroyed for task_id:" << m_taskId;
 }
 
-void EmbeddingReactor::SendRequest(const GrpcLibrary::EmbeddingReq &req)
+void EmbeddingReactor::SendRequest(const GrpcLibraryV1::EmbeddingReq &req)
 {
     if(!m_client || !m_client->IsConnected())
     {
@@ -237,7 +237,7 @@ void EmbeddingReactor::_flush()
     if(m_isWriting.load())
         return;
 
-    GrpcLibrary::EmbeddingReq req;
+    GrpcLibraryV1::EmbeddingReq req;
     if(!m_writeCh.try_dequeue(req))
         return;
 
@@ -344,7 +344,7 @@ void EmbeddingReactor::OnConnectionLost()
 {
     m_isWriting.store(false);
     m_isReading.store(false);
-    GrpcLibrary::EmbeddingReq req;
+    GrpcLibraryV1::EmbeddingReq req;
     while(m_writeCh.try_dequeue(req))
     {
     }

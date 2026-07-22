@@ -8,7 +8,7 @@
 #include "GrpcClient.h"
 
 // async query reactor
-class QueryReactor : public grpc::ClientReadReactor<GrpcLibrary::QueryResp>
+class QueryReactor : public grpc::ClientReadReactor<GrpcLibraryV1::QueryResp>
 {
   public:
     QueryReactor(GrpcClient *client, int64_t id)
@@ -20,8 +20,8 @@ class QueryReactor : public grpc::ClientReadReactor<GrpcLibrary::QueryResp>
     void OnReadDone(bool ok) override;
     void OnDone(const grpc::Status &status) override;
 
-    GrpcLibrary::QueryResp m_resp;
-    grpc::ClientContext    m_context;
+    GrpcLibraryV1::QueryResp m_resp;
+    grpc::ClientContext      m_context;
 
   private:
     GrpcClient *m_client;
@@ -30,8 +30,8 @@ class QueryReactor : public grpc::ClientReadReactor<GrpcLibrary::QueryResp>
 
 // async recognize reactor
 class RecognizeReactor
-    : public grpc::ClientBidiReactor<GrpcLibrary::RecognizeReq,
-                                     GrpcLibrary::RecognizeResp>,
+    : public grpc::ClientBidiReactor<GrpcLibraryV1::RecognizeReq,
+                                     GrpcLibraryV1::RecognizeResp>,
       public std::enable_shared_from_this<RecognizeReactor>
 {
   public:
@@ -44,13 +44,13 @@ class RecognizeReactor
 
     void OnConnectionLost();
 
-    void SendRequest(const GrpcLibrary::RecognizeReq &req);
+    void SendRequest(const GrpcLibraryV1::RecognizeReq &req);
 
     int64_t GetSessionId() const { return m_sessionId; }
     bool    IsDone() const { return m_isDone.load(); }
 
-    grpc::ClientContext        m_context;
-    GrpcLibrary::RecognizeResp m_resp;
+    grpc::ClientContext          m_context;
+    GrpcLibraryV1::RecognizeResp m_resp;
 
   private:
     void _flush();
@@ -60,7 +60,7 @@ class RecognizeReactor
     int64_t     m_sessionId;
     GrpcClient *m_client;
 
-    hj::channel<GrpcLibrary::RecognizeReq> m_writeCh;
+    hj::channel<GrpcLibraryV1::RecognizeReq> m_writeCh;
 
     std::atomic<bool> m_isWriting{false};
     std::atomic<bool> m_isDone{false};
@@ -68,8 +68,8 @@ class RecognizeReactor
 
 // async embedding reactor
 class EmbeddingReactor
-    : public grpc::ClientBidiReactor<GrpcLibrary::EmbeddingReq,
-                                     GrpcLibrary::EmbeddingResp>,
+    : public grpc::ClientBidiReactor<GrpcLibraryV1::EmbeddingReq,
+                                     GrpcLibraryV1::EmbeddingResp>,
       public std::enable_shared_from_this<EmbeddingReactor>
 {
   public:
@@ -82,13 +82,13 @@ class EmbeddingReactor
 
     void OnConnectionLost();
 
-    void SendRequest(const GrpcLibrary::EmbeddingReq &req);
+    void SendRequest(const GrpcLibraryV1::EmbeddingReq &req);
 
     int64_t GetTaskId() const { return m_taskId; }
     bool    IsDone() const { return m_isDone.load(); }
 
-    grpc::ClientContext        m_context;
-    GrpcLibrary::EmbeddingResp m_resp;
+    grpc::ClientContext          m_context;
+    GrpcLibraryV1::EmbeddingResp m_resp;
 
   private:
     void _flush();
@@ -98,7 +98,7 @@ class EmbeddingReactor
     int64_t     m_taskId;
     GrpcClient *m_client;
 
-    hj::channel<GrpcLibrary::EmbeddingReq> m_writeCh;
+    hj::channel<GrpcLibraryV1::EmbeddingReq> m_writeCh;
 
     std::atomic<bool> m_isWriting{false};
     std::atomic<bool> m_isReading{false};

@@ -64,7 +64,8 @@ class FrameworkWidget : public QWidget
                         const QString &auth,
                         const int32_t  privilege,
                         const QString &account,
-                        const QString &lastLoginTime);
+                        const QString &lastLoginTime,
+                        const bool     isForceUpdate);
     void _slotRegister(const QString &username, const QString &password);
     void _slotRegisterResp(const int errorCode, const int64_t user_id);
     void _slotLogout();

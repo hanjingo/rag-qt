@@ -2,15 +2,6 @@
 
 #include <QLocale>
 
-System *System::m_stSystemInst = nullptr;
-System *System::Instance()
-{
-    if(!m_stSystemInst)
-        m_stSystemInst = new System();
-
-    return m_stSystemInst;
-}
-
 System::System(QObject *parent)
     : QObject(parent)
 {
@@ -23,4 +14,17 @@ System::~System()
 QString System::LocalLang()
 {
     return QLocale::system().name();
+}
+
+QString System::Arch()
+{
+    auto arch = QSysInfo::currentCpuArchitecture();
+    if(arch == "x86")
+        return "x86";
+    else if(arch == "x86_64")
+        return "x64";
+    else if(arch == "arm64")
+        return "arm64";
+    else
+        return arch;
 }

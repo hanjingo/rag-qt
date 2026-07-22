@@ -30,6 +30,7 @@
 #include "SettingPageNetwork.h"
 #include "AudioMgr.h"
 #include "Config.h"
+#include "Upgrade.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -212,7 +213,8 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
                                      const QString &auth,
                                      const int32_t  privilege,
                                      const QString &account,
-                                     const QString &lastLoginTime)
+                                     const QString &lastLoginTime,
+                                     const bool     isForceUpdate)
 {
     qDebug() << "Login response received. Error code:" << errorCode
              << "ID:" << user_id << "Auth:" << auth;
@@ -226,6 +228,25 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
         return;
     }
 
+    if(isForceUpdate)
+    {
+        QString content = tr("A force update is required. Please "
+                             "update the application from: "
+                             "<a href=\"%1\">%1</a>")
+                              .arg(Upgrade::Instance()->GetUpgradeAddr());
+
+        QMessageBox msgBox(QMessageBox::Information,
+                           tr("Force Update Required"),
+                           content,
+                           QMessageBox::Ok,
+                           this);
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.exec();
+
+        _exit();
+        return;
+    }
+
     m_pAccount->SetId(user_id);
     m_pAccount->SetAuth(auth);
     m_pAccount->SetPrivilege(privilege);
@@ -236,6 +257,9 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
 
     // switch to home page after login
     ui->listWidgetAppBar->setCurrentRow(0);
+
+    // query plugin info after login in
+    GrpcClient::Instance()->GetPluginInfo();
 
     // query history after login in
     GrpcClient::Instance()->GetSession(-1, user_id, auth, 50);
@@ -311,8 +335,6 @@ void FrameworkWidget::_slotSwitchAppBar(int index)
     {
         case 0: {
             qDebug() << "Switched to Home Page.";
-            // update plugin info when switch to home page
-            GrpcClient::Instance()->GetPluginInfo();
         }
         break;
         case 1: {

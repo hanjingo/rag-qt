@@ -43,7 +43,8 @@ class SettingPageModel : public QWidget
                         const QString &auth,
                         const int32_t  privilege,
                         const QString &account,
-                        const QString &lastLoginTime);
+                        const QString &lastLoginTime,
+                        const bool     isForceUpdate);
 
   private:
     void _initUI();

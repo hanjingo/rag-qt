@@ -80,7 +80,8 @@ void SettingPageWidget::_slotLoginResp(const int      errorCode,
                                        const QString &auth,
                                        const int32_t  privilege,
                                        const QString &account,
-                                       const QString &lastLoginTime)
+                                       const QString &lastLoginTime,
+                                       const bool     isForceUpdate)
 {
     qDebug() << "SettingPageWidget::_slotLoginResp enter";
     auto isDeveloper =

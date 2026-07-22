@@ -204,6 +204,22 @@ QSet<QString> Config::getSupportedDocTypes()
     return m_supportedDocTypes;
 }
 
+QVector<QString> Config::getAppUpgradeUrls()
+{
+    QVector<QString> urls;
+    if(m_rootObj.contains("app_upgrade_urls")
+       && m_rootObj["app_upgrade_urls"].isArray())
+    {
+        QJsonArray arr = m_rootObj["app_upgrade_urls"].toArray();
+        for(const auto &url : arr)
+            urls.append(url.toString());
+
+        return urls;
+    }
+
+    return urls;
+}
+
 QVector<QString> Config::getPluginUploadUrls()
 {
     QVector<QString> urls;
