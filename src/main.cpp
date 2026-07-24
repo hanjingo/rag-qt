@@ -5,11 +5,19 @@
 #include "LoginWidget.h"
 #include "FrameworkWidget.h"
 #include "Config.h"
+#include "System.h"
+#include "Crash.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    // init crash reporter
+    hj::crash_handler::instance()->set_dump_callback(crashCallback);
+    QString absPath = QCoreApplication::applicationDirPath() + "/crash";
+    hj::crash_handler::instance()->set_local_path(absPath.toStdString());
+
+    // show login page, hide framework page
     FrameworkWidget::Instance()->hide();
     LoginWidget::Instance()->hide();
 

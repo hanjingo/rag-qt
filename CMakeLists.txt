@@ -20,6 +20,7 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets LinguistTools
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network Multimedia)
 find_package(hj REQUIRED)
 find_package(whisper REQUIRED)
+find_package(sentry CONFIG REQUIRED)
 
 # for private includes (zip, ...)
 set(Qt_PRIVATE_INCLUDES 
@@ -202,6 +203,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     ${hj_LIBRARIES}
 
     whisper
+
+    sentry::sentry
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
