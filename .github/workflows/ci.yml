@@ -1,0 +1,433 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, main, qwidget, ci ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ master, main ]
+
+env:
+  BUILD_TYPE: Release
+  PROJECT_NAME: rag-qt
+  SENTRY_ORG: your-sentry-org
+  SENTRY_PROJECT: rag-qt
+
+jobs:
+
+  # ================================ Build (Linux) ================================
+  build-linux:
+    name: Build and Test (Linux)
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        build_type: [Release]
+        cuda_enabled: [false]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Setup virtual display
+      run: |
+        export DISPLAY=:99.0
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        echo "DISPLAY=:99.0" >> $GITHUB_ENV
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.3'
+        arch: 'linux_gcc_64'
+        cache: true
+        modules: 'qtmultimedia'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake build-essential \
+          ninja-build \
+          libgl1-mesa-dev \
+          libxcb-util-dev \
+          libxcb-icccm4-dev \
+          libxcb-image0-dev \
+          libxcb-keysyms1-dev \
+          libxcb-randr0-dev \
+          libxcb-render-util0-dev \
+          libxcb-shape0-dev \
+          libxcb-xfixes0-dev \
+          libxcb-xinerama0-dev \
+          libxcb-xkb-dev \
+          libxkbcommon-dev \
+          libxkbcommon-x11-dev \
+          libx11-xcb-dev \
+          autoconf \
+          autoconf-archive \
+          automake \
+          libtool \
+          libomp-dev
+
+    - name: Setup vcpkg
+      run: |
+        echo "=== Setting up vcpkg ==="
+        
+        # Clone vcpkg
+        git clone https://github.com/Microsoft/vcpkg.git tools/vcpkg --depth=1
+        
+        # Bootstrap vcpkg
+        chmod +x tools/vcpkg/bootstrap-vcpkg.sh
+        ./tools/vcpkg/bootstrap-vcpkg.sh
+        
+        # Set environment variables
+        echo "VCPKG_ROOT=${{ github.workspace }}/tools/vcpkg" >> $GITHUB_ENV
+        echo "${{ github.workspace }}/tools/vcpkg" >> $GITHUB_PATH
+        
+        echo "vcpkg setup completed"
+        ./tools/vcpkg/vcpkg version
+
+    - name: Configure CMake
+      env:
+        VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+      run: |
+        echo "=== Running CMake configuration ==="
+        if [ "${{ matrix.cuda_enabled }}" == "true" ]; then
+          VCPKG_FEATURES="ggml[cuda],whisper-cpp[cuda]"
+          echo "CUDA enabled for this build"
+        else
+          VCPKG_FEATURES="ggml,whisper-cpp"
+          echo "CUDA disabled for this build"
+        fi
+        
+        cmake -B build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          -DBUILD_RELEASE_LITE=OFF \
+          -DVCPKG_MANIFEST_FEATURES="${VCPKG_FEATURES}" \
+          -DOpenMP_CXX_FLAGS="-fopenmp" \
+          -DOpenMP_C_FLAGS="-fopenmp"
+
+    - name: Build
+      run: |
+        JOBS=$(nproc)
+        if [ "$JOBS" -lt 1 ]; then JOBS=1; fi
+        cmake --build build --config ${{ matrix.build_type }} --parallel $JOBS
+
+    - name: Run tests
+      working-directory: build
+      run: |
+        ctest --output-on-failure --parallel $(nproc) -C ${{ matrix.build_type }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: build-logs-linux-${{ matrix.build_type }}-cuda-${{ matrix.cuda_enabled }}
+        path: |
+          build/CMakeFiles/CMakeOutput.log
+          build/CMakeFiles/CMakeError.log
+          build/compile_commands.json
+          build/vcpkg-manifest-install.log
+        retention-days: 7
+
+  # ================================ Build (macOS ARM64) ================================
+  build-macos:
+    name: Build and Test (macOS ARM64)
+    runs-on: macos-14
+    strategy:
+      matrix:
+        build_type: [Release]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Install Metal toolchain
+      run: |
+        echo "=== Installing Metal toolchain ==="
+        # Download macOS platform which includes Metal toolchain
+        sudo xcodebuild -downloadPlatform macOS || true
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.3'
+        arch: 'clang_64'
+        cache: true
+        modules: 'qtmultimedia'
+
+    - name: Install dependencies
+      run: |
+        brew install cmake ninja autoconf automake autoconf-archive libtool unixodbc libomp || true
+        brew unlink automake autoconf libtool 2>/dev/null || true
+        brew link --force --overwrite automake autoconf autoconf-archive libtool || true
+
+    - name: Setup vcpkg
+      run: |
+        echo "=== Setting up vcpkg ==="
+        
+        # Clone vcpkg
+        git clone https://github.com/Microsoft/vcpkg.git tools/vcpkg --depth=1
+        
+        # Bootstrap vcpkg
+        chmod +x tools/vcpkg/bootstrap-vcpkg.sh
+        ./tools/vcpkg/bootstrap-vcpkg.sh
+        
+        # Set environment variables
+        echo "VCPKG_ROOT=${{ github.workspace }}/tools/vcpkg" >> $GITHUB_ENV
+        echo "${{ github.workspace }}/tools/vcpkg" >> $GITHUB_PATH
+        
+        echo "vcpkg setup completed"
+        ./tools/vcpkg/vcpkg version
+
+    - name: Create vcpkg triplet for macOS
+      run: |
+        echo "=== Creating custom vcpkg triplet ==="
+        mkdir -p tools/vcpkg/triplets/community
+        
+        BREW_PREFIX=$(brew --prefix)
+        
+        # Create a custom triplet for ARM64 macOS with explicit architecture flags
+        cat > tools/vcpkg/triplets/community/arm64-osx-relaxed.cmake << EOF
+        set(VCPKG_TARGET_ARCHITECTURE arm64)
+        set(VCPKG_CRT_LINKAGE dynamic)
+        set(VCPKG_LIBRARY_LINKAGE static)
+        set(VCPKG_CMAKE_SYSTEM_NAME Darwin)
+        set(VCPKG_OSX_DEPLOYMENT_TARGET "11.0")
+        
+        # Explicitly set ARM64 architecture - required for boost-context assembly file selection
+        set(VCPKG_OSX_ARCHITECTURES arm64)
+        
+        # Ensure OpenMP is discoverable for AppleClang (e.g. faiss FindOpenMP).
+        set(VCPKG_CXX_FLAGS "-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option")
+        set(VCPKG_C_FLAGS "-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option")
+        set(VCPKG_LINKER_FLAGS "-L${BREW_PREFIX}/opt/libomp/lib -Wl,-rpath,${BREW_PREFIX}/opt/libomp/lib")
+
+        list(APPEND VCPKG_CMAKE_CONFIGURE_OPTIONS
+          "-DOpenMP_ROOT=${BREW_PREFIX}/opt/libomp"
+          "-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp"
+          "-DOpenMP_CXX_FLAGS=-Xpreprocessor -fopenmp"
+          "-DOpenMP_C_LIB_NAMES=omp"
+          "-DOpenMP_CXX_LIB_NAMES=omp"
+          "-DOpenMP_omp_LIBRARY=${BREW_PREFIX}/opt/libomp/lib/libomp.dylib"
+        )
+        EOF
+        
+        echo "Custom triplet created: arm64-osx-relaxed"
+        cat tools/vcpkg/triplets/community/arm64-osx-relaxed.cmake
+
+    - name: Configure CMake
+      env:
+        VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+      run: |
+        echo "=== Running CMake configuration ==="
+        
+        BREW_PREFIX=$(brew --prefix)
+        SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
+        
+        # macOS does not support CUDA
+        VCPKG_FEATURES=""
+        
+        cmake -B build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+          -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_C_COMPILER=/usr/bin/clang \
+          -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+          -DCMAKE_OSX_SYSROOT="${SDKROOT}" \
+          -DCMAKE_CXX_FLAGS="-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option" \
+          -DCMAKE_C_FLAGS="-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option" \
+          -DCMAKE_EXE_LINKER_FLAGS="-L${BREW_PREFIX}/opt/libomp/lib -Wl,-rpath,${BREW_PREFIX}/opt/libomp/lib" \
+          -DOpenMP_ROOT="$BREW_PREFIX/opt/libomp" \
+          -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I$BREW_PREFIX/opt/libomp/include" \
+          -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I$BREW_PREFIX/opt/libomp/include" \
+          -DOpenMP_C_LIB_NAMES="omp" \
+          -DOpenMP_CXX_LIB_NAMES="omp" \
+          -DOpenMP_omp_LIBRARY="$BREW_PREFIX/opt/libomp/lib/libomp.dylib" \
+          -DVCPKG_TARGET_TRIPLET=arm64-osx-relaxed \
+          -DBUILD_RELEASE_LITE=OFF \
+          -DVCPKG_OVERLAY_TRIPLETS=${{ github.workspace }}/tools/vcpkg/triplets/community \
+          -DVCPKG_MANIFEST_FEATURES="${VCPKG_FEATURES}" \
+          -DVCPKG_FEATURE_FLAGS="versions,manifests,registries"
+
+    - name: Build
+      run: |
+        NPROC=$(sysctl -n hw.ncpu)
+        PARALLEL_JOBS=$NPROC
+        if [ "$PARALLEL_JOBS" -lt 1 ]; then PARALLEL_JOBS=1; fi
+        cmake --build build --config ${{ matrix.build_type }} --parallel $PARALLEL_JOBS
+
+    - name: Run tests
+      working-directory: build
+      run: |
+        NPROC=$(sysctl -n hw.ncpu)
+        PARALLEL_JOBS=$NPROC
+        if [ "$PARALLEL_JOBS" -lt 1 ]; then PARALLEL_JOBS=1; fi
+        ctest --output-on-failure --parallel $PARALLEL_JOBS -C ${{ matrix.build_type }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: build-logs-macos-arm64-${{ matrix.build_type }}
+        path: |
+          build/CMakeFiles/CMakeOutput.log
+          build/CMakeFiles/CMakeError.log
+          build/compile_commands.json
+          build/vcpkg-manifest-install.log
+          tools/vcpkg/triplets/community/*.cmake
+        retention-days: 7
+
+  # ================================ Build (Windows) ================================
+  build-windows:
+    name: Build and Test (Windows)
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        build_type: [Release]
+        cuda_enabled: [false]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.3'
+        arch: 'win64_msvc2022_64'
+        cache: true
+        modules: 'qtmultimedia'
+
+    - name: Setup vcpkg
+      run: |
+        echo "=== Setting up vcpkg ==="
+        
+        # Clone vcpkg
+        git clone https://github.com/Microsoft/vcpkg.git tools/vcpkg --depth=1
+        
+        # Bootstrap vcpkg
+        cd tools/vcpkg
+        cmd /c "bootstrap-vcpkg.bat"
+        cd ../..
+        
+        # Set environment variables
+        $vcpkgRoot = "${{ github.workspace }}\tools\vcpkg"
+        echo "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "$vcpkgRoot" | Out-File -FilePath $env:GITHUB_PATH -Append
+        
+        echo "vcpkg setup completed"
+        
+        # Verify vcpkg
+        $vcpkgExe = Join-Path $vcpkgRoot "vcpkg.exe"
+        if (Test-Path $vcpkgExe) {
+          & $vcpkgExe version
+        }
+
+    - name: Configure CMake
+      run: |
+        echo "=== Running CMake configuration ==="
+        $vcpkgRoot = $env:VCPKG_ROOT
+        if (-not $vcpkgRoot) {
+          $vcpkgRoot = "${{ github.workspace }}\tools\vcpkg"
+        }
+        $toolchainFile = Join-Path $vcpkgRoot "scripts\buildsystems\vcpkg.cmake"
+        Write-Host "Toolchain file: $toolchainFile"
+        
+        if (${{ matrix.cuda_enabled }} -eq $true) {
+          $VCPKG_FEATURES = "ggml[cuda],whisper-cpp[cuda]"
+          Write-Host "CUDA enabled for this build"
+        } else {
+          $VCPKG_FEATURES = "ggml,whisper-cpp"
+          Write-Host "CUDA disabled for this build"
+        }
+        
+        cmake -B build -G "Visual Studio 17 2022" `
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
+          -DCMAKE_TOOLCHAIN_FILE="$toolchainFile" `
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
+          -DBUILD_RELEASE_LITE=OFF `
+          -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES"
+
+    - name: Build
+      run: |
+        $env:JOBS = [System.Environment]::ProcessorCount
+        if ($env:JOBS -lt 1) { $env:JOBS = 1 }
+        cmake --build build --config ${{ matrix.build_type }} --parallel $env:JOBS
+
+    - name: Run tests
+      working-directory: build
+      run: |
+        $env:JOBS = [System.Environment]::ProcessorCount
+        if ($env:JOBS -lt 1) { $env:JOBS = 1 }
+        ctest --output-on-failure --parallel $env:JOBS -C ${{ matrix.build_type }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: build-logs-windows-${{ matrix.build_type }}-cuda-${{ matrix.cuda_enabled }}
+        path: |
+          build/Testing/Temporary/LastTest.log
+          build/CMakeFiles/CMakeOutput.log
+          build/CMakeFiles/CMakeError.log
+          build/compile_commands.json
+        retention-days: 7
+
+  # ================================ Build Summary ================================
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-macos, build-windows]
+    if: always()
+    
+    steps:
+    - name: Check build results
+      run: |
+        echo "=== Build Summary ==="
+        echo "Linux build: ${{ needs.build-linux.result }}"
+        echo "macOS ARM64 build: ${{ needs.build-macos.result }}"
+        echo "Windows build: ${{ needs.build-windows.result }}"
+        echo "===================="
+        
+        success_count=0
+        total_count=3
+        
+        if [[ "${{ needs.build-linux.result }}" == "success" ]]; then
+          success_count=$((success_count + 1))
+        fi
+        
+        if [[ "${{ needs.build-macos.result }}" == "success" ]]; then
+          success_count=$((success_count + 1))
+        fi
+        
+        if [[ "${{ needs.build-windows.result }}" == "success" ]]; then
+          success_count=$((success_count + 1))
+        fi
+        
+        echo "Successful builds: $success_count/$total_count"
+        
+        if [[ $success_count -eq $total_count ]]; then
+          echo "All builds passed!"
+          exit 0
+        elif [[ $success_count -eq 0 ]]; then
+          echo "All builds failed!"
+          exit 1
+        else
+          echo "Some builds failed!"
+          exit 1
+        fi

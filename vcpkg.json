@@ -4,18 +4,11 @@
       "name": "hanjingo-high-jump",
       "features": ["test", "bench", "crash", "telemetry", "log", "options", "grpc", "sqlite", "sync", "lic", "llama", "vector-index"]
     },
-    {
-      "name": "ggml",
-      "features": [ "cuda" ]
-    },
-    {
-      "name": "whisper-cpp",
-      "features": [ "cuda" ]
-    },
+    "ggml",
+    "whisper-cpp",
     {
       "name": "cpp-httplib",
       "features": ["openssl"]
-    },
-    "sentry-native"
+    }
   ]
 }
