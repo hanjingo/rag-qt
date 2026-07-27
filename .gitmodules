@@ -7,3 +7,7 @@
 	path = 3rd/rag-core
 	url = git@github.com:hanjingo/rag-core.git
 	branch = main
+[submodule "3rd/high-jump"]
+	path = 3rd/high-jump
+	url = git@github.com:hanjingo/high-jump.git
+	branch = main

@@ -18,11 +18,6 @@ option(BUILD_RELEASE_LITE "Build release lite model" OFF)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network Multimedia)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets LinguistTools Network Multimedia)
-# Find OpenMP (Faiss depends on it for parallel search)
-find_package(OpenMP REQUIRED COMPONENTS CXX)
-
-find_package(hj REQUIRED)
-find_package(whisper REQUIRED)
 
 # for private includes (zip, ...)
 set(Qt_PRIVATE_INCLUDES 
@@ -30,6 +25,105 @@ set(Qt_PRIVATE_INCLUDES
     ${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS}
 )
 
+
+# ----------------------------------------------------------------------------
+# 3rd library
+# ----------------------------------------------------------------------------
+set(hj_LIBRARIES "")
+find_package(Boost REQUIRED COMPONENTS 
+    system
+    filesystem 
+    algorithm
+    stacktrace_basic
+)
+list(APPEND hj_LIBRARIES ${Boost_LIBRARIES})
+
+find_package(fmt CONFIG QUIET)
+if(fmt_FOUND)
+    list(APPEND hj_LIBRARIES fmt::fmt)
+endif()
+
+find_package(nlohmann_json CONFIG QUIET)
+if(nlohmann_json_FOUND)
+    list(APPEND hj_LIBRARIES nlohmann_json::nlohmann_json)
+endif()
+
+find_package(GTest CONFIG QUIET)
+if(GTest_FOUND)
+    list(APPEND hj_LIBRARIES GTest::gtest GTest::gtest_main)
+endif()
+
+find_package(benchmark CONFIG QUIET)
+if(benchmark_FOUND)
+    list(APPEND hj_LIBRARIES benchmark::benchmark)
+endif()
+
+find_package(unofficial-breakpad CONFIG QUIET)
+if(unofficial-breakpad_FOUND)
+    list(APPEND hj_LIBRARIES 
+        unofficial::breakpad::libbreakpad 
+        unofficial::breakpad::libbreakpad_client
+    )
+endif()
+
+find_package(opentelemetry-cpp CONFIG QUIET)
+if(opentelemetry-cpp_FOUND)
+    list(APPEND hj_LIBRARIES ${OPENTELEMETRY_CPP_LIBRARIES})
+endif()
+
+find_package(spdlog CONFIG QUIET)
+if(spdlog_FOUND)
+    list(APPEND hj_LIBRARIES spdlog::spdlog)
+endif()
+
+find_package(Boost QUIET COMPONENTS program_options)
+if(Boost_PROGRAM_OPTIONS_FOUND)
+    list(APPEND hj_LIBRARIES Boost::program_options)
+endif()
+
+find_package(gRPC CONFIG QUIET)
+if(gRPC_FOUND)
+    list(APPEND hj_LIBRARIES gRPC::grpc)
+    list(APPEND hj_LIBRARIES gRPC::grpc++)
+
+    if (WIN32)
+        list(APPEND hj_LIBRARIES gRPC::grpc++_reflection)
+    endif()
+endif()
+
+find_package(SQLite3 QUIET)
+if(SQLite3_FOUND)
+    list(APPEND hj_LIBRARIES ${SQLite3_LIBRARIES})
+endif()
+
+find_package(TBB CONFIG QUIET)
+if(TBB_FOUND)
+    list(APPEND hj_LIBRARIES TBB::tbb)
+endif()
+
+find_package(jwt-cpp CONFIG QUIET)
+if(jwt-cpp_FOUND)
+    list(APPEND hj_LIBRARIES jwt-cpp::jwt-cpp)
+endif()
+
+find_package(Llama CONFIG QUIET)
+if(Llama_FOUND)
+    list(APPEND hj_LIBRARIES llama)
+endif()
+
+# Find OpenMP (Faiss depends on it for parallel search)
+find_package(OpenMP REQUIRED COMPONENTS CXX)
+find_package(faiss CONFIG QUIET)
+if(faiss_FOUND)
+    list(APPEND hj_LIBRARIES faiss)
+endif()
+
+find_package(whisper CONFIG QUIET)
+if(whisper_FOUND)
+    list(APPEND hj_LIBRARIES whisper)
+endif()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rd/high-jump)
 
 # ----------------------------------------------------------------------------
 # CMake Policies
@@ -203,8 +297,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Multimedia
 
     ${hj_LIBRARIES}
-
-    whisper
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
@@ -212,6 +304,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${Qt_PRIVATE_INCLUDES}
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/rag-core
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/libqt
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rd/high-jump
 )
 
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
