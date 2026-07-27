@@ -161,7 +161,7 @@ background-color:#DCE1E6;
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="../../res.qrc">:/icons/login_user</pixmap>
+              <pixmap resource="../../res/res.qrc">:/icons/login_user</pixmap>
              </property>
              <property name="scaledContents">
               <bool>false</bool>
@@ -213,7 +213,7 @@ background-color:#DCE1E6;
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="../../res.qrc">:/icons/login_passwd</pixmap>
+              <pixmap resource="../../res/res.qrc">:/icons/login_passwd</pixmap>
              </property>
              <property name="alignment">
               <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -443,7 +443,7 @@ text-align: center;
   </layout>
  </widget>
  <resources>
-  <include location="../../res.qrc"/>
+  <include location="../../res/res.qrc"/>
  </resources>
  <connections/>
 </ui>

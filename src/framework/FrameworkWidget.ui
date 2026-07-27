@@ -110,7 +110,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../../res.qrc">
+         <iconset resource="../../res/res.qrc">
           <normaloff>:/icons/user</normaloff>:/icons/user</iconset>
         </property>
         <property name="iconSize">
@@ -175,7 +175,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../res.qrc">
+          <iconset resource="../../res/res.qrc">
            <normaloff>:/icons/flag_cn</normaloff>:/icons/flag_cn</iconset>
          </property>
         </item>
@@ -184,7 +184,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../res.qrc">
+          <iconset resource="../../res/res.qrc">
            <normaloff>:/icons/flag_en</normaloff>:/icons/flag_en</iconset>
          </property>
         </item>
@@ -193,7 +193,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../res.qrc">
+          <iconset resource="../../res/res.qrc">
            <normaloff>:/icons/flag_ge</normaloff>:/icons/flag_ge</iconset>
          </property>
         </item>
@@ -211,7 +211,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../../res.qrc">
+         <iconset resource="../../res/res.qrc">
           <normaloff>:/icons/minimize</normaloff>:/icons/minimize</iconset>
         </property>
         <property name="iconSize">
@@ -237,7 +237,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../../res.qrc">
+         <iconset resource="../../res/res.qrc">
           <normaloff>:/icons/microphone_enable</normaloff>
           <normalon>:/icons/microphone_disable</normalon>:/icons/microphone_enable</iconset>
         </property>
@@ -261,7 +261,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <string notr="true"/>
         </property>
         <property name="icon">
-         <iconset resource="../../res.qrc">
+         <iconset resource="../../res/res.qrc">
           <normaloff>:/icons/select_screen</normaloff>:/icons/select_screen</iconset>
         </property>
         <property name="iconSize">
@@ -287,7 +287,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          <string notr="true"/>
         </property>
         <property name="icon">
-         <iconset resource="../../res.qrc">
+         <iconset resource="../../res/res.qrc">
           <normaloff>:/icons/logout</normaloff>:/icons/logout</iconset>
         </property>
         <property name="iconSize">
@@ -450,7 +450,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
   <zorder>widget</zorder>
  </widget>
  <resources>
-  <include location="../../res.qrc"/>
+  <include location="../../res/res.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -45,7 +45,7 @@ border-bottom-right-radius:15px;}</string>
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../res.qrc">
+        <iconset resource="../../res/res.qrc">
          <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
        </property>
        <property name="iconSize">
@@ -209,7 +209,7 @@ border-bottom-right-radius:15px;}</string>
   </layout>
  </widget>
  <resources>
-  <include location="../../res.qrc"/>
+  <include location="../../res/res.qrc"/>
  </resources>
  <connections/>
 </ui>

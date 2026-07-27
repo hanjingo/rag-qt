@@ -13,14 +13,14 @@ Unicode true
 !define APP_EXE "rag-qt.exe"
 
 ; This script assumes it is compiled from repository root.
-!define SOURCE_DIR "bin\\Release-Lite"
+!define SOURCE_DIR "..\\bin\\Release-Lite"
 !define INSTALL_ROOT "C:\rag-qt"
 !define INSTALL_DIR "${INSTALL_ROOT}\\${APP_NAME}"
 !define STARTMENU_DIR "$SMPROGRAMS\\${APP_NAME}"
 !define UNINST_KEY "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${APP_NAME}"
 
 Name "${APP_NAME} ${APP_VERSION}"
-OutFile "build\\${APP_NAME}-lite-${APP_VERSION}-setup.exe"
+OutFile "..\\bin\\${APP_NAME}-lite-${APP_VERSION}-setup.exe"
 InstallDir "${INSTALL_DIR}"
 InstallDirRegKey HKLM "${UNINST_KEY}" "InstallLocation"
 RequestExecutionLevel admin

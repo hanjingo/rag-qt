@@ -1,0 +1,108 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="start_usual">icons/strt_usual.svg</file>
+        <file alias="start_unable">icons/strt_unable.svg</file>
+        <file alias="start_check">icons/strt_check.svg</file>
+        <file alias="close">icons/close.svg</file>
+        <file alias="minimize">icons/minimize.png</file>
+        <file alias="select_screen">icons/select_screen.png</file>
+        <file alias="pause_usual">icons/puse_usual.svg</file>
+        <file alias="pause_unable">icons/puse_unable.svg</file>
+        <file alias="stop_unable">icons/stop_unable.svg</file>
+        <file alias="stop_usual">icons/stop_usual.svg</file>
+        <file alias="stop_check">icons/stop_check.svg</file>
+        <file alias="quit_usual">icons/quit_usual.png</file>
+        <file alias="box_check">icons/box_check.svg</file>
+        <file alias="box_empty">icons/box_empty.svg</file>
+        <file alias="box_open">icons/box_open.svg</file>
+        <file alias="text">icons/text.png</file>
+        <file alias="image">icons/image.png</file>
+        <file alias="video">icons/video.png</file>
+        <file alias="home">icons/home.png</file>
+        <file alias="tool">icons/tool.png</file>
+        <file alias="icon_printer">icons/icon-printer.png</file>
+        <file alias="icon_setting">icons/icon-setting.png</file>
+        <file alias="icon_warn">icons/icon-warn.png</file>
+        <file alias="inter_tittle">icons/interTittle.svg</file>
+        <file alias="light_busy">icons/light_busy.svg</file>
+        <file alias="light_err">icons/light_err.svg</file>
+        <file alias="light_free">icons/light_free.svg</file>
+        <file alias="light_path">icons/light_path.png</file>
+        <file alias="light_warn">icons/light_warn.svg</file>
+        <file alias="progress_back">icons/progress_back.png</file>
+        <file alias="progress_front">icons/progress_front.png</file>
+        <file alias="promntn">icons/promntn.png</file>
+        <file alias="radius_back">icons/radius_back.png</file>
+        <file alias="progress_animate">icons/progress_animate.png</file>
+        <file alias="flag_cn">icons/flag_cn.png</file>
+        <file alias="flag_en">icons/flag_en.png</file>
+        <file alias="flag_ge">icons/flag_ge.png</file>
+        <file alias="login_user">icons/logo_User.svg</file>
+        <file alias="login_passwd">icons/logo_Password.svg</file>
+        <file alias="add">icons/add.png</file>
+        <file alias="del">icons/del.png</file>
+        <file alias="settings">icons/settings.png</file>
+        <file alias="user">icons/user.svg</file>
+        <file alias="download">icons/download.png</file>
+        <file alias="downloading">icons/downloading.png</file>
+        <file alias="downloaded">icons/downloaded.png</file>
+        <file alias="logout">icons/logout.svg</file>
+        <file alias="unknown">icons/unknown.png</file>
+        <file alias="logo">icons/logo.png</file>
+        <file alias="success">icons/success.png</file>
+        <file alias="installing">icons/installing.png</file>
+        <file alias="installed">icons/installed.png</file>
+        <file alias="save">icons/save.png</file>
+        <file alias="upload">icons/upload.png</file>
+        <file alias="import">icons/import.png</file>
+        <file alias="microphone_enable">icons/microphone_enable.png</file>
+        <file alias="microphone_disable">icons/microphone_disable.png</file>
+    </qresource>
+    <qresource prefix="/languages">
+        <file alias="de_DE">languages/rag-qt_de_DE.qm</file>
+        <file alias="en_UK">languages/rag-qt_en_UK.qm</file>
+        <file alias="zh_CN">languages/rag-qt_zh_CN.qm</file>
+    </qresource>
+    <qresource prefix="/styles">
+        <file alias="check_box">styles/check_box/CheckBox.qss</file>
+
+        <file alias="combo_box">styles/combo_box/ComboBox.qss</file>
+
+        <file alias="date_edit">styles/date_edit/DateEdit.qss</file>
+
+        <file alias="datetime_edit">styles/datetime_edit/DateTimeEdit.qss</file>
+
+        <file alias="all_radius_header_view">styles/header_view/AllRadiusHeaderView.qss</file>
+        <file alias="header_view">styles/header_view/HeaderView.qss</file>
+
+        <file alias="data_label">styles/label/DataLabel.qss</file>
+        <file alias="dialog_tag_label">styles/label/DialogTagLabel.qss</file>
+        <file alias="logo_label">styles/label/LogoLabel.qss</file>
+        <file alias="note_label">styles/label/NoteLabel.qss</file>
+        <file alias="radius_label">styles/label/RadiusLabel.qss</file>
+        <file alias="red_label">styles/label/RedLabel.qss</file>
+        <file alias="tag_label">styles/label/TagLabel.qss</file>
+        <file alias="title_label">styles/label/TitleLabel.qss</file>
+
+        <file alias="line_edit">styles/line_edit/LineEdit.qss</file>
+        <file alias="routine_line_edit">styles/line_edit/RoutineLineEdit.qss</file>
+        <file alias="passwd_line_edit">styles/line_edit/PasswdLineEdit.qss</file>
+
+        <file alias="slide_bar">styles/list_widget/SlideBar.qss</file>
+
+        <file alias="push_button">styles/push_button/PushButton.qss</file>
+        <file alias="ctl_push_button">styles/push_button/ControlPushButton.qss</file>
+
+        <file alias="scroll_area">styles/scroll_area/ScrollArea.qss</file>
+
+        <file alias="scroll_bar">styles/scroll_bar/ScrollBar.qss</file>
+
+        <file alias="tab_widget">styles/tab_widget/TabWidget.qss</file>
+
+        <file alias="data_table_view">styles/table_view/DataTableView.qss</file>
+
+        <file alias="plugin_btn">styles/tool_button/PluginBtn.qss</file>
+
+        <file alias="transparent_widget">styles/widget/TransparentWidget.qss</file>
+    </qresource>
+</RCC>

@@ -162,7 +162,7 @@ endif()
 # Source Code
 # ----------------------------------------------------------------------------
 list(APPEND PROJECT_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/res.qrc
+    ${CMAKE_CURRENT_SOURCE_DIR}/res/res.qrc
 )
 
 add_subdirectory(src)
