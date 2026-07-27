@@ -73,3 +73,6 @@ src/plugins/*
 !src/plugins/PluginInterface.h
 !src/plugins/example
 !src/plugins/example/*
+
+#macos
+.DS_store

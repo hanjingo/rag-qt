@@ -60,10 +60,11 @@ void ProcManager::init()
     m_pCore = new QProcess(this);
     _connectCore();
 
+    QString absPath = QCoreApplication::applicationDirPath();
 #if defined(Q_OS_WIN)
-    const QString program = QStringLiteral("rag-core.exe");
+    const QString program = absPath + "/rag-core.exe";
 #else
-    const QString program = QStringLiteral("./rag-core");
+    const QString program = absPath + "/rag-core";
 #endif
     const QStringList arguments = {QStringLiteral("run")};
 

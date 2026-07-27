@@ -4,17 +4,19 @@ RAG Client written by qt
 macos:
 
 ```bash
-brew install ninja cmake
+brew install ninja cmake autoconf automake autoconf-archive libtool unixodbc libomp
 sudo xcode-select --install
+sudo xcodebuild -downloadComponent MetalToolchain
 
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake 
+export OpenMP_ROOT=/opt/homebrew/opt/libomp
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RELEASE_LITE=ON
 cmake --build build
 ```
 
 linux:
 
 ```bash
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake 
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 

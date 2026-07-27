@@ -8,6 +8,7 @@
 #include <QSaveFile>
 #include <QDir>
 #include <QMessageBox>
+#include <QCoreApplication>
 
 #include "Global.h"
 
@@ -39,17 +40,17 @@ Config &Config::Instance()
 
 QString Config::getConfigFilePath()
 {
-    return QDir::current().filePath(CONFIG_FILE);
+    return QCoreApplication::applicationDirPath() + CONFIG_FILE;
 }
 
 QString Config::getModelConfigFilePath()
 {
-    return QDir::current().filePath(MODEL_CONFIG_FILE);
+    return QCoreApplication::applicationDirPath() + MODEL_CONFIG_FILE;
 }
 
 QString Config::getMemoryConfigFilePath()
 {
-    return QDir::current().filePath(MEMORY_CONFIG_FILE);
+    return QCoreApplication::applicationDirPath() + MEMORY_CONFIG_FILE;
 }
 
 bool Config::load(const QString &filepath)

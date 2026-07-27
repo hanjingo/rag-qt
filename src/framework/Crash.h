@@ -188,6 +188,55 @@ static bool crashCallback(const wchar_t      *dump_path,
     uploadMinidump(dmpPath, sentryKey);
     return true;
 };
+
+#elif __APPLE__
+static bool crashCallback(const char *dump_path,
+                          const char *minidump_id,
+                          void       *context,
+                          bool        succeeded)
+{
+    hj::crash_handler::print("crashCallback CALLED");
+
+    std::string dumpPathStr   = dump_path ? dump_path : "";
+    std::string minidumpIdStr = minidump_id ? minidump_id : "";
+
+    hj::crash_handler::print("dump_path: ");
+    hj::crash_handler::print(dumpPathStr.c_str());
+    hj::crash_handler::print("minidump_id: ");
+    hj::crash_handler::print(minidumpIdStr.c_str());
+    if(!succeeded)
+    {
+        hj::crash_handler::print("Crash dump failed to write.");
+        return false;
+    }
+    hj::crash_handler::print("succeed");
+
+    std::string dmpPath = dumpPathStr + "/" + minidumpIdStr + ".dmp";
+
+    hj::crash_handler::print("Full path: ");
+    hj::crash_handler::print(dmpPath.c_str());
+
+    uploadMinidump(dmpPath, sentryKey);
+    return true;
+};
+#else
+static bool crashCallback(const google_breakpad::MinidumpDescriptor &descriptor,
+                          void                                      *context,
+                          bool                                       succeeded)
+{
+    hj::crash_handler::print("crashCallback CALLED");
+    if(!succeeded)
+    {
+        hj::crash_handler::print("Crash dump failed to write.");
+        return false;
+    }
+    std::string dmpPath = descriptor.path();
+    hj::crash_handler::print("Full path: ");
+    hj::crash_handler::print(dmpPath.c_str());
+
+    uploadMinidump(dmpPath, sentryKey);
+    return true;
+}
 #endif
 
 #endif // CRASH_H
