@@ -38,15 +38,34 @@ Config &Config::Instance()
     return instance;
 }
 
+QString Config::getPluginFilePath()
+{
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    if(baseDir.dirName() == "MacOS")
+    {
+        baseDir.cdUp();
+        return baseDir.absoluteFilePath("PlugIns") + "/" + PLUGIN_DIR;
+    }
+
+    return QCoreApplication::applicationDirPath() + "/" + PLUGIN_DIR;
+#else
+    return QCoreApplication::applicationDirPath() + "/" + PLUGIN_DIR;
+#endif
+}
+
 QString Config::getConfigFilePath()
 {
 #ifdef Q_OS_MAC
     QDir baseDir(QCoreApplication::applicationDirPath());
-    baseDir.cdUp(); // 进入 Contents
-    baseDir.cd("Resources");
-    return baseDir.absoluteFilePath("configs/config.json");
-#else
-    return QCoreApplication::applicationDirPath() + CONFIG_FILE;
+    if(baseDir.dirName() == "MacOS")
+    {
+        baseDir.cdUp();          // 进入 Contents
+        baseDir.cd("Resources"); // 进入 Resources
+        return baseDir.absoluteFilePath(
+            CONFIG_FILE); // CONFIG_FILE 自带 "configs/" 前缀
+    }
+    return QCoreApplication::applicationDirPath() + "/" + CONFIG_FILE;
 #endif
 }
 
@@ -54,11 +73,14 @@ QString Config::getModelConfigFilePath()
 {
 #ifdef Q_OS_MAC
     QDir baseDir(QCoreApplication::applicationDirPath());
-    baseDir.cdUp();
-    baseDir.cd("Resources");
-    return baseDir.absoluteFilePath("configs/models.json");
-#else
-    return QCoreApplication::applicationDirPath() + MODEL_CONFIG_FILE;
+    if(baseDir.dirName() == "MacOS")
+    {
+        baseDir.cdUp();
+        baseDir.cd("Resources");
+        return baseDir.absoluteFilePath(
+            MODEL_CONFIG_FILE); // MODEL_CONFIG_FILE 自带 "configs/" 前缀
+    }
+    return QCoreApplication::applicationDirPath() + "/" + MODEL_CONFIG_FILE;
 #endif
 }
 
@@ -66,11 +88,14 @@ QString Config::getMemoryConfigFilePath()
 {
 #ifdef Q_OS_MAC
     QDir baseDir(QCoreApplication::applicationDirPath());
-    baseDir.cdUp();
-    baseDir.cd("Resources");
-    return baseDir.absoluteFilePath("configs/memorys.json");
-#else
-    return QCoreApplication::applicationDirPath() + MEMORY_CONFIG_FILE;
+    if(baseDir.dirName() == "MacOS")
+    {
+        baseDir.cdUp();
+        baseDir.cd("Resources");
+        return baseDir.absoluteFilePath(
+            MEMORY_CONFIG_FILE); // MEMORY_CONFIG_FILE 自带 "configs/" 前缀
+    }
+    return QCoreApplication::applicationDirPath() + "/" + MEMORY_CONFIG_FILE;
 #endif
 }
 

@@ -93,17 +93,7 @@ elseif(APPLE)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
-    
-    if(CMAKE_CONFIGURATION_TYPES)
-        foreach(CFG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
-            string(TOUPPER ${CFG} CFG_UPPER)
-            set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
-            set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
-            set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
-        endforeach()
-    endif()
-    
-    # 定义用于拷贝任务和第三方工具的内部物理路径
+
     set(APP_BUNDLE_NAME "${CMAKE_PROJECT_NAME}.app")
     set(APP_BUNDLE_PATH "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}/${APP_BUNDLE_NAME}")
     set(APP_CONTENTS_PATH "${APP_BUNDLE_PATH}/Contents")
@@ -112,11 +102,12 @@ elseif(APPLE)
     set(APP_PLUGINS_PATH "${APP_CONTENTS_PATH}/PlugIns")
     
     set(EXECUTABLE_OUTPUT_PATH "${APP_MACOS_PATH}")
-    set(LIBRARY_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}")
+    set(LIBRARY_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}/plugins") 
     set(RUNTIME_OUTPUT_DIRECTORY "${APP_MACOS_PATH}")
+    
     set(RESOURCE_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}")
-    set(CONFIG_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}/configs")
-    set(PLUGIN_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}")
+    set(CONFIG_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}/configs") # 变更此行，配合代码中的 configs/ 前缀
+    set(PLUGIN_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}/plugins") # for our plugins
     
 elseif(UNIX)
     # Linux: Standard FHS-like layout with prefix
@@ -361,11 +352,11 @@ add_subdirectory(3rd/libqt)
 
 if(NOT BUILD_RELEASE_LITE)
     if(APPLE)
-        # 【关键修正】：针对子模块 rag-core，临时将可执行文件以及它配套的资源
-        # 强制路由定位进入当前 rag-qt.app/Contents/MacOS/ 内部，变成符合规范的内联 Helper 进程
         set(ORIGINAL_RUNTIME_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${APP_MACOS_PATH}")
         set(EXECUTABLE_OUTPUT_PATH "${APP_MACOS_PATH}" CACHE STRING "" FORCE)
+
+        set(RAG_CORE_CONFIG_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}/configs" CACHE STRING "" FORCE)
 
         if(CMAKE_CONFIGURATION_TYPES)
             foreach(CFG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
@@ -378,9 +369,11 @@ if(NOT BUILD_RELEASE_LITE)
     add_subdirectory(3rd/rag-core)
 
     if(APPLE)
-        # 释放还原给主程序原本使用的顶层 bin/ 结构
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${ORIGINAL_RUNTIME_DIR}")
         set(EXECUTABLE_OUTPUT_PATH "${APP_MACOS_PATH}" CACHE STRING "" FORCE) # 主轴保留指向
+        
+        unset(RAG_CORE_CONFIG_OUTPUT_DIRECTORY CACHE)
+
         if(CMAKE_CONFIGURATION_TYPES)
             foreach(CFG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
                 string(TOUPPER ${CFG} CFG_UPPER)
@@ -485,7 +478,7 @@ install(TARGETS ${CMAKE_PROJECT_NAME}
 )
 
 # ----------------------------------------------------------------------------
-# Copy Config Files (rag-qt 的专属 JSON 配置)
+# Copy Config Files
 # ----------------------------------------------------------------------------
 file(GLOB RAG_QT_CONFIG_FILES CONFIGURE_DEPENDS
     "${CONFIG_FILES_PATH}/*.json"
@@ -521,7 +514,7 @@ add_dependencies(${CMAKE_PROJECT_NAME} copy_resources)
 # ----------------------------------------------------------------------------
 # Deploy Qt and Dependencies
 # ----------------------------------------------------------------------------
-include(deploy.cmake OPTIONAL)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/deploy.cmake)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
     if(WIN32)
@@ -576,12 +569,14 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
                 COMMENT "Deploying Qt frameworks to ${APP_BUNDLE_PATH}"
                 WORKING_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}"
             )
-            
-            if(COMMAND mac_deploy)
-                mac_deploy(${CMAKE_PROJECT_NAME} ${hj_LIBRARIES})
-            endif()
-        else()
-            message(WARNING "macdeployqt not found, skipping Qt deployment")
+
+            mac_deploy(${CMAKE_PROJECT_NAME} ${hj_LIBRARIES})
+
+            # signup
+            add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+                COMMAND codesign --force --deep --sign - "${APP_MACOS_PATH}/../.."
+                COMMENT "Fixing Apple Silicon code signature"
+            )
         endif()
         
     elseif(LINUX)

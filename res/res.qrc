@@ -46,7 +46,7 @@
         <file alias="download">icons/download.png</file>
         <file alias="downloading">icons/downloading.png</file>
         <file alias="downloaded">icons/downloaded.png</file>
-        <file alias="logout">icons/logout.svg</file>
+        <file alias="logout">icons/logout.png</file>
         <file alias="unknown">icons/unknown.png</file>
         <file alias="logo">icons/logo.png</file>
         <file alias="success">icons/success.png</file>

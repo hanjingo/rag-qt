@@ -82,6 +82,12 @@ set_target_properties(example PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}"
 )
 
+if(APPLE)
+    set_target_properties(example PROPERTIES 
+        SUFFIX ".dylib"
+    )
+endif()
+
 # ----------------------------------------------------------------------------
 # Resource Files
 # ----------------------------------------------------------------------------

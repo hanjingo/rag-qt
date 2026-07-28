@@ -546,7 +546,7 @@ void FrameworkWidget::_initProcMgr()
 void FrameworkWidget::_initPluginMgr()
 {
     // scan plugins in the "plugins" directory relative to the executable
-    QDir dir = QDir(QCoreApplication::applicationDirPath()).filePath("plugins");
+    QDir dir = Config::Instance().getPluginFilePath();
     if(!dir.exists())
     {
         // create the plugins directory if it doesn't exist

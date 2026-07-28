@@ -165,11 +165,11 @@ void PluginUploadDialog::_slotBtnPackClicked()
     if(packPath.isEmpty())
     {
         // example: chatbox-windows-v0.0.3.zip
-        packPath = QFileInfo(dllPath).absolutePath() + "/" + ui->editName->text()
-                   + "-" + ui->comboPlatform->currentText() + "-v"
-                   + ui->editVersionMajor->text() + "."
-                   + ui->editVersionMinor->text() + "."
-                   + ui->editVersionPatch->text() + ".zip";
+        packPath =
+            QFileInfo(dllPath).absolutePath() + "/" + ui->editName->text() + "-"
+            + ui->comboPlatform->currentText() + "-v"
+            + ui->editVersionMajor->text() + "." + ui->editVersionMinor->text()
+            + "." + ui->editVersionPatch->text() + ".zip";
         qDebug() << "Pack path is empty, using default: " << packPath;
         ui->editPackAddr->setText(packPath);
     }
@@ -257,7 +257,7 @@ bool PluginUploadDialog::_parsePackedFile(Bus::Plugin   &conf,
     conf.hash = QString(SHA256::hashFile(packedFilePath).toHex());
 
     // unpack to temp folder
-    QString tmpPath = QCoreApplication::applicationDirPath() + PLUGIN_DIR + "/"
+    QString tmpPath = Config::getPluginFilePath() + "/"
                       + QString::number(hj::uuid::gen_u64());
     Zipper  zipper;
     if(!zipper.unZip(tmpPath, packedFilePath))

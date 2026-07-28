@@ -138,6 +138,7 @@ class Config : public QObject
   public:
     static Config &Instance();
 
+    static QString getPluginFilePath();
     static QString getConfigFilePath();
     static QString getModelConfigFilePath();
     static QString getMemoryConfigFilePath();
