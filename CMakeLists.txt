@@ -67,7 +67,6 @@ set(OUTPUT_DIR_BASE "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
 if(WIN32)
     # Windows: Standard layout - all files in same directory
-    # Structure: bin/Release/rag-qt.exe, bin/Release/plugins/chatbox.dll, bin/Release/configs/, bin/Release/res/
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}/plugins")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
@@ -90,8 +89,21 @@ if(WIN32)
     set(PLUGIN_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}/plugins")
     
 elseif(APPLE)
-    # macOS: Bundle structure
-    # Structure: bin/Release/rag-qt.app/Contents/MacOS/rag-qt, PlugIns/, Resources/
+    # macOS: 标准 App Bundle 结构
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
+    
+    if(CMAKE_CONFIGURATION_TYPES)
+        foreach(CFG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+            string(TOUPPER ${CFG} CFG_UPPER)
+            set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
+            set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
+            set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
+        endforeach()
+    endif()
+    
+    # 定义用于拷贝任务和第三方工具的内部物理路径
     set(APP_BUNDLE_NAME "${CMAKE_PROJECT_NAME}.app")
     set(APP_BUNDLE_PATH "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}/${APP_BUNDLE_NAME}")
     set(APP_CONTENTS_PATH "${APP_BUNDLE_PATH}/Contents")
@@ -99,35 +111,15 @@ elseif(APPLE)
     set(APP_RESOURCES_PATH "${APP_CONTENTS_PATH}/Resources")
     set(APP_PLUGINS_PATH "${APP_CONTENTS_PATH}/PlugIns")
     
-    # Executable goes inside .app bundle
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${APP_MACOS_PATH}")
-    # Plugins go inside .app/Contents/PlugIns/
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}")
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
-    
-    if(CMAKE_CONFIGURATION_TYPES)
-        foreach(CFG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
-            string(TOUPPER ${CFG} CFG_UPPER)
-            set(CFG_APP_BUNDLE_PATH "${OUTPUT_DIR_BASE}/${CFG}/${CMAKE_PROJECT_NAME}.app")
-            set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UPPER} "${CFG_APP_BUNDLE_PATH}/Contents/MacOS")
-            set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UPPER} "${CFG_APP_BUNDLE_PATH}/Contents/PlugIns")
-            set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
-        endforeach()
-    endif()
-    
     set(EXECUTABLE_OUTPUT_PATH "${APP_MACOS_PATH}")
     set(LIBRARY_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}")
     set(RUNTIME_OUTPUT_DIRECTORY "${APP_MACOS_PATH}")
-    set(RESOURCE_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}/res")
+    set(RESOURCE_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}")
     set(CONFIG_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}/configs")
     set(PLUGIN_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}")
     
 elseif(UNIX)
     # Linux: Standard FHS-like layout with prefix
-    # Structure: bin/Release/rag-qt, bin/Release/plugins/chatbox.so, share/rag-qt/configs/, share/rag-qt/res/
-    # We keep it simple: all in bin/Release/ with subdirectories
-    
-    # For Linux, we use a prefix-based structure similar to /usr/local
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}/plugins")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}")
@@ -334,11 +326,7 @@ foreach(TS_FILE IN LISTS TS_FILES)
     get_filename_component(TS_NAME_WE "${TS_FILE}" NAME_WE)
     set(QM_BUILD_FILE "${CMAKE_CURRENT_BINARY_DIR}/res/languages/${TS_NAME_WE}.qm")
     
-    if(APPLE)
-        set(QM_FILE "${RESOURCE_OUTPUT_DIRECTORY}/languages/${TS_NAME_WE}.qm")
-    else()
-        set(QM_FILE "${RESOURCE_OUTPUT_DIRECTORY}/languages/${TS_NAME_WE}.qm")
-    endif()
+    set(QM_FILE "${RESOURCE_OUTPUT_DIRECTORY}/languages/${TS_NAME_WE}.qm")
 
     add_custom_command(
         OUTPUT "${QM_FILE}"
@@ -370,8 +358,36 @@ endif()
 # Submodules
 # ----------------------------------------------------------------------------
 add_subdirectory(3rd/libqt)
+
 if(NOT BUILD_RELEASE_LITE)
+    if(APPLE)
+        # 【关键修正】：针对子模块 rag-core，临时将可执行文件以及它配套的资源
+        # 强制路由定位进入当前 rag-qt.app/Contents/MacOS/ 内部，变成符合规范的内联 Helper 进程
+        set(ORIGINAL_RUNTIME_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${APP_MACOS_PATH}")
+        set(EXECUTABLE_OUTPUT_PATH "${APP_MACOS_PATH}" CACHE STRING "" FORCE)
+
+        if(CMAKE_CONFIGURATION_TYPES)
+            foreach(CFG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+                string(TOUPPER ${CFG} CFG_UPPER)
+                set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}/${CMAKE_PROJECT_NAME}.app/Contents/MacOS")
+            endforeach()
+        endif()
+    endif()
+
     add_subdirectory(3rd/rag-core)
+
+    if(APPLE)
+        # 释放还原给主程序原本使用的顶层 bin/ 结构
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${ORIGINAL_RUNTIME_DIR}")
+        set(EXECUTABLE_OUTPUT_PATH "${APP_MACOS_PATH}" CACHE STRING "" FORCE) # 主轴保留指向
+        if(CMAKE_CONFIGURATION_TYPES)
+            foreach(CFG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+                string(TOUPPER ${CFG} CFG_UPPER)
+                set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
+            endforeach()
+        endif()
+    endif()
 endif()
 
 # ----------------------------------------------------------------------------
@@ -445,7 +461,15 @@ set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
 
 if(APPLE)
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/res/Info.plist.in
+    )
+
+    # icon file
+    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.icns"
+            "${APP_RESOURCES_PATH}/logo.icns"
+        COMMENT "Copying logo.icns to app bundle Resources"
     )
 endif()
 
@@ -461,7 +485,7 @@ install(TARGETS ${CMAKE_PROJECT_NAME}
 )
 
 # ----------------------------------------------------------------------------
-# Copy Config Files
+# Copy Config Files (rag-qt 的专属 JSON 配置)
 # ----------------------------------------------------------------------------
 file(GLOB RAG_QT_CONFIG_FILES CONFIGURE_DEPENDS
     "${CONFIG_FILES_PATH}/*.json"
@@ -501,7 +525,6 @@ include(deploy.cmake OPTIONAL)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
     if(WIN32)
-        # Find windeployqt
         find_program(WINDEPLOYQT_EXECUTABLE 
             NAMES windeployqt6 windeployqt-qt6 windeployqt
             HINTS ${QT_BIN_DIR}
@@ -525,7 +548,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
                 list(APPEND WINDEPLOYQT_ARGS --no-opengl-sw)
             endif()
             
-            # For Windows, deploy Qt libraries to the executable directory
             set(WIN_DEPLOY_DIR "${EXECUTABLE_OUTPUT_PATH}")
             
             add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
@@ -537,18 +559,14 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
                 WORKING_DIRECTORY "${WIN_DEPLOY_DIR}"
             )
             
-            # Use deploy.cmake to copy additional DLLs
             if(COMMAND win_deploy)
                 win_deploy(${CMAKE_PROJECT_NAME} ${hj_LIBRARIES})
             endif()
-        else()
-            message(WARNING "windeployqt not found, skipping Qt deployment")
         endif()
         
     elseif(APPLE)
         find_program(MACDEPLOYQT_EXECUTABLE macdeployqt)
         if(MACDEPLOYQT_EXECUTABLE)
-            # For macOS, deploy Qt frameworks into the .app bundle
             add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
                 COMMAND "${MACDEPLOYQT_EXECUTABLE}"
                     "${APP_BUNDLE_PATH}"
@@ -559,7 +577,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
                 WORKING_DIRECTORY "${OUTPUT_DIR_BASE}/${CMAKE_BUILD_TYPE}"
             )
             
-            # Use deploy.cmake to copy additional dylibs
             if(COMMAND mac_deploy)
                 mac_deploy(${CMAKE_PROJECT_NAME} ${hj_LIBRARIES})
             endif()
@@ -568,8 +585,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
         endif()
         
     elseif(LINUX)
-        # For Linux, we rely on system package manager or LD_LIBRARY_PATH
-        # Optionally use linuxdeployqt for AppImage
         find_program(LINUXDEPLOYQT_EXECUTABLE linuxdeployqt)
         if(LINUXDEPLOYQT_EXECUTABLE AND EXISTS "${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}")
             add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
@@ -580,11 +595,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
                 COMMENT "Deploying Qt libraries using linuxdeployqt"
                 WORKING_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}"
             )
-        else()
-            message(STATUS "linuxdeployqt not found, skipping Qt deployment")
         endif()
         
-        # Use deploy.cmake to copy additional so files
         if(COMMAND linux_deploy)
             linux_deploy(${CMAKE_PROJECT_NAME} ${hj_LIBRARIES})
         endif()

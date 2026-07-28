@@ -40,17 +40,38 @@ Config &Config::Instance()
 
 QString Config::getConfigFilePath()
 {
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    baseDir.cdUp(); // 进入 Contents
+    baseDir.cd("Resources");
+    return baseDir.absoluteFilePath("configs/config.json");
+#else
     return QCoreApplication::applicationDirPath() + CONFIG_FILE;
+#endif
 }
 
 QString Config::getModelConfigFilePath()
 {
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    baseDir.cdUp();
+    baseDir.cd("Resources");
+    return baseDir.absoluteFilePath("configs/models.json");
+#else
     return QCoreApplication::applicationDirPath() + MODEL_CONFIG_FILE;
+#endif
 }
 
 QString Config::getMemoryConfigFilePath()
 {
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    baseDir.cdUp();
+    baseDir.cd("Resources");
+    return baseDir.absoluteFilePath("configs/memorys.json");
+#else
     return QCoreApplication::applicationDirPath() + MEMORY_CONFIG_FILE;
+#endif
 }
 
 bool Config::load(const QString &filepath)
