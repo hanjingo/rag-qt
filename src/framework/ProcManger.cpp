@@ -4,6 +4,7 @@
 #include <libqt/core/process.h>
 #include <QMessageBox>
 
+#include "Global.h"
 #include "Config.h"
 
 ProcManager *ProcManager::m_stProcManagerInst = nullptr;
@@ -51,22 +52,20 @@ void ProcManager::init()
     // scan existing core processes
     QVector<qint64> cores;
     Process::list(cores, [](const QStringList &cols) {
-        return cols.size() >= 2
-               && (cols[0] == "rag-core" || cols[0] == "rag-core.exe");
+        return cols.size() >= 2 && cols[0] == RAG_CORE;
     });
     for(qint64 pid : cores)
         Process::kill(pid);
 
     m_pCore = new QProcess(this);
     _connectCore();
+    // for macos working directory is not current dir
+    m_pCore->setWorkingDirectory(QCoreApplication::applicationDirPath());
 
-    QString absPath = QCoreApplication::applicationDirPath();
-#if defined(Q_OS_WIN)
-    const QString program = absPath + "/rag-core.exe";
-#else
-    const QString program = absPath + "/rag-core";
-#endif
-    const QStringList arguments = {QStringLiteral("run")};
+    QString           program   = Config::getCoreFile();
+    const QStringList arguments = {QStringLiteral("run"),
+                                   QStringLiteral("--config"),
+                                   Config::getCoreConfig()};
 
     m_pCore->start(program, arguments);
     qDebug() << program << arguments;

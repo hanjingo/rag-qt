@@ -38,6 +38,37 @@ Config &Config::Instance()
     return instance;
 }
 
+QString Config::getCoreFile()
+{
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    if(baseDir.dirName() == "MacOS")
+    {
+        return baseDir.absoluteFilePath(RAG_CORE);
+    }
+
+    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE;
+#else
+    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE;
+#endif
+}
+
+QString Config::getCoreConfig()
+{
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    if(baseDir.dirName() == "MacOS")
+    {
+        baseDir.cdUp();
+        baseDir.cd("Resources");
+        return baseDir.absoluteFilePath(RAG_CORE_CONFIG);
+    }
+    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE_CONFIG;
+#else
+    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE_CONFIG;
+#endif
+}
+
 QString Config::getPluginFilePath()
 {
 #ifdef Q_OS_MAC
@@ -60,11 +91,12 @@ QString Config::getConfigFilePath()
     QDir baseDir(QCoreApplication::applicationDirPath());
     if(baseDir.dirName() == "MacOS")
     {
-        baseDir.cdUp();          // 进入 Contents
-        baseDir.cd("Resources"); // 进入 Resources
-        return baseDir.absoluteFilePath(
-            CONFIG_FILE); // CONFIG_FILE 自带 "configs/" 前缀
+        baseDir.cdUp();
+        baseDir.cd("Resources");
+        return baseDir.absoluteFilePath(CONFIG_FILE);
     }
+    return QCoreApplication::applicationDirPath() + "/" + CONFIG_FILE;
+#else
     return QCoreApplication::applicationDirPath() + "/" + CONFIG_FILE;
 #endif
 }
@@ -77,9 +109,10 @@ QString Config::getModelConfigFilePath()
     {
         baseDir.cdUp();
         baseDir.cd("Resources");
-        return baseDir.absoluteFilePath(
-            MODEL_CONFIG_FILE); // MODEL_CONFIG_FILE 自带 "configs/" 前缀
+        return baseDir.absoluteFilePath(MODEL_CONFIG_FILE);
     }
+    return QCoreApplication::applicationDirPath() + "/" + MODEL_CONFIG_FILE;
+#else
     return QCoreApplication::applicationDirPath() + "/" + MODEL_CONFIG_FILE;
 #endif
 }
@@ -92,9 +125,10 @@ QString Config::getMemoryConfigFilePath()
     {
         baseDir.cdUp();
         baseDir.cd("Resources");
-        return baseDir.absoluteFilePath(
-            MEMORY_CONFIG_FILE); // MEMORY_CONFIG_FILE 自带 "configs/" 前缀
+        return baseDir.absoluteFilePath(MEMORY_CONFIG_FILE);
     }
+    return QCoreApplication::applicationDirPath() + "/" + MEMORY_CONFIG_FILE;
+#else
     return QCoreApplication::applicationDirPath() + "/" + MEMORY_CONFIG_FILE;
 #endif
 }

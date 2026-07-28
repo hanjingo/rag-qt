@@ -5,6 +5,13 @@
 
 static constexpr const char *TIMESTAMP_FMT = "yyyy-MM-dd hh:mm:ss";
 
+#ifdef Q_OS_WIN
+static constexpr const char *RAG_CORE = "rag-core.exe";
+#else
+static constexpr const char *RAG_CORE = "rag-core";
+#endif
+static constexpr const char *RAG_CORE_CONFIG = "configs/core.ini";
+
 static constexpr const char *PLUGIN_DIR = "plugins";
 
 static constexpr const char *CONFIG_FILE        = "configs/config.json";
