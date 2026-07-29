@@ -21,6 +21,8 @@ class LoginPage : public QWidget
   public:
     static LoginPage *Instance();
 
+    void Login();
+
   signals:
     void SignalLogin(const QString &username, const QString &password);
     void SignalRegister(const QString &username, const QString &password);

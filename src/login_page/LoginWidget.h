@@ -24,6 +24,7 @@ class LoginWidget : public QWidget
     void SignalLogout();
 
   private slots:
+    void _slotRegisterResp(const int errorCode, const int64_t user_id);
 
   private:
     void _initConfig();

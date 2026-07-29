@@ -33,6 +33,13 @@ LoginPage::~LoginPage()
     delete ui;
 }
 
+void LoginPage::Login()
+{
+    QString username = ui->editAccount->text();
+    QString password = ui->editPassword->text();
+    emit    SignalLogin(username, password);
+}
+
 void LoginPage::_slotBtnLoginClicked()
 {
     QString username = ui->editAccount->text();

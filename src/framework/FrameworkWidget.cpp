@@ -283,18 +283,18 @@ void FrameworkWidget::_slotRegisterResp(const int     errorCode,
 
     if(errorCode != ErrorCode::OK)
     {
-        QMessageBox::critical(
-            this,
-            tr("Register Failed"),
-            tr("Register failed with error code: %1").arg(errorCode));
+        // QMessageBox::critical(
+        //     this,
+        //     tr("Register Failed"),
+        //     tr("Register failed with error code: %1").arg(errorCode));
         return;
     }
 
     m_pAccount->SetId(user_id);
-    QMessageBox::information(
-        this,
-        tr("Register Successful"),
-        tr("Register successful. Please login with your new account."));
+    // QMessageBox::information(
+    //     this,
+    //     tr("Register Successful"),
+    //     tr("Register successful. Please login with your new account."));
 }
 
 void FrameworkWidget::_slotLogout()
