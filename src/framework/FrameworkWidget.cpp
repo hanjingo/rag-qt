@@ -64,6 +64,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     _initAppBar();
     _initControlBar();
     _initStackedWidget();
+    _initConnStatus();
     _initTimer();
     _initPluginMgr();
     _initLanguage();
@@ -405,13 +406,14 @@ void FrameworkWidget::_slotGrpcConnected(const QString &address)
 {
     std::cout << "Core service connected to gRPC server at "
               << address.toStdString() << std::endl;
-    ui->lblNetStatus->setText(tr("Connected"));
+    ui->lblNetStatus->setText(tr("%1\n%2").arg(address).arg(tr("Connected")));
 }
 
 void FrameworkWidget::_slotGrpcConnectFailed(const QString &address)
 {
     qDebug() << "Fail to Connect gRPC server at " << address;
-    ui->lblNetStatus->setText(tr("Disconnected"));
+    ui->lblNetStatus->setText(
+        tr("%1\n%2").arg(address).arg(tr("Disconnected")));
 }
 
 void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
@@ -661,13 +663,9 @@ void FrameworkWidget::_initControlBar()
     m_pCtlBtnGroup->addButton(ui->btnSwitch, 3);
     m_pCtlBtnGroup->addButton(ui->btnExit, 4);
     for(auto btn : m_pCtlBtnGroup->buttons())
-    {
         btn->setStyleSheet(StyleMgr::ParseFile(":/styles/ctl_push_button"));
-    }
-    // ui->btnSwitch->setStyleSheet(
-    //     StyleMgr::ParseFile(":/styles/ctl_push_button"));
 
-    ui->lblNotice->setText(tr("Welcome!!!"));
+    ui->lblNotice->setText(tr("Welcome"));
 }
 
 void FrameworkWidget::_initStackedWidget()
@@ -769,6 +767,12 @@ void FrameworkWidget::_initConnections()
             &ProcManager::SignalCoreError,
             this,
             &FrameworkWidget::_slotCoreError);
+}
+
+void FrameworkWidget::_initConnStatus()
+{
+    ui->lblNetStatus->setWordWrap(true);
+    ui->lblNetStatus->setAlignment(Qt::AlignCenter);
 }
 
 void FrameworkWidget::_initTimer()

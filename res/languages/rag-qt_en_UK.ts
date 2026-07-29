@@ -2,6 +2,42 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_UK">
 <context>
+    <name>LoginWidget</name>
+    <message>
+        <source>Input Error</source>
+        <translation>Input Error</translation>
+    </message>
+    <message>
+        <source>Username must be 6-16 characters long and contain only letters and numbers.</source>
+        <translation>Username must be 6-16 characters long and contain only letters and numbers.</translation>
+    </message>
+    <message>
+        <source>Username '%1' is not allowed. Please choose a different username.</source>
+        <translation>Username '%1' is not allowed. Please choose a different username.</translation>
+    </message>
+    <message>
+        <source>Password must be 5-16 characters long.</source>
+        <translation>Password must be 5-16 characters long.</translation>
+    </message>
+    <message>
+        <source>Register Failed</source>
+        <translation>Register Failed</translation>
+    </message>
+    <message>
+        <source>Register failed with error code: %1</source>
+        <translation>Register failed with error code: %1</translation>
+    </message>
+    <message>
+        <source>Register Successful</source>
+        <translation>Register Successful</translation>
+    </message>
+    <message>
+        <source>Register successful. Please login with your new account.</source>
+        <translation>Register successful. Please login with your new account.</translation>
+    </message>
+</context>
+
+<context>
     <name>FrameworkWidget</name>
     <message>
         <source>Disconnected</source>
@@ -40,8 +76,8 @@
         <translation>Tool</translation>
     </message>
     <message>
-        <source>Welcome!!!</source>
-        <translation>Welcome!!!</translation>
+        <source>Welcome</source>
+        <translation>Welcome</translation>
     </message>
 </context>
 

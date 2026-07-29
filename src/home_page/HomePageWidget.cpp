@@ -122,11 +122,15 @@ void HomePageWidget::_initHistoryArea()
     ui->btnDel->setIcon(QIcon(":/icons/del"));
     ui->btnDel->setVisible(true);
     ui->btnSetting->setIcon(QIcon(":/icons/settings"));
+    ui->btnSetting->setFlat(true);
     ui->btnSetting->setVisible(true);
     m_pSessionCtlBtnGroup->addButton(ui->btnAdd, 0);
     m_pSessionCtlBtnGroup->addButton(ui->btnDel, 1);
     m_pSessionCtlBtnGroup->addButton(ui->btnSetting, 2);
     m_pSessionCtlBtnGroup->setExclusive(true);
+    for(auto btn : m_pSessionCtlBtnGroup->buttons())
+        btn->setStyleSheet(
+            StyleMgr::ParseFile(":/styles/tbview_header_push_button"));
 
     // init history table
     ui->tbviewHistory->setSelectionMode(QAbstractItemView::SingleSelection);

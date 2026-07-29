@@ -2,6 +2,42 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
+    <name>LoginWidget</name>
+    <message>
+        <source>Input Error</source>
+        <translation>输入错误</translation>
+    </message>
+    <message>
+        <source>Username must be 6-16 characters long and contain only letters and numbers.</source>
+        <translation>用户名必须为6-16个字符长，并且只能包含字母和数字。</translation>
+    </message>
+    <message>
+        <source>Username '%1' is not allowed. Please choose a different username.</source>
+        <translation>用户名'%1'不被允许。请选择一个不同的用户名。</translation>
+    </message>
+    <message>
+        <source>Password must be 5-16 characters long.</source>
+        <translation>密码必须为5-16个字符长。</translation>
+    </message>
+    <message>
+        <source>Register Failed</source>
+        <translation>注册失败</translation>
+    </message>
+    <message>
+        <source>Register failed with error code: %1</source>
+        <translation>注册失败，错误代码：%1</translation>
+    </message>
+    <message>
+        <source>Register Successful</source>
+        <translation>注册成功</translation>
+    </message>
+    <message>
+        <source>Register successful. Please login with your new account.</source>
+        <translation>注册成功。请使用您的新账户登录。</translation>
+    </message>
+</context>
+
+<context>
     <name>FrameworkWidget</name>
     <message>
         <source>Disconnected</source>
@@ -40,8 +76,8 @@
         <translation>工具</translation>
     </message>
     <message>
-        <source>Welcome!!!</source>
-        <translation>欢迎!!!</translation>
+        <source>Welcome</source>
+        <translation>欢迎</translation>
     </message>
 </context>
 

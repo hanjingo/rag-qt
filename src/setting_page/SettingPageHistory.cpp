@@ -429,6 +429,12 @@ void SettingPageHistory::_slotBtnSearchClicked()
 
 void SettingPageHistory::_initUI()
 {
+    // init buttons
+    ui->btnDelete->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+    ui->btnExport->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+    ui->btnImport->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+    ui->btnSearch->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+
     // init date range combo box
     //ui->dateEditStart->setStyleSheet(StyleMgr::ParseFile(":/styles/date_edit"));
     //ui->dateEditEnd->setStyleSheet(StyleMgr::ParseFile(":/styles/date_edit"));

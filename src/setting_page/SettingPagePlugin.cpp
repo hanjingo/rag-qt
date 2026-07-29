@@ -333,6 +333,9 @@ void SettingPagePlugin::_initUI()
     m_pPluginCtlBtnGroup->addButton(ui->btnDel, 1);
     m_pPluginCtlBtnGroup->addButton(ui->btnUpload, 2);
     m_pPluginCtlBtnGroup->setExclusive(true);
+    for(auto btn : m_pPluginCtlBtnGroup->buttons())
+        btn->setStyleSheet(
+            StyleMgr::ParseFile(":/styles/tbview_header_push_button"));
 
     // init model table
     ui->tbviewPlugin->setSelectionMode(QAbstractItemView::MultiSelection);

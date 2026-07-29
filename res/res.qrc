@@ -92,6 +92,7 @@
 
         <file alias="push_button">styles/push_button/PushButton.qss</file>
         <file alias="ctl_push_button">styles/push_button/ControlPushButton.qss</file>
+        <file alias="tbview_header_push_button">styles/push_button/TableViewHeaderPushButton.qss</file>
 
         <file alias="scroll_area">styles/scroll_area/ScrollArea.qss</file>
 

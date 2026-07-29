@@ -68,6 +68,9 @@ void SettingPageMemory::_initUI()
     m_pMemCtlBtnGroup->addButton(ui->btnSave, 3);
     m_pMemCtlBtnGroup->addButton(ui->btnImport, 4);
     m_pMemCtlBtnGroup->setExclusive(true);
+    for(auto btn : m_pMemCtlBtnGroup->buttons())
+        btn->setStyleSheet(
+            StyleMgr::ParseFile(":/styles/tbview_header_push_button"));
 
     // init model table
     ui->tbviewMem->setSelectionMode(QAbstractItemView::MultiSelection);

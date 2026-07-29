@@ -113,6 +113,9 @@ void SettingPageModel::_initUI()
     m_pModelCtlBtnGroup->addButton(ui->btnSave, 3);
     m_pModelCtlBtnGroup->addButton(ui->btnImport, 4);
     m_pModelCtlBtnGroup->setExclusive(true);
+    for(auto btn : m_pModelCtlBtnGroup->buttons())
+        btn->setStyleSheet(
+            StyleMgr::ParseFile(":/styles/tbview_header_push_button"));
 
     // init model table
     ui->tbviewModel->setSelectionMode(QAbstractItemView::MultiSelection);

@@ -109,6 +109,7 @@ class FrameworkWidget : public QWidget
     void _initControlBar();
     void _initStackedWidget();
     void _initConnections();
+    void _initConnStatus();
     void _initTimer();
     void _initServer();
     void _initLanguage();

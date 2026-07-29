@@ -1,10 +1,19 @@
 QPushButton
 {
-    background-color: #7B8DA3;
-    
-    /* qproperty-icon: url(":/icons/logout"); */
-    
+    background: transparent;
+
     qproperty-iconSize: 48px 48px; 
     
     border: none; 
+}
+
+QPushButton:hover 
+{
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+}
+
+QPushButton:pressed 
+{
+    background: rgba(0, 0, 0, 0.15);
 }
