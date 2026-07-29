@@ -74,32 +74,20 @@ jobs:
     - name: Setup vcpkg
       run: |
         echo "=== Setting up vcpkg ==="
-        
-        # Clone vcpkg
         git clone https://github.com/Microsoft/vcpkg.git tools/vcpkg --depth=1
-        
-        # Bootstrap vcpkg
         chmod +x tools/vcpkg/bootstrap-vcpkg.sh
         ./tools/vcpkg/bootstrap-vcpkg.sh
-        
-        # Set environment variables
         echo "VCPKG_ROOT=${{ github.workspace }}/tools/vcpkg" >> $GITHUB_ENV
         echo "${{ github.workspace }}/tools/vcpkg" >> $GITHUB_PATH
-        
-        echo "vcpkg setup completed"
-        ./tools/vcpkg/vcpkg version
 
     - name: Configure CMake
       env:
         VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
       run: |
-        echo "=== Running CMake configuration ==="
         if [ "${{ matrix.cuda_enabled }}" == "true" ]; then
           VCPKG_FEATURES="ggml[cuda],whisper-cpp[cuda]"
-          echo "CUDA enabled for this build"
         else
           VCPKG_FEATURES="ggml,whisper-cpp"
-          echo "CUDA disabled for this build"
         fi
         
         cmake -B build \
@@ -123,7 +111,20 @@ jobs:
       run: |
         ctest --output-on-failure --parallel $(nproc) -C ${{ matrix.build_type }}
 
-    - name: Upload build artifacts
+    # 【新增】编译成功后提取 Linux 运行程序用于后续 Release
+    - name: Collect Linux App Binary
+      run: |
+        mkdir -p dist_bin
+        cp build/${{ env.PROJECT_NAME }} dist_bin/ || cp build/bin/${{ env.PROJECT_NAME }} dist_bin/ || cp build/Release/${{ env.PROJECT_NAME }} dist_bin/ || true
+
+    - name: Upload Linux Binary Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-linux
+        path: dist_bin/
+        retention-days: 1
+
+    - name: Upload build logs
       uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -131,8 +132,6 @@ jobs:
         path: |
           build/CMakeFiles/CMakeOutput.log
           build/CMakeFiles/CMakeError.log
-          build/compile_commands.json
-          build/vcpkg-manifest-install.log
         retention-days: 7
 
   # ================================ Build (macOS ARM64) ================================
@@ -152,8 +151,6 @@ jobs:
 
     - name: Install Metal toolchain
       run: |
-        echo "=== Installing Metal toolchain ==="
-        # Download macOS platform which includes Metal toolchain
         sudo xcodebuild -downloadPlatform macOS || true
 
     - name: Install Qt
@@ -172,45 +169,26 @@ jobs:
 
     - name: Setup vcpkg
       run: |
-        echo "=== Setting up vcpkg ==="
-        
-        # Clone vcpkg
         git clone https://github.com/Microsoft/vcpkg.git tools/vcpkg --depth=1
-        
-        # Bootstrap vcpkg
         chmod +x tools/vcpkg/bootstrap-vcpkg.sh
         ./tools/vcpkg/bootstrap-vcpkg.sh
-        
-        # Set environment variables
         echo "VCPKG_ROOT=${{ github.workspace }}/tools/vcpkg" >> $GITHUB_ENV
         echo "${{ github.workspace }}/tools/vcpkg" >> $GITHUB_PATH
-        
-        echo "vcpkg setup completed"
-        ./tools/vcpkg/vcpkg version
 
     - name: Create vcpkg triplet for macOS
       run: |
-        echo "=== Creating custom vcpkg triplet ==="
         mkdir -p tools/vcpkg/triplets/community
-        
         BREW_PREFIX=$(brew --prefix)
-        
-        # Create a custom triplet for ARM64 macOS with explicit architecture flags
         cat > tools/vcpkg/triplets/community/arm64-osx-relaxed.cmake << EOF
         set(VCPKG_TARGET_ARCHITECTURE arm64)
         set(VCPKG_CRT_LINKAGE dynamic)
         set(VCPKG_LIBRARY_LINKAGE static)
         set(VCPKG_CMAKE_SYSTEM_NAME Darwin)
         set(VCPKG_OSX_DEPLOYMENT_TARGET "11.0")
-        
-        # Explicitly set ARM64 architecture - required for boost-context assembly file selection
         set(VCPKG_OSX_ARCHITECTURES arm64)
-        
-        # Ensure OpenMP is discoverable for AppleClang (e.g. faiss FindOpenMP).
         set(VCPKG_CXX_FLAGS "-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option")
         set(VCPKG_C_FLAGS "-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option")
         set(VCPKG_LINKER_FLAGS "-L${BREW_PREFIX}/opt/libomp/lib -Wl,-rpath,${BREW_PREFIX}/opt/libomp/lib")
-
         list(APPEND VCPKG_CMAKE_CONFIGURE_OPTIONS
           "-DOpenMP_ROOT=${BREW_PREFIX}/opt/libomp"
           "-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp"
@@ -220,20 +198,13 @@ jobs:
           "-DOpenMP_omp_LIBRARY=${BREW_PREFIX}/opt/libomp/lib/libomp.dylib"
         )
         EOF
-        
-        echo "Custom triplet created: arm64-osx-relaxed"
-        cat tools/vcpkg/triplets/community/arm64-osx-relaxed.cmake
 
     - name: Configure CMake
       env:
         VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
       run: |
-        echo "=== Running CMake configuration ==="
-        
         BREW_PREFIX=$(brew --prefix)
         SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
-        
-        # macOS does not support CUDA
         VCPKG_FEATURES=""
         
         cmake -B build \
@@ -264,19 +235,34 @@ jobs:
     - name: Build
       run: |
         NPROC=$(sysctl -n hw.ncpu)
-        PARALLEL_JOBS=$NPROC
-        if [ "$PARALLEL_JOBS" -lt 1 ]; then PARALLEL_JOBS=1; fi
-        cmake --build build --config ${{ matrix.build_type }} --parallel $PARALLEL_JOBS
+        cmake --build build --config ${{ matrix.build_type }} --parallel $NPROC
 
     - name: Run tests
       working-directory: build
       run: |
         NPROC=$(sysctl -n hw.ncpu)
-        PARALLEL_JOBS=$NPROC
-        if [ "$PARALLEL_JOBS" -lt 1 ]; then PARALLEL_JOBS=1; fi
-        ctest --output-on-failure --parallel $PARALLEL_JOBS -C ${{ matrix.build_type }}
+        ctest --output-on-failure --parallel $NPROC -C ${{ matrix.build_type }}
 
-    - name: Upload build artifacts
+    # 【新增】使用 macdeployqt 工具收集完整的 .app 包结构并提取
+    - name: Deploy and Collect macOS App
+      run: |
+        mkdir -p dist_bin
+        APP_PATH=$(find build -name "*.app" -maxdepth 3 | head -n 1)
+        if [ -n "$APP_PATH" ]; then
+          macdeployqt "$APP_PATH" -verbose=1
+          cp -R "$APP_PATH" dist_bin/
+        else
+          cp build/${{ env.PROJECT_NAME }} dist_bin/ || true
+        fi
+
+    - name: Upload macOS Binary Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-macos
+        path: dist_bin/
+        retention-days: 1
+
+    - name: Upload build logs
       uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -284,9 +270,6 @@ jobs:
         path: |
           build/CMakeFiles/CMakeOutput.log
           build/CMakeFiles/CMakeError.log
-          build/compile_commands.json
-          build/vcpkg-manifest-install.log
-          tools/vcpkg/triplets/community/*.cmake
         retention-days: 7
 
   # ================================ Build (Windows) ================================
@@ -315,45 +298,24 @@ jobs:
 
     - name: Setup vcpkg
       run: |
-        echo "=== Setting up vcpkg ==="
-        
-        # Clone vcpkg
         git clone https://github.com/Microsoft/vcpkg.git tools/vcpkg --depth=1
-        
-        # Bootstrap vcpkg
         cd tools/vcpkg
         cmd /c "bootstrap-vcpkg.bat"
         cd ../..
-        
-        # Set environment variables
         $vcpkgRoot = "${{ github.workspace }}\tools\vcpkg"
         echo "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
         echo "$vcpkgRoot" | Out-File -FilePath $env:GITHUB_PATH -Append
-        
-        echo "vcpkg setup completed"
-        
-        # Verify vcpkg
-        $vcpkgExe = Join-Path $vcpkgRoot "vcpkg.exe"
-        if (Test-Path $vcpkgExe) {
-          & $vcpkgExe version
-        }
 
     - name: Configure CMake
       run: |
-        echo "=== Running CMake configuration ==="
         $vcpkgRoot = $env:VCPKG_ROOT
-        if (-not $vcpkgRoot) {
-          $vcpkgRoot = "${{ github.workspace }}\tools\vcpkg"
-        }
+        if (-not $vcpkgRoot) { $vcpkgRoot = "${{ github.workspace }}\tools\vcpkg" }
         $toolchainFile = Join-Path $vcpkgRoot "scripts\buildsystems\vcpkg.cmake"
-        Write-Host "Toolchain file: $toolchainFile"
         
         if (${{ matrix.cuda_enabled }} -eq $true) {
           $VCPKG_FEATURES = "ggml[cuda],whisper-cpp[cuda]"
-          Write-Host "CUDA enabled for this build"
         } else {
           $VCPKG_FEATURES = "ggml,whisper-cpp"
-          Write-Host "CUDA disabled for this build"
         }
         
         cmake -B build -G "Visual Studio 17 2022" `
@@ -365,27 +327,40 @@ jobs:
 
     - name: Build
       run: |
-        $env:JOBS = [System.Environment]::ProcessorCount
-        if ($env:JOBS -lt 1) { $env:JOBS = 1 }
-        cmake --build build --config ${{ matrix.build_type }} --parallel $env:JOBS
+        $jobs = [System.Environment]::ProcessorCount
+        cmake --build build --config ${{ matrix.build_type }} --parallel $jobs
 
     - name: Run tests
       working-directory: build
       run: |
-        $env:JOBS = [System.Environment]::ProcessorCount
-        if ($env:JOBS -lt 1) { $env:JOBS = 1 }
-        ctest --output-on-failure --parallel $env:JOBS -C ${{ matrix.build_type }}
+        $jobs = [System.Environment]::ProcessorCount
+        ctest --output-on-failure --parallel $jobs -C ${{ matrix.build_type }}
 
-    - name: Upload build artifacts
+    # 【新增】使用 windeployqt 自动补全 Windows 运行所需的 Qt DLL 动态链接库
+    - name: Deploy and Collect Windows App
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path dist_bin
+        $EXE_PATH = Get-ChildItem -Path build -Filter "${{ env.PROJECT_NAME }}.exe" -Recurse | Select-Object -First 1
+        if ($EXE_PATH) {
+          Copy-Item $EXE_PATH.FullName -Destination dist_bin\
+          windeployqt dist_bin\${{ env.PROJECT_NAME }}.exe
+        }
+
+    - name: Upload Windows Binary Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-windows
+        path: dist_bin/
+        retention-days: 1
+
+    - name: Upload build logs
       uses: actions/upload-artifact@v4
       if: always()
       with:
         name: build-logs-windows-${{ matrix.build_type }}-cuda-${{ matrix.cuda_enabled }}
         path: |
           build/Testing/Temporary/LastTest.log
-          build/CMakeFiles/CMakeOutput.log
-          build/CMakeFiles/CMakeError.log
-          build/compile_commands.json
         retention-days: 7
 
   # ================================ Build Summary ================================
@@ -398,35 +373,9 @@ jobs:
     steps:
     - name: Check build results
       run: |
-        echo "=== Build Summary ==="
-        echo "Linux build: ${{ needs.build-linux.result }}"
-        echo "macOS ARM64 build: ${{ needs.build-macos.result }}"
-        echo "Windows build: ${{ needs.build-windows.result }}"
-        echo "===================="
-        
-        success_count=0
-        total_count=3
-        
-        if [[ "${{ needs.build-linux.result }}" == "success" ]]; then
-          success_count=$((success_count + 1))
-        fi
-        
-        if [[ "${{ needs.build-macos.result }}" == "success" ]]; then
-          success_count=$((success_count + 1))
-        fi
-        
-        if [[ "${{ needs.build-windows.result }}" == "success" ]]; then
-          success_count=$((success_count + 1))
-        fi
-        
-        echo "Successful builds: $success_count/$total_count"
-        
-        if [[ $success_count -eq $total_count ]]; then
+        if [[ "${{ needs.build-linux.result }}" == "success" && "${{ needs.build-macos.result }}" == "success" && "${{ needs.build-windows.result }}" == "success" ]]; then
           echo "All builds passed!"
           exit 0
-        elif [[ $success_count -eq 0 ]]; then
-          echo "All builds failed!"
-          exit 1
         else
           echo "Some builds failed!"
           exit 1
