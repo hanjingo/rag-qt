@@ -29,7 +29,7 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    # 更换为通过上游事件类型判断。只要上游是正常 push 触发（无论是 tag 还是 branch），且 CI 成功了就放行[cite: 16]
+    # 【已修复】更换为通过上游事件类型判断。只要上游是正常触发（无论是任何名字的 tag 还是 branch），且 CI 成功了就放行[cite: 18]
     if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.event == 'push' || github.event_name == 'workflow_dispatch') }}
     permissions:
       contents: write
@@ -45,25 +45,29 @@ jobs:
     - name: Extract version information
       id: version
       run: |
-        # 优化优先级：手动输入优先 -> 联动分支名优先 -> 上游触发点 Tag 提取优先 -> Git 兜底[cite: 16]
+        # 优化优先级：手动输入优先 -> 联动分支名优先 -> 上游触发点 Tag 提取优先 -> Git 兜底[cite: 18]
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           VERSION="${{ github.event.inputs.version }}"
         elif [[ -n "${{ github.event.workflow_run.head_branch }}" && "${{ github.event.workflow_run.head_branch }}" != "null" ]]; then
           VERSION="${{ github.event.workflow_run.head_branch }}"
         else
-          # 如果是 tag 触发导致 head_branch 为空，直接解析最新的本地 tag 关联[cite: 16]
+          # 如果是 tag 触发导致 head_branch 为空，直接解析最新的本地 tag 关联[cite: 18]
           VERSION=$(git tag --points-at ${{ github.event.workflow_run.head_sha }} | head -n 1)
           if [[ -z "$VERSION" ]]; then
             VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
           fi
         fi
         
-        # 移除可能残留的 refs/tags/ 前缀以防路径长短不一导致拼接崩溃[cite: 16]
+        # 移除可能残留的 refs/tags/ 前缀[cite: 18]
         VERSION=${VERSION##*/}
+        
+        # 【防御性机制】如果 Tag 包含非法或特殊符号如 #，将其清洗替换为下划线，以防后续 Docker 构建或资源上传报错断开
+        SAFE_VERSION=$(echo "$VERSION" | sed 's/[#:*?"<>|]/_/g')
         
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "Using version: $VERSION"
+        echo "SAFE_VERSION=$SAFE_VERSION" >> $GITHUB_ENV
+        echo "Using version: $VERSION (Safe representation: $SAFE_VERSION)"
 
     # ================================ 拉取 CI 二进制资产并进行独立打包 ================================
     - name: Download Linux Executable
@@ -89,23 +93,23 @@ jobs:
 
     - name: Compress Platform Independent Packages
       run: |
-        VERSION="${{ env.VERSION }}"
+        VERSION="${{ env.SAFE_VERSION }}"
         mkdir -p dist/packages
         
-        # 1. 打包 Linux 独立运行程序 (改为 .zip)
+        # 1. 打包 Linux 独立运行程序 为 .zip[cite: 18]
         cd dist/binaries/linux && zip -r ../../packages/${{ env.PROJECT_NAME }}-linux-x64-$VERSION.zip * && cd ../../../
         
-        # 2. 打包 macOS 独立应用程序包 (改为 .zip，-y 参数极其重要，防止 app 内部动态库符号链接断开)
+        # 2. 打包 macOS 独立应用程序包 为 .zip （保持 -y 参数防止 app 软链损坏）[cite: 18]
         cd dist/binaries/macos && zip -r -y ../../packages/${{ env.PROJECT_NAME }}-macos-arm64-$VERSION.zip * && cd ../../../
         
-        # 3. 打包 Windows 独立绿色包 (.zip)[cite: 16]
+        # 3. 打包 Windows 独立绿色包 为 .zip[cite: 18]
         cd dist/binaries/windows && zip -r ../../packages/${{ env.PROJECT_NAME }}-windows-x64-$VERSION.zip * && cd ../../../
 
     # ================================ 原有源码独立打包功能区 ================================
     - name: Create comprehensive source package
       run: |
         echo "=== Creating comprehensive source package ==="
-        PACKAGE_NAME="${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}"
+        PACKAGE_NAME="${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}"
         mkdir -p dist
         
         cat > .package_exclude << 'EOF'
@@ -173,13 +177,14 @@ jobs:
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
         cd dist
-        PACKAGE_NAME="${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}"
+        PACKAGE_NAME="${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}"
         cat > Dockerfile << EOF
         FROM scratch
         COPY ${PACKAGE_NAME}.tar.gz /
         COPY ${PACKAGE_NAME}.zip /
         EOF
-        IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-source:${{ env.VERSION }}"
+        # Docker 镜像 Tag 必须使用清洗过后的 SAFE_VERSION，因为 Docker 不允许包含 # 等特殊符号
+        IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-source:${{ env.SAFE_VERSION }}"
         docker build -t "$IMAGE_TAG" .
         docker push "$IMAGE_TAG"
 
@@ -192,15 +197,15 @@ jobs:
         tag_name: ${{ env.VERSION }}
         name: RAG-Qt ${{ env.VERSION }}
         files: |
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.*.sha256
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.*.md5
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.manifest
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.info
-          dist/packages/${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.zip
-          dist/packages/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.zip
-          dist/packages/${{ env.PROJECT_NAME }}-windows-x64-${{ env.VERSION }}.zip
+          dist/${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.tar.gz
+          dist/${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.zip
+          dist/${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.*.sha256
+          dist/${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.*.md5
+          dist/${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.manifest
+          dist/${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.info
+          dist/packages/${{ env.PROJECT_NAME }}-linux-x64-${{ env.SAFE_VERSION }}.zip
+          dist/packages/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.SAFE_VERSION }}.zip
+          dist/packages/${{ env.PROJECT_NAME }}-windows-x64-${{ env.SAFE_VERSION }}.zip
         body: |
           ## RAG-Qt ${{ env.VERSION }}
           
@@ -208,10 +213,10 @@ jobs:
           
           | 操作系统平台 | 架构 | 下载链接 |
           |---|---|---|
-          | **Windows** | Windows x64 | 📦 [`${{ env.PROJECT_NAME }}-windows-x64-${{ env.VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-windows-x64-${{ env.VERSION }}.zip) |
-          | **macOS** | Apple Silicon (M1/M2/M3) | 📦 [`${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.zip) |
-          | **Linux** | Ubuntu / Linux x64 | 📦 [`${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.zip) |
+          | **Windows** | Windows x64 | 📦 [`${{ env.PROJECT_NAME }}-windows-x64-${{ env.SAFE_VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-windows-x64-${{ env.SAFE_VERSION }}.zip) |
+          | **macOS** | Apple Silicon (M1/M2/M3) | 📦 [`${{ env.PROJECT_NAME }}-macos-arm64-${{ env.SAFE_VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.SAFE_VERSION }}.zip) |
+          | **Linux** | Ubuntu / Linux x64 | 📦 [`${{ env.PROJECT_NAME }}-linux-x64-${{ env.SAFE_VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-linux-x64-${{ env.SAFE_VERSION }}.zip) |
           
           ### 📦 独立源码包下载 (Source Code Packages)
-          * `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz` (推荐 Linux/macOS 环境使用)[cite: 16]
-          * `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip` (推荐 Windows 环境使用)[cite: 16]
+          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.tar.gz` (推荐 Linux/macOS 环境使用)[cite: 18]
+          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.zip` (推荐 Windows 环境使用)[cite: 18]

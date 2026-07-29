@@ -3,7 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ master, main, qwidget, ci ]
-    tags: [ 'v*' ]
+    # 【已修复】允许任何格式的 Tag 触发 CI 构建，包含 0.0.1, v1.0, test-tag 等所有形式
+    tags: [ '**' ]
   pull_request:
     branches: [ master, main ]
 
@@ -111,7 +112,6 @@ jobs:
       run: |
         ctest --output-on-failure --parallel $(nproc) -C ${{ matrix.build_type }}
 
-    # 【新增】编译成功后提取 Linux 运行程序用于后续 Release
     - name: Collect Linux App Binary
       run: |
         mkdir -p dist_bin
@@ -243,7 +243,6 @@ jobs:
         NPROC=$(sysctl -n hw.ncpu)
         ctest --output-on-failure --parallel $NPROC -C ${{ matrix.build_type }}
 
-    # 【新增】使用 macdeployqt 工具收集完整的 .app 包结构并提取
     - name: Deploy and Collect macOS App
       run: |
         mkdir -p dist_bin
@@ -336,7 +335,6 @@ jobs:
         $jobs = [System.Environment]::ProcessorCount
         ctest --output-on-failure --parallel $jobs -C ${{ matrix.build_type }}
 
-    # 【新增】使用 windeployqt 自动补全 Windows 运行所需的 Qt DLL 动态链接库
     - name: Deploy and Collect Windows App
       shell: pwsh
       run: |
