@@ -29,7 +29,7 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    # 【已修复】更换为通过上游事件类型判断。只要上游是正常 push 触发（无论是 tag 还是 branch），且 CI 成功了就放行
+    # 更换为通过上游事件类型判断。只要上游是正常 push 触发（无论是 tag 还是 branch），且 CI 成功了就放行[cite: 16]
     if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.event == 'push' || github.event_name == 'workflow_dispatch') }}
     permissions:
       contents: write
@@ -45,20 +45,20 @@ jobs:
     - name: Extract version information
       id: version
       run: |
-        # 【已修复】优化优先级：手动输入优先 -> 联动分支名优先 -> 上游触发点 Tag 提取优先 -> Git 兜底
+        # 优化优先级：手动输入优先 -> 联动分支名优先 -> 上游触发点 Tag 提取优先 -> Git 兜底[cite: 16]
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           VERSION="${{ github.event.inputs.version }}"
         elif [[ -n "${{ github.event.workflow_run.head_branch }}" && "${{ github.event.workflow_run.head_branch }}" != "null" ]]; then
           VERSION="${{ github.event.workflow_run.head_branch }}"
         else
-          # 如果是 tag 触发导致 head_branch 为空，直接解析最新的本地 tag 关联
+          # 如果是 tag 触发导致 head_branch 为空，直接解析最新的本地 tag 关联[cite: 16]
           VERSION=$(git tag --points-at ${{ github.event.workflow_run.head_sha }} | head -n 1)
           if [[ -z "$VERSION" ]]; then
             VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
           fi
         fi
         
-        # 移除可能残留的 refs/tags/ 前缀以防路径长短不一导致拼接崩溃
+        # 移除可能残留的 refs/tags/ 前缀以防路径长短不一导致拼接崩溃[cite: 16]
         VERSION=${VERSION##*/}
         
         echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -92,13 +92,13 @@ jobs:
         VERSION="${{ env.VERSION }}"
         mkdir -p dist/packages
         
-        # 1. 打包 Linux 独立运行程序 (.tar.gz)
-        cd dist/binaries/linux && tar -czf ../../packages/${{ env.PROJECT_NAME }}-linux-x64-$VERSION.tar.gz * && cd ../../../
+        # 1. 打包 Linux 独立运行程序 (改为 .zip)
+        cd dist/binaries/linux && zip -r ../../packages/${{ env.PROJECT_NAME }}-linux-x64-$VERSION.zip * && cd ../../../
         
-        # 2. 打包 macOS 独立应用程序包 (含有完整 .app 依赖的 .tar.gz)
-        cd dist/binaries/macos && tar -czf ../../packages/${{ env.PROJECT_NAME }}-macos-arm64-$VERSION.tar.gz * && cd ../../../
+        # 2. 打包 macOS 独立应用程序包 (改为 .zip，-y 参数极其重要，防止 app 内部动态库符号链接断开)
+        cd dist/binaries/macos && zip -r -y ../../packages/${{ env.PROJECT_NAME }}-macos-arm64-$VERSION.zip * && cd ../../../
         
-        # 3. 打包 Windows 独立绿色包 (含有完整 Qt 运行环境动态库的 .zip)
+        # 3. 打包 Windows 独立绿色包 (.zip)[cite: 16]
         cd dist/binaries/windows && zip -r ../../packages/${{ env.PROJECT_NAME }}-windows-x64-$VERSION.zip * && cd ../../../
 
     # ================================ 原有源码独立打包功能区 ================================
@@ -198,8 +198,8 @@ jobs:
           dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.*.md5
           dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.manifest
           dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.info
-          dist/packages/${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.tar.gz
-          dist/packages/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.tar.gz
+          dist/packages/${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.zip
+          dist/packages/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.zip
           dist/packages/${{ env.PROJECT_NAME }}-windows-x64-${{ env.VERSION }}.zip
         body: |
           ## RAG-Qt ${{ env.VERSION }}
@@ -209,9 +209,9 @@ jobs:
           | 操作系统平台 | 架构 | 下载链接 |
           |---|---|---|
           | **Windows** | Windows x64 | 📦 [`${{ env.PROJECT_NAME }}-windows-x64-${{ env.VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-windows-x64-${{ env.VERSION }}.zip) |
-          | **macOS** | Apple Silicon (M1/M2/M3) | 📦 [`${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.tar.gz`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.tar.gz) |
-          | **Linux** | Ubuntu / Linux x64 | 📦 [`${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.tar.gz`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.tar.gz) |
+          | **macOS** | Apple Silicon (M1/M2/M3) | 📦 [`${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.VERSION }}.zip) |
+          | **Linux** | Ubuntu / Linux x64 | 📦 [`${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-linux-x64-${{ env.VERSION }}.zip) |
           
           ### 📦 独立源码包下载 (Source Code Packages)
-          * `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz` (推荐 Linux/macOS 环境使用)
-          * `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip` (推荐 Windows 环境使用)
+          * `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz` (推荐 Linux/macOS 环境使用)[cite: 16]
+          * `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip` (推荐 Windows 环境使用)[cite: 16]
