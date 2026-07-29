@@ -178,118 +178,10 @@ endif()
 # ----------------------------------------------------------------------------
 # 3rd Party Libraries
 # ----------------------------------------------------------------------------
-set(hj_LIBRARIES "")
-set(hj_INCLUDE_DIRS "")
-
-# Boost
-find_package(Boost QUIET COMPONENTS system filesystem)
-if(Boost_FOUND)
-    list(APPEND hj_LIBRARIES ${Boost_LIBRARIES})
-    list(APPEND hj_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
-endif()
-
-# fmt
-find_package(fmt CONFIG QUIET)
-if(fmt_FOUND)
-    list(APPEND hj_LIBRARIES fmt::fmt)
-endif()
-
-# nlohmann_json
-find_package(nlohmann_json CONFIG QUIET)
-if(nlohmann_json_FOUND)
-    list(APPEND hj_LIBRARIES nlohmann_json::nlohmann_json)
-endif()
-
-# GTest
-find_package(GTest CONFIG QUIET)
-if(GTest_FOUND)
-    list(APPEND hj_LIBRARIES GTest::gtest GTest::gtest_main)
-endif()
-
-# benchmark
-find_package(benchmark CONFIG QUIET)
-if(benchmark_FOUND)
-    list(APPEND hj_LIBRARIES benchmark::benchmark)
-endif()
-
-# breakpad
-find_package(unofficial-breakpad CONFIG QUIET)
-if(unofficial-breakpad_FOUND)
-    list(APPEND hj_LIBRARIES 
-        unofficial::breakpad::libbreakpad 
-        unofficial::breakpad::libbreakpad_client
-    )
-endif()
-
-# opentelemetry
-find_package(opentelemetry-cpp CONFIG QUIET)
-if(opentelemetry-cpp_FOUND)
-    list(APPEND hj_LIBRARIES ${OPENTELEMETRY_CPP_LIBRARIES})
-endif()
-
-# spdlog
-find_package(spdlog CONFIG QUIET)
-if(spdlog_FOUND)
-    list(APPEND hj_LIBRARIES spdlog::spdlog)
-endif()
-
-# Boost program_options
-find_package(Boost QUIET COMPONENTS program_options)
-if(Boost_PROGRAM_OPTIONS_FOUND)
-    list(APPEND hj_LIBRARIES Boost::program_options)
-endif()
-
-# gRPC
-find_package(gRPC CONFIG QUIET)
-if(gRPC_FOUND)
-    list(APPEND hj_LIBRARIES gRPC::grpc gRPC::grpc++)
-    if(WIN32)
-        list(APPEND hj_LIBRARIES gRPC::grpc++_reflection)
-    endif()
-endif()
-
-# SQLite3
-find_package(SQLite3 QUIET)
-if(SQLite3_FOUND)
-    list(APPEND hj_LIBRARIES ${SQLite3_LIBRARIES})
-    list(APPEND hj_INCLUDE_DIRS ${SQLite3_INCLUDE_DIRS})
-endif()
-
-# TBB
-find_package(TBB CONFIG QUIET)
-if(TBB_FOUND)
-    list(APPEND hj_LIBRARIES TBB::tbb)
-endif()
-
-# jwt-cpp
-find_package(jwt-cpp CONFIG QUIET)
-if(jwt-cpp_FOUND)
-    list(APPEND hj_LIBRARIES jwt-cpp::jwt-cpp)
-endif()
-
-# Llama
-find_package(Llama CONFIG QUIET)
-if(Llama_FOUND)
-    list(APPEND hj_LIBRARIES llama)
-endif()
 
 # OpenMP
 find_package(OpenMP QUIET COMPONENTS CXX)
-if(OpenMP_CXX_FOUND)
-    list(APPEND hj_LIBRARIES OpenMP::OpenMP_CXX)
-endif()
-
-# Faiss
-find_package(faiss CONFIG QUIET)
-if(faiss_FOUND)
-    list(APPEND hj_LIBRARIES faiss)
-endif()
-
-# Whisper
-find_package(whisper CONFIG QUIET)
-if(whisper_FOUND)
-    list(APPEND hj_LIBRARIES whisper)
-endif()
+find_package(hj REQUIRED)
 
 # ----------------------------------------------------------------------------
 # Include Directories
@@ -315,13 +207,12 @@ foreach(TS_FILE IN LISTS TS_FILES)
     get_filename_component(TS_DIR "${TS_FILE}" DIRECTORY)
     get_filename_component(TS_NAME_WE "${TS_FILE}" NAME_WE)
     set(QM_BUILD_FILE "${CMAKE_CURRENT_BINARY_DIR}/res/languages/${TS_NAME_WE}.qm")
-    
-    set(QM_FILE "${RESOURCE_OUTPUT_DIRECTORY}/languages/${TS_NAME_WE}.qm")
+    set(QM_FILE "${CMAKE_CURRENT_SOURCE_DIR}/res/languages/${TS_NAME_WE}.qm")
 
     add_custom_command(
         OUTPUT "${QM_FILE}"
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/res/languages"
-        COMMAND "${CMAKE_COMMAND}" -E make_directory "${RESOURCE_OUTPUT_DIRECTORY}/languages"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/res/languages"
         COMMAND "${LRELEASE_EXECUTABLE}" "${TS_FILE}" -qm "${QM_BUILD_FILE}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${QM_BUILD_FILE}" "${QM_FILE}"
         DEPENDS "${TS_FILE}"
@@ -429,6 +320,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::Multimedia
+    
     ${hj_LIBRARIES}
 )
 

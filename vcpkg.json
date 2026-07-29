@@ -2,10 +2,8 @@
   "dependencies": [
     {
       "name": "hanjingo-high-jump",
-      "features": ["test", "bench", "crash", "telemetry", "log", "options", "grpc", "sqlite", "sync", "lic", "llama", "vector-index"]
+      "features": ["test", "bench", "crash", "telemetry", "log", "options", "grpc", "sqlite", "sync", "lic", "llama", "vector-index", "asr"]
     },
-    "ggml",
-    "whisper-cpp",
     {
       "name": "cpp-httplib",
       "features": ["openssl"]
