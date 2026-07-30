@@ -106,6 +106,12 @@ bool FrameworkWidget::IsConnectedToCoreService()
 
 void FrameworkWidget::closeEvent(QCloseEvent *event)
 {
+    // stop all plugins before closing the application
+    PluginMgr::Instance()->Clear();
+
+    // process all pending events to ensure that the plugin shutdown signals are processed
+    QCoreApplication::processEvents();
+
     event->accept();
 }
 

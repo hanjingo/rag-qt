@@ -37,6 +37,7 @@ class PluginMgr : public QObject
     QStringList      Search(
         const QString    &path,
         const FilterFunc &filter = [](const QJsonObject &) { return true; });
+    void Clear();
 
   signals:
     void SignalPluginLoaded(PluginInterface *plugin, const QString &filePath);

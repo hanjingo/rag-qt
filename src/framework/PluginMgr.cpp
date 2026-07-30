@@ -13,12 +13,7 @@ PluginMgr::PluginMgr(QObject *parent)
 
 PluginMgr::~PluginMgr()
 {
-    QStringList pluginIds;
-    for(auto key : m_mLoaders.keys())
-        pluginIds.append(key);
-
-    for(auto id : pluginIds)
-        Unload(id);
+    Clear();
 }
 
 QMap<QString, QString> PluginMgr::Parse(const QString &absDllPath)
@@ -203,4 +198,14 @@ QStringList PluginMgr::Search(const QString &path, const FilterFunc &filter)
     }
 
     return result;
+}
+
+void PluginMgr::Clear()
+{
+    QStringList pluginIds;
+    for(auto key : m_mLoaders.keys())
+        pluginIds.append(key);
+
+    for(auto id : pluginIds)
+        Unload(id);
 }
