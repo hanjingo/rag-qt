@@ -113,7 +113,6 @@ void GrpcClient::Login(const QString &username, const QString &password)
         emit SignalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                              -1,
                              "",
-                             -1,
                              username,
                              "",
                              false);
@@ -143,7 +142,6 @@ void GrpcClient::Login(const QString &username, const QString &password)
         emit SignalLoginResp(resp.error_code(),
                              resp.user_id(),
                              QString::fromStdString(resp.auth()),
-                             resp.privilege(),
                              QString::fromStdString(resp.account()),
                              QString::fromStdString(resp.last_login_time()),
                              is_force_update);
@@ -151,7 +149,6 @@ void GrpcClient::Login(const QString &username, const QString &password)
         emit SignalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                              -1,
                              "",
-                             -1,
                              username,
                              "",
                              false);

@@ -2,8 +2,8 @@
     "core_run": true,
     "default_index_path": "./memorys",
     "supported_doc_types": ["txt"],
-    "app_upgrade_urls": ["http://8.134.87.167/download.html"],
-    "plugin_upload_urls": ["http://8.134.87.167/upload"],
+    "app_upgrade_urls": ["https://www.hango.fun/download.html"],
+    "plugin_upload_urls": ["https://www.hango.fun/upload"],
     "audio translators": [
         {
             "carry_initial_prompt": false,
@@ -47,7 +47,7 @@
             "port": 50051
         },
         {
-            "ip": "8.134.87.167",
+            "ip": "www.hango.fun",
             "isEnable": false,
             "port": 50051
         }

@@ -600,23 +600,8 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
 void SettingPageModel::_slotLoginResp(const int      errorCode,
                                       const int64_t  userId,
                                       const QString &auth,
-                                      const int32_t  privilege,
                                       const QString &account,
                                       const QString &lastLoginTime,
                                       const bool     isForceUpdate)
 {
-    // // hide add/delete/config button if no privilege
-    // if(errorCode != ErrorCode::OK
-    //    || static_cast<Account::PrivilegeType>(privilege)
-    //           < Account::PrivilegeType::Admin)
-    // {
-    //     ui->btnAdd->setEnabled(false);
-    //     ui->btnDel->setEnabled(false);
-    //     ui->btnSetting->setEnabled(false);
-    // } else
-    // {
-    //     ui->btnAdd->setEnabled(true);
-    //     ui->btnDel->setEnabled(true);
-    //     ui->btnSetting->setEnabled(true);
-    // }
 }

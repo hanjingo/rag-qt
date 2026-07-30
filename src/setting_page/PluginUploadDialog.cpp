@@ -100,6 +100,11 @@ void PluginUploadDialog::_initConnections()
             &QPushButton::clicked,
             this,
             &PluginUploadDialog::_slotBtnIconAddrClicked);
+
+    connect(ui->editPackAddr,
+            &QLineEdit::textChanged,
+            this,
+            &PluginUploadDialog::_slotPackAddrChanged);
 }
 
 void PluginUploadDialog::_slotBtnPackAddrClicked()
@@ -249,6 +254,15 @@ void PluginUploadDialog::_slotDllPathChanged(const QString &text)
 {
     Q_UNUSED(text);
     _parseDllFile();
+}
+
+void PluginUploadDialog::_slotPackAddrChanged(const QString &text)
+{
+    Q_UNUSED(text);
+    if(File::exists(text))
+        ui->btnPack->setEnabled(false);
+    else
+        ui->btnPack->setEnabled(true);
 }
 
 bool PluginUploadDialog::_parsePackedFile(Bus::Plugin   &conf,

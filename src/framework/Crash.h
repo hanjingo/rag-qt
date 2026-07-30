@@ -57,7 +57,7 @@ static void        uploadMinidump(const std::string &dmpPath,
     hj::crash_handler::print("Uploading to Sentry...");
     try
     {
-        std::string     host = "8.134.87.167";
+        std::string     host = "www.hango.fun";
         int             port = 9000;
         std::string     path = "/api/2/minidump/?sentry_key=" + sentryKey;
         httplib::Client client(host, port);

@@ -5,6 +5,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 
+#include <hj/crypto/sha.hpp>
+
 #include "StyleMgr.h"
 
 LoginPage *LoginPage::m_stLoginPageInst = nullptr;
@@ -35,9 +37,16 @@ LoginPage::~LoginPage()
 
 void LoginPage::Login()
 {
-    QString username = ui->editAccount->text();
-    QString password = ui->editPassword->text();
-    emit    SignalLogin(username, password);
+    QString     username = ui->editAccount->text();
+    QString     password = ui->editPassword->text();
+    std::string encryptedPasswd;
+    if(hj::sha::encode(encryptedPasswd,
+                       password.toStdString(),
+                       hj::sha::algorithm::sha512)
+       != hj::sha::error_code::ok)
+        return;
+
+    emit SignalLogin(username, QString::fromStdString(encryptedPasswd));
 }
 
 void LoginPage::changeEvent(QEvent *event)
@@ -66,7 +75,14 @@ void LoginPage::_slotBtnRegisterClicked()
     if(!_validateInput(username, password))
         return;
 
-    emit SignalRegister(username, password);
+    std::string encryptedPasswd;
+    if(hj::sha::encode(encryptedPasswd,
+                       password.toStdString(),
+                       hj::sha::algorithm::sha512)
+       != hj::sha::error_code::ok)
+        return;
+
+    emit SignalRegister(username, QString::fromStdString(encryptedPasswd));
 }
 
 void LoginPage::_slotBtnLogoutClicked()
@@ -101,7 +117,7 @@ void LoginPage::_initUI()
     ui->lblForgotPasswd->setStyleSheet(
         StyleMgr::ParseFile(":/styles/red_label"));
     ui->lblForgotPasswd->setText(
-        "<a style='color:red;' href=http://8.134.87.167> Forgot "
+        "<a style='color:red;' href=https://www.hango.fun> Forgot "
         "Password?</a>");
     ui->lblForgotPasswd->setOpenExternalLinks(true);
 }
@@ -135,12 +151,12 @@ void LoginPage::_retranslate()
 
 bool LoginPage::_validateInput(const QString &username, const QString &password)
 {
-    QRegularExpression accountRegex("^[a-zA-Z0-9]{6,16}$");
+    QRegularExpression accountRegex("^[a-zA-Z0-9]{5,16}$");
     if(!accountRegex.match(username).hasMatch())
     {
         QMessageBox::warning(nullptr,
                              tr("Input Error"),
-                             tr("Username must be 6-16 characters long and "
+                             tr("Username must be 5-16 characters long and "
                                 "contain only letters and numbers."));
         return false;
     }
@@ -149,7 +165,7 @@ bool LoginPage::_validateInput(const QString &username, const QString &password)
                                             "owner",
                                             "admin",
                                             "administrator",
-                                            "developer"
+                                            "developer",
                                             "system",
                                             "user"};
     if(blacklist.contains(username.toLower()))

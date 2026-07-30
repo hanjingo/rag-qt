@@ -7,6 +7,7 @@
 #include <QString>
 
 #include <libqt/net/uploader.h>
+#include <libqt/io/file.h>
 
 #include "ui_PluginUploadDialog.h"
 
@@ -35,6 +36,7 @@ class PluginUploadDialog : public QDialog
     void _slotBtnDllAddrClicked();
     void _slotBtnIconAddrClicked();
     void _slotDllPathChanged(const QString &text);
+    void _slotPackAddrChanged(const QString &text);
 
   private:
     void _retranslate();

@@ -14,7 +14,6 @@ Account::Account(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::AccountDialog)
     , m_id(-1)
-    , m_privilege(PrivilegeType::Normal)
     , m_auth("")
 {
     ui->setupUi(this);
@@ -31,32 +30,11 @@ void Account::Clear()
     m_auth = "";
 
     ui->lblAccount->setText("");
-    ui->lblPrivilege->setText("");
 }
 
 void Account::SetId(int32_t id)
 {
     m_id = id;
-}
-
-void Account::SetPrivilege(int32_t privilege)
-{
-    m_privilege = static_cast<PrivilegeType>(privilege);
-    switch(m_privilege)
-    {
-        case PrivilegeType::Normal:
-            ui->lblPrivilege->setText(tr("Normal"));
-            break;
-        case PrivilegeType::Developer:
-            ui->lblPrivilege->setText(tr("Developer"));
-            break;
-        case PrivilegeType::Admin:
-            ui->lblPrivilege->setText(tr("Admin"));
-            break;
-        default:
-            ui->lblPrivilege->setText(tr("Unknown"));
-            break;
-    }
 }
 
 void Account::SetName(const QString &name)

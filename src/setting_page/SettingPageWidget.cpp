@@ -89,15 +89,11 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
 void SettingPageWidget::_slotLoginResp(const int      errorCode,
                                        const int64_t  user_id,
                                        const QString &auth,
-                                       const int32_t  privilege,
                                        const QString &account,
                                        const QString &lastLoginTime,
                                        const bool     isForceUpdate)
 {
     qDebug() << "SettingPageWidget::_slotLoginResp enter";
-    auto isDeveloper =
-        (privilege >= static_cast<int>(Account::PrivilegeType::Developer));
-    SettingPagePlugin::Instance()->setDeveloperMode(isDeveloper);
 }
 
 void SettingPageWidget::_initUI()

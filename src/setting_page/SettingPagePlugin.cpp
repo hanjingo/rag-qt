@@ -39,11 +39,6 @@ SettingPagePlugin::~SettingPagePlugin()
     delete ui;
 }
 
-void SettingPagePlugin::setDeveloperMode(bool isDeveloper)
-{
-    ui->btnUpload->setEnabled(isDeveloper);
-}
-
 void SettingPagePlugin::changeEvent(QEvent *event)
 {
     QWidget::changeEvent(event);
@@ -257,7 +252,6 @@ void SettingPagePlugin::_slotGetPluginInfoResp(
 void SettingPagePlugin::_upload(const QString &filePath)
 {
     qDebug() << "SettingPagePlugin::_slotUpload with filePath: " << filePath;
-
     auto urls = Config::Instance().getPluginUploadUrls();
     if(urls.isEmpty())
     {

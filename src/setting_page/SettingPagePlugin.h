@@ -43,8 +43,6 @@ class SettingPagePlugin : public QWidget
         uploader->deleteLater();
     }
 
-    void setDeveloperMode(bool isDeveloper);
-
   protected:
     void changeEvent(QEvent *event) override;
 

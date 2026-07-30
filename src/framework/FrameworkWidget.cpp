@@ -218,7 +218,6 @@ void FrameworkWidget::_slotLogin(const QString &username,
 void FrameworkWidget::_slotLoginResp(const int      errorCode,
                                      const int64_t  user_id,
                                      const QString &auth,
-                                     const int32_t  privilege,
                                      const QString &account,
                                      const QString &lastLoginTime,
                                      const bool     isForceUpdate)
@@ -256,7 +255,6 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
 
     m_pAccount->SetId(user_id);
     m_pAccount->SetAuth(auth);
-    m_pAccount->SetPrivilege(privilege);
     m_pAccount->SetName(account);
     m_pAccount->SetLastLoginTime(lastLoginTime);
     m_pLoginWgtInst->hide();

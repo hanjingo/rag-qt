@@ -111,7 +111,6 @@ class GrpcClient : public QObject
     void SignalLoginResp(const int      errorCode,
                          const int64_t  user_id,
                          const QString &auth,
-                         const int32_t  privilege,
                          const QString &account,
                          const QString &lastLoginTime,
                          const bool     isForceUpdate);
