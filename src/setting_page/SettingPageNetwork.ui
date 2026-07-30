@@ -690,8 +690,8 @@ border-bottom-right-radius:15px;}</string>
       <widget class="QPushButton" name="btnNetTest">
        <property name="minimumSize">
         <size>
-         <width>132</width>
-         <height>54</height>
+         <width>100</width>
+         <height>45</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -715,8 +715,8 @@ border-bottom-right-radius:15px;}</string>
       <widget class="QPushButton" name="btnSave">
        <property name="minimumSize">
         <size>
-         <width>132</width>
-         <height>54</height>
+         <width>100</width>
+         <height>45</height>
         </size>
        </property>
        <property name="maximumSize">

@@ -367,6 +367,7 @@ install(TARGETS ${CMAKE_PROJECT_NAME}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     BUNDLE DESTINATION .
+    COMPONENT Applications
 )
 
 # ----------------------------------------------------------------------------
@@ -493,6 +494,110 @@ endif()
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(${CMAKE_PROJECT_NAME})
 endif()
+
+# ============================================================================
+# CPack Configuration - Cross-Platform Packaging
+# ============================================================================
+set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+set(CPACK_PACKAGE_VENDOR "hehehunanchina@live.com")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "RAG-Qt Application")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}")
+set(CPACK_PACKAGE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/packages")
+set(CPACK_VERBATIM_VARIABLES YES)
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+    set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+endif()
+
+if(APPLE)
+    set(CPACK_GENERATOR "DragNDrop")
+    
+    set(CPACK_MONOLITHIC_INSTALL OFF)
+    set(CPACK_COMPONENTS_ALL Applications)
+
+    set(CPACK_DMG_SKIP_RPATH OFF) 
+
+    set(CPACK_DMG_VOLUME_NAME "${CMAKE_PROJECT_NAME} ${PROJECT_VERSION}")
+    set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-macOS")
+    set(CPACK_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.icns")
+        set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.icns")
+    endif()
+
+    set(CPACK_DMG_DS_STORE_SETTINGS "")
+
+elseif(WIN32)
+    set(CPACK_GENERATOR "NSIS")
+    if(BUILD_RELEASE_LITE)
+        set(CPACK_NSIS_INSTALL_ROOT "C:") 
+        set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-lite-${PROJECT_VERSION}-setup")
+    else()
+        set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
+        set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-setup")
+    endif()
+    
+    set(CPACK_NSIS_DISPLAY_NAME "${CMAKE_PROJECT_NAME}")
+    set(CPACK_NSIS_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+    set(CPACK_NSIS_MODIFY_PATH ON)
+    set(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
+    
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.ico")
+        set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.ico")
+        set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.ico")
+    endif()
+    
+    set(CPACK_NSIS_CREATE_ICONS 
+        "CreateShortCut '$DESKTOP\\\\${CMAKE_PROJECT_NAME}.lnk' '$INSTDIR\\\\${CMAKE_PROJECT_NAME}.exe'"
+        "CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${CMAKE_PROJECT_NAME}.lnk' '$INSTDIR\\\\${CMAKE_PROJECT_NAME}.exe'"
+        "CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk' '$INSTDIR\\\\Uninstall.exe'"
+    )
+    set(CPACK_NSIS_DELETE_ICONS 
+        "Delete '$DESKTOP\\\\${CMAKE_PROJECT_NAME}.lnk'"
+        "Delete '$SMPROGRAMS\\\\$START_MENU_FOLDER\\\\${CMAKE_PROJECT_NAME}.lnk'"
+        "Delete '$SMPROGRAMS\\\\$START_MENU_FOLDER\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk'"
+    )
+    
+    set(CPACK_NSIS_MUI_STARTMENUPAGE_DEFAULT_FOLDER "${CMAKE_PROJECT_NAME}")
+    set(CPACK_NSIS_MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM")
+    set(CPACK_NSIS_MUI_STARTMENUPAGE_REGISTRY_KEY "${UNINST_KEY}")
+    set(CPACK_NSIS_MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder")
+    set(CPACK_PACKAGE_EXECUTABLES "${CMAKE_PROJECT_NAME}" "${CMAKE_PROJECT_NAME}")
+    
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+        IfFileExists '$INSTDIR\\\\configs\\\\*.*' 0 +2
+            MessageBox MB_OK|MB_ICONINFORMATION 'configs directory preserved'
+        IfFileExists '$INSTDIR\\\\log\\\\*.*' 0 +2
+            MessageBox MB_OK|MB_ICONINFORMATION 'log directory preserved'
+    ")
+    
+    set(CPACK_NSIS_LANGUAGE "SimpChinese" "English")
+    set(CPACK_NSIS_MUI_LANGDLL_REGISTRY_ROOT "HKLM")
+    set(CPACK_NSIS_MUI_LANGDLL_REGISTRY_KEY "${UNINST_KEY}")
+    set(CPACK_NSIS_MUI_LANGDLL_REGISTRY_VALUENAME "Installer Language")
+    
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "DetailPrint 'Install completed: $INSTDIR'")
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "MessageBox MB_ICONINFORMATION|MB_OK '${CMAKE_PROJECT_NAME} was successfully removed. (configs and log directories preserved)'")
+
+elseif(UNIX)
+    set(CPACK_GENERATOR "DEB;TGZ")
+    set(CPACK_DEBIAN_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "hehehunanchina@live.com")
+    set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "RAG Qt Application")
+    set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+    set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libstdc++6, qt6-base, qt6-gui, qt6-widgets")
+    set(CPACK_PACKAGE_EXECUTABLES "${CMAKE_PROJECT_NAME}" "${CMAKE_PROJECT_NAME}")
+endif()
+
+include(CPack)
 
 # ----------------------------------------------------------------------------
 # Print Build Information

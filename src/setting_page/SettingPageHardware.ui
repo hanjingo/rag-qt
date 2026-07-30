@@ -35,6 +35,15 @@
    </item>
    <item>
     <layout class="QVBoxLayout" name="wgtRight">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="bottomMargin">
+      <number>5</number>
+     </property>
      <item>
       <widget class="QStackedWidget" name="stackPage">
        <widget class="QWidget" name="pageAudio">
@@ -948,6 +957,21 @@
         </size>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>20</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
         <item>
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
@@ -965,7 +989,7 @@
          <widget class="QPushButton" name="btnAdd">
           <property name="minimumSize">
            <size>
-            <width>132</width>
+            <width>100</width>
             <height>45</height>
            </size>
           </property>
@@ -978,7 +1002,7 @@
          <widget class="QPushButton" name="btnSave">
           <property name="minimumSize">
            <size>
-            <width>132</width>
+            <width>100</width>
             <height>45</height>
            </size>
           </property>

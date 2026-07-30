@@ -335,7 +335,7 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
        <widget class="QLabel" name="lblNetStatus">
         <property name="minimumSize">
          <size>
-          <width>120</width>
+          <width>150</width>
           <height>0</height>
          </size>
         </property>

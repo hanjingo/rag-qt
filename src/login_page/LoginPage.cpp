@@ -39,14 +39,17 @@ void LoginPage::Login()
 {
     QString     username = ui->editAccount->text();
     QString     password = ui->editPassword->text();
-    std::string encryptedPasswd;
-    if(hj::sha::encode(encryptedPasswd,
-                       password.toStdString(),
-                       hj::sha::algorithm::sha512)
-       != hj::sha::error_code::ok)
-        return;
 
-    emit SignalLogin(username, QString::fromStdString(encryptedPasswd));
+    emit SignalLogin(username, password);
+
+    // std::string encryptedPasswd;
+    // if(hj::sha::encode(encryptedPasswd,
+    //                    password.toStdString(),
+    //                    hj::sha::algorithm::sha512)
+    //    != hj::sha::error_code::ok)
+    //     return;
+
+    // emit SignalLogin(username, QString::fromStdString(encryptedPasswd));
 }
 
 void LoginPage::changeEvent(QEvent *event)
@@ -75,14 +78,16 @@ void LoginPage::_slotBtnRegisterClicked()
     if(!_validateInput(username, password))
         return;
 
-    std::string encryptedPasswd;
-    if(hj::sha::encode(encryptedPasswd,
-                       password.toStdString(),
-                       hj::sha::algorithm::sha512)
-       != hj::sha::error_code::ok)
-        return;
+    emit SignalRegister(username, password);
 
-    emit SignalRegister(username, QString::fromStdString(encryptedPasswd));
+    // std::string encryptedPasswd;
+    // if(hj::sha::encode(encryptedPasswd,
+    //                    password.toStdString(),
+    //                    hj::sha::algorithm::sha512)
+    //    != hj::sha::error_code::ok)
+    //     return;
+
+    // emit SignalRegister(username, QString::fromStdString(encryptedPasswd));
 }
 
 void LoginPage::_slotBtnLogoutClicked()

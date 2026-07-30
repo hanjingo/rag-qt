@@ -173,6 +173,12 @@ background-color:#DCE1E6;
            </item>
            <item>
             <widget class="QLineEdit" name="editAccount">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="styleSheet">
               <string notr="true"/>
              </property>
@@ -222,6 +228,12 @@ background-color:#DCE1E6;
            </item>
            <item>
             <widget class="QLineEdit" name="editPassword">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="styleSheet">
               <string notr="true"/>
              </property>

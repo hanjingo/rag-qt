@@ -29,6 +29,16 @@ QTabBar::tab
     border-bottom-color:#C1CCD6;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+QTabBar::tab:first
+{
+    margin-left: 0px;
+    padding-left: 0px;
 }
 
 QTabBar::scroller
@@ -43,7 +53,6 @@ QTabBar::tab:first:selected
     color: #2D3238;
     margin-left: 0px;
     margin-right: 0px;
-    position: absolute;
     background-color:#C1CCD6;
 }
 
@@ -52,7 +61,7 @@ QTabBar::tab:first:!selected
     color: #2D3238;
     margin-right: 0px;
     background-color:#909AA7;
-    position: absolute;margin-left: 0px;
+    margin-left: 0px;
 }
 
 QTabBar::tab:middle:selected
@@ -65,7 +74,6 @@ QTabBar::tab:middle:selected
     min-height: 35px;
     max-height: 35px;
     margin-right: 0px;
-    position: absolute;
     background-color:#C1CCD6;
 }
 
@@ -79,7 +87,6 @@ QTabBar::tab:middle:!selected
     min-height: 35px;
     max-height: 35px;
     margin-right: 0px;
-    position: absolute;
     background-color: #909AA7;
 }
 
@@ -111,8 +118,11 @@ QTabBar::tab:last:!selected
 
 QTabBar::tab:only-one
 {
-
-    margin-left:-48px;
+    margin-left:0px;
     color:#000000;
     background:transparent;
+}
+
+QTabWidget::tab-bar {
+    alignment: left;
 }
