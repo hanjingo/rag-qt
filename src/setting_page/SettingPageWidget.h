@@ -20,6 +20,9 @@ class SettingPageWidget : public QWidget
     explicit SettingPageWidget(QWidget *parent = nullptr);
     ~SettingPageWidget();
 
+  protected:
+    void changeEvent(QEvent *event) override;
+
   signals:
 
   private slots:

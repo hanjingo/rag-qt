@@ -118,6 +118,262 @@
 </context>
 
 <context>
+    <name>SettingPageWidget</name>
+    <message>
+        <source>History Settings</source>
+        <translation>Verlaufseinstellungen</translation>
+    </message>
+    <message>
+        <source>Model Settings</source>
+        <translation>Modelleinstellungen</translation>
+    </message>
+    <message>
+        <source>Plugin Settings</source>
+        <translation>Plugin-Einstellungen</translation>
+    </message>
+    <message>
+        <source>Memory Settings</source>
+        <translation>Speichereinstellungen</translation>
+    </message>
+    <message>
+        <source>Network Settings</source>
+        <translation>Netzwerkeinstellungen</translation>
+    </message>
+    <message>
+        <source>Hardware Settings</source>
+        <translation>Hardwareeinstellungen</translation>
+    </message>
+    <message>
+        <source>Version Info</source>
+        <translation>Versionsinformationen</translation>
+    </message>
+</context>
+
+<context>
+    <name>SettingPageHistory</name>
+    <message>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportieren</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importieren</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Suchen</translation>
+    </message>
+    <message>
+        <source>Start Date:</source>
+        <translation>Startdatum:</translation>
+    </message>
+    <message>
+        <source>End Date:</source>
+        <translation>Enddatum:</translation>
+    </message>
+    <message>
+        <source>Date Time</source>
+        <translation>Datum/Uhrzeit</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Titel</translation>
+    </message>
+</context>
+
+<context>
+    <name>SettingPageModel</name>
+    <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Publisher</source>
+        <translation>Verleger</translation>
+    </message>
+    <message>
+        <source>Time Stamp</source>
+        <translation>Zeitstempel</translation>
+    </message>
+    <message>
+        <source>Addr</source>
+        <translation>Adresse</translation>
+    </message>
+    <message>
+        <source>Pipeline</source>
+        <translation>Pipeline</translation>
+    </message>
+    <message>
+        <source>Cost</source>
+        <translation>Kosten</translation>
+    </message>
+    <message>
+        <source>Api KEY</source>
+        <translation>Api KEY</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hash</translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation>Fenstergröße</translation>
+    </message>
+    <message>
+        <source>Stop Words</source>
+        <translation>Stoppwörter</translation>
+    </message>
+    <message>
+        <source>Prompt</source>
+        <translation>Aufforderung</translation>
+    </message>
+    <message>
+        <source>Tag</source>
+        <translation>Tag</translation>
+    </message>
+</context>
+
+<context>
+    <name>SettingPageHardware</name>
+    <message>
+        <source>Audio Translator</source>
+        <translation>Audio-Übersetzer</translation>
+    </message>
+    <message>
+        <source>Full Param</source>
+        <translation>Vollständige Parameter</translation>
+    </message>
+    <message>
+        <source>Threads Num</source>
+        <translation>Anzahl der Threads</translation>
+    </message>
+    <message>
+        <source>Max Text Context</source>
+        <translation>Maximaler Textkontext</translation>
+    </message>
+    <message>
+        <source>Offset Milliseconds</source>
+        <translation>Offset in Millisekunden</translation>
+    </message>
+    <message>
+        <source>Duration Milliseconds</source>
+        <translation>Dauer in Millisekunden</translation>
+    </message>
+    <message>
+        <source>Translate</source>
+        <translation>Übersetzen</translation>
+    </message>
+    <message>
+        <source>Detect Language</source>
+        <translation>Sprache erkennen</translation>
+    </message>
+    <message>
+        <source>No Context</source>
+        <translation>Kein Kontext</translation>
+    </message>
+    <message>
+        <source>No Timestamps</source>
+        <translation>Keine Zeitstempel</translation>
+    </message>
+    <message>
+        <source>Single Segment</source>
+        <translation>Einzelnes Segment</translation>
+    </message>
+    <message>
+        <source>Print Special</source>
+        <translation>Spezial drucken</translation>
+    </message>
+    <message>
+        <source>Print Progress</source>
+        <translation>Fortschritt drucken</translation>
+    </message>
+    <message>
+        <source>Print Realtime</source>
+        <translation>Echtzeit drucken</translation>
+    </message>
+    <message>
+        <source>Print Timestamps</source>
+        <translation>Zeitstempel drucken</translation>
+    </message>
+    <message>
+        <source>Temperature</source>
+        <translation>Temperatur</translation>
+    </message>
+    <message>
+        <source>Temperature Increment</source>
+        <translation>Temperaturerhöhung</translation>
+    </message>
+    <message>
+        <source>Max Initial Timestamps</source>
+        <translation>Maximale Anfangszeitstempel</translation>
+    </message>
+    <message>
+        <source>Length Penalty</source>
+        <translation>Längenstrafe</translation>
+    </message>
+    <message>
+        <source>Entropy Threshold</source>
+        <translation>Entropieschwelle</translation>
+    </message>
+    <message>
+        <source>Log Probability Threshold</source>
+        <translation>Log-Wahrscheinlichkeitsschwelle</translation>
+    </message>
+    <message>
+        <source>No Speech Threshold</source>
+        <translation>Keine Sprachschwelle</translation>
+    </message>
+    <message>
+        <source>Noise Control</source>
+        <translation>Rauschsteuerung</translation>
+    </message>
+    <message>
+        <source>Suppress Blank</source>
+        <translation>Leere unterdrücken</translation>
+    </message>
+    <message>
+        <source>Suppress NST</source>
+        <translation>NST unterdrücken</translation>
+    </message>
+    <message>
+        <source>Suppress Regex</source>
+        <translation>Regex unterdrücken</translation>
+    </message>
+    <message>
+        <source>Carry Initial Prompt</source>
+        <translation>Initiale Eingabe beibehalten</translation>
+    </message>
+    <message>
+        <source>Initial Prompt</source>
+        <translation>Initiale Eingabe</translation>
+    </message>
+    <message>
+        <source>Buffer Control</source>
+        <translation>Puffersteuerung</translation>
+    </message>
+    <message>
+        <source>Min New Sample Size</source>
+        <translation>Minimale neue Stichprobengröße</translation>
+    </message>
+    <message>
+        <source>Min Audio Buffer Size</source>
+        <translation>Minimale Audio-Puffergröße</translation>
+    </message>
+    <message>
+        <source>Max Audio Buffer Size</source>
+        <translation>Maximale Audio-Puffergröße</translation>
+    </message>
+</context>
+
+<context>
     <name>NewSessionDialog</name>
     <message>
         <source>Session Configuration</source>

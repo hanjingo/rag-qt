@@ -12,6 +12,7 @@
 #include "Account.h"
 #include "Error.h"
 #include "StyleMgr.h"
+#include "Global.h"
 
 #include "SettingPageHistory.h"
 #include "ui_SettingPageHistory.h"
@@ -37,11 +38,23 @@ SettingPageHistory::SettingPageHistory(QWidget *parent)
 
     _initUI();
     _initConnections();
+    _retranslate();
 }
 
 SettingPageHistory::~SettingPageHistory()
 {
     delete ui;
+}
+
+void SettingPageHistory::changeEvent(QEvent *event)
+{
+    QWidget::changeEvent(event);
+    if(event->type() == QEvent::LanguageChange)
+    {
+        qDebug() << "SettingPageHistory language change event received.";
+        ui->retranslateUi(this);
+        _retranslate();
+    }
 }
 
 void SettingPageHistory::_initConnections()
@@ -409,25 +422,20 @@ void SettingPageHistory::_slotBtnSearchClicked()
     if(m_pHistoryModel == nullptr)
         return;
 
-    const QDate startDate = ui->dateEditStart->date();
-    const QDate endDate   = ui->dateEditEnd->date();
-    for(int i = 0; i < m_pHistoryModel->rowCount(); i++)
+    const QDate    startDate = ui->dateEditStart->date();
+    const QDate    endDate   = ui->dateEditEnd->date();
+    QTextDocument *doc       = ui->txtBrowserChat->document();
+    QTextCursor    cursor(doc);
+    for(QDate dt = startDate; dt <= endDate; dt = dt.addDays(1))
     {
-        QStandardItem *pTmItem = m_pHistoryModel->item(i, 1);
-        if(pTmItem == nullptr)
+        QString tm = dt.toString(DATE_FMT);
+        cursor     = doc->find(tm, cursor);
+        if(cursor.isNull())
             continue;
 
-        const QString str = pTmItem->text();
-        // Qt format uses 'hh' (not 'HH') for 24-hour parsing.
-        auto tm = QDateTime::fromString(str, TIMESTAMP_FMT);
-        if(!tm.isValid())
-        {
-            qDebug() << "Invalid timestamp format: " << str;
-            continue;
-        }
-
-        const bool match = (tm.date() >= startDate && tm.date() <= endDate);
-        ui->tbviewCatalog->setRowHidden(i, !match);
+        ui->txtBrowserChat->setTextCursor(cursor);
+        ui->txtBrowserChat->ensureCursorVisible();
+        return;
     }
 }
 
@@ -468,6 +476,15 @@ void SettingPageHistory::_initUI()
 
 void SettingPageHistory::_retranslate()
 {
+    ui->btnDelete->setText(tr("Delete"));
+    ui->btnExport->setText(tr("Export"));
+    ui->btnImport->setText(tr("Import"));
+    ui->btnSearch->setText(tr("Search"));
+
+    ui->lblChatDate->setText(tr("Start Date:"));
+    ui->lblChatDateTo->setText(tr("End Date:"));
+
+    _refreshHistoryTable();
 }
 
 void SettingPageHistory::_addSessions(const QVector<Bus::Session> &sessions)
@@ -584,7 +601,7 @@ void SettingPageHistory::_refreshChatBrowser(bool clearFirst)
         return;
 
     QJsonArray arr = pContentItem->data(Qt::UserRole).toJsonArray();
-    for(int i = arr.size() - 1; i >= 0; i--)
+    for(int i = 0; i < arr.size(); i++)
     {
         QJsonObject obj       = arr.at(i).toObject();
         QString     role      = obj["role"].toString();

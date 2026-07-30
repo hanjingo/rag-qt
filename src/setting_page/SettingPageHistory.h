@@ -25,6 +25,9 @@ class SettingPageHistory : public QWidget
     explicit SettingPageHistory(QWidget *parent = nullptr);
     ~SettingPageHistory();
 
+  protected:
+    void changeEvent(QEvent *event) override;
+
   signals:
 
   private slots:

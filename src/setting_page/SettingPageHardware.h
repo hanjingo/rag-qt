@@ -24,6 +24,9 @@ class SettingPageHardware : public QWidget
         return &inst;
     };
 
+  protected:
+    void changeEvent(QEvent *event) override;
+
   signals:
 
   private slots:
@@ -34,6 +37,7 @@ class SettingPageHardware : public QWidget
   private:
     void _initUI();
     void _initConnections();
+    void _retranslate();
 
     void _switchAudioConfig(const QString &id);
     void _addAudioConfig(const QString &id);

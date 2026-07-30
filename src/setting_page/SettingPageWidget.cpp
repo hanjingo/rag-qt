@@ -44,6 +44,17 @@ SettingPageWidget::~SettingPageWidget()
     delete ui;
 }
 
+void SettingPageWidget::changeEvent(QEvent *event)
+{
+    QWidget::changeEvent(event);
+    if(event->type() == QEvent::LanguageChange)
+    {
+        qDebug() << "SettingPageWidget language change event received.";
+        ui->retranslateUi(this);
+        _retranslate();
+    }
+}
+
 void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
 {
     switch(iIndex)
@@ -120,4 +131,11 @@ void SettingPageWidget::_initConnections()
 
 void SettingPageWidget::_retranslate()
 {
+    ui->tabWidget->setTabText(0, tr("History Settings"));
+    ui->tabWidget->setTabText(1, tr("Model Settings"));
+    ui->tabWidget->setTabText(2, tr("Plugin Settings"));
+    ui->tabWidget->setTabText(3, tr("Memory Settings"));
+    ui->tabWidget->setTabText(4, tr("Network Settings"));
+    ui->tabWidget->setTabText(5, tr("Hardware Settings"));
+    ui->tabWidget->setTabText(6, tr("Version Info"));
 }

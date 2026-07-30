@@ -4,6 +4,7 @@
 #define RAG_QT_VERSION "0.0.1"
 
 static constexpr const char *TIMESTAMP_FMT = "yyyy-MM-dd hh:mm:ss";
+static constexpr const char *DATE_FMT      = "yyyy-MM-dd";
 
 #ifdef Q_OS_WIN
 static constexpr const char *RAG_CORE = "rag-core.exe";

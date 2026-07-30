@@ -27,6 +27,17 @@ SettingPageHardware::~SettingPageHardware()
     delete ui;
 }
 
+void SettingPageHardware::changeEvent(QEvent *event)
+{
+    QWidget::changeEvent(event);
+    if(event->type() == QEvent::LanguageChange)
+    {
+        qDebug() << "SettingPageHardware language change event received.";
+        ui->retranslateUi(this);
+        _retranslate();
+    }
+}
+
 void SettingPageHardware::_initUI()
 {
     // init left side bar
@@ -37,9 +48,9 @@ void SettingPageHardware::_initUI()
     itemAudioTranslator->setTextAlignment(Qt::AlignHCenter | Qt::AlignBottom);
     ui->listWidgetCatalog->insertItem(0, itemAudioTranslator);
 
-    QListWidgetItem *itemGPU = new QListWidgetItem(tr("GPU"));
-    itemGPU->setTextAlignment(Qt::AlignHCenter | Qt::AlignBottom);
-    ui->listWidgetCatalog->insertItem(1, itemGPU);
+    // QListWidgetItem *itemGPU = new QListWidgetItem(tr("GPU"));
+    // itemGPU->setTextAlignment(Qt::AlignHCenter | Qt::AlignBottom);
+    // ui->listWidgetCatalog->insertItem(1, itemGPU);
 
     ui->listWidgetCatalog->setCurrentRow(0);
 
@@ -77,6 +88,49 @@ void SettingPageHardware::_initConnections()
             &QPushButton::clicked,
             this,
             &SettingPageHardware::_slotBtnAddClicked);
+}
+
+void SettingPageHardware::_retranslate()
+{
+    ui->btnAdd->setText(tr("Add"));
+    ui->btnSave->setText(tr("Save"));
+
+    ui->listWidgetCatalog->item(0)->setText(tr("Audio Translator"));
+    ui->lblAudioTranslatorTitle->setText(tr("Audio Translator"));
+    ui->lblFullParamTitle->setText(tr("Full Param"));
+    ui->lblThreadsNum->setText(tr("Threads Num"));
+    ui->lblMaxTextCtx->setText(tr("Max Text Context"));
+    ui->lblOffsetMs->setText(tr("Offset Milliseconds"));
+    ui->lblDurMs->setText(tr("Duration Milliseconds"));
+    ui->ckTranslate->setText(tr("Translate"));
+    ui->ckDetectLanguage->setText(tr("Detect Language"));
+    ui->lblLanguage->setText(tr("Language"));
+    ui->ckNoCtx->setText(tr("No Context"));
+    ui->ckNoTimestamps->setText(tr("No Timestamps"));
+    ui->ckSingleSegment->setText(tr("Single Segment"));
+    ui->ckPrintSpecial->setText(tr("Print Special"));
+    ui->ckPrintProgress->setText(tr("Print Progress"));
+    ui->ckPrintRealTime->setText(tr("Print Realtime"));
+    ui->ckPrintTimeStamp->setText(tr("Print Timestamps"));
+    ui->lblTemperature->setText(tr("Temperature"));
+    ui->lblTemperatureInc->setText(tr("Temperature Increment"));
+    ui->lblMaxInitTs->setText(tr("Max Initial Timestamps"));
+    ui->lblLengthPenalty->setText(tr("Length Penalty"));
+    ui->lblEntropyThreshold->setText(tr("Entropy Threshold"));
+    ui->lblLogProbThreshold->setText(tr("Log Probability Threshold"));
+    ui->lblNoSpeechThreshold->setText(tr("No Speech Threshold"));
+
+    ui->lblNoiseControlTitle->setText(tr("Noise Control"));
+    ui->ckSuppressBlank->setText(tr("Suppress Blank"));
+    ui->ckSuppressNst->setText(tr("Suppress NST"));
+    ui->lblSuppressRegex->setText(tr("Suppress Regex"));
+    ui->ckCarryInitPrompt->setText(tr("Carry Initial Prompt"));
+    ui->lblInitPrompt->setText(tr("Initial Prompt"));
+
+    ui->lblBufferControlTitle->setText(tr("Buffer Control"));
+    ui->lblMinNewSampleSize->setText(tr("Min New Sample Size"));
+    ui->lblMinAudioBufferSize->setText(tr("Min Audio Buffer Size"));
+    ui->lblMaxAudioBufferSize->setText(tr("Max Audio Buffer Size"));
 }
 
 void SettingPageHardware::_slotComboAudioTranslatorCurrentChanged(int iIndex)

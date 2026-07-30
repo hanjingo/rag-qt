@@ -118,6 +118,263 @@
 </context>
 
 <context>
+    <name>SettingPageWidget</name>
+    <message>
+        <source>History Settings</source>
+        <translation>History Settings</translation>
+    </message>
+    <message>
+        <source>Model Settings</source>
+        <translation>Model Settings</translation>
+    </message>
+    <message>
+        <source>Plugin Settings</source>
+        <translation>Plugin Settings</translation>
+    </message>
+    <message>
+        <source>Memory Settings</source>
+        <translation>Memory Settings</translation>
+    </message>
+    <message>
+        <source>Network Settings</source>
+        <translation>Network Settings</translation>
+    </message>
+    <message>
+        <source>Hardware Settings</source>
+        <translation>Hardware Settings</translation>
+    </message>
+    <message>
+        <source>Version Info</source>
+        <translation>Version Info</translation>
+    </message>
+</context>
+
+<context>
+    <name>SettingPageHistory</name>
+    <message>
+        <source>Delete</source>
+        <translation>Delete</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Export</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Import</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Search</translation>
+    </message>
+    <message>
+        <source>Start Date:</source>
+        <translation>Start Date:</translation>
+    </message>
+    <message>
+        <source>End Date:</source>
+        <translation>End Date:</translation>
+    </message>
+    <message>
+        <source>Date Time</source>
+        <translation>Date Time</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Title</translation>
+    </message>
+</context>
+
+<context>
+    <name>SettingPageModel</name>
+    <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Publisher</source>
+        <translation>Publisher</translation>
+    </message>
+    <message>
+        <source>Time Stamp</source>
+        <translation>Time Stamp</translation>
+    </message>
+    <message>
+        <source>Addr</source>
+        <translation>Addr</translation>
+    </message>
+    <message>
+        <source>Pipeline</source>
+        <translation>Pipeline</translation>
+    </message>
+    <message>
+        <source>Cost</source>
+        <translation>Cost</translation>
+    </message>
+    <message>
+        <source>Api KEY</source>
+        <translation>Api KEY</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hash</translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation>Window Size</translation>
+    </message>
+    <message>
+        <source>Stop Words</source>
+        <translation>Stop Words</translation>
+    </message>
+    <message>
+        <source>Prompt</source>
+        <translation>Prompt</translation>
+    </message>
+    <message>
+        <source>Tag</source>
+        <translation>Tag</translation>
+    </message>
+</context>
+
+<context>
+    <name>SettingPageHardware</name>
+    <message>
+        <source>Audio Translator</source>
+        <translation>Audio Translator</translation>
+    </message>
+    <message>
+        <source>Full Param</source>
+        <translation>Full Param</translation>
+    </message>
+    <message>
+        <source>Threads Num</source>
+        <translation>Threads Num</translation>
+    </message>
+    <message>
+        <source>Max Text Context</source>
+        <translation>Max Text Context</translation>
+    </message>
+    <message>
+        <source>Offset Milliseconds</source>
+        <translation>Offset Milliseconds</translation>
+    </message>
+    <message>
+        <source>Duration Milliseconds</source>
+        <translation>Duration Milliseconds</translation>
+    </message>
+    <message>
+        <source>Translate</source>
+        <translation>Translate</translation>
+    </message>
+    <message>
+        <source>Detect Language</source>
+        <translation>Detect Language</translation>
+    </message>
+    <message>
+        <source>No Context</source>
+        <translation>No Context</translation>
+    </message>
+    <message>
+        <source>No Timestamps</source>
+        <translation>No Timestamps</translation>
+    </message>
+    <message>
+        <source>Single Segment</source>
+        <translation>Single Segment</translation>
+    </message>
+    <message>
+        <source>Print Special</source>
+        <translation>Print Special</translation>
+    </message>
+    <message>
+        <source>Print Progress</source>
+        <translation>Print Progress</translation>
+    </message>
+    <message>
+        <source>Print Realtime</source>
+        <translation>Print Realtime</translation>
+    </message>
+    <message>
+        <source>Print Timestamps</source>
+        <translation>Print Timestamps</translation>
+    </message>
+    <message>
+        <source>Temperature</source>
+        <translation>Temperature</translation>
+    </message>
+    <message>
+        <source>Temperature Increment</source>
+        <translation>Temperature Increment</translation>
+    </message>
+    <message>
+        <source>Max Initial Timestamps</source>
+        <translation>Max Initial Timestamps</translation>
+    </message>
+    <message>
+        <source>Length Penalty</source>
+        <translation>Length Penalty</translation>
+    </message>
+    <message>
+        <source>Entropy Threshold</source>
+        <translation>Entropy Threshold</translation>
+    </message>
+    <message>
+        <source>Log Probability Threshold</source>
+        <translation>Log Probability Threshold</translation>
+    </message>
+    <message>
+        <source>No Speech Threshold</source>
+        <translation>No Speech Threshold</translation>
+    </message>
+
+    <message>
+        <source>Noise Control</source>
+        <translation>Noise Control</translation>
+    </message>
+    <message>
+        <source>Suppress Blank</source>
+        <translation>Suppress Blank</translation>
+    </message>
+    <message>
+        <source>Suppress NST</source>
+        <translation>Suppress NST</translation>
+    </message>
+    <message>
+        <source>Suppress Regex</source>
+        <translation>Suppress Regex</translation>
+    </message>
+    <message>
+        <source>Carry Initial Prompt</source>
+        <translation>Carry Initial Prompt</translation>
+    </message>
+    <message>
+        <source>Initial Prompt</source>
+        <translation>Initial Prompt</translation>
+    </message>
+    <message>
+        <source>Buffer Control</source>
+        <translation>Buffer Control</translation>
+    </message>
+    <message>
+        <source>Min New Sample Size</source>
+        <translation>Min New Sample Size</translation>
+    </message>
+    <message>
+        <source>Min Audio Buffer Size</source>
+        <translation>Min Audio Buffer Size</translation>
+    </message>
+    <message>
+        <source>Max Audio Buffer Size</source>
+        <translation>Max Audio Buffer Size</translation>
+    </message>
+</context>
+
+<context>
     <name>NewSessionDialog</name>
     <message>
         <source>Session Configuration</source>
