@@ -3,7 +3,6 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ master, main, qwidget, ci ]
-    # 【已修复】允许任何格式的 Tag 触发 CI 构建，包含 0.0.1, v1.0, test-tag 等所有形式
     tags: [ '**' ]
   pull_request:
     branches: [ master, main ]
@@ -114,30 +113,22 @@ jobs:
 
     - name: Collect Linux App Binary
       run: |
-        # 1. 创建干净的临时输出目录
         rm -rf dist_bin
         mkdir -p dist_bin
-        
-        echo "=== 开始全盘检索 Linux 二进制文件 ${{ env.PROJECT_NAME }} ==="
-        # 全盘扫描，排除 dist_bin 自身，精准找出目标裸文件
         BIN_PATH=$(find . -type f -name "${{ env.PROJECT_NAME }}" ! -path "*/dist_bin/*" | head -n 1)
-        
         if [ -n "$BIN_PATH" ]; then
-          echo "【成功】找到可执行文件，真实路径为: $BIN_PATH"
           cp "$BIN_PATH" dist_bin/
-          
-          # 拷贝可能附带的配置文件
           if [ -d "bin/${{ matrix.build_type }}/configs" ]; then
               cp -r "bin/${{ matrix.build_type }}/configs" dist_bin/
           elif [ -d "build/bin/${{ matrix.build_type }}/configs" ]; then
               cp -r "build/bin/${{ matrix.build_type }}/configs" dist_bin/
           fi
           
-          echo "=== 最终打包目录文件列表如下 ==="
+          echo "=== Final package directory file list ==="
           ls -la dist_bin
         else
-          echo "::error::【错误】在整个工作区都未找到 ${{ env.PROJECT_NAME }}！请检查上一步 Build 是否成功。"
-          echo "当前根目录结构如下："
+          echo "::error::[error]can't find ${{ env.PROJECT_NAME }}!"
+          echo "current root directory structure:"
           find . -maxdepth 3
           exit 1
         fi
@@ -270,21 +261,15 @@ jobs:
 
     - name: Deploy and Collect macOS App
       run: |
-        # 1. 创建干净的临时输出目录
         rm -rf dist_bin
         mkdir -p dist_bin
-        
-        echo "=== 开始全盘检索 macOS 应用程序 (.app 或 裸二进制) ==="
-        # 全盘扫描寻找 App Bundle 包
         APP_PATH=$(find . -name "${{ env.PROJECT_NAME }}.app" -maxdepth 4 ! -path "*/dist_bin/*" 2>/dev/null | head -n 1)
         
         if [ -n "$APP_PATH" ]; then
-          echo "【成功】找到 App Bundle，路径为: $APP_PATH"
-          # 对原产地应用包直接进行内联部署依赖注入
+          echo "[Success] Find $APP_PATH"
           macdeployqt "$APP_PATH" -verbose=1
           cp -R "$APP_PATH" dist_bin/
           
-          # 拷贝可能附带的配置文件到捆绑包内部 Resource 目录
           if [ -d "bin/${{ matrix.build_type }}/configs" ]; then
               cp -r "bin/${{ matrix.build_type }}/configs" "dist_bin/${{ env.PROJECT_NAME }}.app/Contents/Resources/" 2>/dev/null || true
           elif [ -d "build/bin/${{ matrix.build_type }}/configs" ]; then
@@ -292,12 +277,10 @@ jobs:
           fi
           
         else
-          echo "【提示】未找到 App Bundle，降级检索裸二进制文件..."
-          # 尝试全盘搜索裸可执行文件
+          echo "[Warning] Can't find App Bundle, downgrade to search for bare binary..."
           BIN_PATH=$(find . -type f -name "${{ env.PROJECT_NAME }}" ! -path "*/dist_bin/*" | head -n 1)
-          
           if [ -n "$BIN_PATH" ]; then
-            echo "【成功】找到裸二进制文件，真实路径为: $BIN_PATH"
+            echo "[Success] Find bare binary, real path: $BIN_PATH"
             cp "$BIN_PATH" dist_bin/
             
             if [ -d "bin/${{ matrix.build_type }}/configs" ]; then
@@ -306,14 +289,14 @@ jobs:
                 cp -r "build/bin/${{ matrix.build_type }}/configs" dist_bin/
             fi
           else
-            echo "::error::【错误】在整个工作区都未找到任何 macOS 构建产物！"
-            echo "当前根目录结构如下："
+            echo "::error::[Error] Can't find any macOS build artifacts in the entire workspace!"
+            echo "Current root directory structure:"
             find . -maxdepth 3
             exit 1
           fi
         fi
         
-        echo "=== 最终打包目录文件列表如下 ==="
+        echo "=== Final package directory file list ==="
         ls -la dist_bin
 
     - name: Upload macOS Binary Artifact
@@ -400,15 +383,14 @@ jobs:
     - name: Deploy and Collect Windows App
       shell: pwsh
       run: |
-        # 1. 创建干净的临时输出目录
         if (Test-Path "dist_bin") { Remove-Item -Recurse -Force "dist_bin" }
         New-Item -ItemType Directory -Force -Path dist_bin
         
-        Write-Host "=== 开始全盘检索 ${{ env.PROJECT_NAME }}.exe ==="
+        Write-Host "=== Start searching for ${{ env.PROJECT_NAME }}.exe in the entire workspace ==="
         $EXE_PATH = Get-ChildItem -Path . -Filter "${{ env.PROJECT_NAME }}.exe" -Recurse | Where-Object { $_.FullName -notmatch "dist_bin" } | Select-Object -First 1
         
         if ($EXE_PATH) {
-          Write-Host "【成功】找到可执行文件，真实路径为: $($EXE_PATH.FullName)"
+          Write-Host "[Success] Found executable, real path: $($EXE_PATH.FullName)"
           Copy-Item $EXE_PATH.FullName -Destination dist_bin\
           
           if (Test-Path "bin/${{ matrix.build_type }}/configs") {
@@ -417,14 +399,14 @@ jobs:
               Copy-Item -Recurse "build/bin/${{ matrix.build_type }}/configs" -Destination dist_bin\
           }
           
-          Write-Host "=== 开始执行 windeployqt 依赖分发 ==="
+          Write-Host "=== Start executing windeployqt dependency deployment ==="
           & "$env:QT_PLUGIN_PATH\..\bin\windeployqt.exe" --no-compiler-runtime dist_bin\${{ env.PROJECT_NAME }}.exe
           
-          Write-Host "=== 依赖分发完成，最终打包目录文件列表如下： ==="
+          Write-Host "=== Dependency deployment completed, final package directory file list: ==="
           Get-ChildItem -Path dist_bin
         } else {
-          Write-Error "【错误】在整个工作区都未找到 ${{ env.PROJECT_NAME }}.exe！请检查上一步 Build 是否成功。"
-          Write-Host "当前根目录结构如下："
+          Write-Error "[Error] Can't find ${{ env.PROJECT_NAME }}.exe in the entire workspace! Please check if the previous Build step was successful."
+          Write-Host "Current root directory structure:"
           Get-ChildItem -Recurse -Depth 2
           exit 1
         }
@@ -455,7 +437,6 @@ jobs:
     steps:
     - name: Check build results
       run: |
-        # 修复：只有真正失败时才 exit 1，全部成功时 exit 0
         if [[ "${{ needs.build-linux.result }}" == "success" && "${{ needs.build-macos.result }}" == "success" && "${{ needs.build-windows.result }}" == "success" ]]; then
           echo "✅ All builds passed!"
           exit 0
@@ -466,3 +447,24 @@ jobs:
           echo "Windows: ${{ needs.build-windows.result }}"
           exit 1
         fi
+
+  # ================================ Release Metadata ================================
+  release-metadata:
+    name: Release Metadata
+    runs-on: ubuntu-latest
+    needs: [build-summary]
+    if: needs.build-summary.result == 'success' && startsWith(github.ref, 'refs/tags/')
+
+    steps:
+    - name: Create release metadata
+      run: |
+        mkdir -p release_meta
+        echo "tag=${GITHUB_REF#refs/tags/}" > release_meta/release.env
+        echo "sha=${GITHUB_SHA}" >> release_meta/release.env
+
+    - name: Upload release metadata artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-metadata
+        path: release_meta/release.env
+        retention-days: 1

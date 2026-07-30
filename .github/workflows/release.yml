@@ -5,17 +5,6 @@ on:
     workflows: ["CI/CD Pipeline"]
     types:
       - completed
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release (e.g., v1.0.0)'
-        required: true
-        type: string
-      prerelease:
-        description: 'Mark as prerelease'
-        required: false
-        type: boolean
-        default: false
 
 env:
   REGISTRY: ghcr.io
@@ -26,59 +15,59 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    # 支持 workflow_dispatch 和 CI 成功后的 tag 触发
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && 
-       (github.event.workflow_run.event == 'tag' ||
-        github.event.workflow_run.event == 'create'))
+    if: github.event.workflow_run.conclusion == 'success'
     permissions:
+      actions: read
       contents: write
       packages: write
 
     steps:
+    - name: Download release metadata
+      id: download_meta
+      uses: actions/download-artifact@v4
+      with:
+        name: release-metadata
+        path: dist/meta
+        run-id: ${{ github.event.workflow_run.id }}
+      continue-on-error: true
+
+    - name: Evaluate release gate
+      id: gate
+      run: |
+        if [[ ! -f "dist/meta/release.env" ]]; then
+          echo "should_release=false" >> "$GITHUB_OUTPUT"
+          echo "No release metadata found. This CI run was not triggered by a successful tag build. Skip packaging and publishing."
+          exit 0
+        fi
+
+        source dist/meta/release.env
+        if [[ -z "${tag:-}" ]]; then
+          echo "should_release=false" >> "$GITHUB_OUTPUT"
+          echo "Release metadata does not include a tag. Skip packaging and publishing."
+          exit 0
+        fi
+
+        VERSION="$tag"
+        SAFE_VERSION=$(echo "$VERSION" | sed 's/[#:*?"<>|]/_/g')
+        
+        echo "should_release=true" >> "$GITHUB_OUTPUT"
+        
+        echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+        echo "SAFE_VERSION=$SAFE_VERSION" >> "$GITHUB_ENV"
+        echo "RELEASE_SHA=${sha:-${{ github.event.workflow_run.head_sha }}}" >> "$GITHUB_ENV"
+        echo "Using version: $VERSION (Safe: $SAFE_VERSION)"
+
     - name: Checkout code
+      if: steps.gate.outputs.should_release == 'true'
       uses: actions/checkout@v4
       with:
         submodules: recursive
         fetch-depth: 0
+        ref: ${{ env.RELEASE_SHA }}
 
-    - name: Extract version information
-      id: version
-      run: |
-        # 支持任意格式 tag：v0.0.1, 0.0.1, 0.0.1#1 等
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-          VERSION="${{ github.event.inputs.version }}"
-        else
-          # 尝试从 workflow_run 获取版本
-          if [[ -n "${{ github.event.workflow_run.head_branch }}" && "${{ github.event.workflow_run.head_branch }}" != "null" ]]; then
-            VERSION="${{ github.event.workflow_run.head_branch }}"
-          else
-            # 从 commit 关联的 tag 获取
-            VERSION=$(git tag --points-at ${{ github.event.workflow_run.head_sha }} | head -n 1)
-          fi
-          
-          # 兜底：获取最新 tag
-          if [[ -z "$VERSION" ]]; then
-            VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
-          fi
-        fi
-        
-        # 清理前缀
-        VERSION=${VERSION##*/}
-        VERSION=${VERSION#refs/tags/}
-        VERSION=${VERSION#refs/heads/}
-        
-        # 安全版本（替换 Docker 非法字符）
-        SAFE_VERSION=$(echo "$VERSION" | sed 's/[#:*?"<>|]/_/g')
-        
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "SAFE_VERSION=$SAFE_VERSION" >> $GITHUB_ENV
-        echo "Using version: $VERSION (Safe: $SAFE_VERSION)"
-
-    # ========== 下载 CI 构建产物 ==========
+    # ========== Download CI Build Artifacts ==========
     - name: Download Linux Executable
+      if: steps.gate.outputs.should_release == 'true'
       uses: actions/download-artifact@v4
       with:
         name: binary-linux
@@ -87,6 +76,7 @@ jobs:
       continue-on-error: false
 
     - name: Download macOS Executable
+      if: steps.gate.outputs.should_release == 'true'
       uses: actions/download-artifact@v4
       with:
         name: binary-macos
@@ -95,6 +85,7 @@ jobs:
       continue-on-error: false
 
     - name: Download Windows Executable
+      if: steps.gate.outputs.should_release == 'true'
       uses: actions/download-artifact@v4
       with:
         name: binary-windows
@@ -103,6 +94,7 @@ jobs:
       continue-on-error: false
 
     - name: Verify artifacts downloaded
+      if: steps.gate.outputs.should_release == 'true'
       run: |
         echo "=== Checking downloaded artifacts ==="
         for dir in dist/binaries/*; do
@@ -113,6 +105,7 @@ jobs:
         done
 
     - name: Compress Platform Packages
+      if: steps.gate.outputs.should_release == 'true'
       run: |
         VERSION="${{ env.SAFE_VERSION }}"
         mkdir -p dist/packages
@@ -138,10 +131,11 @@ jobs:
           echo "⚠️ Warning: No Windows binaries found to package"
         fi
 
-    # ========== 源码打包 ==========
+    # ========== Create Source Package ==========
     - name: Create source package
+      if: steps.gate.outputs.should_release == 'true'
       run: |
-        echo "=== Creating source package ==="
+        echo "=== Creating source package (source code) ==="
         PACKAGE_NAME="${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}"
         mkdir -p dist
         
@@ -187,7 +181,7 @@ jobs:
         Maintainer: ${{ github.repository_owner }}
         Homepage: https://github.com/${{ github.repository }}
         Build-Date: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-        Commit: ${{ github.sha }}
+        Commit: ${{ env.RELEASE_SHA }}
         EOF
         
         cd dist
@@ -201,12 +195,13 @@ jobs:
           "name": "${{ env.PROJECT_NAME }}-source",
           "version": "${{ env.VERSION }}",
           "repository": "${{ github.repository }}",
-          "commit": "${{ github.sha }}",
+          "commit": "${{ env.RELEASE_SHA }}",
           "build_date": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
         }
         EOF
 
     - name: Upload to GitHub Container Registry
+      if: steps.gate.outputs.should_release == 'true'
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
         cd dist
@@ -221,11 +216,13 @@ jobs:
         docker push "$IMAGE_TAG"
 
     - name: Create GitHub Release
+      if: steps.gate.outputs.should_release == 'true'
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ env.VERSION }}
+        target_commitish: ${{ env.RELEASE_SHA }}
         name: RAG-Qt ${{ env.VERSION }}
         files: |
           dist/${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.tar.gz
@@ -240,14 +237,14 @@ jobs:
         body: |
           ## RAG-Qt ${{ env.VERSION }}
           
-          ### 🚀 客户端二进制包下载 (Application Packages)
+          ### 🚀 Application Packages (Client Binaries)
           
-          | 操作系统平台 | 架构 | 下载链接 |
+          | Operating System | Architecture | Download Link |
           |---|---|---|
           | **Windows** | Windows x64 | 📦 [`${{ env.PROJECT_NAME }}-windows-x64-${{ env.SAFE_VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-windows-x64-${{ env.SAFE_VERSION }}.zip) |
           | **macOS** | Apple Silicon (M1/M2/M3) | 📦 [`${{ env.PROJECT_NAME }}-macos-arm64-${{ env.SAFE_VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-macos-arm64-${{ env.SAFE_VERSION }}.zip) |
           | **Linux** | Ubuntu / Linux x64 | 📦 [`${{ env.PROJECT_NAME }}-linux-x64-${{ env.SAFE_VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-linux-x64-${{ env.SAFE_VERSION }}.zip) |
           
-          ### 📦 独立源码包下载 (Source Code Packages)
-          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.tar.gz` (推荐 Linux/macOS 环境使用)
-          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.zip` (推荐 Windows 环境使用)
+          ### 📦 Source Code Packages
+          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.tar.gz` (Recommended for Linux/macOS)
+          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.zip` (Recommended for Windows)
