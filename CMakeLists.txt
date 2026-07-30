@@ -225,6 +225,7 @@ foreach(TS_FILE IN LISTS TS_FILES)
 endforeach()
 
 add_custom_target(release_translations ALL DEPENDS ${QM_FILES})
+message(STATUS "Translation files: ${QM_FILES}")
 
 # ----------------------------------------------------------------------------
 # Platform-Specific Configuration

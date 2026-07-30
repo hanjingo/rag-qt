@@ -2,7 +2,19 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_UK">
 <context>
-    <name>LoginWidget</name>
+    <name>LoginPage</name>
+    <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
+        <source>Logout</source>
+        <translation>Logout</translation>
+    </message>
+    <message>
+        <source>Register</source>
+        <translation>Register</translation>
+    </message>
     <message>
         <source>Input Error</source>
         <translation>Input Error</translation>

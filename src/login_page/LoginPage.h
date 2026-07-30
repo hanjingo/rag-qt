@@ -23,6 +23,9 @@ class LoginPage : public QWidget
 
     void Login();
 
+  protected:
+    void changeEvent(QEvent *event) override;
+
   signals:
     void SignalLogin(const QString &username, const QString &password);
     void SignalRegister(const QString &username, const QString &password);

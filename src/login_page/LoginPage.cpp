@@ -40,6 +40,17 @@ void LoginPage::Login()
     emit    SignalLogin(username, password);
 }
 
+void LoginPage::changeEvent(QEvent *event)
+{
+    QWidget::changeEvent(event);
+    if(event->type() == QEvent::LanguageChange)
+    {
+        qDebug() << "LoginPage language change event received.";
+        ui->retranslateUi(this);
+        _retranslate();
+    }
+}
+
 void LoginPage::_slotBtnLoginClicked()
 {
     QString username = ui->editAccount->text();
@@ -117,6 +128,9 @@ void LoginPage::_initConnections()
 
 void LoginPage::_retranslate()
 {
+    ui->btnLogin->setText(tr("Login"));
+    ui->btnLogout->setText(tr("Logout"));
+    ui->btnRegister->setText(tr("Register"));
 }
 
 bool LoginPage::_validateInput(const QString &username, const QString &password)

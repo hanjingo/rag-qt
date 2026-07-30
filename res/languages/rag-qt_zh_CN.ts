@@ -2,7 +2,19 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
-    <name>LoginWidget</name>
+    <name>LoginPage</name>
+    <message>
+        <source>Login</source>
+        <translation>登录</translation>
+    </message>
+    <message>
+        <source>Logout</source>
+        <translation>登出</translation>
+    </message>
+    <message>
+        <source>Register</source>
+        <translation>注册</translation>
+    </message>
     <message>
         <source>Input Error</source>
         <translation>输入错误</translation>

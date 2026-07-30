@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QSet>
 
 #include "Bus.h"
 
@@ -64,6 +65,7 @@ class SettingPageHistory : public QWidget
     static SettingPageHistory *m_stSettingPageHistoryInst;
 
     QStandardItemModel *m_pHistoryModel;
+    QSet<qint64>        m_setRecvedMsgIds;
 };
 
 #endif // SETTINGPAGEHISTORY_H

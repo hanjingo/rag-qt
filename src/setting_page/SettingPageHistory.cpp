@@ -180,6 +180,9 @@ void SettingPageHistory::_slotGetMessageInfoResp(
             if(msg.sessionId != session_id)
                 continue;
 
+            if(m_setRecvedMsgIds.contains(msg.id))
+                continue;
+
             QJsonObject obj;
             obj["id"]            = QString::number(msg.id);
             obj["sessionId"]     = QString::number(msg.sessionId);
@@ -190,6 +193,7 @@ void SettingPageHistory::_slotGetMessageInfoResp(
             QJsonArray arr = pContentItem->data(Qt::UserRole).toJsonArray();
             arr.append(obj);
             pContentItem->setData(arr, Qt::UserRole);
+            m_setRecvedMsgIds.insert(msg.id);
         }
     }
 
