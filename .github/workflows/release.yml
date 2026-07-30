@@ -1,12 +1,10 @@
 name: Release Pipeline
 
 on:
-  # 通过上游联动：当 CI 管道执行成功后，自动被触发调用
   workflow_run:
     workflows: ["CI/CD Pipeline"]
     types:
       - completed
-  # 手动调试触发兼容
   workflow_dispatch:
     inputs:
       version:
@@ -25,12 +23,15 @@ env:
   PROJECT_NAME: rag-qt
 
 jobs:
-  # ================================ Create Release ================================
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    # 【已修复】更换为通过上游事件类型判断。只要上游是正常触发（无论是任何名字的 tag 还是 branch），且 CI 成功了就放行[cite: 18]
-    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.event == 'push' || github.event_name == 'workflow_dispatch') }}
+    # 支持 workflow_dispatch 和 CI 成功后的 tag 触发
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && 
+       (github.event.workflow_run.event == 'tag' ||
+        github.event.workflow_run.event == 'create'))
     permissions:
       contents: write
       packages: write
@@ -45,37 +46,45 @@ jobs:
     - name: Extract version information
       id: version
       run: |
-        # 优化优先级：手动输入优先 -> 联动分支名优先 -> 上游触发点 Tag 提取优先 -> Git 兜底[cite: 18]
+        # 支持任意格式 tag：v0.0.1, 0.0.1, 0.0.1#1 等
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           VERSION="${{ github.event.inputs.version }}"
-        elif [[ -n "${{ github.event.workflow_run.head_branch }}" && "${{ github.event.workflow_run.head_branch }}" != "null" ]]; then
-          VERSION="${{ github.event.workflow_run.head_branch }}"
         else
-          # 如果是 tag 触发导致 head_branch 为空，直接解析最新的本地 tag 关联[cite: 18]
-          VERSION=$(git tag --points-at ${{ github.event.workflow_run.head_sha }} | head -n 1)
+          # 尝试从 workflow_run 获取版本
+          if [[ -n "${{ github.event.workflow_run.head_branch }}" && "${{ github.event.workflow_run.head_branch }}" != "null" ]]; then
+            VERSION="${{ github.event.workflow_run.head_branch }}"
+          else
+            # 从 commit 关联的 tag 获取
+            VERSION=$(git tag --points-at ${{ github.event.workflow_run.head_sha }} | head -n 1)
+          fi
+          
+          # 兜底：获取最新 tag
           if [[ -z "$VERSION" ]]; then
             VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
           fi
         fi
         
-        # 移除可能残留的 refs/tags/ 前缀[cite: 18]
+        # 清理前缀
         VERSION=${VERSION##*/}
+        VERSION=${VERSION#refs/tags/}
+        VERSION=${VERSION#refs/heads/}
         
-        # 【防御性机制】如果 Tag 包含非法或特殊符号如 #，将其清洗替换为下划线，以防后续 Docker 构建或资源上传报错断开
+        # 安全版本（替换 Docker 非法字符）
         SAFE_VERSION=$(echo "$VERSION" | sed 's/[#:*?"<>|]/_/g')
         
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "SAFE_VERSION=$SAFE_VERSION" >> $GITHUB_ENV
-        echo "Using version: $VERSION (Safe representation: $SAFE_VERSION)"
+        echo "Using version: $VERSION (Safe: $SAFE_VERSION)"
 
-    # ================================ 拉取 CI 二进制资产并进行独立打包 ================================
+    # ========== 下载 CI 构建产物 ==========
     - name: Download Linux Executable
       uses: actions/download-artifact@v4
       with:
         name: binary-linux
         path: dist/binaries/linux
         run-id: ${{ github.event.workflow_run.id }}
+      continue-on-error: false
 
     - name: Download macOS Executable
       uses: actions/download-artifact@v4
@@ -83,6 +92,7 @@ jobs:
         name: binary-macos
         path: dist/binaries/macos
         run-id: ${{ github.event.workflow_run.id }}
+      continue-on-error: false
 
     - name: Download Windows Executable
       uses: actions/download-artifact@v4
@@ -90,25 +100,48 @@ jobs:
         name: binary-windows
         path: dist/binaries/windows
         run-id: ${{ github.event.workflow_run.id }}
+      continue-on-error: false
 
-    - name: Compress Platform Independent Packages
+    - name: Verify artifacts downloaded
+      run: |
+        echo "=== Checking downloaded artifacts ==="
+        for dir in dist/binaries/*; do
+          if [ -d "$dir" ]; then
+            echo "Files in $dir:"
+            ls -la "$dir" || echo "  (empty)"
+          fi
+        done
+
+    - name: Compress Platform Packages
       run: |
         VERSION="${{ env.SAFE_VERSION }}"
         mkdir -p dist/packages
         
-        # 1. 打包 Linux 独立运行程序 为 .zip[cite: 18]
-        cd dist/binaries/linux && zip -r ../../packages/${{ env.PROJECT_NAME }}-linux-x64-$VERSION.zip * && cd ../../../
+        # Linux
+        if [ -d "dist/binaries/linux" ] && [ "$(ls -A dist/binaries/linux)" ]; then
+          cd dist/binaries/linux && zip -r ../../packages/${{ env.PROJECT_NAME }}-linux-x64-$VERSION.zip * && cd ../../../
+        else
+          echo "⚠️ Warning: No Linux binaries found to package"
+        fi
         
-        # 2. 打包 macOS 独立应用程序包 为 .zip （保持 -y 参数防止 app 软链损坏）[cite: 18]
-        cd dist/binaries/macos && zip -r -y ../../packages/${{ env.PROJECT_NAME }}-macos-arm64-$VERSION.zip * && cd ../../../
+        # macOS
+        if [ -d "dist/binaries/macos" ] && [ "$(ls -A dist/binaries/macos)" ]; then
+          cd dist/binaries/macos && zip -r -y ../../packages/${{ env.PROJECT_NAME }}-macos-arm64-$VERSION.zip * && cd ../../../
+        else
+          echo "⚠️ Warning: No macOS binaries found to package"
+        fi
         
-        # 3. 打包 Windows 独立绿色包 为 .zip[cite: 18]
-        cd dist/binaries/windows && zip -r ../../packages/${{ env.PROJECT_NAME }}-windows-x64-$VERSION.zip * && cd ../../../
+        # Windows
+        if [ -d "dist/binaries/windows" ] && [ "$(ls -A dist/binaries/windows)" ]; then
+          cd dist/binaries/windows && zip -r ../../packages/${{ env.PROJECT_NAME }}-windows-x64-$VERSION.zip * && cd ../../../
+        else
+          echo "⚠️ Warning: No Windows binaries found to package"
+        fi
 
-    # ================================ 原有源码独立打包功能区 ================================
-    - name: Create comprehensive source package
+    # ========== 源码打包 ==========
+    - name: Create source package
       run: |
-        echo "=== Creating comprehensive source package ==="
+        echo "=== Creating source package ==="
         PACKAGE_NAME="${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}"
         mkdir -p dist
         
@@ -183,12 +216,10 @@ jobs:
         COPY ${PACKAGE_NAME}.tar.gz /
         COPY ${PACKAGE_NAME}.zip /
         EOF
-        # Docker 镜像 Tag 必须使用清洗过后的 SAFE_VERSION，因为 Docker 不允许包含 # 等特殊符号
         IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-source:${{ env.SAFE_VERSION }}"
         docker build -t "$IMAGE_TAG" .
         docker push "$IMAGE_TAG"
 
-    # ================================ 【统一发布】把源码与二进制包在同一个 Release 中集中呈现 ================================
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       env:
@@ -218,5 +249,5 @@ jobs:
           | **Linux** | Ubuntu / Linux x64 | 📦 [`${{ env.PROJECT_NAME }}-linux-x64-${{ env.SAFE_VERSION }}.zip`](https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-linux-x64-${{ env.SAFE_VERSION }}.zip) |
           
           ### 📦 独立源码包下载 (Source Code Packages)
-          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.tar.gz` (推荐 Linux/macOS 环境使用)[cite: 18]
-          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.zip` (推荐 Windows 环境使用)[cite: 18]
+          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.tar.gz` (推荐 Linux/macOS 环境使用)
+          * `${{ env.PROJECT_NAME }}-source-${{ env.SAFE_VERSION }}.zip` (推荐 Windows 环境使用)
