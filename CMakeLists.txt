@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 # ----------------------------------------------------------------------------
 # Project
 # ----------------------------------------------------------------------------
-project(rag-qt VERSION 0.1 LANGUAGES C CXX)
+project(rag-qt VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -512,9 +512,6 @@ set(CPACK_VERBATIM_VARIABLES YES)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
     set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 endif()
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-    set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-endif()
 
 if(APPLE)
     set(CPACK_GENERATOR "DragNDrop")
@@ -535,55 +532,83 @@ if(APPLE)
 
 elseif(WIN32)
     set(CPACK_GENERATOR "NSIS")
+    
+    set(CPACK_MONOLITHIC_INSTALL OFF) 
     if(BUILD_RELEASE_LITE)
+        set(ABS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin/Release-Lite")
         set(CPACK_NSIS_INSTALL_ROOT "C:") 
         set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-lite-${PROJECT_VERSION}-setup")
     else()
+        set(ABS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin/Release")
         set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
         set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-setup")
     endif()
     
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}")
+    set(CPACK_COMPONENTS_ALL Applications)
+    set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_BINARY_DIR};${CMAKE_PROJECT_NAME};ALL;/")
+    install(DIRECTORY "${ABS_SOURCE_DIR}/" 
+            DESTINATION "."
+            COMPONENT Applications
+    )
+
     set(CPACK_NSIS_DISPLAY_NAME "${CMAKE_PROJECT_NAME}")
     set(CPACK_NSIS_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
-    set(CPACK_NSIS_MODIFY_PATH ON)
+    set(CPACK_NSIS_MODIFY_PATH OFF)
     set(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
     
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.ico")
         set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.ico")
         set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.ico")
     endif()
-    
+
     set(CPACK_NSIS_CREATE_ICONS 
         "CreateShortCut '$DESKTOP\\\\${CMAKE_PROJECT_NAME}.lnk' '$INSTDIR\\\\${CMAKE_PROJECT_NAME}.exe'"
-        "CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${CMAKE_PROJECT_NAME}.lnk' '$INSTDIR\\\\${CMAKE_PROJECT_NAME}.exe'"
-        "CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk' '$INSTDIR\\\\Uninstall.exe'"
+        "CreateShortCut '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\${CMAKE_PROJECT_NAME}.lnk' '$INSTDIR\\\\${CMAKE_PROJECT_NAME}.exe'"
+        "CreateShortCut '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk' '$INSTDIR\\\\Uninstall.exe'"
     )
     set(CPACK_NSIS_DELETE_ICONS 
         "Delete '$DESKTOP\\\\${CMAKE_PROJECT_NAME}.lnk'"
-        "Delete '$SMPROGRAMS\\\\$START_MENU_FOLDER\\\\${CMAKE_PROJECT_NAME}.lnk'"
-        "Delete '$SMPROGRAMS\\\\$START_MENU_FOLDER\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk'"
+        "Delete '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\${CMAKE_PROJECT_NAME}.lnk'"
+        "Delete '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk'"
     )
-    
-    set(CPACK_NSIS_MUI_STARTMENUPAGE_DEFAULT_FOLDER "${CMAKE_PROJECT_NAME}")
-    set(CPACK_NSIS_MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM")
-    set(CPACK_NSIS_MUI_STARTMENUPAGE_REGISTRY_KEY "${UNINST_KEY}")
-    set(CPACK_NSIS_MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder")
-    set(CPACK_PACKAGE_EXECUTABLES "${CMAKE_PROJECT_NAME}" "${CMAKE_PROJECT_NAME}")
-    
+
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-        IfFileExists '$INSTDIR\\\\configs\\\\*.*' 0 +2
-            MessageBox MB_OK|MB_ICONINFORMATION 'configs directory preserved'
-        IfFileExists '$INSTDIR\\\\log\\\\*.*' 0 +2
-            MessageBox MB_OK|MB_ICONINFORMATION 'log directory preserved'
+        Delete '$DESKTOP\\\\${CMAKE_PROJECT_NAME}.lnk'
+        Delete '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\${CMAKE_PROJECT_NAME}.lnk'
+        Delete '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk'
+        RMDir '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}'
+        Delete '$INSTDIR\\\\Uninstall.exe'
+        
+        FindFirst $0 $1 '$INSTDIR\\\\*'
+        loop:
+            StrCmp $1 '' done
+            StrCmp $1 '.' next
+            StrCmp $1 '..' next
+            StrCmp $1 'configs' next
+            StrCmp $1 'log' next
+            StrCmp $1 'crash' next
+            StrCmp $1 'models' next
+            
+            IfFileExists '$INSTDIR\\\\$1\\\\*.*' 0 is_file
+                RMDir /r '$INSTDIR\\\\$1'
+                Goto next
+            is_file:
+                Delete '$INSTDIR\\\\$1'
+        next:
+            FindNext $0 $1
+            Goto loop
+        done:
+            FindClose $0
+            
+        RMDir '$INSTDIR'
+        
+        MessageBox MB_ICONINFORMATION|MB_OK '${CMAKE_PROJECT_NAME} was successfully removed. (User data, configs, models and log directories preserved)'
+
+        Quit
     ")
-    
+
     set(CPACK_NSIS_LANGUAGE "SimpChinese" "English")
-    set(CPACK_NSIS_MUI_LANGDLL_REGISTRY_ROOT "HKLM")
-    set(CPACK_NSIS_MUI_LANGDLL_REGISTRY_KEY "${UNINST_KEY}")
-    set(CPACK_NSIS_MUI_LANGDLL_REGISTRY_VALUENAME "Installer Language")
-    
-    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "DetailPrint 'Install completed: $INSTDIR'")
-    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "MessageBox MB_ICONINFORMATION|MB_OK '${CMAKE_PROJECT_NAME} was successfully removed. (configs and log directories preserved)'")
 
 elseif(UNIX)
     set(CPACK_GENERATOR "DEB;TGZ")

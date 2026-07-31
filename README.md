@@ -42,13 +42,17 @@ cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpk
 cmake --build build
 ```
 
-Windows (PowerShell):
+Windows (PowerShell; RECOMMEND TO USE Visual Studio IDE 2022):
 
 ```powershell
 # from project root
-# -DBUILD_RELEASE_LITE: Enable Lite compile
-cmake -S . -B build -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-cmake --build build
+# Build All
+cmake -S . -B build/release -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=Release
+cmake --build build/release -j8
+
+# Enable Lite compile
+cmake -S . -B build/release-lite -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=Release -DBUILD_RELEASE_LITE=ON
+cmake --build build/release-lite -j8
 ```
 
 ## Pack
@@ -57,5 +61,12 @@ macos:
 
 ```sh
 cd build/release-lite
-cpack -C Release
+cpack -C Release -G DragNDrop
+```
+
+Windows (PowerShell):
+
+```powershell
+cd build/release-lite
+cpack -C Release -G NSIS
 ```
