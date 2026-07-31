@@ -4,16 +4,11 @@ RAG Client written by qt
 
 ## Cuda Support
 
-to enable cuda support:
-
-```sh
-git checkout qwidget-cuda
-
-cd 3rd/rag-core
-git checkout cuda
-```
+to enable cuda support, modify vcpkg.json add "cuda" to hanjingo-high-jump features.
 
 ## Build & Compile
+
+to build this project, you should install & config base environment (vcpkg, c/c++ compile tools).
 
 macos:
 
@@ -36,6 +31,7 @@ cmake --build build/release-lite -j8
 linux:
 
 ```bash
+sudo apt-get install ninja-build cmake autoconf automake autoconf-archive libtool unixodbc libomp-dev
 
 # -DBUILD_RELEASE_LITE: Enable Lite compile
 cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release

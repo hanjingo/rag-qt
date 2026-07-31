@@ -57,63 +57,6 @@
         "prompt": ""
     },
     {
-        "id": "google/gemma-4-12B-it-Q8_0",
-        "name": "gemma-4-12B-it-Q8_0",
-        "publisher": "google",
-        "timestamp": "2026-06-01 12:00:01",
-        "addr": "./models/gemma-4-12B-it-Q8_0.gguf",
-        "pipeline": "local",
-        "cost": 0,
-        "api_key": "",
-        "hash": "",
-
-        "n_ctx": 1024,
-        "n_batch": 1024,
-        "n_ubatch": 1,
-        "n_seq_max": 1,
-        "n_threads": 2,
-        "n_threads_batch": 2,
-
-        "rope_freq_base": "10000.0",
-        "rope_freq_scale": "1.0",
-        "yarn_ext_factor": "1.0",
-        "yarn_attn_factor": "1.0",
-        "yarn_beta_fast": "0.5",
-        "yarn_beta_slow": "0.5",
-        "yarn_orig_ctx": 256,
-        "defrag_thold": "0.5",
-
-        "embeddings": false,
-        "offload_kqv": false,
-        "no_perf": false,
-        "op_offload": false,
-        "swa_full": false,
-        "kv_unified": false,
-
-        "penalty_freq": "0.1",
-        "penalty_last_n": 64,
-        "penalty_present": "0.1",
-        "penalty_repeat": "1.2",
-
-        "temperature": "0.7",
-        "temperature_ext": "0.0",
-        "temperature_ext_delta": "0.0",
-        "temperature_ext_exponent": "0.0",
-
-        "top_p": "0.9",
-        "top_p_min_keep": 1,
-        "top_k": 40,
-        "min_p": "0.0",
-        "min_p_min_keep": 1,
-
-        "seed": 42,
-
-        "ctx_window_size": 256,
-        "stop_words": "",
-
-        "prompt": ""
-    },
-    {
         "id": "deepseek/deepseek-api-v1",
         "name": "deepseek-api-v1",
         "publisher": "deepseek",

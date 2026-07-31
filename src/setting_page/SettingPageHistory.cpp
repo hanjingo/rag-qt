@@ -601,7 +601,7 @@ void SettingPageHistory::_refreshChatBrowser(bool clearFirst)
         return;
 
     QJsonArray arr = pContentItem->data(Qt::UserRole).toJsonArray();
-    for(int i = 0; i < arr.size(); i++)
+    for(int i = arr.size() - 1; i >= 0; i--)
     {
         QJsonObject obj       = arr.at(i).toObject();
         QString     role      = obj["role"].toString();
