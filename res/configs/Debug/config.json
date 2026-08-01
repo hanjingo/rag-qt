@@ -1,10 +1,6 @@
 {
     "core_run": true,
     "crash_reporter_dsn": "http://1730c9b96a494f22bcd7b2dedb31aaee@www.hango.fun:9000/3",
-    "crash_reporter_db_path": "crash",
-    "release": "rag-qt@0.0.1",
-    "is_debug_mode": true,
-    "app_env": "dev",
     "default_index_path": "./memorys",
     "supported_doc_types": ["txt"],
     "app_upgrade_urls": ["https://www.hango.fun/download.html"],

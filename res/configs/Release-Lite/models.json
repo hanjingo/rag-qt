@@ -1,10 +1,10 @@
 [
     {
-        "id": "bartowski/SmolVLM2-256M-Video-Instruct-Q8_0",
-        "name": "SmolVLM2-256M-Video-Instruct-Q8_0",
+        "id": "google/gemma-4-26B_q4_0-it",
+        "name": "gemma-4-26B_q4_0-it",
         "publisher": "unknown",
         "timestamp": "2026-06-01 12:00:01",
-        "addr": "./models/SmolVLM2-256M-Video-Instruct-Q8_0.gguf",
+        "addr": "./models/gemma-4-26B_q4_0-it.gguf",
         "pipeline": "local",
         "cost": 0,
         "api_key": "",
