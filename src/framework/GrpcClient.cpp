@@ -361,45 +361,100 @@ void GrpcClient::Recognize(const int64_t                  session_id,
         stub->async()->Recognize(&reactor->m_context, reactor.get());
         reactor->StartCall();
         reactor->StartRead(&reactor->m_resp);
+
+        // first call Recognize to send the config
+        GrpcLibraryV1::RecognitionParam param;
+        param.set_n_threads(params.nThreads);
+        param.set_n_max_text_ctx(params.nMaxTextCtx);
+        param.set_offset_ms(params.offsetMs);
+        param.set_duration_ms(params.durationMs);
+        param.set_translate(params.translate);
+        param.set_detect_language(params.detectLanguage);
+        param.set_language(params.language.toStdString());
+        param.set_no_ctx(params.noCtx);
+        param.set_no_timestamps(params.noTimestamps);
+        param.set_single_segment(params.singleSegment);
+        param.set_print_special(params.printSpecial);
+        param.set_print_progress(params.printProgress);
+        param.set_print_realtime(params.printRealtime);
+        param.set_print_timestamps(params.printTimestamps);
+        param.set_carry_initial_prompt(params.carryInitialPrompt);
+        param.set_initial_prompt(params.initialPrompt.toStdString());
+        param.set_suppress_regex(params.suppressRegex.toStdString());
+        param.set_suppress_blank(params.suppressBlank);
+        param.set_suppress_nst(params.suppressNst);
+        param.set_temperature(params.temperature);
+        param.set_temperature_inc(params.temperatureInc);
+        param.set_max_initial_ts(params.maxInitialTs);
+        param.set_length_penalty(params.lengthPenalty);
+        param.set_entropy_thold(params.entropyThold);
+        param.set_logprob_thold(params.logprobThold);
+        param.set_no_speech_thold(params.noSpeechThold);
+        param.set_vad(params.vad);
+        param.set_vad_model_path(params.vadModelPath.toStdString());
+        param.mutable_vad_params()->set_threshold(params.vadParams.threshold);
+        param.mutable_vad_params()->set_min_speech_dur_ms(
+            params.vadParams.minSpeechDurMs);
+        param.mutable_vad_params()->set_min_silence_dur_ms(
+            params.vadParams.minSilenceDurMs);
+        param.mutable_vad_params()->set_max_speech_dur_s(
+            params.vadParams.maxSpeechDurS);
+        param.mutable_vad_params()->set_speech_pad_ms(
+            params.vadParams.speechPadMs);
+        param.mutable_vad_params()->set_samples_overlap(
+            params.vadParams.samplesOverlap);
+        qDebug() << "Recognize called with params(session_id:" << session_id
+                 << ", user_id:" << user_id << ", translatorId:" << translatorId
+                 << ", data.size():" << data.size()
+                 << ", params: nThreads=" << params.nThreads
+                 << ", nMaxTextCtx=" << params.nMaxTextCtx
+                 << ", offsetMs=" << params.offsetMs
+                 << ", durationMs=" << params.durationMs
+                 << ", translate=" << params.translate
+                 << ", detectLanguage=" << params.detectLanguage
+                 << ", language=" << params.language
+                 << ", noCtx=" << params.noCtx
+                 << ", noTimestamps=" << params.noTimestamps
+                 << ", singleSegment=" << params.singleSegment
+                 << ", printSpecial=" << params.printSpecial
+                 << ", printProgress=" << params.printProgress
+                 << ", printRealtime=" << params.printRealtime
+                 << ", printTimestamps=" << params.printTimestamps
+                 << ", carryInitialPrompt=" << params.carryInitialPrompt
+                 << ", initialPrompt=" << params.initialPrompt
+                 << ", suppressRegex=" << params.suppressRegex
+                 << ", suppressBlank=" << params.suppressBlank
+                 << ", suppressNst=" << params.suppressNst
+                 << ", temperature=" << params.temperature
+                 << ", temperatureInc=" << params.temperatureInc
+                 << ", maxInitialTs=" << params.maxInitialTs
+                 << ", lengthPenalty=" << params.lengthPenalty
+                 << ", entropyThold=" << params.entropyThold
+                 << ", logprobThold=" << params.logprobThold
+                 << ", noSpeechThold=" << params.noSpeechThold
+                 << ", vad=" << params.vad
+                 << ", vadModelPath=" << params.vadModelPath
+                 << ", vadParams.threshold=" << params.vadParams.threshold
+                 << ", vadParams.minSpeechDurMs="
+                 << params.vadParams.minSpeechDurMs
+                 << ", vadParams.minSilenceDurMs="
+                 << params.vadParams.minSilenceDurMs
+                 << ", vadParams.maxSpeechDurS="
+                 << params.vadParams.maxSpeechDurS
+                 << ", vadParams.speechPadMs=" << params.vadParams.speechPadMs
+                 << ", vadParams.samplesOverlap="
+                 << params.vadParams.samplesOverlap << ")";
+
+        // send config
+        GrpcLibraryV1::RecognizeReq configReq;
+        configReq.set_ctx_id(translatorId.toStdString());
+        configReq.set_session_id(session_id);
+        configReq.mutable_param()->CopyFrom(param);
+        reactor->SendRequest(configReq);
     } else
     {
         reactor = m_recognizeReactors[session_id];
     }
-
-    GrpcLibraryV1::RecognitionParam param;
-    param.set_n_threads(params.nThreads);
-    param.set_n_max_text_ctx(params.nMaxTextCtx);
-    param.set_offset_ms(params.offsetMs);
-    param.set_duration_ms(params.durationMs);
-    param.set_translate(params.translate);
-    param.set_detect_language(params.detectLanguage);
-    param.set_language(params.language.toStdString());
-    param.set_no_ctx(params.noCtx);
-    param.set_no_timestamps(params.noTimestamps);
-    param.set_single_segment(params.singleSegment);
-    param.set_print_special(params.printSpecial);
-    param.set_print_progress(params.printProgress);
-    param.set_print_realtime(params.printRealtime);
-    param.set_print_timestamps(params.printTimestamps);
-    param.set_carry_initial_prompt(params.carryInitialPrompt);
-    param.set_initial_prompt(params.initialPrompt.toStdString());
-    param.set_suppress_regex(params.suppressRegex.toStdString());
-    param.set_suppress_blank(params.suppressBlank);
-    param.set_suppress_nst(params.suppressNst);
-    param.set_temperature(params.temperature);
-    param.set_temperature_inc(params.temperatureInc);
-    param.set_max_initial_ts(params.maxInitialTs);
-    param.set_length_penalty(params.lengthPenalty);
-    param.set_entropy_thold(params.entropyThold);
-    param.set_logprob_thold(params.logprobThold);
-    param.set_no_speech_thold(params.noSpeechThold);
-
-    // send config
-    GrpcLibraryV1::RecognizeReq configReq;
-    configReq.set_ctx_id(translatorId.toStdString());
-    configReq.set_session_id(session_id);
-    configReq.mutable_param()->CopyFrom(param);
-    reactor->SendRequest(configReq);
 
     // send audio data
     if(!data.isEmpty())

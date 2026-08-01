@@ -332,6 +332,17 @@ QVector<Bus::AudioParam> Config::getBusAudioParams()
     return params;
 }
 
+Config::TranslatorParam Config::getDefaultAudioTranslatorParam()
+{
+    auto params = Config::Instance().audioTranslatorParams();
+    if(!params.isEmpty())
+        return params.first();
+
+    Config::TranslatorParam param;
+    param.id = "";
+    return param;
+}
+
 Config::TranslatorParam Config::getAudioTranslatorParamById(const QString &id)
 {
     // TODO optimise performance later
@@ -389,14 +400,27 @@ QVector<Config::TranslatorParam> Config::audioTranslatorParams()
         param.suppressBlank      = obj["suppress_blank"].toBool(true);
         param.suppressNst        = obj["suppress_nst"].toBool(false);
 
-        param.temperature    = obj["temperature"].toString().toDouble();
-        param.temperatureInc = obj["temperature_inc"].toString().toDouble();
+        param.temperature    = obj["temperature"].toDouble();
+        param.temperatureInc = obj["temperature_inc"].toDouble();
 
-        param.maxInitialTs  = obj["max_initial_ts"].toString().toDouble();
-        param.lengthPenalty = obj["length_penalty"].toString().toDouble();
-        param.entropyThold  = obj["entropy_thold"].toString().toDouble();
-        param.logprobThold  = obj["logprob_thold"].toString().toDouble();
-        param.noSpeechThold = obj["no_speech_thold"].toString().toDouble();
+        param.maxInitialTs  = obj["max_initial_ts"].toDouble();
+        param.lengthPenalty = obj["length_penalty"].toDouble();
+        param.entropyThold  = obj["entropy_thold"].toDouble();
+        param.logprobThold  = obj["logprob_thold"].toDouble();
+        param.noSpeechThold = obj["no_speech_thold"].toDouble();
+
+        param.vad                 = obj["vad"].toBool(false);
+        param.vadModelPath        = obj["vad_model_path"].toString("");
+        auto vadObj               = obj["vad_params"].toObject();
+        param.vadParams.threshold = vadObj["threshold"].toDouble();
+        param.vadParams.minSpeechDurMs =
+            vadObj["min_speech_duration_ms"].toInt();
+        param.vadParams.minSilenceDurMs =
+            vadObj["min_silence_duration_ms"].toInt();
+        param.vadParams.maxSpeechDurS =
+            vadObj["max_speech_duration_s"].toDouble();
+        param.vadParams.speechPadMs    = vadObj["speech_pad_ms"].toInt();
+        param.vadParams.samplesOverlap = vadObj["samples_overlap"].toDouble();
 
         // mute control
         param.minAudioBufferSize = obj["min_audio_buffer_size"].toInt();
@@ -447,6 +471,20 @@ void Config::setAudioTranslatorParams(QVector<Config::TranslatorParam> &params)
         obj["entropy_thold"]   = QString::number(param.entropyThold, 'f', 1);
         obj["logprob_thold"]   = QString::number(param.logprobThold, 'f', 1);
         obj["no_speech_thold"] = QString::number(param.noSpeechThold, 'f', 1);
+
+        obj["vad"]            = param.vad;
+        obj["vad_model_path"] = param.vadModelPath;
+        QJsonObject vadObj;
+        vadObj["threshold"] =
+            QString::number(param.vadParams.threshold, 'f', 1);
+        vadObj["min_speech_duration_ms"]  = param.vadParams.minSpeechDurMs;
+        vadObj["min_silence_duration_ms"] = param.vadParams.minSilenceDurMs;
+        vadObj["max_speech_duration_s"] =
+            QString::number(param.vadParams.maxSpeechDurS, 'f', 1);
+        vadObj["speech_pad_ms"] = param.vadParams.speechPadMs;
+        vadObj["samples_overlap"] =
+            QString::number(param.vadParams.samplesOverlap, 'f', 1);
+        obj["vad_params"] = vadObj;
 
         // mute control
         obj["min_audio_buffer_size"] = param.minAudioBufferSize;

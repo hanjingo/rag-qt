@@ -6,6 +6,17 @@ RAG Client written by qt
 
 to enable cuda support, modify vcpkg.json add "cuda" to hanjingo-high-jump features.
 
+vcpkg.json:
+
+```json
+"dependencies": [
+    {
+      "name": "hanjingo-high-jump",
+      "features": ["cuda"]
+    }
+  ]
+```
+
 ## Build & Compile
 
 to build this project, you should install & config base environment (vcpkg, c/c++ compile tools).

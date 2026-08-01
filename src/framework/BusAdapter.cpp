@@ -228,7 +228,6 @@ void BusAdapter::_slotGetSessionFromBus(const int64_t id, int limit)
 {
     qDebug() << "Received Bus GetSession signal from Bus. id: " << id
              << ", user_id: " << Account::Instance()->Id()
-             << ", auth: " << Account::Instance()->Auth()
              << ", limit: " << limit;
     GrpcClient::Instance()->GetSession(id,
                                        Account::Instance()->Id(),
@@ -242,7 +241,6 @@ void BusAdapter::_slotGetMessageInfoFromBus(const int64_t msgId,
 {
     qDebug() << "Received Bus GetMessageInfo signal from Bus. sessionId: "
              << sessionId << ", user_id: " << Account::Instance()->Id()
-             << ", auth: " << Account::Instance()->Auth()
              << ", msg_id: " << msgId << ", limit: " << limit;
     GrpcClient::Instance()->GetMessageInfo(sessionId,
                                            Account::Instance()->Id(),
@@ -259,12 +257,15 @@ void BusAdapter::_slotAudioTranslate(const qint64      sessionId,
              << sessionId << ", translatorId: " << translatorId;
 
     auto param = Config::Instance().getAudioTranslatorParamById(translatorId);
+    if(param.id.isEmpty())
+        param = Config::Instance().getDefaultAudioTranslatorParam();
+
     GrpcClient::Instance()->Recognize(sessionId,
                                       Account::Instance()->Id(),
                                       Account::Instance()->Auth(),
                                       src,
                                       param,
-                                      translatorId);
+                                      param.id);
 }
 
 void BusAdapter::_slotAudioStopTranslate(const qint64 sessionId)

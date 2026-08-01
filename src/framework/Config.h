@@ -13,37 +13,50 @@ class Config : public QObject
     Q_OBJECT
 
   public:
+    struct VadParam
+    {
+        float threshold       = 0.5;
+        int   minSpeechDurMs  = 250;
+        int   minSilenceDurMs = 100;
+        float maxSpeechDurS   = 100.0;
+        int   speechPadMs     = 30;
+        float samplesOverlap  = 0.1;
+    };
+
     struct TranslatorParam
     {
         QString id;
 
         // full param
-        int     nThreads           = 4;
-        int     nMaxTextCtx        = 16384;
-        int     offsetMs           = 0;
-        int     durationMs         = 0;
-        bool    translate          = false;
-        bool    detectLanguage     = true;
-        QString language           = "auto";
-        bool    noCtx              = true;
-        bool    noTimestamps       = false;
-        bool    singleSegment      = false;
-        bool    printSpecial       = false;
-        bool    printProgress      = false;
-        bool    printRealtime      = false;
-        bool    printTimestamps    = false;
-        bool    carryInitialPrompt = false;
-        QString initialPrompt      = "";
-        QString suppressRegex      = "";
-        bool    suppressBlank      = true;
-        bool    suppressNst        = false;
-        float   temperature        = 0.0;
-        float   temperatureInc     = 0.2;
-        float   maxInitialTs       = 1.0;
-        float   lengthPenalty      = -1.0;
-        float   entropyThold       = 2.4;
-        float   logprobThold       = -1.0;
-        float   noSpeechThold      = 0.6;
+        int      nThreads           = 4;
+        int      nMaxTextCtx        = 16384;
+        int      offsetMs           = 0;
+        int      durationMs         = 0;
+        bool     translate          = false;
+        bool     detectLanguage     = false;
+        QString  language           = "auto";
+        bool     noCtx              = true;
+        bool     noTimestamps       = false;
+        bool     singleSegment      = false;
+        bool     printSpecial       = false;
+        bool     printProgress      = true;
+        bool     printRealtime      = false;
+        bool     printTimestamps    = true;
+        bool     carryInitialPrompt = false;
+        QString  initialPrompt      = "";
+        QString  suppressRegex      = "";
+        bool     suppressBlank      = true;
+        bool     suppressNst        = false;
+        float    temperature        = 0.0f;
+        float    temperatureInc     = 0.2f;
+        float    maxInitialTs       = 1.0f;
+        float    lengthPenalty      = -1.0f;
+        float    entropyThold       = 2.4f;
+        float    logprobThold       = -1.0f;
+        float    noSpeechThold      = 0.6f;
+        bool     vad                = false;
+        QString  vadModelPath       = "";
+        VadParam vadParams;
 
         // buffer control
         int minNewSampleSize   = 6400;
@@ -159,6 +172,7 @@ class Config : public QObject
     QVector<QString> getPluginUploadUrls();
 
     QVector<Bus::AudioParam> getBusAudioParams();
+    Config::TranslatorParam  getDefaultAudioTranslatorParam();
     Config::TranslatorParam  getAudioTranslatorParamById(const QString &id);
     QVector<Config::TranslatorParam> audioTranslatorParams();
     void setAudioTranslatorParams(QVector<Config::TranslatorParam> &parmas);
