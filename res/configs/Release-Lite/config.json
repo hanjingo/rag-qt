@@ -1,5 +1,5 @@
 {
-    "core_run": false,
+    "core_run": true,
     "crash_reporter_dsn": "http://1730c9b96a494f22bcd7b2dedb31aaee@www.hango.fun:9000/3",
     "default_index_path": "./memorys",
     "supported_doc_types": ["txt"],
@@ -11,7 +11,7 @@
             "detect_language": false,
             "duration_ms": 0,
             "entropy_thold": 3.0,
-            "id": "ggml/ggml-base",
+            "id": "ggml/ggml-large-v3-turbo",
             "initial_prompt": "",
             "language": "en",
             "length_penalty": -1.0,
@@ -20,7 +20,7 @@
             "max_audio_buffer_size": 96000,
             "min_audio_buffer_size": 32000,
             "min_new_sample_size": 16000,
-            "model_path": "./models/ggml-base.bin",
+            "model_path": "./models/ggml-large-v3-turbo.bin",
             "n_max_text_ctx": 16384,
             "n_threads": 4,
             "no_ctx": false,
@@ -54,12 +54,12 @@
     "networks": [
         {
             "ip": "127.0.0.1",
-            "isEnable": false,
+            "isEnable": true,
             "port": 50051
         },
         {
             "ip": "www.hango.fun",
-            "isEnable": true,
+            "isEnable": false,
             "port": 50051
         }
     ]

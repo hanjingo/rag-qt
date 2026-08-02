@@ -1,10 +1,10 @@
 [
     {
-        "id": "bartowski/SmolVLM2-256M-Video-Instruct-Q8_0",
-        "name": "SmolVLM2-256M-Video-Instruct-Q8_0",
+        "id": "Qwen/qwen2.5-0.5b-instruct-q4_0",
+        "name": "qwen2.5-0.5b-instruct-q4_0",
         "publisher": "unknown",
         "timestamp": "2026-06-01 12:00:01",
-        "addr": "./models/SmolVLM2-256M-Video-Instruct-Q8_0.gguf",
+        "addr": "./models/qwen2.5-0.5b-instruct-q4_0.gguf",
         "pipeline": "local",
         "cost": 0,
         "api_key": "",
