@@ -39,6 +39,10 @@ if(POLICY CMP0194)
     set(CMAKE_POLICY_DEFAULT_CMP0194 NEW)
 endif()
 
+if(MSVC)
+    add_compile_options(/wd4996)
+endif()
+
 # ----------------------------------------------------------------------------
 # Build Type Configuration
 # ----------------------------------------------------------------------------

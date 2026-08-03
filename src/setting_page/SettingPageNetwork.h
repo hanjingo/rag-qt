@@ -2,6 +2,7 @@
 #define SETTINGPAGENETWORK_H
 
 #include <QWidget>
+#include <QPointer>
 
 #include "Config.h"
 
@@ -21,11 +22,15 @@ class SettingPageNetwork : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageNetwork     *Instance();
+    static QPointer<SettingPageNetwork> instance()
+    {
+        static QPointer<SettingPageNetwork> inst = new SettingPageNetwork();
+        return inst;
+    }
     QVector<Config::NetworkConfig> GetNetworkConfigs();
 
   signals:
-    void SignalSwitchAccount();
+    void signalSwitchAccount();
 
   protected:
     explicit SettingPageNetwork(QWidget *parent = nullptr);
@@ -47,12 +52,10 @@ class SettingPageNetwork : public QWidget
     void _resetDelayValues();
 
   private:
-    Ui::SettingPageNetwork    *ui;
-    static SettingPageNetwork *m_stSettingPageNetworkInst;
+    Ui::SettingPageNetwork *ui;
 
     QButtonGroup *m_pNetConfigCkGroup;
-
-    int m_lastConfigCkboxId = -1;
+    int           m_lastConfigCkboxId = -1;
 };
 
 #endif // SETTINGPAGENETWORK_H

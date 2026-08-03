@@ -9,158 +9,149 @@
 #include "AudioMgr.h"
 #include "MemMgr.h"
 
-BusAdapter *BusAdapter::m_stBusAdapterInst = nullptr;
-BusAdapter *BusAdapter::Instance()
-{
-    if(nullptr == m_stBusAdapterInst)
-        m_stBusAdapterInst = new BusAdapter();
-
-    return m_stBusAdapterInst;
-}
-
 BusAdapter::BusAdapter(QObject *parent)
     : QObject(parent)
 {
     // from framework
-    connect(this, &BusAdapter::SignalPing, Bus::Instance(), &Bus::SignalPing);
+    connect(this, &BusAdapter::signalPing, Bus::instance(), &Bus::signalPing);
     connect(this,
-            &BusAdapter::SignalModelInfoUpdateNtf,
-            Bus::Instance(),
-            &Bus::SignalModelInfoUpdateNtf);
+            &BusAdapter::signalModelInfoUpdateNtf,
+            Bus::instance(),
+            &Bus::signalModelInfoUpdateNtf);
     connect(this,
-            &BusAdapter::SignalMemoryInfoUpdateNtf,
-            Bus::Instance(),
-            &Bus::SignalMemoryInfoUpdateNtf);
+            &BusAdapter::signalMemoryInfoUpdateNtf,
+            Bus::instance(),
+            &Bus::signalMemoryInfoUpdateNtf);
 
     connect(this,
-            &BusAdapter::SignalAudioParamUpdateNtf,
-            Bus::Instance(),
-            &Bus::SignalAudioParamUpdateNtf);
+            &BusAdapter::signalAudioParamUpdateNtf,
+            Bus::instance(),
+            &Bus::signalAudioParamUpdateNtf);
 
     connect(this,
-            &BusAdapter::SignalRetrieveResp,
-            Bus::Instance(),
-            &Bus::SignalRetrieveResp);
+            &BusAdapter::signalRetrieveResp,
+            Bus::instance(),
+            &Bus::signalRetrieveResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalQueryResp,
-            Bus::Instance(),
-            &Bus::SignalQueryResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalQueryResp,
+            Bus::instance(),
+            &Bus::signalQueryResp,
             Qt::QueuedConnection);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalStopAnswerResp,
-            Bus::Instance(),
-            &Bus::SignalStopAnswerResp);
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalStopAnswerResp,
+            Bus::instance(),
+            &Bus::signalStopAnswerResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalNewSessionResp,
-            Bus::Instance(),
-            &Bus::SignalNewSessionResp);
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalNewSessionResp,
+            Bus::instance(),
+            &Bus::signalNewSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetSessionResp,
-            Bus::Instance(),
-            &Bus::SignalGetSessionResp);
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalGetSessionResp,
+            Bus::instance(),
+            &Bus::signalGetSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalDelSessionResp,
-            Bus::Instance(),
-            &Bus::SignalDelSessionResp);
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalDelSessionResp,
+            Bus::instance(),
+            &Bus::signalDelSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetMessageInfoResp,
-            Bus::Instance(),
-            &Bus::SignalGetMessageInfoResp);
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalGetMessageInfoResp,
+            Bus::instance(),
+            &Bus::signalGetMessageInfoResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalRecognizeResp,
-            Bus::Instance(),
-            &Bus::SignalRecognizeResp);
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalRecognizeResp,
+            Bus::instance(),
+            &Bus::signalRecognizeResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalStopRecognizeResp,
-            Bus::Instance(),
-            &Bus::SignalStopRecognizeResp);
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalStopRecognizeResp,
+            Bus::instance(),
+            &Bus::signalStopRecognizeResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalUploadResp,
-            Bus::Instance(),
-            &Bus::SignalUploadResp);
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalUploadResp,
+            Bus::instance(),
+            &Bus::signalUploadResp);
 
-    connect(AudioMgr::Instance(),
-            &AudioMgr::SignalAudioCaptureStarted,
-            Bus::Instance(),
-            &Bus::SignalAudioCaptureStarted);
+    connect(AudioMgr::instance(),
+            &AudioMgr::signalAudioCaptureStarted,
+            Bus::instance(),
+            &Bus::signalAudioCaptureStarted);
 
-    connect(AudioMgr::Instance(),
-            &AudioMgr::SignalAudioCaptured,
-            Bus::Instance(),
-            &Bus::SignalAudioCaptured);
+    connect(AudioMgr::instance(),
+            &AudioMgr::signalAudioCaptured,
+            Bus::instance(),
+            &Bus::signalAudioCaptured);
 
-    connect(AudioMgr::Instance(),
-            &AudioMgr::SignalAudioCaptureStopped,
-            Bus::Instance(),
-            &Bus::SignalAudioCaptureStopped);
+    connect(AudioMgr::instance(),
+            &AudioMgr::signalAudioCaptureStopped,
+            Bus::instance(),
+            &Bus::signalAudioCaptureStopped);
 
     // from plugin
-    connect(Bus::Instance(), &Bus::SignalPong, this, &BusAdapter::_slotPong);
+    connect(Bus::instance(), &Bus::signalPong, this, &BusAdapter::_slotPong);
 
-    connect(Bus::Instance(),
-            &Bus::SignalQuery,
+    connect(Bus::instance(),
+            &Bus::signalQuery,
             this,
             &BusAdapter::_slotQueryFromBus);
 
-    connect(Bus::Instance(),
-            &Bus::SignalStopAnswer,
+    connect(Bus::instance(),
+            &Bus::signalStopAnswer,
             this,
             &BusAdapter::_slotStopAnswerFromBus);
 
-    connect(Bus::Instance(),
-            &Bus::SignalGetSession,
+    connect(Bus::instance(),
+            &Bus::signalGetSession,
             this,
             &BusAdapter::_slotGetSessionFromBus);
 
 
-    connect(Bus::Instance(),
-            &Bus::SignalNewSession,
+    connect(Bus::instance(),
+            &Bus::signalNewSession,
             this,
             &BusAdapter::_slotNewSessionFromBus);
 
-    connect(Bus::Instance(),
-            &Bus::SignalGetMessageInfo,
+    connect(Bus::instance(),
+            &Bus::signalGetMessageInfo,
             this,
             &BusAdapter::_slotGetMessageInfoFromBus);
 
-    connect(Bus::Instance(),
-            &Bus::SignalRecognize,
+    connect(Bus::instance(),
+            &Bus::signalRecognize,
             this,
             &BusAdapter::_slotAudioTranslate);
 
-    connect(Bus::Instance(),
-            &Bus::SignalStopRecognize,
+    connect(Bus::instance(),
+            &Bus::signalStopRecognize,
             this,
             &BusAdapter::_slotAudioStopTranslate);
 
-    connect(Bus::Instance(),
-            &Bus::SignalUpload,
+    connect(Bus::instance(),
+            &Bus::signalUpload,
             this,
             &BusAdapter::_slotUploadFromBus);
 
-    connect(Bus::Instance(),
-            &Bus::SignalRetrieve,
+    connect(Bus::instance(),
+            &Bus::signalRetrieve,
             this,
             &BusAdapter::_slotRetrieveFromBus);
 
-    connect(Bus::Instance(),
-            &Bus::SignalAudioCaptureStart,
-            AudioMgr::Instance(),
-            &AudioMgr::SlotAudioCaptureStart);
+    connect(Bus::instance(),
+            &Bus::signalAudioCaptureStart,
+            AudioMgr::instance(),
+            &AudioMgr::slotAudioCaptureStart);
 
-    connect(Bus::Instance(),
-            &Bus::SignalAudioCaptureStop,
-            AudioMgr::Instance(),
-            &AudioMgr::SlotAudioCaptureStop);
+    connect(Bus::instance(),
+            &Bus::signalAudioCaptureStop,
+            AudioMgr::instance(),
+            &AudioMgr::slotAudioCaptureStop);
 }
 
 BusAdapter::~BusAdapter()
@@ -179,8 +170,8 @@ void BusAdapter::_slotNewSessionFromBus(const QString &title,
 {
     qDebug() << "Received NewSession signal from Bus. title: " << title
              << ", content: " << content << ", model: " << model;
-    GrpcClient::Instance()->NewSession(Account::Instance()->Id(),
-                                       Account::Instance()->Auth(),
+    GrpcClient::instance()->NewSession(Account::instance()->id(),
+                                       Account::instance()->auth(),
                                        title,
                                        content,
                                        model);
@@ -189,8 +180,8 @@ void BusAdapter::_slotNewSessionFromBus(const QString &title,
 void BusAdapter::_slotDelSessionFromBus(const QVector<int64_t> &ids)
 {
     qDebug() << "Received DelSession signal from Bus. ids: " << ids;
-    GrpcClient::Instance()->DelSession(Account::Instance()->Id(),
-                                       Account::Instance()->Auth(),
+    GrpcClient::instance()->DelSession(Account::instance()->id(),
+                                       Account::instance()->auth(),
                                        ids);
 }
 
@@ -207,9 +198,9 @@ void BusAdapter::_slotQueryFromBus(const int64_t         sessionId,
     conf.ctxWindowSize = info.ctxWindowSize;
     conf.stopWords     = info.stopWords;
     conf.prompt        = info.prompt;
-    GrpcClient::Instance()->Query(sessionId,
-                                  Account::Instance()->Id(),
-                                  Account::Instance()->Auth(),
+    GrpcClient::instance()->Query(sessionId,
+                                  Account::instance()->id(),
+                                  Account::instance()->auth(),
                                   query,
                                   model,
                                   conf);
@@ -219,19 +210,19 @@ void BusAdapter::_slotStopAnswerFromBus(const int64_t sessionId)
 {
     qDebug() << "Received Bus StopAnswer signal from Bus. sessionId: "
              << sessionId;
-    GrpcClient::Instance()->StopAnswer(sessionId,
-                                       Account::Instance()->Id(),
-                                       Account::Instance()->Auth());
+    GrpcClient::instance()->StopAnswer(sessionId,
+                                       Account::instance()->id(),
+                                       Account::instance()->auth());
 }
 
 void BusAdapter::_slotGetSessionFromBus(const int64_t id, int limit)
 {
     qDebug() << "Received Bus GetSession signal from Bus. id: " << id
-             << ", user_id: " << Account::Instance()->Id()
+             << ", user_id: " << Account::instance()->id()
              << ", limit: " << limit;
-    GrpcClient::Instance()->GetSession(id,
-                                       Account::Instance()->Id(),
-                                       Account::Instance()->Auth(),
+    GrpcClient::instance()->GetSession(id,
+                                       Account::instance()->id(),
+                                       Account::instance()->auth(),
                                        limit);
 }
 
@@ -240,11 +231,11 @@ void BusAdapter::_slotGetMessageInfoFromBus(const int64_t msgId,
                                             int           limit)
 {
     qDebug() << "Received Bus GetMessageInfo signal from Bus. sessionId: "
-             << sessionId << ", user_id: " << Account::Instance()->Id()
+             << sessionId << ", user_id: " << Account::instance()->id()
              << ", msg_id: " << msgId << ", limit: " << limit;
-    GrpcClient::Instance()->GetMessageInfo(sessionId,
-                                           Account::Instance()->Id(),
-                                           Account::Instance()->Auth(),
+    GrpcClient::instance()->GetMessageInfo(sessionId,
+                                           Account::instance()->id(),
+                                           Account::instance()->auth(),
                                            msgId,
                                            limit);
 }
@@ -260,9 +251,9 @@ void BusAdapter::_slotAudioTranslate(const qint64      sessionId,
     if(param.id.isEmpty())
         param = Config::instance()->getDefaultAsrParam();
 
-    GrpcClient::Instance()->Recognize(sessionId,
-                                      Account::Instance()->Id(),
-                                      Account::Instance()->Auth(),
+    GrpcClient::instance()->Recognize(sessionId,
+                                      Account::instance()->id(),
+                                      Account::instance()->auth(),
                                       src,
                                       param,
                                       param.id);
@@ -273,9 +264,9 @@ void BusAdapter::_slotAudioStopTranslate(const qint64 sessionId)
     qDebug() << "Receive Bus Audio Stop Translate signal from Bus. session_id: "
              << sessionId;
 
-    GrpcClient::Instance()->RecognizeStop(sessionId,
-                                          Account::Instance()->Id(),
-                                          Account::Instance()->Auth());
+    GrpcClient::instance()->RecognizeStop(sessionId,
+                                          Account::instance()->id(),
+                                          Account::instance()->auth());
 }
 
 void BusAdapter::_slotUploadFromBus(const QString &filePath)
@@ -284,14 +275,14 @@ void BusAdapter::_slotUploadFromBus(const QString &filePath)
     if(File::isExist(filePath) == false)
     {
         qDebug() << "File does not exist: " << filePath;
-        emit Bus::Instance()
-            -> SignalUploadResp(ErrorCode::ERR_FILE_NOT_FOUND, "");
+        emit Bus::instance()
+            -> signalUploadResp(ErrorCode::ERR_FILE_NOT_FOUND, "");
         return;
     }
 
-    GrpcClient::Instance()->Upload(File::md5(filePath),
-                                   Account::Instance()->Id(),
-                                   Account::Instance()->Auth(),
+    GrpcClient::instance()->Upload(File::md5(filePath),
+                                   Account::instance()->id(),
+                                   Account::instance()->auth(),
                                    filePath,
                                    File::fileSizeKB(filePath));
 }
@@ -303,7 +294,7 @@ void BusAdapter::_slotRetrieveFromBus(const QString &question,
     qDebug() << "Receive Bus Retrieve signal from Bus. question: " << question
              << ", topK: " << topK << ", memoryId: " << memoryId;
 
-    MemMgr::Instance()->retrieve(question.toStdString(),
+    MemMgr::instance()->retrieve(question.toStdString(),
                                  topK,
                                  memoryId.toStdString());
 }

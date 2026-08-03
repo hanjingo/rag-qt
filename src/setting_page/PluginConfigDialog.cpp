@@ -27,7 +27,6 @@ PluginConfigDialog::PluginConfigDialog(const Bus::Plugin &conf, QWidget *parent)
 
 PluginConfigDialog::~PluginConfigDialog()
 {
-    delete ui;
 }
 
 Bus::Plugin PluginConfigDialog::GetConfig()
@@ -116,7 +115,7 @@ void PluginConfigDialog::_slotBtnUnPackClicked()
 
     QString name, version, icon, publisher, desc;
     int     platform = -1;
-    auto    result   = PluginMgr::Instance()->Search(
+    auto    result   = PluginMgr::instance()->Search(
         destDir,
         [&](const QJsonObject &metaData) -> bool {
             if(metaData.contains("Name") && metaData.contains("Version")

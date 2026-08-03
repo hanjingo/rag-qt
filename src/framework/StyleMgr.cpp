@@ -4,15 +4,6 @@
 #include <QFile>
 #include <QTextStream>
 
-StyleMgr *StyleMgr::m_stStyleMgrInst = nullptr;
-StyleMgr *StyleMgr::Instance()
-{
-    if(nullptr == m_stStyleMgrInst)
-        m_stStyleMgrInst = new StyleMgr();
-
-    return m_stStyleMgrInst;
-}
-
 StyleMgr::StyleMgr(QObject *parent)
     : QObject(parent)
 {

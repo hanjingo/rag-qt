@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QProcess>
+#include <QPointer>
 
 class ProcManager : public QObject
 {
@@ -12,15 +13,19 @@ class ProcManager : public QObject
     explicit ProcManager(QObject *parent = nullptr);
     ~ProcManager();
 
-    static ProcManager *Instance();
-    void                init();
-    void                destroy();
-    QString             readAllStandardOutput();
+    static QPointer<ProcManager> instance()
+    {
+        static QPointer<ProcManager> inst = new ProcManager();
+        return inst;
+    }
+    void    init();
+    void    destroy();
+    QString readAllStandardOutput();
 
   signals:
-    void SignalCoreStarted();
-    void SignalCoreFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void SignalCoreError(QProcess::ProcessError error);
+    void signalCoreStarted();
+    void signalCoreFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void signalCoreError(QProcess::ProcessError error);
 
   private:
     void _connectCore();
@@ -32,8 +37,7 @@ class ProcManager : public QObject
     void _slotCoreError(QProcess::ProcessError);
 
   private:
-    static ProcManager *m_stProcManagerInst;
-    QProcess           *m_pCore = nullptr;
+    QProcess *m_pCore = nullptr;
 };
 
 #endif // PROCMANAGER_H

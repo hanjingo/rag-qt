@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QString>
+#include <QPointer>
 
 namespace Ui
 {
@@ -17,27 +18,29 @@ class Account : public QDialog
     explicit Account(QWidget *parent = nullptr);
     ~Account();
 
-    static Account *Instance();
+    static QPointer<Account> instance()
+    {
+        static QPointer<Account> inst = new Account();
+        return inst;
+    }
 
-    void Clear();
-    bool IsValid() const { return m_id > 0 && !m_auth.isEmpty(); }
+    void clear();
+    bool isValid() const { return m_id > 0 && !m_auth.isEmpty(); }
 
-    void SetId(int32_t id);
-    void SetName(const QString &name);
-    void SetAuth(const QString &auth);
-    void SetLastLoginTime(const QString &lastLoginTime);
+    void setId(int32_t id);
+    void setName(const QString &name);
+    void setAuth(const QString &auth);
+    void setLastLoginTime(const QString &lastLoginTime);
 
-    int32_t Id() const { return m_id; }
-    QString Name() const { return m_name; }
-    QString Auth() const { return m_auth; }
-    QString LastLoginTime() const { return m_lastLoginTime; }
+    int32_t id() const { return m_id; }
+    QString name() const { return m_name; }
+    QString auth() const { return m_auth; }
+    QString lastLoginTime() const { return m_lastLoginTime; }
 
   private:
     Ui::AccountDialog *ui;
-    static Account    *m_stAccountInst;
 
     int32_t m_id;
-
     QString m_name;
     QString m_auth;
     QString m_lastLoginTime;

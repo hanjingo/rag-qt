@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDir>
 #include <QFile>
+#include <QPointer>
 #include <QTextStream>
 
 class StyleMgr : public QObject
@@ -14,11 +15,12 @@ class StyleMgr : public QObject
     explicit StyleMgr(QObject *parent = nullptr);
     ~StyleMgr();
 
-    static StyleMgr *Instance();
-    static QString   ParseFile(const QString &styleFile);
-
-  private:
-    static StyleMgr *m_stStyleMgrInst;
+    static QPointer<StyleMgr> instance()
+    {
+        static QPointer<StyleMgr> inst = new StyleMgr();
+        return inst;
+    }
+    static QString ParseFile(const QString &styleFile);
 };
 
 #endif // STYLEMGR_H

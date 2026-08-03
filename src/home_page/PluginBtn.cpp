@@ -249,7 +249,7 @@ void PluginBtn::SetState(State state)
     }
 
     m_state = state;
-    emit SignalStateChanged(this, m_state);
+    emit signalStateChanged(this, m_state);
     update(); // trigger a repaint to reflect the new state
 }
 
@@ -280,7 +280,7 @@ void PluginBtn::_refreshText()
     update();
 }
 
-void PluginBtn::SlotProgressChanged(int progress)
+void PluginBtn::slotProgressChanged(int progress)
 {
     qDebug() << "Update plugin button " << m_hash << ", progress:" << progress;
     SetState(State::Downloading);
@@ -289,7 +289,7 @@ void PluginBtn::SlotProgressChanged(int progress)
     update();
 }
 
-void PluginBtn::SlotProgressFinished(bool success)
+void PluginBtn::slotProgressFinished(bool success)
 {
     m_downloader->deleteLater();
     m_downloader = nullptr;
@@ -330,14 +330,14 @@ void PluginBtn::Download(const QUrl &url, const QString &saveFilePath)
     qDebug() << "Started downloading plugin content from " << url.toString()
              << " to " << saveFilePath;
     connect(m_downloader,
-            &Downloader::SignalDownloadProgress,
+            &Downloader::signalDownloadProgress,
             this,
-            &PluginBtn::SlotProgressChanged);
+            &PluginBtn::slotProgressChanged);
 
     connect(m_downloader,
-            &Downloader::SignalDownloadFinished,
+            &Downloader::signalDownloadFinished,
             this,
-            &PluginBtn::SlotProgressFinished);
+            &PluginBtn::slotProgressFinished);
 
     SetState(PluginBtn::State::Downloading);
     m_downloader->Download(url, saveFilePath);

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QPointer>
 
 #include "Global.h"
 #include "System.h"
@@ -16,10 +17,10 @@ class Upgrade : public QObject
     explicit Upgrade(QObject *parent = nullptr) {};
     ~Upgrade() {};
 
-    static Upgrade *Instance()
+    static QPointer<Upgrade> instance()
     {
-        static Upgrade inst;
-        return &inst;
+        static QPointer<Upgrade> inst = new Upgrade();
+        return inst;
     }
 
     QString GetUpgradeAddr()

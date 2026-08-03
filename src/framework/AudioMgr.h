@@ -6,6 +6,7 @@
 #include <QAudioDevice>
 #include <QAudioFormat>
 #include <QAudioSource>
+#include <QPointer>
 
 #include <libqt/multimedia/AudioStreamReceiver.h>
 
@@ -14,7 +15,11 @@ class AudioMgr : public QObject
     Q_OBJECT
 
   public:
-    static AudioMgr           *Instance();
+    static QPointer<AudioMgr> instance()
+    {
+        static QPointer<AudioMgr> inst = new AudioMgr();
+        return inst;
+    }
     static QList<QAudioDevice> inputs();
 
     void enable(const QByteArray &devId = QByteArray());
@@ -29,16 +34,16 @@ class AudioMgr : public QObject
     qint64 stopCapture(qint64 id);
 
   signals:
-    void SignalAudioDeviceEnabled(const QVector<QByteArray> &devIds);
-    void SignalAudioDeviceDisable(const QVector<QByteArray> &devIds);
-    void SignalAudioCaptureStarted(const qint64 id, const QByteArray &devId);
-    void SignalAudioCaptured(const qint64 id, const QByteArray &data);
-    void SignalAudioCaptureStopped(const qint64 id);
+    void signalAudioDeviceEnabled(const QVector<QByteArray> &devIds);
+    void signalAudioDeviceDisable(const QVector<QByteArray> &devIds);
+    void signalAudioCaptureStarted(const qint64 id, const QByteArray &devId);
+    void signalAudioCaptured(const qint64 id, const QByteArray &data);
+    void signalAudioCaptureStopped(const qint64 id);
 
   public slots:
-    void SlotAudioCaptureStart(const QAudioFormat &format,
+    void slotAudioCaptureStart(const QAudioFormat &format,
                                const QByteArray   &devId);
-    void SlotAudioCaptureStop(const qint64 id);
+    void slotAudioCaptureStop(const qint64 id);
 
   private:
     explicit AudioMgr(QObject *parent = nullptr);

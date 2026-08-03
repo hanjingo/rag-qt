@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <QPointer>
 
 #include <hj/net/grpc.hpp>
 #include "src/api.grpc.pb.h"
@@ -23,7 +24,11 @@ class GrpcClient : public QObject
     explicit GrpcClient(QObject *parent = nullptr);
     ~GrpcClient();
 
-    static GrpcClient *Instance();
+    static QPointer<GrpcClient> instance()
+    {
+        static QPointer<GrpcClient> inst = new GrpcClient();
+        return inst;
+    }
 
     void RemoveRecognizeReactor(int64_t sessionId);
     void RemoveEmbeddingReactor(int64_t taskId);
@@ -104,54 +109,54 @@ class GrpcClient : public QObject
                 const int64_t  size_kb);
 
   signals:
-    void SignalGrpcConnected(const QString &address);
-    void SignalGrpcConnectFailed(const QString &address);
-    void SignalGrpcDisconnected(const QString &address);
-    void SignalPong(const int64_t timestamp);
-    void SignalLoginResp(const int      errorCode,
+    void signalGrpcConnected(const QString &address);
+    void signalGrpcConnectFailed(const QString &address);
+    void signalGrpcDisconnected(const QString &address);
+    void signalPong(const int64_t timestamp);
+    void signalLoginResp(const int      errorCode,
                          const int64_t  user_id,
                          const QString &auth,
                          const QString &account,
                          const QString &lastLoginTime,
                          const bool     isForceUpdate);
-    void SignalRegAccountResp(const int errorCode, const int64_t user_id);
+    void signalRegAccountResp(const int errorCode, const int64_t user_id);
 
-    void SignalQueryResp(const int      errorCode,
+    void signalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
                          const QString &content,
                          const bool     isFinished);
-    void SignalStopAnswerResp(const int64_t errorCode, const int64_t sessionId);
-    void SignalGetMessageInfoResp(const int                        errorCode,
+    void signalStopAnswerResp(const int64_t errorCode, const int64_t sessionId);
+    void signalGetMessageInfoResp(const int                        errorCode,
                                   const QVector<Bus::MessageInfo> &messages);
 
-    void SignalRecognizeResp(const int      errorCode,
+    void signalRecognizeResp(const int      errorCode,
                              const QString &transcript,
                              const bool     isFinished,
                              const double   confidence);
-    void SignalStopRecognizeResp(const int errorCode, const int64_t sessionId);
+    void signalStopRecognizeResp(const int errorCode, const int64_t sessionId);
 
-    void SignalEmbeddingResp(const int         errorCode,
+    void signalEmbeddingResp(const int         errorCode,
                              const int64_t     taskId,
                              const int64_t     chunkId,
                              const QByteArray &vectorIndexs);
-    void SignalStopEmbeddingResp(const int errorCode, const int64_t taskId);
+    void signalStopEmbeddingResp(const int errorCode, const int64_t taskId);
 
-    void SignalLogoutResp(const int errorCode, const int64_t user_id);
-    void SignalGetSessionResp(const int                    errorCode,
+    void signalLogoutResp(const int errorCode, const int64_t user_id);
+    void signalGetSessionResp(const int                    errorCode,
                               const QVector<Bus::Session> &sessions);
-    void SignalNewSessionResp(const int errorCode, const Bus::Session &session);
-    void SignalModifySessionTitleResp(const int      errorCode,
+    void signalNewSessionResp(const int errorCode, const Bus::Session &session);
+    void signalModifySessionTitleResp(const int      errorCode,
                                       const int64_t  id,
                                       const QString &title);
-    void SignalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
+    void signalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
-    void SignalGetPluginInfoResp(const int                   errorCode,
+    void signalGetPluginInfoResp(const int                   errorCode,
                                  const QVector<Bus::Plugin> &plugins);
-    void SignalDownloadResp(const int      errorCode,
+    void signalDownloadResp(const int      errorCode,
                             const QString &hash,
                             const QString &addr,
                             const int64_t  size_kb);
-    void SignalUploadResp(const int errorCode, const QString &hash);
+    void signalUploadResp(const int errorCode, const QString &hash);
 
   public slots:
     void OnConnectionLost();
@@ -167,9 +172,7 @@ class GrpcClient : public QObject
                   const ::GrpcLibraryV1::MessageInfo &src);
 
   private:
-    static GrpcClient *m_stGrpcClientInst;
-    hj::grpc_channel  *m_pChannel;
-
+    hj::grpc_channel *m_pChannel;
     std::atomic<bool> m_bIsConnected;
     QString           m_strAddress;
 };

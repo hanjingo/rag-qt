@@ -11,20 +11,10 @@
 #include "GrpcClient.h"
 #include "Error.h"
 
-LoginWidget *LoginWidget::m_stLoginWgtInst = nullptr;
-
-LoginWidget *LoginWidget::Instance()
-{
-    if(nullptr == m_stLoginWgtInst)
-        m_stLoginWgtInst = new LoginWidget();
-
-    return m_stLoginWgtInst;
-}
-
 LoginWidget::LoginWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
     , ui(new Ui::LoginWidget)
-    , m_pLoginPageInst(LoginPage::Instance())
+    , m_pLoginPageInst(LoginPage::instance())
 {
     ui->setupUi(this);
 
@@ -52,21 +42,21 @@ void LoginWidget::_initUI()
 void LoginWidget::_initConnections()
 {
     connect(m_pLoginPageInst,
-            &LoginPage::SignalLogin,
+            &LoginPage::signalLogin,
             this,
-            &LoginWidget::SignalLogin);
+            &LoginWidget::signalLogin);
     connect(m_pLoginPageInst,
-            &LoginPage::SignalRegister,
+            &LoginPage::signalRegister,
             this,
-            &LoginWidget::SignalRegister);
+            &LoginWidget::signalRegister);
     connect(m_pLoginPageInst,
-            &LoginPage::SignalLogout,
+            &LoginPage::signalLogout,
             this,
-            &LoginWidget::SignalLogout);
+            &LoginWidget::signalLogout);
 
     // rpc response
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalRegAccountResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalRegAccountResp,
             this,
             &LoginWidget::_slotRegisterResp);
 }

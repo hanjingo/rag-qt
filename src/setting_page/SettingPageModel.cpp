@@ -19,17 +19,6 @@
 #include "BusAdapter.h"
 #include "Config.h"
 
-SettingPageModel *SettingPageModel::m_stSettingPageModelInst = nullptr;
-SettingPageModel *SettingPageModel::Instance()
-{
-    if(nullptr == m_stSettingPageModelInst)
-    {
-        m_stSettingPageModelInst = new SettingPageModel();
-    }
-
-    return m_stSettingPageModelInst;
-}
-
 SettingPageModel::SettingPageModel(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SettingPageModel)
@@ -44,10 +33,17 @@ SettingPageModel::SettingPageModel(QWidget *parent)
 
 SettingPageModel::~SettingPageModel()
 {
-    delete m_pLLMListModel;
-    m_pLLMListModel = nullptr;
+    if(m_pLLMListModel)
+    {
+        delete m_pLLMListModel;
+        m_pLLMListModel = nullptr;
+    }
 
-    delete ui;
+    if(ui)
+    {
+        delete ui;
+        ui = nullptr;
+    }
 }
 
 QVector<Bus::ModelInfo> SettingPageModel::GetBusModelInfos()
@@ -152,13 +148,13 @@ void SettingPageModel::_initConnections()
             this,
             &SettingPageModel::_slotModelCtlBtnGroupClicked);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalLoginResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalLoginResp,
             this,
             &SettingPageModel::_slotLoginResp);
 
     connect(Config::instance(),
-            &Config::SignalModelConfigUpdate,
+            &Config::signalModelConfigUpdate,
             this,
             &SettingPageModel::_slotModelConfigUpdate);
 }
@@ -240,7 +236,7 @@ void SettingPageModel::_addModels(const QVector<Config::ModelConfig> &configs,
 
     // notify bus
     auto busModelInfos = _getBusModelInfos();
-    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
+    emit BusAdapter::instance() -> signalModelInfoUpdateNtf(busModelInfos);
 }
 
 void SettingPageModel::_setModels(const QVector<Config::ModelConfig> &configs,
@@ -336,7 +332,7 @@ void SettingPageModel::_setModels(const QVector<Config::ModelConfig> &configs,
 
     // notify bus
     auto infos = _getBusModelInfos();
-    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(infos);
+    emit BusAdapter::instance() -> signalModelInfoUpdateNtf(infos);
 }
 
 QVector<Bus::ModelInfo>

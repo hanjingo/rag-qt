@@ -20,7 +20,6 @@ SettingPageVersion::SettingPageVersion(QWidget *parent)
 
 SettingPageVersion::~SettingPageVersion()
 {
-    delete ui;
 }
 
 void SettingPageVersion::_initUI()
@@ -30,12 +29,13 @@ void SettingPageVersion::_initUI()
 
 void SettingPageVersion::_retranslate()
 {
+    // TODO
 }
 
 void SettingPageVersion::_initConnections()
 {
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalLoginResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalLoginResp,
             this,
             &SettingPageVersion::_slotLoginResp);
 }

@@ -25,7 +25,6 @@ MemoryConfigDialog::MemoryConfigDialog(const Config::MemoryConfig &conf,
 
 MemoryConfigDialog::~MemoryConfigDialog()
 {
-    delete ui;
 }
 
 Config::MemoryConfig MemoryConfigDialog::GetConfig()
@@ -167,7 +166,7 @@ void MemoryConfigDialog::_slotBtnGenerateClicked()
 {
     qDebug() << "Generate button clicked.";
     auto conf = GetConfig();
-    emit SignalGenerateMemory(conf);
+    emit signalGenerateMemory(conf);
 }
 
 void MemoryConfigDialog::_slotBtnCancelClicked()
@@ -175,7 +174,7 @@ void MemoryConfigDialog::_slotBtnCancelClicked()
     qDebug() << "Cancel button clicked.";
 }
 
-void MemoryConfigDialog::SlotEmbeddingProgressUpdate(
+void MemoryConfigDialog::slotEmbeddingProgressUpdate(
     const Config::MemoryConfig &conf,
     const int64_t               finishedChunkNum,
     const int64_t               totalChunkNum)

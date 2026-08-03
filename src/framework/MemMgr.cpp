@@ -163,9 +163,9 @@ void MemMgr::retrieve(const std::string &question,
     m_mu.unlock();
 
     auto conf = Config::instance()->getMemoryConfigById(task.memoryId);
-    GrpcClient::Instance()->Embedding(task.id,
-                                      Account::Instance()->Id(),
-                                      Account::Instance()->Auth(),
+    GrpcClient::instance()->Embedding(task.id,
+                                      Account::instance()->id(),
+                                      Account::instance()->auth(),
                                       1,
                                       task.question.toUtf8(),
                                       0,
@@ -173,7 +173,7 @@ void MemMgr::retrieve(const std::string &question,
                                       conf);
 }
 
-void MemMgr::SlotEmbeddingResp(const int         errorCode,
+void MemMgr::slotEmbeddingResp(const int         errorCode,
                                const int64_t     taskId,
                                const int64_t     chunkId,
                                const QByteArray &vectorIndexs)
@@ -184,7 +184,7 @@ void MemMgr::SlotEmbeddingResp(const int         errorCode,
         return;
     }
 
-    qDebug() << "SlotEmbeddingResp get taskId:" << taskId
+    qDebug() << "slotEmbeddingResp get taskId:" << taskId
              << ", vectorIndexs.size():" << vectorIndexs.size();
     RetrieveTask task     = m_mapTasks[taskId];
     auto         question = task.question;
@@ -194,16 +194,16 @@ void MemMgr::SlotEmbeddingResp(const int         errorCode,
     {
         qDebug() << "Embedding response error, code: " << errorCode;
         // notify bus
-        emit BusAdapter::Instance()
-            -> SignalRetrieveResp(errorCode, question, topK, memoryId, {});
+        emit BusAdapter::instance()
+            -> signalRetrieveResp(errorCode, question, topK, memoryId, {});
 
         // remove record
         m_mapTasks.erase(taskId);
 
         // stop embedding for this task
-        GrpcClient::Instance()->EmbeddingStop(taskId,
-                                              Account::Instance()->Id(),
-                                              Account::Instance()->Auth());
+        GrpcClient::instance()->EmbeddingStop(taskId,
+                                              Account::instance()->id(),
+                                              Account::instance()->auth());
         return;
     }
 
@@ -216,9 +216,9 @@ void MemMgr::SlotEmbeddingResp(const int         errorCode,
     // remove record first
     m_mapTasks.erase(taskId);
     // stop embedding for this task first
-    GrpcClient::Instance()->EmbeddingStop(taskId,
-                                          Account::Instance()->Id(),
-                                          Account::Instance()->Auth());
+    GrpcClient::instance()->EmbeddingStop(taskId,
+                                          Account::instance()->id(),
+                                          Account::instance()->auth());
 
     auto conf = Config::instance()->getMemoryConfigById(memoryId);
     if(conf.id.isEmpty())
@@ -244,16 +244,16 @@ void MemMgr::SlotEmbeddingResp(const int         errorCode,
         convert(obj, chunk);
         memorys.append(obj);
     }
-    emit BusAdapter::Instance()
-        -> SignalRetrieveResp(OK, task.question, topK, memoryId, memorys);
+    emit BusAdapter::instance()
+        -> signalRetrieveResp(OK, task.question, topK, memoryId, memorys);
 }
 
 void MemMgr::_init()
 {
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalEmbeddingResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalEmbeddingResp,
             this,
-            &MemMgr::SlotEmbeddingResp);
+            &MemMgr::slotEmbeddingResp);
 
     // Initialization code here
     auto confs = Config::instance()->memoryConfigs();

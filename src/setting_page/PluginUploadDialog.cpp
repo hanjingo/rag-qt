@@ -29,7 +29,6 @@ PluginUploadDialog::PluginUploadDialog(const Bus::Plugin &conf, QWidget *parent)
 
 PluginUploadDialog::~PluginUploadDialog()
 {
-    delete ui;
 }
 
 Bus::Plugin PluginUploadDialog::GetConfig()
@@ -281,7 +280,7 @@ bool PluginUploadDialog::_parsePackedFile(Bus::Plugin   &conf,
     }
 
     // search for plugin metadata in the unpacked folder
-    auto result = PluginMgr::Instance()->Search(
+    auto result = PluginMgr::instance()->Search(
         tmpPath,
         [&](const QJsonObject &metaData) -> bool {
             if(metaData.contains("Name") && metaData.contains("Version")

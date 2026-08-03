@@ -9,16 +9,6 @@
 
 #include "StyleMgr.h"
 
-LoginPage *LoginPage::m_stLoginPageInst = nullptr;
-
-LoginPage *LoginPage::Instance()
-{
-    if(nullptr == m_stLoginPageInst)
-        m_stLoginPageInst = new LoginPage();
-
-    return m_stLoginPageInst;
-}
-
 LoginPage::LoginPage(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
     , ui(new Ui::LoginPage)
@@ -37,10 +27,10 @@ LoginPage::~LoginPage()
 
 void LoginPage::Login()
 {
-    QString     username = ui->editAccount->text();
-    QString     password = ui->editPassword->text();
+    QString username = ui->editAccount->text();
+    QString password = ui->editPassword->text();
 
-    emit SignalLogin(username, password);
+    emit signalLogin(username, password);
 
     // std::string encryptedPasswd;
     // if(hj::sha::encode(encryptedPasswd,
@@ -49,7 +39,7 @@ void LoginPage::Login()
     //    != hj::sha::error_code::ok)
     //     return;
 
-    // emit SignalLogin(username, QString::fromStdString(encryptedPasswd));
+    // emit signalLogin(username, QString::fromStdString(encryptedPasswd));
 }
 
 void LoginPage::changeEvent(QEvent *event)
@@ -67,7 +57,7 @@ void LoginPage::_slotBtnLoginClicked()
 {
     QString username = ui->editAccount->text();
     QString password = ui->editPassword->text();
-    emit    SignalLogin(username, password);
+    emit    signalLogin(username, password);
 }
 
 void LoginPage::_slotBtnRegisterClicked()
@@ -78,7 +68,7 @@ void LoginPage::_slotBtnRegisterClicked()
     if(!_validateInput(username, password))
         return;
 
-    emit SignalRegister(username, password);
+    emit signalRegister(username, password);
 
     // std::string encryptedPasswd;
     // if(hj::sha::encode(encryptedPasswd,
@@ -87,12 +77,12 @@ void LoginPage::_slotBtnRegisterClicked()
     //    != hj::sha::error_code::ok)
     //     return;
 
-    // emit SignalRegister(username, QString::fromStdString(encryptedPasswd));
+    // emit signalRegister(username, QString::fromStdString(encryptedPasswd));
 }
 
 void LoginPage::_slotBtnLogoutClicked()
 {
-    emit SignalLogout();
+    emit signalLogout();
 }
 
 void LoginPage::_initUI()

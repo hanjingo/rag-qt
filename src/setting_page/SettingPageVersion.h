@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include <QWidget>
+#include <QPointer>
 
 #include "GrpcClient.h"
 
@@ -19,10 +20,10 @@ class SettingPageVersion : public QWidget
     explicit SettingPageVersion(QWidget *parent = nullptr);
     ~SettingPageVersion();
 
-    static SettingPageVersion *Instance()
+    static QPointer<SettingPageVersion> instance()
     {
-        static SettingPageVersion inst;
-        return &inst;
+        static QPointer<SettingPageVersion> inst = new SettingPageVersion();
+        return inst;
     }
 
   signals:

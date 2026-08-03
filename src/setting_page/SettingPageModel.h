@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 #include <QPushButton>
 #include <QButtonGroup>
+#include <QPointer>
 
 #include "GrpcClient.h"
 #include "Bus.h"
@@ -22,7 +23,11 @@ class SettingPageModel : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageModel *Instance();
+    static QPointer<SettingPageModel> instance()
+    {
+        static QPointer<SettingPageModel> inst = new SettingPageModel();
+        return inst;
+    }
     explicit SettingPageModel(QWidget *parent = nullptr);
     ~SettingPageModel();
 
@@ -62,12 +67,9 @@ class SettingPageModel : public QWidget
     void                    _filterModelTable(const QString &filterText);
 
   private:
-    Ui::SettingPageModel    *ui;
-    static SettingPageModel *m_stSettingPageModelInst;
-
-    QButtonGroup *m_pModelCtlBtnGroup;
-
-    QStandardItemModel *m_pLLMListModel;
+    Ui::SettingPageModel *ui;
+    QButtonGroup         *m_pModelCtlBtnGroup;
+    QStandardItemModel   *m_pLLMListModel;
 };
 
 #endif // SETTINGPAGEMODEL_H

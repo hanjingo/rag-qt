@@ -2,6 +2,7 @@
 #define BUSADAPTER_H
 
 #include <QObject>
+#include <QPointer>
 
 #include "Bus.h"
 #include "GrpcClient.h"
@@ -10,14 +11,18 @@ class BusAdapter : public QObject
 {
     Q_OBJECT
   public:
-    static BusAdapter *Instance();
+    static QPointer<BusAdapter> instance()
+    {
+        static QPointer<BusAdapter> inst = new BusAdapter();
+        return inst;
+    }
 
   signals:
-    void SignalPing();
-    void SignalModelInfoUpdateNtf(const QVector<Bus::ModelInfo> &configs);
-    void SignalMemoryInfoUpdateNtf(const QVector<Bus::MemoryInfo> &configs);
-    void SignalAudioParamUpdateNtf(const QVector<Bus::AudioParam> &params);
-    void SignalRetrieveResp(const int                   errorCode,
+    void signalPing();
+    void signalModelInfoUpdateNtf(const QVector<Bus::ModelInfo> &configs);
+    void signalMemoryInfoUpdateNtf(const QVector<Bus::MemoryInfo> &configs);
+    void signalAudioParamUpdateNtf(const QVector<Bus::AudioParam> &params);
+    void signalRetrieveResp(const int                   errorCode,
                             const QString              &question,
                             const int                   topK,
                             const QString              &memoryId,
@@ -51,8 +56,6 @@ class BusAdapter : public QObject
   private:
     explicit BusAdapter(QObject *parent = nullptr);
     ~BusAdapter();
-
-    static BusAdapter *m_stBusAdapterInst;
 };
 
 #endif // BUSADAPTER_H

@@ -15,26 +15,18 @@ static std::unordered_map<int64_t, std::shared_ptr<RecognizeReactor>>
 static std::unordered_map<int64_t, std::shared_ptr<EmbeddingReactor>>
     m_embeddingRectors;
 
-GrpcClient *GrpcClient::m_stGrpcClientInst = nullptr;
-GrpcClient *GrpcClient::Instance()
-{
-    if(nullptr == m_stGrpcClientInst)
-        m_stGrpcClientInst = new GrpcClient();
-
-    return m_stGrpcClientInst;
-}
-
 GrpcClient::GrpcClient(QObject *parent)
     : QObject(parent)
     , m_pChannel(nullptr)
 {
-    TimedQueue::Instance().start(10);
+    TimedQueue::instance().start(10);
 }
 
 GrpcClient::~GrpcClient()
 {
     if(m_pChannel)
     {
+        disconnect();
         delete m_pChannel;
         m_pChannel = nullptr;
     }
@@ -65,7 +57,7 @@ void GrpcClient::Connect(const QString &address)
     } else
     {
         m_bIsConnected.store(false);
-        emit SignalGrpcConnectFailed(address);
+        emit signalGrpcConnectFailed(address);
     }
 }
 
@@ -73,7 +65,7 @@ void GrpcClient::Heartbeat(const int64_t timestamp)
 {
     if(!m_pChannel)
     {
-        emit SignalGrpcConnectFailed("");
+        emit signalGrpcConnectFailed("");
         return;
     }
 
@@ -96,13 +88,13 @@ void GrpcClient::Heartbeat(const int64_t timestamp)
         if(!m_bIsConnected.load())
         {
             m_bIsConnected.store(true);
-            emit SignalGrpcConnected(m_strAddress);
+            emit signalGrpcConnected(m_strAddress);
         }
-        emit SignalPong(timestamp);
+        emit signalPong(timestamp);
     } else
     {
         m_bIsConnected.store(false);
-        emit SignalGrpcDisconnected(m_strAddress);
+        emit signalGrpcDisconnected(m_strAddress);
     }
 }
 
@@ -110,7 +102,7 @@ void GrpcClient::Login(const QString &username, const QString &password)
 {
     if(!m_pChannel)
     {
-        emit SignalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                              -1,
                              "",
                              username,
@@ -126,9 +118,9 @@ void GrpcClient::Login(const QString &username, const QString &password)
     GrpcLibraryV1::LoginReq req;
     req.set_account(username.toStdString());
     req.set_passwd(password.toStdString());
-    req.set_platform(System::Instance()->Platform().toStdString());
-    req.set_arch(System::Instance()->Arch().toStdString());
-    req.set_client_version(System::Instance()->Version().toStdString());
+    req.set_platform(System::instance()->Platform().toStdString());
+    req.set_arch(System::instance()->Arch().toStdString());
+    req.set_client_version(System::instance()->Version().toStdString());
 
     // Prepare the response and context
     GrpcLibraryV1::LoginResp resp;
@@ -139,14 +131,14 @@ void GrpcClient::Login(const QString &username, const QString &password)
 
     bool is_force_update = resp.update_info().force_update();
     if(status.ok())
-        emit SignalLoginResp(resp.error_code(),
+        emit signalLoginResp(resp.error_code(),
                              resp.user_id(),
                              QString::fromStdString(resp.auth()),
                              QString::fromStdString(resp.account()),
                              QString::fromStdString(resp.last_login_time()),
                              is_force_update);
     else
-        emit SignalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalLoginResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                              -1,
                              "",
                              username,
@@ -158,7 +150,7 @@ void GrpcClient::Logout(const int64_t user_id, const QString &auth)
 {
     if(!m_pChannel)
     {
-        emit SignalLogoutResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
+        emit signalLogoutResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
         return;
     }
 
@@ -178,16 +170,16 @@ void GrpcClient::Logout(const int64_t user_id, const QString &auth)
     grpc::Status status = stub->Logout(&context, req, &resp);
 
     if(status.ok())
-        emit SignalLogoutResp(resp.error_code(), resp.user_id());
+        emit signalLogoutResp(resp.error_code(), resp.user_id());
     else
-        emit SignalLogoutResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
+        emit signalLogoutResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
 }
 
 void GrpcClient::RegAccount(const QString &username, const QString &password)
 {
     if(!m_pChannel)
     {
-        emit SignalRegAccountResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
+        emit signalRegAccountResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
         return;
     }
 
@@ -207,9 +199,9 @@ void GrpcClient::RegAccount(const QString &username, const QString &password)
     grpc::Status status = stub->RegAccount(&context, req, &resp);
 
     if(status.ok())
-        emit SignalRegAccountResp(resp.error_code(), resp.user_id());
+        emit signalRegAccountResp(resp.error_code(), resp.user_id());
     else
-        emit SignalRegAccountResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
+        emit signalRegAccountResp(ErrorCode::ERR_SERVER_DISCONNECTED, -1);
 }
 
 void GrpcClient::Query(const int64_t              id,
@@ -221,7 +213,7 @@ void GrpcClient::Query(const int64_t              id,
 {
     if(!m_pChannel)
     {
-        emit SignalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED, id, "", true);
+        emit signalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED, id, "", true);
         return;
     }
 
@@ -304,7 +296,7 @@ void GrpcClient::StopAnswer(const int64_t  session_id,
 {
     if(!m_pChannel)
     {
-        emit SignalStopAnswerResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalStopAnswerResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                   session_id);
         return;
     }
@@ -326,9 +318,9 @@ void GrpcClient::StopAnswer(const int64_t  session_id,
     grpc::Status status = stub->StopAnswer(&context, req, &resp);
 
     if(status.ok())
-        emit SignalStopAnswerResp(resp.error_code(), session_id);
+        emit signalStopAnswerResp(resp.error_code(), session_id);
     else
-        emit SignalStopAnswerResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalStopAnswerResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                   session_id);
 }
 
@@ -341,7 +333,7 @@ void GrpcClient::Recognize(const int64_t           session_id,
 {
     if(!m_pChannel || !m_bIsConnected.load())
     {
-        emit SignalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                  QString("Server disconnected"),
                                  true,
                                  0.0);
@@ -475,7 +467,7 @@ void GrpcClient::RecognizeStop(const int64_t  session_id,
 {
     if(!m_pChannel)
     {
-        emit SignalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                      session_id);
         return;
     }
@@ -497,9 +489,9 @@ void GrpcClient::RecognizeStop(const int64_t  session_id,
     grpc::Status status = stub->StopRecognize(&context, req, &resp);
 
     if(status.ok())
-        emit SignalStopRecognizeResp(resp.error_code(), session_id);
+        emit signalStopRecognizeResp(resp.error_code(), session_id);
     else
-        emit SignalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                      session_id);
 }
 
@@ -515,7 +507,7 @@ void GrpcClient::Embedding(const int64_t               task_id,
     qDebug() << "Embedding entry";
     if(!m_pChannel || !m_bIsConnected.load())
     {
-        emit SignalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                  task_id,
                                  0,
                                  "");
@@ -578,7 +570,7 @@ void GrpcClient::EmbeddingStop(const int64_t  task_id,
 {
     if(!m_pChannel)
     {
-        emit SignalStopEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalStopEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                      task_id);
         return;
     }
@@ -600,9 +592,9 @@ void GrpcClient::EmbeddingStop(const int64_t  task_id,
     grpc::Status status = stub->StopEmbedding(&context, req, &resp);
 
     if(status.ok())
-        emit SignalStopEmbeddingResp(resp.error_code(), task_id);
+        emit signalStopEmbeddingResp(resp.error_code(), task_id);
     else
-        emit SignalStopEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalStopEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                      task_id);
 }
 
@@ -615,7 +607,7 @@ void GrpcClient::GetMessageInfo(const int64_t  session_id,
     QVector<Bus::MessageInfo> ret;
     if(!m_pChannel)
     {
-        emit SignalGetMessageInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        emit signalGetMessageInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -640,7 +632,7 @@ void GrpcClient::GetMessageInfo(const int64_t  session_id,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalGetMessageInfoResp(ec, ret);
+        emit signalGetMessageInfoResp(ec, ret);
         return;
     }
 
@@ -651,7 +643,7 @@ void GrpcClient::GetMessageInfo(const int64_t  session_id,
         _convert(item, msg);
         ret.append(item);
     }
-    emit SignalGetMessageInfoResp(resp.error_code(), ret);
+    emit signalGetMessageInfoResp(resp.error_code(), ret);
 }
 
 void GrpcClient::GetSession(const int64_t  id,
@@ -662,7 +654,7 @@ void GrpcClient::GetSession(const int64_t  id,
     QVector<Bus::Session> ret;
     if(!m_pChannel)
     {
-        emit SignalGetSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        emit signalGetSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -686,7 +678,7 @@ void GrpcClient::GetSession(const int64_t  id,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalGetSessionResp(ec, ret);
+        emit signalGetSessionResp(ec, ret);
         return;
     }
 
@@ -697,7 +689,7 @@ void GrpcClient::GetSession(const int64_t  id,
         _convert(item, sess);
         ret.append(item);
     }
-    emit SignalGetSessionResp(resp.error_code(), ret);
+    emit signalGetSessionResp(resp.error_code(), ret);
 }
 
 void GrpcClient::NewSession(const int64_t  user_id,
@@ -709,7 +701,7 @@ void GrpcClient::NewSession(const int64_t  user_id,
     Bus::Session ret;
     if(!m_pChannel)
     {
-        emit SignalNewSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        emit signalNewSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -734,12 +726,12 @@ void GrpcClient::NewSession(const int64_t  user_id,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalNewSessionResp(ec, ret);
+        emit signalNewSessionResp(ec, ret);
         return;
     }
 
     _convert(ret, resp.session());
-    emit SignalNewSessionResp(resp.error_code(), ret);
+    emit signalNewSessionResp(resp.error_code(), ret);
 }
 
 void GrpcClient::ModifySessionTitle(const int64_t  user_id,
@@ -749,7 +741,7 @@ void GrpcClient::ModifySessionTitle(const int64_t  user_id,
 {
     if(!m_pChannel)
     {
-        emit SignalModifySessionTitleResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalModifySessionTitleResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                           id,
                                           title);
         return;
@@ -775,11 +767,11 @@ void GrpcClient::ModifySessionTitle(const int64_t  user_id,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalModifySessionTitleResp(ec, id, title);
+        emit signalModifySessionTitleResp(ec, id, title);
         return;
     }
 
-    emit SignalModifySessionTitleResp(resp.error_code(), id, title);
+    emit signalModifySessionTitleResp(resp.error_code(), id, title);
 }
 
 void GrpcClient::DelSession(const int64_t           user_id,
@@ -789,7 +781,7 @@ void GrpcClient::DelSession(const int64_t           user_id,
     QVector<int64_t> ret;
     if(!m_pChannel)
     {
-        emit SignalDelSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        emit signalDelSessionResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -813,14 +805,14 @@ void GrpcClient::DelSession(const int64_t           user_id,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalDelSessionResp(ec, ret);
+        emit signalDelSessionResp(ec, ret);
         return;
     }
 
     for(int i = 0; i < resp.ids_size(); i++)
         ret.append(resp.ids(i));
 
-    emit SignalDelSessionResp(resp.error_code(), ret);
+    emit signalDelSessionResp(resp.error_code(), ret);
 }
 
 void GrpcClient::GetPluginInfo(const QString &hash,
@@ -830,7 +822,7 @@ void GrpcClient::GetPluginInfo(const QString &hash,
     QVector<Bus::Plugin> ret;
     if(!m_pChannel)
     {
-        emit SignalGetPluginInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        emit signalGetPluginInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -853,7 +845,7 @@ void GrpcClient::GetPluginInfo(const QString &hash,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalGetPluginInfoResp(ec, ret);
+        emit signalGetPluginInfoResp(ec, ret);
         return;
     }
 
@@ -864,7 +856,7 @@ void GrpcClient::GetPluginInfo(const QString &hash,
         _convert(plugin, h);
         ret.append(plugin);
     }
-    emit SignalGetPluginInfoResp(resp.error_code(), ret);
+    emit signalGetPluginInfoResp(resp.error_code(), ret);
 }
 
 void GrpcClient::Download(const QString &hash,
@@ -873,7 +865,7 @@ void GrpcClient::Download(const QString &hash,
 {
     if(!m_pChannel)
     {
-        emit SignalDownloadResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit signalDownloadResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                 hash,
                                 "",
                                 0);
@@ -899,12 +891,12 @@ void GrpcClient::Download(const QString &hash,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalDownloadResp(ec, hash, "", 0);
+        emit signalDownloadResp(ec, hash, "", 0);
         return;
     }
 
     QString addr = QString::fromStdString(resp.addr());
-    emit    SignalDownloadResp(resp.error_code(), hash, addr, resp.size_kb());
+    emit    signalDownloadResp(resp.error_code(), hash, addr, resp.size_kb());
 }
 
 void GrpcClient::Upload(const QString &hash,
@@ -915,7 +907,7 @@ void GrpcClient::Upload(const QString &hash,
 {
     if(!m_pChannel)
     {
-        emit SignalUploadResp(ErrorCode::ERR_SERVER_DISCONNECTED, addr);
+        emit signalUploadResp(ErrorCode::ERR_SERVER_DISCONNECTED, addr);
         return;
     }
 
@@ -940,17 +932,17 @@ void GrpcClient::Upload(const QString &hash,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit SignalUploadResp(ec, addr);
+        emit signalUploadResp(ec, addr);
         return;
     }
 
-    emit SignalUploadResp(resp.error_code(), addr);
+    emit signalUploadResp(resp.error_code(), addr);
 }
 
 void GrpcClient::OnConnectionLost()
 {
     m_bIsConnected.store(false);
-    emit SignalGrpcDisconnected(m_strAddress);
+    emit signalGrpcDisconnected(m_strAddress);
     for(auto &pair : m_recognizeReactors)
     {
         if(pair.second)

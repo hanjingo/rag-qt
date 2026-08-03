@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QPointer>
 
 #include "Global.h"
 
@@ -14,10 +15,10 @@ class System : public QObject
     explicit System(QObject *parent = nullptr);
     ~System();
 
-    static System *Instance()
+    static QPointer<System> instance()
     {
-        static System inst;
-        return &inst;
+        static QPointer<System> inst = new System();
+        return inst;
     }
 
     QString LocalLang();

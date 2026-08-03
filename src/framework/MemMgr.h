@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <string>
 #include <mutex>
+#include <QPointer>
 
 #include <hj/ai/vector_index.hpp>
 #include <hj/sync/channel.hpp>
@@ -32,10 +33,10 @@ class MemMgr : public QObject
     explicit MemMgr(QObject *parent = nullptr) { _init(); };
     ~MemMgr() {};
 
-    static MemMgr *Instance()
+    static QPointer<MemMgr> instance()
     {
-        static MemMgr instance;
-        return &instance;
+        static QPointer<MemMgr> inst = new MemMgr();
+        return inst;
     }
 
     bool add(const std::string     &memoryId,
@@ -63,7 +64,7 @@ class MemMgr : public QObject
                  const int              dimension);
 
   public slots:
-    void SlotEmbeddingResp(const int         errorCode,
+    void slotEmbeddingResp(const int         errorCode,
                            const int64_t     taskId,
                            const int64_t     chunkId,
                            const QByteArray &vectorIndexs);

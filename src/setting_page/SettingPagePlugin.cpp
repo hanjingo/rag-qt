@@ -33,10 +33,6 @@ SettingPagePlugin::SettingPagePlugin(QWidget *parent)
 
 SettingPagePlugin::~SettingPagePlugin()
 {
-    delete m_pPluginListModel;
-    m_pPluginListModel = nullptr;
-
-    delete ui;
 }
 
 void SettingPagePlugin::changeEvent(QEvent *event)
@@ -53,18 +49,18 @@ void SettingPagePlugin::changeEvent(QEvent *event)
 
 void SettingPagePlugin::_initConnections()
 {
-    connect(PluginMgr::Instance(),
-            &PluginMgr::SignalPluginLoaded,
+    connect(PluginMgr::instance(),
+            &PluginMgr::signalPluginLoaded,
             this,
             &SettingPagePlugin::_slotPluginLoaded);
 
-    connect(PluginMgr::Instance(),
-            &PluginMgr::SignalPluginUnloaded,
+    connect(PluginMgr::instance(),
+            &PluginMgr::signalPluginUnloaded,
             this,
             &SettingPagePlugin::_slotPluginUnloaded);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetPluginInfoResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalGetPluginInfoResp,
             this,
             &SettingPagePlugin::_slotGetPluginInfoResp);
 
@@ -102,7 +98,7 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
                         tr("Plugin address is empty, cannot load plugin."));
                     return;
                 }
-                emit PluginMgr::Instance() -> Load(conf.filePath);
+                emit PluginMgr::instance() -> Load(conf.filePath);
             }
         }
         break;
@@ -116,9 +112,9 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
 
             for(auto name : names)
             {
-                auto plugin = PluginMgr::Instance()->GetByName(name);
+                auto plugin = PluginMgr::instance()->GetByName(name);
                 if(plugin)
-                    emit PluginMgr::Instance() -> Unload(plugin->Id());
+                    emit PluginMgr::instance() -> Unload(plugin->Id());
             }
         }
         break;
@@ -279,20 +275,20 @@ void SettingPagePlugin::_upload(const QString &filePath)
             [uploader](bool           success,
                        const QString &filePath,
                        const QString &response) {
-                SettingPagePlugin::Instance()->erase(uploader);
+                SettingPagePlugin::instance()->erase(uploader);
 
                 if(success)
                 {
                     qDebug() << "Upload successful, response: " << response;
                     QMessageBox::information(
-                        SettingPagePlugin::Instance(),
+                        SettingPagePlugin::instance(),
                         QObject::tr("Upload Successful"),
                         QObject::tr("Plugin uploaded successfully."));
                 } else
                 {
                     qDebug() << "Upload failed, response: " << response;
                     QMessageBox::critical(
-                        SettingPagePlugin::Instance(),
+                        SettingPagePlugin::instance(),
                         QObject::tr("Upload Failed"),
                         QObject::tr("Plugin upload failed. Response: %1")
                             .arg(response));
@@ -304,7 +300,7 @@ void SettingPagePlugin::_upload(const QString &filePath)
             [uploader, filePath](const QString &errorString) {
                 qDebug() << "Upload error for file: " << filePath
                          << ", error: " << errorString;
-                SettingPagePlugin::Instance()->erase(uploader);
+                SettingPagePlugin::instance()->erase(uploader);
             });
     m_pUploaders.insert(uploader);
     uploader->upload(url, filePath);
@@ -389,7 +385,7 @@ void SettingPagePlugin::_addPlugins(const QVector<Bus::Plugin> &plugins,
                  << ", Platform: " << plugin.platform
                  << ", addr: " << plugin.filePath
                  << ", Description: " << plugin.desc;
-        if(plugin.publisher != Account::Instance()->Name())
+        if(plugin.publisher != Account::instance()->name())
             continue;
 
         int n_row = m_pPluginListModel->rowCount();

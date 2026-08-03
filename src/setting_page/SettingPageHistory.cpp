@@ -17,18 +17,6 @@
 #include "SettingPageHistory.h"
 #include "ui_SettingPageHistory.h"
 
-SettingPageHistory *SettingPageHistory::m_stSettingPageHistoryInst = nullptr;
-
-SettingPageHistory *SettingPageHistory::Instance()
-{
-    if(nullptr == m_stSettingPageHistoryInst)
-    {
-        m_stSettingPageHistoryInst = new SettingPageHistory();
-    }
-
-    return m_stSettingPageHistoryInst;
-}
-
 SettingPageHistory::SettingPageHistory(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SettingPageHistory)
@@ -36,14 +24,13 @@ SettingPageHistory::SettingPageHistory(QWidget *parent)
 {
     ui->setupUi(this);
 
-    _initUI();
     _initConnections();
+    _initUI();
     _retranslate();
 }
 
 SettingPageHistory::~SettingPageHistory()
 {
-    delete ui;
 }
 
 void SettingPageHistory::changeEvent(QEvent *event)
@@ -59,23 +46,23 @@ void SettingPageHistory::changeEvent(QEvent *event)
 
 void SettingPageHistory::_initConnections()
 {
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalNewSessionResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalNewSessionResp,
             this,
             &SettingPageHistory::_slotNewSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetSessionResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalGetSessionResp,
             this,
             &SettingPageHistory::_slotGetSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalDelSessionResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalDelSessionResp,
             this,
             &SettingPageHistory::_slotDelSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetMessageInfoResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalGetMessageInfoResp,
             this,
             &SettingPageHistory::_slotGetMessageInfoResp);
 
@@ -228,9 +215,9 @@ void SettingPageHistory::_slotTbviewCurrentChanged(const QModelIndex &curr,
     _refreshChatBrowser(true);
     int64_t sessionId = pIdItem->data(Qt::DisplayRole).toLongLong();
     qDebug() << "Session selected, id: " << sessionId;
-    GrpcClient::Instance()->GetMessageInfo(sessionId,
-                                           Account::Instance()->Id(),
-                                           Account::Instance()->Auth(),
+    GrpcClient::instance()->GetMessageInfo(sessionId,
+                                           Account::instance()->id(),
+                                           Account::instance()->auth(),
                                            -1,
                                            100);
 }
@@ -258,8 +245,8 @@ void SettingPageHistory::_slotBtnDelSessionClicked()
         return;
 
     qDebug() << "Delete sessions with ids: " << sessionIds;
-    GrpcClient::Instance()->DelSession(Account::Instance()->Id(),
-                                       Account::Instance()->Auth(),
+    GrpcClient::instance()->DelSession(Account::instance()->id(),
+                                       Account::instance()->auth(),
                                        sessionIds);
 }
 

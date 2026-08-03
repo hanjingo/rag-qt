@@ -215,7 +215,7 @@ bool Config::load(const QString &filepath)
             m_supportedDocTypes.insert(typ.toString());
     }
 
-    emit SignalConfigUpdate();
+    emit signalConfigUpdate();
     return true;
 }
 
@@ -244,7 +244,7 @@ bool Config::loadModel(const QString &filepath)
     }
 
     m_modelArr = doc.array();
-    emit SignalModelConfigUpdate();
+    emit signalModelConfigUpdate();
     return true;
 }
 
@@ -273,7 +273,7 @@ bool Config::loadMemory(const QString &filepath)
     }
 
     m_memoryArr = doc.array();
-    emit SignalMemoryConfigUpdate();
+    emit signalMemoryConfigUpdate();
     return true;
 }
 
@@ -302,7 +302,7 @@ bool Config::loadAsr(const QString &filepath)
     }
 
     m_asrArr = doc.array();
-    emit SignalAsrConfigUpdate();
+    emit signalAsrConfigUpdate();
     return true;
 }
 
@@ -483,7 +483,7 @@ void Config::setAsrParams(QVector<Config::AsrParam> &params)
         m_asrArr.append(obj);
     }
 
-    emit SignalAsrConfigUpdate();
+    emit signalAsrConfigUpdate();
 }
 
 QVector<Config::NetworkConfig> Config::networkConfigs()
@@ -525,7 +525,7 @@ void Config::setNetworkConfigs(QVector<Config::NetworkConfig> &configs)
     }
     m_rootObj[KEY_NETWORK_CONFIG] = arr;
 
-    emit SignalConfigUpdate();
+    emit signalConfigUpdate();
 }
 
 Config::ModelConfig Config::getModelConfigById(const QString &id)
@@ -639,7 +639,7 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
         m_modelArr.append(obj);
     }
 
-    emit SignalModelConfigUpdate();
+    emit signalModelConfigUpdate();
 }
 
 void Config::_convert(Config::ModelConfig &config, const QJsonObject &obj)
@@ -903,5 +903,5 @@ void Config::setMemoryConfigs(QVector<Config::MemoryConfig> &configs)
         m_memoryArr.append(obj);
     }
 
-    emit SignalMemoryConfigUpdate();
+    emit signalMemoryConfigUpdate();
 }

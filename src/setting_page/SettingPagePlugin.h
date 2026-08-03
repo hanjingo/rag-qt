@@ -9,6 +9,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QPointer>
 
 #include "Bus.h"
 #include "PluginMgr.h"
@@ -28,10 +29,10 @@ class SettingPagePlugin : public QWidget
     explicit SettingPagePlugin(QWidget *parent = nullptr);
     ~SettingPagePlugin();
 
-    static SettingPagePlugin *Instance()
+    static QPointer<SettingPagePlugin> instance()
     {
-        static SettingPagePlugin inst;
-        return &inst;
+        static QPointer<SettingPagePlugin> inst = new SettingPagePlugin();
+        return inst;
     }
 
     void erase(Uploader *uploader)

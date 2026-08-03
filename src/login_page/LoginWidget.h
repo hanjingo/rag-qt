@@ -2,6 +2,7 @@
 #define LOGINWIDGET_H
 
 #include <QWidget>
+#include <QPointer>
 
 #include "LoginPage.h"
 
@@ -16,12 +17,16 @@ class LoginWidget : public QWidget
     Q_OBJECT
 
   public:
-    static LoginWidget *Instance();
+    static QPointer<LoginWidget> instance()
+    {
+        static QPointer<LoginWidget> inst = new LoginWidget();
+        return inst;
+    }
 
   signals:
-    void SignalLogin(const QString &username, const QString &password);
-    void SignalRegister(const QString &username, const QString &password);
-    void SignalLogout();
+    void signalLogin(const QString &username, const QString &password);
+    void signalRegister(const QString &username, const QString &password);
+    void signalLogout();
 
   private slots:
     void _slotRegisterResp(const int errorCode, const int64_t user_id);
@@ -37,9 +42,7 @@ class LoginWidget : public QWidget
     ~LoginWidget();
 
   private:
-    Ui::LoginWidget    *ui;
-    static LoginWidget *m_stLoginWgtInst;
-
-    LoginPage *m_pLoginPageInst;
+    Ui::LoginWidget *ui;
+    LoginPage       *m_pLoginPageInst;
 };
 #endif // LOGINWIDGET_H

@@ -6,6 +6,7 @@
 #include <QCloseEvent>
 #include <QString>
 #include <QPoint>
+#include <QPointer>
 #include <QMap>
 #include <QTranslator>
 
@@ -40,7 +41,11 @@ class FrameworkWidget : public QWidget
     Q_OBJECT
 
   public:
-    static FrameworkWidget *Instance();
+    static QPointer<FrameworkWidget> instance()
+    {
+        static QPointer<FrameworkWidget> inst = new FrameworkWidget();
+        return inst;
+    }
     explicit FrameworkWidget(QWidget *parent = nullptr);
     ~FrameworkWidget();
 
@@ -124,8 +129,7 @@ class FrameworkWidget : public QWidget
     _addAppBarItem(const QString &text, const QString &iconPath, int index);
 
   private:
-    Ui::FrameworkWidget    *ui;
-    static FrameworkWidget *m_stFrameworkWidgetInst;
+    Ui::FrameworkWidget *ui;
 
   private:
     QButtonGroup *m_pCtlBtnGroup;

@@ -16,7 +16,7 @@ QWidget *Example::Init(Bus *parent)
     m_pBus = parent;
 
     // init connect
-    connect(m_pBus, &Bus::SignalPing, this, &Example::_slotPing);
+    connect(m_pBus, &Bus::signalPing, this, &Example::_slotPing);
 
     // create UI
     auto wgt = new QWidget(nullptr);
@@ -28,5 +28,5 @@ QWidget *Example::Init(Bus *parent)
 void Example::_slotPing()
 {
     qDebug() << "Example received Ping signal from Bus.";
-    emit m_pBus->SignalPong();
+    emit m_pBus->signalPong();
 }

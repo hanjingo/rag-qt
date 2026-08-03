@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include <QWidget>
+#include <QPointer>
 #include <QStandardItemModel>
 
 #include "../framework/Global.h"
@@ -21,11 +22,11 @@ class SettingPageHardware : public QWidget
     explicit SettingPageHardware(QWidget *parent = nullptr);
     ~SettingPageHardware();
 
-    static SettingPageHardware *Instance()
+    static QPointer<SettingPageHardware> instance()
     {
-        static SettingPageHardware inst;
-        return &inst;
-    };
+        static QPointer<SettingPageHardware> inst = new SettingPageHardware();
+        return inst;
+    }
 
   protected:
     void changeEvent(QEvent *event) override;
@@ -36,6 +37,7 @@ class SettingPageHardware : public QWidget
     void _slotComboAudioTranslatorCurrentChanged(int iIndex);
     void _slotBtnSaveClicked();
     void _slotAsrConfigUpdate();
+    void _slotVADEnabled(bool isEnabled);
 
   private:
     void _initUI();

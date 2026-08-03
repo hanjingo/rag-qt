@@ -18,9 +18,9 @@ void QueryReactor::OnReadDone(bool ok)
                  << ", id:" << id << ", content:" << content
                  << ", is_finished:" << isFinished;
 
-        TimedQueue::Instance().enqueue([ec, id, content, isFinished]() {
-            emit GrpcClient::Instance()
-                -> SignalQueryResp(ec, id, content, isFinished);
+        TimedQueue::instance().enqueue([ec, id, content, isFinished]() {
+            emit GrpcClient::instance()
+                -> signalQueryResp(ec, id, content, isFinished);
         });
 
         StartRead(&m_resp);
@@ -34,7 +34,7 @@ void QueryReactor::OnDone(const grpc::Status &status)
 
     if(!status.ok())
     {
-        emit m_client->SignalQueryResp(
+        emit m_client->signalQueryResp(
             ErrorCode::ERR_SERVER_DISCONNECTED,
             m_id,
             QString::fromStdString(status.error_message()),
@@ -66,7 +66,7 @@ void RecognizeReactor::SendRequest(const GrpcLibraryV1::RecognizeReq &req)
     {
         qWarning() << "Cannot send request, stream is done for session_id:"
                    << req.session_id();
-        emit m_client->SignalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit m_client->signalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                            "Server disconnected",
                                            true,
                                            0.0);
@@ -111,9 +111,9 @@ void RecognizeReactor::_pull()
              << "error_code=" << ec << "transcript=" << transcript
              << "is_finished=" << isFinished << "confidence=" << confidence;
 
-    TimedQueue::Instance().enqueue([ec, transcript, isFinished, confidence]() {
-        emit GrpcClient::Instance()
-            -> SignalRecognizeResp(ec, transcript, isFinished, confidence);
+    TimedQueue::instance().enqueue([ec, transcript, isFinished, confidence]() {
+        emit GrpcClient::instance()
+            -> signalRecognizeResp(ec, transcript, isFinished, confidence);
     });
 
     if(!isFinished && !m_isDone.load())
@@ -135,7 +135,7 @@ void RecognizeReactor::OnWriteDone(bool ok)
                    << ", cancelling";
         m_isDone.store(true);
 
-        emit m_client->SignalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit m_client->signalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                            "Write failed - connection lost",
                                            true,
                                            0.0);
@@ -168,7 +168,7 @@ void RecognizeReactor::OnDone(const grpc::Status &status)
     if(!status.ok())
     {
         QString errorMsg = QString::fromStdString(status.error_message());
-        emit m_client->SignalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit m_client->signalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                            errorMsg,
                                            true,
                                            0.0);
@@ -212,7 +212,7 @@ void EmbeddingReactor::SendRequest(const GrpcLibraryV1::EmbeddingReq &req)
     {
         qWarning() << "Client disconnected, cannot send request for task_id:"
                    << m_taskId;
-        emit m_client->SignalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+        emit m_client->signalEmbeddingResp(ErrorCode::ERR_SERVER_DISCONNECTED,
                                            m_taskId,
                                            0,
                                            "");
@@ -274,8 +274,8 @@ void EmbeddingReactor::_pull()
     qDebug() << "Received embedding result for task_id:" << m_taskId
              << "error_code=" << ec << "data size=" << data.size();
 
-    emit GrpcClient::Instance()
-        -> SignalEmbeddingResp(ec, taskId, chunkId, data);
+    emit GrpcClient::instance()
+        -> signalEmbeddingResp(ec, taskId, chunkId, data);
     StartRead(&m_resp);
 }
 
@@ -325,7 +325,7 @@ void EmbeddingReactor::OnDone(const grpc::Status &status)
         if(status.error_code() != grpc::StatusCode::CANCELLED)
         {
             QString errorMsg = QString::fromStdString(status.error_message());
-            emit    m_client->SignalEmbeddingResp(
+            emit    m_client->signalEmbeddingResp(
                 ErrorCode::ERR_SERVER_DISCONNECTED,
                 m_taskId,
                 0,

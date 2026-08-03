@@ -134,7 +134,7 @@ PluginInterface *PluginMgr::Load(const QString &filePathName)
     }
 
     m_mLoaders.insert(intf->Id(), loader);
-    emit SignalPluginLoaded(intf, absPath);
+    emit signalPluginLoaded(intf, absPath);
     return intf;
 }
 
@@ -160,7 +160,7 @@ void PluginMgr::Unload(const QString &pluginId)
     loader->setParent(nullptr);
     loader->deleteLater();
     m_mLoaders.remove(pluginId);
-    emit SignalPluginUnloaded(pluginId, pluginName);
+    emit signalPluginUnloaded(pluginId, pluginName);
 }
 
 QStringList PluginMgr::Search(const QString &path, const FilterFunc &filter)

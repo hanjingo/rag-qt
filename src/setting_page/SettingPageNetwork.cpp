@@ -19,17 +19,6 @@
 
 #include "StyleMgr.h"
 
-SettingPageNetwork *SettingPageNetwork::m_stSettingPageNetworkInst = nullptr;
-SettingPageNetwork *SettingPageNetwork::Instance()
-{
-    if(nullptr == m_stSettingPageNetworkInst)
-    {
-        m_stSettingPageNetworkInst = new SettingPageNetwork();
-    }
-
-    return m_stSettingPageNetworkInst;
-}
-
 SettingPageNetwork::SettingPageNetwork(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SettingPageNetwork)
@@ -45,7 +34,6 @@ SettingPageNetwork::SettingPageNetwork(QWidget *parent)
 
 SettingPageNetwork::~SettingPageNetwork()
 {
-    delete ui;
 }
 
 QVector<Config::NetworkConfig> SettingPageNetwork::GetNetworkConfigs()
@@ -116,7 +104,7 @@ void SettingPageNetwork::_slotNetConfigCkGroupClicked(int id)
 
     m_lastConfigCkboxId = id;
     // logout and switch to the login page
-    emit this->SignalSwitchAccount();
+    emit this->signalSwitchAccount();
 }
 
 void SettingPageNetwork::_initUI()
@@ -138,8 +126,8 @@ void SettingPageNetwork::_retranslate()
 
 void SettingPageNetwork::_initConnections()
 {
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalPong,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalPong,
             this,
             &SettingPageNetwork::_slotPong);
 
@@ -210,7 +198,7 @@ void SettingPageNetwork::_testNetwork()
                  << config.port;
         GrpcClient cli;
         connect(&cli,
-                &GrpcClient::SignalPong,
+                &GrpcClient::signalPong,
                 [this, i](const int64_t timestamp) {
                     qDebug() << "Client " << i
                              << " Pong received from test network.";

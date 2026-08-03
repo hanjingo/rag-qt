@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
     hj::crash_handler::instance()->set_local_path(absPath.toStdString());
 
     // show login page, hide framework page
-    FrameworkWidget::Instance()->hide();
-    LoginWidget::Instance()->hide();
+    FrameworkWidget::instance()->hide();
+    LoginWidget::instance()->hide();
 
     // init config
     Config::instance()->init();
@@ -34,11 +34,11 @@ int main(int argc, char *argv[])
     QString output;
     if(Config::instance()->isCoreRun())
     {
-        FrameworkWidget::Instance()->InitCore();
+        FrameworkWidget::instance()->InitCore();
         for(int i = 0; i <= 50 && splash.getProgress() < 50; i++)
         {
             splash.setProgress(i);
-            output = FrameworkWidget::Instance()->ReadAllStandardOutput();
+            output = FrameworkWidget::instance()->ReadAllStandardOutput();
             splash.appendLog(output);
             if(output.contains("init core service finish"))
             {
@@ -54,14 +54,14 @@ int main(int argc, char *argv[])
     }
 
     // init network
-    FrameworkWidget::Instance()->InitNetwork();
+    FrameworkWidget::instance()->InitNetwork();
     for(int i = splash.getProgress(); i <= 100 && splash.getProgress() < 100;
         i++)
     {
         splash.setProgress(i);
-        output = FrameworkWidget::Instance()->ReadAllStandardOutput();
+        output = FrameworkWidget::instance()->ReadAllStandardOutput();
         splash.appendLog(output);
-        if(FrameworkWidget::Instance()->IsConnectedToCoreService())
+        if(FrameworkWidget::instance()->IsConnectedToCoreService())
         {
             splash.setProgress(100);
             break;
@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
     splash.close();
 
     // start login
-    FrameworkWidget::Instance()->hide();
-    LoginWidget::Instance()->show();
+    FrameworkWidget::instance()->hide();
+    LoginWidget::instance()->show();
 
     return a.exec();
 }

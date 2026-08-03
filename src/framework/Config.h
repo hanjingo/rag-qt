@@ -4,6 +4,7 @@
 #include <atomic>
 #include <QObject>
 #include <QVector>
+#include <QPointer>
 #include <QJsonArray>
 #include <QJsonObject>
 
@@ -150,10 +151,10 @@ class Config : public QObject
     };
 
   public:
-    static Config *instance()
+    static QPointer<Config> instance()
     {
-        static Config inst;
-        return &inst;
+        static QPointer<Config> inst = new Config();
+        return inst;
     }
     static QString getConfigFilePath();
     static QString getCoreExeFilePath();
@@ -199,10 +200,10 @@ class Config : public QObject
     void setMemoryConfigs(QVector<Config::MemoryConfig> &configs);
 
   signals:
-    void SignalConfigUpdate();
-    void SignalAsrConfigUpdate();
-    void SignalModelConfigUpdate();
-    void SignalMemoryConfigUpdate();
+    void signalConfigUpdate();
+    void signalAsrConfigUpdate();
+    void signalModelConfigUpdate();
+    void signalMemoryConfigUpdate();
 
   private:
     explicit Config(QObject *parent = nullptr);

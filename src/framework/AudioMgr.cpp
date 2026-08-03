@@ -2,12 +2,6 @@
 
 #include <QDebug>
 
-AudioMgr *AudioMgr::Instance()
-{
-    static AudioMgr instance;
-    return &instance;
-}
-
 AudioMgr::AudioMgr(QObject *parent)
     : QObject(parent)
 {
@@ -44,7 +38,7 @@ void AudioMgr::enable(const QByteArray &devId)
         }
     }
 
-    emit SignalAudioDeviceEnabled(ids);
+    emit signalAudioDeviceEnabled(ids);
 }
 
 void AudioMgr::disable(const QByteArray &devId)
@@ -59,7 +53,7 @@ void AudioMgr::disable(const QByteArray &devId)
         }
     }
 
-    emit SignalAudioDeviceDisable(ids);
+    emit signalAudioDeviceDisable(ids);
 }
 
 bool AudioMgr::isEnabled(const QByteArray &devId)
@@ -112,19 +106,19 @@ qint64 AudioMgr::startCapture(const QAudioFormat &format,
     qint64     id = static_cast<qint64>(reinterpret_cast<std::uintptr_t>(src));
     QByteArray realDevId = dev.id();
     connect(receiver,
-            &AudioStreamReceiver::SignalAudioCaptured,
+            &AudioStreamReceiver::signalAudioCaptured,
             this,
             [this, id, realDevId](const QByteArray &data) {
                 if(!isEnabled(realDevId))
                     return;
 
                 // qDebug() << "Audio:" << " captured data:" << data;
-                emit SignalAudioCaptured(id, data);
+                emit signalAudioCaptured(id, data);
             });
 
     src->start(receiver);
     m_srcs[id] = src;
-    emit SignalAudioCaptureStarted(id, realDevId);
+    emit signalAudioCaptureStarted(id, realDevId);
     return id;
 }
 
@@ -146,19 +140,19 @@ qint64 AudioMgr::stopCapture(qint64 id)
     m_srcs.remove(id);
     src->stop();
     src->deleteLater();
-    emit SignalAudioCaptureStopped(id);
+    emit signalAudioCaptureStopped(id);
     return id;
 }
 
-void AudioMgr::SlotAudioCaptureStart(const QAudioFormat &format,
+void AudioMgr::slotAudioCaptureStart(const QAudioFormat &format,
                                      const QByteArray   &devId)
 {
     auto ret = startCapture(format, devId);
-    qDebug() << "On SlotAudioCaptureStart with ret=" << ret;
+    qDebug() << "On slotAudioCaptureStart with ret=" << ret;
 }
 
-void AudioMgr::SlotAudioCaptureStop(const qint64 id)
+void AudioMgr::slotAudioCaptureStop(const qint64 id)
 {
     auto ret = stopCapture(id);
-    qDebug() << "On SlotAudioCaptureStop id=" << id << ", ret=" << ret;
+    qDebug() << "On slotAudioCaptureStop id=" << id << ", ret=" << ret;
 }

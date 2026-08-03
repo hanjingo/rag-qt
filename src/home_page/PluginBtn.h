@@ -85,11 +85,11 @@ class PluginBtn : public QToolButton
     void Reset();
 
   signals:
-    void SignalStateChanged(PluginBtn *btn, PluginBtn::State state);
+    void signalStateChanged(PluginBtn *btn, PluginBtn::State state);
 
   public:
-    void SlotProgressChanged(int progress);
-    void SlotProgressFinished(bool success);
+    void slotProgressChanged(int progress);
+    void slotProgressFinished(bool success);
 
   protected:
     void paintEvent(QPaintEvent *e);

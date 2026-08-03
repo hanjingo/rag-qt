@@ -4,6 +4,7 @@
 #include <QMap>
 #include <QWidget>
 #include <QVector>
+#include <QPointer>
 
 #include "Bus.h"
 namespace Ui
@@ -16,9 +17,14 @@ class SettingPageWidget : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageWidget *Instance();
     explicit SettingPageWidget(QWidget *parent = nullptr);
     ~SettingPageWidget();
+
+    static QPointer<SettingPageWidget> instance()
+    {
+        static QPointer<SettingPageWidget> inst = new SettingPageWidget();
+        return inst;
+    }
 
   protected:
     void changeEvent(QEvent *event) override;
@@ -40,8 +46,7 @@ class SettingPageWidget : public QWidget
     void _retranslate();
 
   private:
-    Ui::SettingPageWidget    *ui;
-    static SettingPageWidget *m_stMainSettingPageInst;
+    Ui::SettingPageWidget *ui;
 };
 
 #endif // SETTINGPAGEWIDGET_H

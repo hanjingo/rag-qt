@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QButtonGroup>
 #include <QMutex>
+#include <QPointer>
 
 #include "Config.h"
 #include "MemoryConfigDialog.h"
@@ -27,16 +28,16 @@ class SettingPageMemory : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageMemory *Instance()
+    static QPointer<SettingPageMemory> instance()
     {
-        static SettingPageMemory inst;
-        return &inst;
+        static QPointer<SettingPageMemory> inst = new SettingPageMemory();
+        return inst;
     }
 
     QVector<Bus::MemoryInfo> GetBusMemoryInfos();
 
   signals:
-    void SignalEmbeddingProgressUpdate(const Config::MemoryConfig &conf,
+    void signalEmbeddingProgressUpdate(const Config::MemoryConfig &conf,
                                        const int64_t finishedChunkNum,
                                        const int64_t totalChunkNum);
 

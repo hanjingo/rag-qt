@@ -39,10 +39,6 @@ SettingPageMemory::SettingPageMemory(QWidget *parent)
 
 SettingPageMemory::~SettingPageMemory()
 {
-    delete m_pMemListModel;
-    m_pMemListModel = nullptr;
-
-    delete ui;
 }
 
 void SettingPageMemory::_initUI()
@@ -108,18 +104,18 @@ void SettingPageMemory::_initConnections()
             this,
             &SettingPageMemory::_slotMemCtlBtnGroupClicked);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalEmbeddingResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalEmbeddingResp,
             this,
             &SettingPageMemory::_slotEmbeddingResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalStopEmbeddingResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalStopEmbeddingResp,
             this,
             &SettingPageMemory::_slotEmbeddingStopResp);
 
     connect(Config::instance(),
-            &Config::SignalMemoryConfigUpdate,
+            &Config::signalMemoryConfigUpdate,
             this,
             &SettingPageMemory::_slotMemoryConfigUpdate);
 }
@@ -181,7 +177,7 @@ void SettingPageMemory::_addMemorys(
 
     // notify bus
     auto busModelInfos = GetBusMemoryInfos();
-    emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(busModelInfos);
+    emit BusAdapter::instance() -> signalMemoryInfoUpdateNtf(busModelInfos);
 }
 
 void SettingPageMemory::_delMemorys(const QVector<QString> &hashs)
@@ -202,7 +198,7 @@ void SettingPageMemory::_delMemorys(const QVector<QString> &hashs)
 
     // notify bus
     auto busModelInfos = GetBusMemoryInfos();
-    emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(busModelInfos);
+    emit BusAdapter::instance() -> signalMemoryInfoUpdateNtf(busModelInfos);
 }
 
 void SettingPageMemory::_setMemorys(
@@ -264,7 +260,7 @@ void SettingPageMemory::_setMemorys(
 
     // notify bus
     auto busModelInfos = GetBusMemoryInfos();
-    emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(busModelInfos);
+    emit BusAdapter::instance() -> signalMemoryInfoUpdateNtf(busModelInfos);
 }
 
 void SettingPageMemory::_filterMemTable(const QString &filterText)
@@ -437,9 +433,9 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
                 _setChunkProcessState(taskId, -1, false);
                 _setTaskConfig(taskId, conf);
                 // send chunk
-                GrpcClient::Instance()->Embedding(taskId,
-                                                  Account::Instance()->Id(),
-                                                  Account::Instance()->Auth(),
+                GrpcClient::instance()->Embedding(taskId,
+                                                  Account::instance()->id(),
+                                                  Account::instance()->auth(),
                                                   chunk.id,
                                                   chunk.data,
                                                   chunk.startPos,
@@ -496,12 +492,12 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
             _setChunkProcessState(taskId, chunk.id, false);
             // build meta file
             auto memoryId = conf.id;
-            MemMgr::Instance()->add(memoryId.toStdString(), chunk);
+            MemMgr::instance()->add(memoryId.toStdString(), chunk);
 
             // send chunk
-            GrpcClient::Instance()->Embedding(taskId,
-                                              Account::Instance()->Id(),
-                                              Account::Instance()->Auth(),
+            GrpcClient::instance()->Embedding(taskId,
+                                              Account::instance()->id(),
+                                              Account::instance()->auth(),
                                               chunk.id,
                                               chunk.data,
                                               chunk.startPos,
@@ -551,7 +547,7 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
 
     auto                 memoryId = conf.id;
     std::vector<uint8_t> embeddings(vectorIndexs.begin(), vectorIndexs.end());
-    if(!MemMgr::Instance()->add(memoryId.toStdString(),
+    if(!MemMgr::instance()->add(memoryId.toStdString(),
                                 std::move(embeddings),
                                 conf.dimension,
                                 chunkId))
@@ -577,12 +573,12 @@ void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
             _removeTaskRecord(taskId);
 
             // stop embedding for this task
-            GrpcClient::Instance()->EmbeddingStop(taskId,
-                                                  Account::Instance()->Id(),
-                                                  Account::Instance()->Auth());
+            GrpcClient::instance()->EmbeddingStop(taskId,
+                                                  Account::instance()->id(),
+                                                  Account::instance()->auth());
 
             // save index and meta files
-            MemMgr::Instance()->save(memoryId.toStdString(),
+            MemMgr::instance()->save(memoryId.toStdString(),
                                      conf.indexFilePath.toStdString(),
                                      conf.metaFilePath.toStdString());
         }
@@ -749,7 +745,7 @@ bool SettingPageMemory::_setChunkProcessState(const int64_t taskId,
         if(m_mapTaskConfigs.contains(taskId))
         {
             auto conf = m_mapTaskConfigs[taskId];
-            emit SignalEmbeddingProgressUpdate(
+            emit signalEmbeddingProgressUpdate(
                 conf,
                 processedCount,
                 m_mapTaskChunkIds[taskId].size());
@@ -837,15 +833,15 @@ SettingPageMemory::_createMemoryConfigDialog(const Config::MemoryConfig &conf)
 {
     auto dlg = new MemoryConfigDialog(conf, this);
 
-    // connect the SignalGenerateMemory signal to the _slotGenerateMemory slot
+    // connect the signalGenerateMemory signal to the _slotGenerateMemory slot
     connect(dlg,
-            &MemoryConfigDialog::SignalGenerateMemory,
+            &MemoryConfigDialog::signalGenerateMemory,
             this,
             &SettingPageMemory::_slotGenerateMemory);
 
     connect(this,
-            &SettingPageMemory::SignalEmbeddingProgressUpdate,
+            &SettingPageMemory::signalEmbeddingProgressUpdate,
             dlg,
-            &MemoryConfigDialog::SlotEmbeddingProgressUpdate);
+            &MemoryConfigDialog::slotEmbeddingProgressUpdate);
     return dlg;
 }

@@ -22,7 +22,6 @@ ModelConfigDialog::ModelConfigDialog(const Config::ModelConfig &conf,
 
 ModelConfigDialog::~ModelConfigDialog()
 {
-    delete ui;
 }
 
 Config::ModelConfig ModelConfigDialog::GetConfig()

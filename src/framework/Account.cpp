@@ -1,15 +1,6 @@
 #include "Account.h"
 #include "ui_Account.h"
 
-Account *Account::m_stAccountInst = nullptr;
-Account *Account::Instance()
-{
-    if(nullptr == m_stAccountInst)
-        m_stAccountInst = new Account();
-
-    return m_stAccountInst;
-}
-
 Account::Account(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::AccountDialog)
@@ -24,7 +15,7 @@ Account::~Account()
     delete ui;
 }
 
-void Account::Clear()
+void Account::clear()
 {
     m_id   = -1;
     m_auth = "";
@@ -32,23 +23,23 @@ void Account::Clear()
     ui->lblAccount->setText("");
 }
 
-void Account::SetId(int32_t id)
+void Account::setId(int32_t id)
 {
     m_id = id;
 }
 
-void Account::SetName(const QString &name)
+void Account::setName(const QString &name)
 {
     m_name = name;
     ui->lblAccount->setText(name);
 }
 
-void Account::SetAuth(const QString &auth)
+void Account::setAuth(const QString &auth)
 {
     m_auth = auth;
 }
 
-void Account::SetLastLoginTime(const QString &lastLoginTime)
+void Account::setLastLoginTime(const QString &lastLoginTime)
 {
     m_lastLoginTime = lastLoginTime;
     ui->lblLastLoginTime->setText(lastLoginTime);

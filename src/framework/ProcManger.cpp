@@ -7,15 +7,6 @@
 #include "Global.h"
 #include "Config.h"
 
-ProcManager *ProcManager::m_stProcManagerInst = nullptr;
-ProcManager *ProcManager::Instance()
-{
-    if(nullptr == m_stProcManagerInst)
-        m_stProcManagerInst = new ProcManager();
-
-    return m_stProcManagerInst;
-}
-
 ProcManager::ProcManager(QObject *parent)
     : QObject(parent)
     , m_pCore(nullptr)
@@ -128,7 +119,7 @@ void ProcManager::_disconnectCore()
 void ProcManager::_slotCoreStarted()
 {
     qDebug() << "Core started.";
-    emit SignalCoreStarted();
+    emit signalCoreStarted();
 }
 
 void ProcManager::_slotCoreFinished(int                  exitCode,
@@ -136,11 +127,11 @@ void ProcManager::_slotCoreFinished(int                  exitCode,
 {
     qDebug() << "Core finished. Exit code:" << exitCode
              << "Exit status:" << exitStatus;
-    emit SignalCoreFinished(exitCode, exitStatus);
+    emit signalCoreFinished(exitCode, exitStatus);
 }
 
 void ProcManager::_slotCoreError(QProcess::ProcessError error)
 {
     qDebug() << "Core error:" << error;
-    emit SignalCoreError(error);
+    emit signalCoreError(error);
 }

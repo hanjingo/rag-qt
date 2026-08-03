@@ -21,7 +21,6 @@ SettingPageHardware::SettingPageHardware(QWidget *parent)
 
 SettingPageHardware::~SettingPageHardware()
 {
-    delete ui;
 }
 
 void SettingPageHardware::changeEvent(QEvent *event)
@@ -74,9 +73,14 @@ void SettingPageHardware::_initConnections()
             &SettingPageHardware::_slotBtnSaveClicked);
 
     connect(Config::instance(),
-            &Config::SignalAsrConfigUpdate,
+            &Config::signalAsrConfigUpdate,
             this,
             &SettingPageHardware::_slotAsrConfigUpdate);
+
+    connect(ui->ckVADEnable,
+            &QCheckBox::toggled,
+            this,
+            &SettingPageHardware::_slotVADEnabled);
 }
 
 void SettingPageHardware::_retranslate()
@@ -188,6 +192,17 @@ void SettingPageHardware::_slotAsrConfigUpdate()
         ui->comboAudioTranslator->addItem(conf.id);
     }
     ui->comboAudioTranslator->setCurrentIndex(0);
+}
+
+void SettingPageHardware::_slotVADEnabled(bool isEnabled)
+{
+    // ui->editVADModelPath->setEnabled(isEnabled);
+    ui->editVADThreshold->setEnabled(isEnabled);
+    ui->editVADMinSpeechDurMs->setEnabled(isEnabled);
+    ui->editVADMinSilenceDurMs->setEnabled(isEnabled);
+    ui->editVADMaxSpeechDurS->setEnabled(isEnabled);
+    ui->editVADSpeechPadMs->setEnabled(isEnabled);
+    ui->editVADSamplesOverlap->setEnabled(isEnabled);
 }
 
 void SettingPageHardware::_addAudioConfig(const QString &id)

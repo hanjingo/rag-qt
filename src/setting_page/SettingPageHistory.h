@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QSet>
+#include <QPointer>
 
 #include "Bus.h"
 
@@ -21,7 +22,11 @@ class SettingPageHistory : public QWidget
     Q_OBJECT
 
   public:
-    static SettingPageHistory *Instance();
+    static QPointer<SettingPageHistory> instance()
+    {
+        static QPointer<SettingPageHistory> inst = new SettingPageHistory();
+        return inst;
+    }
     explicit SettingPageHistory(QWidget *parent = nullptr);
     ~SettingPageHistory();
 
@@ -64,8 +69,7 @@ class SettingPageHistory : public QWidget
     void _addAnswerRecord(const QString &answer, const QString &timestamp);
 
   private:
-    Ui::SettingPageHistory    *ui;
-    static SettingPageHistory *m_stSettingPageHistoryInst;
+    Ui::SettingPageHistory *ui;
 
     QStandardItemModel *m_pHistoryModel;
     QSet<qint64>        m_setRecvedMsgIds;

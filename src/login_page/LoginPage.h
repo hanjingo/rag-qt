@@ -2,6 +2,7 @@
 #define LOGINPAGE_H
 
 #include <QWidget>
+#include <QPointer>
 
 #include "ui_LoginPage.h"
 
@@ -19,7 +20,11 @@ class LoginPage : public QWidget
     Q_OBJECT
 
   public:
-    static LoginPage *Instance();
+    static QPointer<LoginPage> instance()
+    {
+        static QPointer<LoginPage> inst = new LoginPage();
+        return inst;
+    }
 
     void Login();
 
@@ -27,9 +32,9 @@ class LoginPage : public QWidget
     void changeEvent(QEvent *event) override;
 
   signals:
-    void SignalLogin(const QString &username, const QString &password);
-    void SignalRegister(const QString &username, const QString &password);
-    void SignalLogout();
+    void signalLogin(const QString &username, const QString &password);
+    void signalRegister(const QString &username, const QString &password);
+    void signalLogout();
 
   private slots:
     void _slotBtnLoginClicked();
@@ -47,7 +52,6 @@ class LoginPage : public QWidget
     ~LoginPage();
 
   private:
-    Ui::LoginPage    *ui;
-    static LoginPage *m_stLoginPageInst;
+    Ui::LoginPage *ui;
 };
 #endif // LOGINPAGE_H

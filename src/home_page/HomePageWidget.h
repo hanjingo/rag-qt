@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QButtonGroup>
 #include <QResizeEvent>
+#include <QPointer>
 #include <QStandardItemModel>
 
 #include <functional>
@@ -25,7 +26,11 @@ class HomePageWidget : public QWidget
     Q_OBJECT
 
   public:
-    static HomePageWidget *GetMainHomePageInst();
+    static QPointer<HomePageWidget> instance()
+    {
+        static QPointer<HomePageWidget> inst = new HomePageWidget();
+        return inst;
+    }
     explicit HomePageWidget(QWidget *parent = nullptr);
     ~HomePageWidget();
 
@@ -87,11 +92,9 @@ class HomePageWidget : public QWidget
     // QString _unzip(PluginBtn *btn);
 
   private:
-    Ui::HomePageWidget    *ui;
-    static HomePageWidget *m_stMainHomePageInst;
-
-    QButtonGroup *m_pPluginsBtnGroup;
-    QButtonGroup *m_pSessionCtlBtnGroup;
+    Ui::HomePageWidget *ui;
+    QButtonGroup       *m_pPluginsBtnGroup;
+    QButtonGroup       *m_pSessionCtlBtnGroup;
 
     QStandardItemModel *m_pHistoryModel;
 

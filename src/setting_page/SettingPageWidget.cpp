@@ -17,31 +17,19 @@
 #include "SettingPageModel.h"
 #include "SettingPageHardware.h"
 
-SettingPageWidget *SettingPageWidget::m_stMainSettingPageInst = nullptr;
-SettingPageWidget *SettingPageWidget::Instance()
-{
-    if(nullptr == m_stMainSettingPageInst)
-    {
-        m_stMainSettingPageInst = new SettingPageWidget();
-    }
-
-    return m_stMainSettingPageInst;
-}
-
 SettingPageWidget::SettingPageWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SettingPageWidget)
 {
     ui->setupUi(this);
 
-    _initUI();
     _initConnections();
+    _initUI();
     _retranslate();
 }
 
 SettingPageWidget::~SettingPageWidget()
 {
-    delete ui;
 }
 
 void SettingPageWidget::changeEvent(QEvent *event)
@@ -60,25 +48,25 @@ void SettingPageWidget::_slotTabCurrentChanged(int iIndex)
     switch(iIndex)
     {
         case 0:
-            SettingPageHistory::Instance();
+            SettingPageHistory::instance();
             break;
         case 1:
-            SettingPageModel::Instance();
+            SettingPageModel::instance();
             break;
         case 2:
-            SettingPagePlugin::Instance();
+            SettingPagePlugin::instance();
             break;
         case 3:
-            SettingPageMemory::Instance();
+            SettingPageMemory::instance();
             break;
         case 4:
-            SettingPageNetwork::Instance();
+            SettingPageNetwork::instance();
             break;
         case 5:
-            SettingPageHardware::Instance();
+            SettingPageHardware::instance();
             break;
         case 6:
-            SettingPageVersion::Instance();
+            SettingPageVersion::instance();
             break;
 
         default:
@@ -100,16 +88,16 @@ void SettingPageWidget::_initUI()
 {
     ui->tabWidget->setStyleSheet(StyleMgr::ParseFile(":/styles/tab_widget"));
 
-    ui->tabWidget->addTab(SettingPageHistory::Instance(),
+    ui->tabWidget->addTab(SettingPageHistory::instance(),
                           tr("History Settings"));
-    ui->tabWidget->addTab(SettingPageModel::Instance(), tr("Model Settings"));
-    ui->tabWidget->addTab(SettingPagePlugin::Instance(), tr("Plugin Settings"));
-    ui->tabWidget->addTab(SettingPageMemory::Instance(), tr("Memory Settings"));
-    ui->tabWidget->addTab(SettingPageNetwork::Instance(),
+    ui->tabWidget->addTab(SettingPageModel::instance(), tr("Model Settings"));
+    ui->tabWidget->addTab(SettingPagePlugin::instance(), tr("Plugin Settings"));
+    ui->tabWidget->addTab(SettingPageMemory::instance(), tr("Memory Settings"));
+    ui->tabWidget->addTab(SettingPageNetwork::instance(),
                           tr("Network Settings"));
-    ui->tabWidget->addTab(SettingPageHardware::Instance(),
+    ui->tabWidget->addTab(SettingPageHardware::instance(),
                           tr("Hardware Settings"));
-    ui->tabWidget->addTab(SettingPageVersion::Instance(), tr("Version Info"));
+    ui->tabWidget->addTab(SettingPageVersion::instance(), tr("Version Info"));
 }
 
 void SettingPageWidget::_initConnections()
@@ -119,8 +107,8 @@ void SettingPageWidget::_initConnections()
             this,
             SLOT(_slotTabCurrentChanged(int)));
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalLoginResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalLoginResp,
             this,
             &SettingPageWidget::_slotLoginResp);
 }

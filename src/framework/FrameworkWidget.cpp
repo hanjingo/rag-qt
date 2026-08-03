@@ -33,30 +33,20 @@
 #include "Upgrade.h"
 #include "Global.h"
 
-FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
-
-FrameworkWidget *FrameworkWidget::Instance()
-{
-    if(nullptr == m_stFrameworkWidgetInst)
-        m_stFrameworkWidgetInst = new FrameworkWidget();
-
-    return m_stFrameworkWidgetInst;
-}
-
 FrameworkWidget::FrameworkWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
     , ui(new Ui::FrameworkWidget)
     , m_pCtlBtnGroup(new QButtonGroup(this))
     , m_pTimer(new QTimer(this))
-    , m_pProcManagerInst(ProcManager::Instance())
-    , m_pPluginMgrInst(PluginMgr::Instance())
+    , m_pProcManagerInst(ProcManager::instance())
+    , m_pPluginMgrInst(PluginMgr::instance())
     , m_pTranslator(new QTranslator(this))
-    , m_pGrpcClient(GrpcClient::Instance())
-    , m_pBusAdapter(BusAdapter::Instance())
-    , m_pAccount(Account::Instance())
-    , m_pLoginWgtInst(LoginWidget::Instance())
-    , m_pHomePageWgtInst(HomePageWidget::GetMainHomePageInst())
-    , m_pSettingPageWgtInst(SettingPageWidget::Instance())
+    , m_pGrpcClient(GrpcClient::instance())
+    , m_pBusAdapter(BusAdapter::instance())
+    , m_pAccount(Account::instance())
+    , m_pLoginWgtInst(LoginWidget::instance())
+    , m_pHomePageWgtInst(HomePageWidget::instance())
+    , m_pSettingPageWgtInst(SettingPageWidget::instance())
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_StyledBackground, true);
@@ -73,16 +63,6 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
 
 FrameworkWidget::~FrameworkWidget()
 {
-    m_pProcManagerInst->destroy();
-    delete m_pProcManagerInst;
-
-    delete m_pGrpcClient;
-
-    delete m_pHomePageWgtInst;
-    delete m_pSettingPageWgtInst;
-    delete m_pCtlBtnGroup;
-    delete m_pTimer;
-    delete ui;
 }
 
 void FrameworkWidget::InitCore()
@@ -108,7 +88,7 @@ bool FrameworkWidget::IsConnectedToCoreService()
 void FrameworkWidget::closeEvent(QCloseEvent *event)
 {
     // stop all plugins before closing the application
-    PluginMgr::Instance()->Clear();
+    PluginMgr::instance()->Clear();
 
     // process all pending events to ensure that the plugin shutdown signals are processed
     QCoreApplication::processEvents();
@@ -213,7 +193,7 @@ void FrameworkWidget::changeEvent(QEvent *event)
 void FrameworkWidget::_slotLogin(const QString &username,
                                  const QString &password)
 {
-    GrpcClient::Instance()->Login(username, password);
+    GrpcClient::instance()->Login(username, password);
 }
 
 void FrameworkWidget::_slotLoginResp(const int      errorCode,
@@ -240,7 +220,7 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
         QString content = tr("A force update is required. Please "
                              "update the application from: "
                              "<a href=\"%1\">%1</a>")
-                              .arg(Upgrade::Instance()->GetUpgradeAddr());
+                              .arg(Upgrade::instance()->GetUpgradeAddr());
 
         QMessageBox msgBox(QMessageBox::Information,
                            tr("Force Update Required"),
@@ -254,10 +234,10 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
         return;
     }
 
-    m_pAccount->SetId(user_id);
-    m_pAccount->SetAuth(auth);
-    m_pAccount->SetName(account);
-    m_pAccount->SetLastLoginTime(lastLoginTime);
+    m_pAccount->setId(user_id);
+    m_pAccount->setAuth(auth);
+    m_pAccount->setName(account);
+    m_pAccount->setLastLoginTime(lastLoginTime);
     m_pLoginWgtInst->hide();
     this->show();
 
@@ -265,10 +245,10 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
     ui->listWidgetAppBar->setCurrentRow(0);
 
     // query plugin info after login in
-    GrpcClient::Instance()->GetPluginInfo();
+    GrpcClient::instance()->GetPluginInfo();
 
     // query history after login in
-    GrpcClient::Instance()->GetSession(-1, user_id, auth, 50);
+    GrpcClient::instance()->GetSession(-1, user_id, auth, 50);
 
     return;
 }
@@ -278,7 +258,7 @@ void FrameworkWidget::_slotRegister(const QString &username,
 {
     qDebug() << "Register attempt with username:" << username
              << "and password:" << password;
-    GrpcClient::Instance()->RegAccount(username, password);
+    GrpcClient::instance()->RegAccount(username, password);
 }
 
 void FrameworkWidget::_slotRegisterResp(const int     errorCode,
@@ -296,7 +276,7 @@ void FrameworkWidget::_slotRegisterResp(const int     errorCode,
         return;
     }
 
-    m_pAccount->SetId(user_id);
+    m_pAccount->setId(user_id);
     // QMessageBox::information(
     //     this,
     //     tr("Register Successful"),
@@ -306,14 +286,14 @@ void FrameworkWidget::_slotRegisterResp(const int     errorCode,
 void FrameworkWidget::_slotLogout()
 {
     qDebug() << "Logout signal received.";
-    if(!m_pAccount->IsValid())
+    if(!m_pAccount->isValid())
     {
         qDebug() << "Account instance is null or invalid. exit";
         _exit();
         return;
     }
 
-    GrpcClient::Instance()->Logout(m_pAccount->Id(), m_pAccount->Auth());
+    GrpcClient::instance()->Logout(m_pAccount->id(), m_pAccount->auth());
 }
 
 void FrameworkWidget::_slotLogoutResp(const int     errorCode,
@@ -431,21 +411,21 @@ void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
         {
             qDebug() << "Switching to Chinese.";
             m_pTranslator->load(":/languages/zh_CN");
-            emit Bus::Instance() -> SignalLanguageSwitch(LANG_ZH_CN);
+            emit Bus::instance() -> signalLanguageSwitch(LANG_ZH_CN);
         }
         break;
         case 1: // English
         {
             qDebug() << "Switching to English.";
             m_pTranslator->load(":/languages/en_UK");
-            emit Bus::Instance() -> SignalLanguageSwitch(LANG_EN_UK);
+            emit Bus::instance() -> signalLanguageSwitch(LANG_EN_UK);
         }
         break;
         case 2: // German
         {
             qDebug() << "Switching to German.";
             m_pTranslator->load(":/languages/de_DE");
-            emit Bus::Instance() -> SignalLanguageSwitch(LANG_DE_DE);
+            emit Bus::instance() -> signalLanguageSwitch(LANG_DE_DE);
         }
         break;
         default:
@@ -471,20 +451,20 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     }
 
     // init plugin
-    auto wgt = plugin->Init(Bus::Instance());
-    emit BusAdapter::Instance() -> SignalPing();
+    auto wgt = plugin->Init(Bus::instance());
+    emit BusAdapter::instance() -> signalPing();
 
     // update model info
-    auto infos = SettingPageModel::Instance()->GetBusModelInfos();
-    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(infos);
+    auto infos = SettingPageModel::instance()->GetBusModelInfos();
+    emit BusAdapter::instance() -> signalModelInfoUpdateNtf(infos);
 
     // update memory info
-    auto memInfos = SettingPageMemory::Instance()->GetBusMemoryInfos();
-    emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(memInfos);
+    auto memInfos = SettingPageMemory::instance()->GetBusMemoryInfos();
+    emit BusAdapter::instance() -> signalMemoryInfoUpdateNtf(memInfos);
 
     // update audio param
     auto params = Config::instance()->getBusAudioParams();
-    emit BusAdapter::Instance() -> SignalAudioParamUpdateNtf(params);
+    emit BusAdapter::instance() -> signalAudioParamUpdateNtf(params);
     if(wgt)
     {
         // TODO sort icon position
@@ -684,22 +664,22 @@ void FrameworkWidget::_initStackedWidget()
 void FrameworkWidget::_initConnections()
 {
     connect(m_pLoginWgtInst,
-            &LoginWidget::SignalLogin,
+            &LoginWidget::signalLogin,
             this,
             &FrameworkWidget::_slotLogin);
 
     connect(m_pLoginWgtInst,
-            &LoginWidget::SignalRegister,
+            &LoginWidget::signalRegister,
             this,
             &FrameworkWidget::_slotRegister);
 
     connect(m_pLoginWgtInst,
-            &LoginWidget::SignalLogout,
+            &LoginWidget::signalLogout,
             this,
             &FrameworkWidget::_slotLogout);
 
-    connect(SettingPageNetwork::Instance(),
-            &SettingPageNetwork::SignalSwitchAccount,
+    connect(SettingPageNetwork::instance(),
+            &SettingPageNetwork::signalSwitchAccount,
             this,
             &FrameworkWidget::_slotSwitchAccount);
 
@@ -721,27 +701,27 @@ void FrameworkWidget::_initConnections()
             &FrameworkWidget::_slotCtlBtnGroupClicked);
 
     connect(m_pGrpcClient,
-            &GrpcClient::SignalGrpcConnected,
+            &GrpcClient::signalGrpcConnected,
             this,
             &FrameworkWidget::_slotGrpcConnected);
 
     connect(m_pGrpcClient,
-            &GrpcClient::SignalGrpcConnectFailed,
+            &GrpcClient::signalGrpcConnectFailed,
             this,
             &FrameworkWidget::_slotGrpcConnectFailed);
 
     connect(m_pGrpcClient,
-            &GrpcClient::SignalLoginResp,
+            &GrpcClient::signalLoginResp,
             this,
             &FrameworkWidget::_slotLoginResp);
 
     connect(m_pGrpcClient,
-            &GrpcClient::SignalRegAccountResp,
+            &GrpcClient::signalRegAccountResp,
             this,
             &FrameworkWidget::_slotRegisterResp);
 
     connect(m_pGrpcClient,
-            &GrpcClient::SignalLogoutResp,
+            &GrpcClient::signalLogoutResp,
             this,
             &FrameworkWidget::_slotLogoutResp);
 
@@ -751,25 +731,25 @@ void FrameworkWidget::_initConnections()
             SLOT(_slotComboLangCurrentChanged(int)));
 
     connect(m_pPluginMgrInst,
-            &PluginMgr::SignalPluginLoaded,
+            &PluginMgr::signalPluginLoaded,
             this,
             &FrameworkWidget::_slotPluginLoaded);
 
     connect(m_pPluginMgrInst,
-            &PluginMgr::SignalPluginUnloaded,
+            &PluginMgr::signalPluginUnloaded,
             this,
             &FrameworkWidget::_slotPluginUnloaded);
 
     connect(m_pProcManagerInst,
-            &ProcManager::SignalCoreStarted,
+            &ProcManager::signalCoreStarted,
             this,
             &FrameworkWidget::_slotCoreStarted);
     connect(m_pProcManagerInst,
-            &ProcManager::SignalCoreFinished,
+            &ProcManager::signalCoreFinished,
             this,
             &FrameworkWidget::_slotCoreFinished);
     connect(m_pProcManagerInst,
-            &ProcManager::SignalCoreError,
+            &ProcManager::signalCoreError,
             this,
             &FrameworkWidget::_slotCoreError);
 }
@@ -807,7 +787,7 @@ void FrameworkWidget::_initLanguage()
     ui->comboLang->setIconSize(QSize(24, 24));
 
     // get local language
-    QString localLang = System::Instance()->LocalLang();
+    QString localLang = System::instance()->LocalLang();
     if(localLang.startsWith("zh"))
         emit ui->comboLang->currentIndexChanged(0);
     else if(localLang.startsWith("en"))
@@ -830,12 +810,12 @@ void FrameworkWidget::_audioToggle()
     {
         ui->btnAudio->setIcon(QIcon(":/icons/microphone_enable"));
         ui->btnAudio->setVisible(true);
-        AudioMgr::Instance()->enable();
+        AudioMgr::instance()->enable();
     } else
     {
         ui->btnAudio->setIcon(QIcon(":/icons/microphone_disable"));
         ui->btnAudio->setVisible(true);
-        AudioMgr::Instance()->disable();
+        AudioMgr::instance()->disable();
     }
 }
 
@@ -843,7 +823,7 @@ void FrameworkWidget::_selectScreen()
 {
     ScreenCapture *capture = new ScreenCapture(this);
     connect(capture,
-            &ScreenCapture::SignalImageCaptured,
+            &ScreenCapture::signalImageCaptured,
             this,
             &FrameworkWidget::_slotImageCaptured);
     capture->start();
@@ -866,7 +846,7 @@ void FrameworkWidget::_switchAccount()
 {
     // clear account info
     if(m_pAccount)
-        m_pAccount->Clear();
+        m_pAccount->clear();
 
     m_pLoginWgtInst->show();
     this->hide();

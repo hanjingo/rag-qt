@@ -8,6 +8,7 @@
 #include <QVector>
 #include <QPluginLoader>
 #include <QJsonObject>
+#include <QPointer>
 
 #include "PluginInterface.h"
 
@@ -22,10 +23,10 @@ class PluginMgr : public QObject
     explicit PluginMgr(QObject *parent = nullptr);
     ~PluginMgr();
 
-    static PluginMgr *Instance()
+    static QPointer<PluginMgr> instance()
     {
-        static PluginMgr inst;
-        return &inst;
+        static QPointer<PluginMgr> inst = new PluginMgr();
+        return inst;
     }
 
     static QMap<QString, QString> Parse(const QString &absDllPath);
@@ -40,12 +41,11 @@ class PluginMgr : public QObject
     void Clear();
 
   signals:
-    void SignalPluginLoaded(PluginInterface *plugin, const QString &filePath);
-    void SignalPluginUnloaded(const QString &pluginId,
+    void signalPluginLoaded(PluginInterface *plugin, const QString &filePath);
+    void signalPluginUnloaded(const QString &pluginId,
                               const QString &pluginName);
 
   private:
-    static PluginMgr              *m_stPluginMgrInst;
     QMap<QString, QPluginLoader *> m_mLoaders;
 };
 

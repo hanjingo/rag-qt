@@ -29,18 +29,6 @@
 #include "Account.h"
 #include "Config.h"
 
-HomePageWidget *HomePageWidget::m_stMainHomePageInst = nullptr;
-
-HomePageWidget *HomePageWidget::GetMainHomePageInst()
-{
-    if(nullptr == m_stMainHomePageInst)
-    {
-        m_stMainHomePageInst = new HomePageWidget();
-    }
-
-    return m_stMainHomePageInst;
-}
-
 HomePageWidget::HomePageWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::HomePageWidget)
@@ -177,43 +165,43 @@ void HomePageWidget::_initConnections()
             this,
             &HomePageWidget::_slotEditFilterTextChanged);
 
-    connect(PluginMgr::Instance(),
-            &PluginMgr::SignalPluginUnloaded,
+    connect(PluginMgr::instance(),
+            &PluginMgr::signalPluginUnloaded,
             this,
             &HomePageWidget::_slotPluginUnloaded);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGrpcConnected,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalGrpcConnected,
             this,
             &HomePageWidget::_slotGrpcConnected);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetSessionResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalGetSessionResp,
             this,
             &HomePageWidget::_slotGetSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalNewSessionResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalNewSessionResp,
             this,
             &HomePageWidget::_slotNewSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalModifySessionTitleResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalModifySessionTitleResp,
             this,
             &HomePageWidget::_slotModifySessionTitleResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalDelSessionResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalDelSessionResp,
             this,
             &HomePageWidget::_slotDelSessionResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalGetPluginInfoResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalGetPluginInfoResp,
             this,
             &HomePageWidget::_slotGetPluginInfoResp);
 
-    connect(GrpcClient::Instance(),
-            &GrpcClient::SignalDownloadResp,
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalDownloadResp,
             this,
             &HomePageWidget::_slotDownloadResp);
 }
@@ -232,10 +220,10 @@ void HomePageWidget::_slotPluginBtnClicked(QAbstractButton *pBtn)
         return;
 
     QString hash    = pPluginBtn->Hash();
-    int64_t user_id = Account::Instance()->Id();
-    QString auth    = Account::Instance()->Auth();
+    int64_t user_id = Account::instance()->id();
+    QString auth    = Account::instance()->auth();
 
-    GrpcClient::Instance()->Download(hash, user_id, auth);
+    GrpcClient::instance()->Download(hash, user_id, auth);
 }
 
 void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
@@ -261,8 +249,8 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
                 bool         isLocal;
                 bool         isRemote;
                 dlg.GetConfig(session, model, prompt, isLocal, isRemote);
-                GrpcClient::Instance()->NewSession(Account::Instance()->Id(),
-                                                   Account::Instance()->Auth(),
+                GrpcClient::instance()->NewSession(Account::instance()->id(),
+                                                   Account::instance()->auth(),
                                                    session.title,
                                                    prompt,
                                                    model);
@@ -276,8 +264,8 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
             for(auto row : rows)
                 sessionIds.append(row.siblingAtColumn(0).data().toLongLong());
 
-            GrpcClient::Instance()->DelSession(Account::Instance()->Id(),
-                                               Account::Instance()->Auth(),
+            GrpcClient::instance()->DelSession(Account::instance()->id(),
+                                               Account::instance()->auth(),
                                                sessionIds);
         }
         break;
@@ -289,9 +277,9 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
             {
                 m_maxRecord = dlg.MaxRecord();
                 m_sortBy    = dlg.SortByType();
-                GrpcClient::Instance()->GetSession(-1,
-                                                   Account::Instance()->Id(),
-                                                   Account::Instance()->Auth(),
+                GrpcClient::instance()->GetSession(-1,
+                                                   Account::instance()->id(),
+                                                   Account::instance()->auth(),
                                                    m_maxRecord);
             }
         }
@@ -366,9 +354,9 @@ void HomePageWidget::_slotDelSessionResp(const int               errorCode,
              << " items.";
 
     // repull the session list from the server to refresh the history table
-    GrpcClient::Instance()->GetSession(-1,
-                                       Account::Instance()->Id(),
-                                       Account::Instance()->Auth(),
+    GrpcClient::instance()->GetSession(-1,
+                                       Account::instance()->id(),
+                                       Account::instance()->auth(),
                                        50);
 }
 
@@ -471,7 +459,7 @@ void HomePageWidget::_slotPluginBtnStateChanged(PluginBtn       *btn,
                                   .arg(QCoreApplication::applicationDirPath())
                                   .arg(btn->Name());
             // load the plugin
-            auto plugins = PluginMgr::Instance()->Search(
+            auto plugins = PluginMgr::instance()->Search(
                 destDir,
                 [](const QJsonObject &metaData) -> bool {
                     return metaData.contains("PluginId")
@@ -486,7 +474,7 @@ void HomePageWidget::_slotPluginBtnStateChanged(PluginBtn       *btn,
             for(auto fpath : plugins)
             {
                 qDebug() << "Found plugin file: " << fpath;
-                PluginInterface *plugin = PluginMgr::Instance()->Load(fpath);
+                PluginInterface *plugin = PluginMgr::instance()->Load(fpath);
                 if(plugin)
                 {
                     qDebug()
@@ -645,13 +633,13 @@ int HomePageWidget::_addPlugins(const QVector<Bus::Plugin> &plugins)
         btn->SetTimestamp(item.timestamp);
         btn->SetState(PluginBtn::State::Unknown);
         connect(btn,
-                &PluginBtn::SignalStateChanged,
+                &PluginBtn::signalStateChanged,
                 this,
                 &HomePageWidget::_slotPluginBtnStateChanged);
 
         // if the plugin is already installed a higher version,
         // reset the button state to installed
-        auto plugin = PluginMgr::Instance()->GetByName(item.name);
+        auto plugin = PluginMgr::instance()->GetByName(item.name);
         if(plugin)
         {
             auto oldVer = QVersionNumber::fromString(plugin->Version());
