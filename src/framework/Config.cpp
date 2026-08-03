@@ -11,78 +11,15 @@
 #include <QCoreApplication>
 
 #include "Global.h"
+#include "BusAdapter.h"
 
 Config::Config(QObject *parent)
     : QObject(parent)
 {
-    if(!load(Config::getConfigFilePath()))
-    {
-        QMessageBox::critical(nullptr,
-                              tr("Load Config File Failed"),
-                              tr("Failed to load config file: %1")
-                                  .arg(Config::getConfigFilePath()));
-        return;
-    }
-
-    loadModel(Config::getModelConfigFilePath());
-    loadMemory(Config::getMemoryConfigFilePath());
 }
 
 Config::~Config()
 {
-}
-
-Config &Config::Instance()
-{
-    static Config instance;
-    return instance;
-}
-
-QString Config::getCoreFile()
-{
-#ifdef Q_OS_MAC
-    QDir baseDir(QCoreApplication::applicationDirPath());
-    if(baseDir.dirName() == "MacOS")
-    {
-        return baseDir.absoluteFilePath(RAG_CORE);
-    }
-
-    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE;
-#else
-    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE;
-#endif
-}
-
-QString Config::getCoreConfig()
-{
-#ifdef Q_OS_MAC
-    QDir baseDir(QCoreApplication::applicationDirPath());
-    if(baseDir.dirName() == "MacOS")
-    {
-        baseDir.cdUp();
-        baseDir.cd("Resources");
-        return baseDir.absoluteFilePath(RAG_CORE_CONFIG);
-    }
-    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE_CONFIG;
-#else
-    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE_CONFIG;
-#endif
-}
-
-QString Config::getPluginFilePath()
-{
-#ifdef Q_OS_MAC
-    QDir baseDir(QCoreApplication::applicationDirPath());
-    if(baseDir.dirName() == "MacOS")
-    {
-        baseDir.cdUp();
-        return baseDir.absoluteFilePath("PlugIns") + "/" + PLUGIN_DIR;
-    }
-
-    return QCoreApplication::applicationDirPath() + "/" + PLUGIN_DIR;
-#else
-    return QCoreApplication::applicationDirPath() + "/" + PLUGIN_DIR;
-#endif
 }
 
 QString Config::getConfigFilePath()
@@ -101,7 +38,22 @@ QString Config::getConfigFilePath()
 #endif
 }
 
-QString Config::getModelConfigFilePath()
+QString Config::getCoreExeFilePath()
+{
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    if(baseDir.dirName() == "MacOS")
+    {
+        return baseDir.absoluteFilePath(RAG_CORE);
+    }
+
+    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE;
+#else
+    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE;
+#endif
+}
+
+QString Config::getCoreConfigFilePath()
 {
 #ifdef Q_OS_MAC
     QDir baseDir(QCoreApplication::applicationDirPath());
@@ -109,28 +61,125 @@ QString Config::getModelConfigFilePath()
     {
         baseDir.cdUp();
         baseDir.cd("Resources");
-        return baseDir.absoluteFilePath(MODEL_CONFIG_FILE);
+        return baseDir.absoluteFilePath(RAG_CORE_CONFIG);
     }
-    return QCoreApplication::applicationDirPath() + "/" + MODEL_CONFIG_FILE;
+    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE_CONFIG;
 #else
-    return QCoreApplication::applicationDirPath() + "/" + MODEL_CONFIG_FILE;
+    return QCoreApplication::applicationDirPath() + "/" + RAG_CORE_CONFIG;
+#endif
+}
+
+QString Config::getPluginFilePath()
+{
+    auto fpath = m_rootObj[KEY_PLUGIN_PATH].toString();
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    if(baseDir.dirName() == "MacOS")
+    {
+        baseDir.cdUp();
+        return baseDir.absoluteFilePath("PlugIns") + "/" + fpath;
+    }
+
+    return QCoreApplication::applicationDirPath() + "/" + fpath;
+#else
+    return QCoreApplication::applicationDirPath() + "/" + fpath;
+#endif
+}
+
+QString Config::getModelConfigFilePath()
+{
+    auto fpath = m_rootObj[KEY_MODEL_CONFIG].toString();
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    if(baseDir.dirName() == "MacOS")
+    {
+        baseDir.cdUp();
+        baseDir.cd("Resources");
+        return baseDir.absoluteFilePath(fpath);
+    }
+    return QCoreApplication::applicationDirPath() + "/" + fpath;
+#else
+    return QCoreApplication::applicationDirPath() + "/" + fpath;
 #endif
 }
 
 QString Config::getMemoryConfigFilePath()
 {
+    auto fpath = m_rootObj[KEY_MEMORY_CONFIG].toString();
 #ifdef Q_OS_MAC
     QDir baseDir(QCoreApplication::applicationDirPath());
     if(baseDir.dirName() == "MacOS")
     {
         baseDir.cdUp();
         baseDir.cd("Resources");
-        return baseDir.absoluteFilePath(MEMORY_CONFIG_FILE);
+        return baseDir.absoluteFilePath(fpath);
     }
-    return QCoreApplication::applicationDirPath() + "/" + MEMORY_CONFIG_FILE;
+    return QCoreApplication::applicationDirPath() + "/" + fpath;
 #else
-    return QCoreApplication::applicationDirPath() + "/" + MEMORY_CONFIG_FILE;
+    return QCoreApplication::applicationDirPath() + "/" + fpath;
 #endif
+}
+
+QString Config::getAsrConfigFilePath()
+{
+    auto fpath = m_rootObj[KEY_ASR_CONFIG].toString();
+#ifdef Q_OS_MAC
+    QDir baseDir(QCoreApplication::applicationDirPath());
+    if(baseDir.dirName() == "MacOS")
+    {
+        baseDir.cdUp();
+        baseDir.cd("Resources");
+        return baseDir.absoluteFilePath(fpath);
+    }
+    return QCoreApplication::applicationDirPath() + "/" + fpath;
+#else
+    return QCoreApplication::applicationDirPath() + "/" + fpath;
+#endif
+}
+
+bool Config::init()
+{
+    if(m_inited.load())
+        return false;
+
+    m_inited.store(true);
+    if(!load(Config::getConfigFilePath()))
+    {
+        QMessageBox::critical(nullptr,
+                              tr("Load Config File Failed"),
+                              tr("Failed to load config file: %1")
+                                  .arg(Config::getConfigFilePath()));
+        return false;
+    }
+
+    if(!loadModel(getModelConfigFilePath()))
+    {
+        QMessageBox::critical(
+            nullptr,
+            tr("Load Model Config File Failed"),
+            tr("Failed to load config file: %1").arg(getModelConfigFilePath()));
+        return false;
+    }
+
+    if(!loadMemory(getMemoryConfigFilePath()))
+    {
+        QMessageBox::critical(nullptr,
+                              tr("Load Memory Config File Failed"),
+                              tr("Failed to load config file: %1")
+                                  .arg(getMemoryConfigFilePath()));
+        return false;
+    }
+
+    if(!loadAsr(getAsrConfigFilePath()))
+    {
+        QMessageBox::critical(
+            nullptr,
+            tr("Load ASR Config File Failed"),
+            tr("Failed to load config file: %1").arg(getAsrConfigFilePath()));
+        return false;
+    }
+
+    return true;
 }
 
 bool Config::load(const QString &filepath)
@@ -165,6 +214,8 @@ bool Config::load(const QString &filepath)
         for(auto typ : arr)
             m_supportedDocTypes.insert(typ.toString());
     }
+
+    emit SignalConfigUpdate();
     return true;
 }
 
@@ -193,6 +244,7 @@ bool Config::loadModel(const QString &filepath)
     }
 
     m_modelArr = doc.array();
+    emit SignalModelConfigUpdate();
     return true;
 }
 
@@ -221,6 +273,36 @@ bool Config::loadMemory(const QString &filepath)
     }
 
     m_memoryArr = doc.array();
+    emit SignalMemoryConfigUpdate();
+    return true;
+}
+
+bool Config::loadAsr(const QString &filepath)
+{
+    QFile         readFile(filepath);
+    QJsonDocument doc;
+    if(readFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray      data = readFile.readAll();
+        QJsonParseError parseError;
+        doc = QJsonDocument::fromJson(data, &parseError);
+        if(parseError.error != QJsonParseError::NoError || !doc.isArray())
+        {
+            qDebug() << "Failed to parse JSON from asr config file: "
+                     << filepath
+                     << ", with parse error:" << parseError.errorString();
+            return false;
+        }
+        readFile.close();
+    } else
+    {
+        qDebug() << "Failed to open asr config file for reading: "
+                 << readFile.errorString();
+        return false;
+    }
+
+    m_asrArr = doc.array();
+    emit SignalAsrConfigUpdate();
     return true;
 }
 
@@ -261,6 +343,23 @@ bool Config::saveModel(const QString &filepath)
 bool Config::saveMemory(const QString &filepath)
 {
     QJsonDocument doc(m_memoryArr);
+    QFile         saveFile(filepath);
+    if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for writing: "
+                 << saveFile.errorString();
+        return false;
+    }
+
+    QTextStream out(&saveFile);
+    out << doc.toJson(QJsonDocument::Indented);
+    saveFile.close();
+    return true;
+}
+
+bool Config::saveAsr(const QString &filepath)
+{
+    QJsonDocument doc(m_asrArr);
     QFile         saveFile(filepath);
     if(!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -320,181 +419,71 @@ QVector<QString> Config::getPluginUploadUrls()
 QVector<Bus::AudioParam> Config::getBusAudioParams()
 {
     QVector<Bus::AudioParam> params;
-    for(const auto &param : audioTranslatorParams())
+    for(auto item : m_asrArr)
     {
+        QJsonObject     obj = item.toObject();
         Bus::AudioParam audioParam;
-        audioParam.translatorId       = param.id;
-        audioParam.minNewSampleSize   = param.minNewSampleSize;
-        audioParam.minAudioBufferSize = param.minAudioBufferSize;
-        audioParam.maxAudioBufferSize = param.maxAudioBufferSize;
+        audioParam.translatorId       = obj["id"].toString("");
+        audioParam.minNewSampleSize   = obj["min_new_sample_size"].toInt();
+        audioParam.minAudioBufferSize = obj["min_audio_buffer_size"].toInt();
+        audioParam.maxAudioBufferSize = obj["max_audio_buffer_size"].toInt();
         params.append(audioParam);
     }
     return params;
 }
 
-Config::TranslatorParam Config::getDefaultAudioTranslatorParam()
+Config::AsrParam Config::getDefaultAsrParam()
 {
-    auto params = Config::Instance().audioTranslatorParams();
-    if(!params.isEmpty())
-        return params.first();
-
-    Config::TranslatorParam param;
+    Config::AsrParam param;
     param.id = "";
+    if(m_asrArr.isEmpty())
+        return param;
+
+    _convert(param, m_asrArr.first().toObject());
     return param;
 }
 
-Config::TranslatorParam Config::getAudioTranslatorParamById(const QString &id)
+Config::AsrParam Config::getAsrParamById(const QString &id)
 {
-    // TODO optimise performance later
-    for(const auto &param : audioTranslatorParams())
+    Config::AsrParam param;
+    param.id = "";
+    for(const auto &asr : m_asrArr)
     {
-        if(param.id == id)
-            return param;
+        auto obj = asr.toObject();
+        if(!obj.contains("id") || obj["id"].toString() != id)
+            continue;
+
+        _convert(param, obj);
+        return param;
     }
 
-    Config::TranslatorParam param;
-    param.id = "";
     return param;
 }
 
-QVector<Config::TranslatorParam> Config::audioTranslatorParams()
+QVector<Config::AsrParam> Config::getAsrParams()
 {
-    QVector<Config::TranslatorParam> params;
-    if(m_rootObj.isEmpty())
-        return params;
-
-    if(!m_rootObj.contains(KEY_TRANSLATOR_CONFIG)
-       || !m_rootObj[KEY_TRANSLATOR_CONFIG].isArray())
+    QVector<Config::AsrParam> params;
+    for(int i = 0; i < m_asrArr.size(); ++i)
     {
-        qDebug() << "Config file does not contain 'translators' array.";
-        return params;
-    }
-
-    QJsonArray arr = m_rootObj[KEY_TRANSLATOR_CONFIG].toArray();
-    for(int i = 0; i < arr.size(); ++i)
-    {
-        Config::TranslatorParam param;
-        auto                    obj = arr[i].toObject();
-        param.id                    = obj["id"].toString();
-
-        // full param
-        param.nThreads    = obj["n_threads"].toInt();
-        param.nMaxTextCtx = obj["n_max_text_ctx"].toInt();
-        param.offsetMs    = obj["offset_ms"].toInt();
-        param.durationMs  = obj["duration_ms"].toInt();
-
-        param.translate      = obj["translate"].toBool(false);
-        param.detectLanguage = obj["detect_language"].toBool(true);
-        param.language       = obj["language"].toString("auto");
-
-        param.noCtx              = obj["no_ctx"].toBool(true);
-        param.noTimestamps       = obj["no_timestamps"].toBool(false);
-        param.singleSegment      = obj["single_segment"].toBool(false);
-        param.printSpecial       = obj["print_special"].toBool(false);
-        param.printProgress      = obj["print_progress"].toBool(false);
-        param.printRealtime      = obj["print_realtime"].toBool(false);
-        param.printTimestamps    = obj["print_timestamps"].toBool(false);
-        param.carryInitialPrompt = obj["carry_initial_prompt"].toBool(false);
-        param.initialPrompt      = obj["initial_prompt"].toString("");
-        param.suppressRegex      = obj["suppress_regex"].toString("");
-        param.suppressBlank      = obj["suppress_blank"].toBool(true);
-        param.suppressNst        = obj["suppress_nst"].toBool(false);
-
-        param.temperature    = obj["temperature"].toDouble();
-        param.temperatureInc = obj["temperature_inc"].toDouble();
-
-        param.maxInitialTs  = obj["max_initial_ts"].toDouble();
-        param.lengthPenalty = obj["length_penalty"].toDouble();
-        param.entropyThold  = obj["entropy_thold"].toDouble();
-        param.logprobThold  = obj["logprob_thold"].toDouble();
-        param.noSpeechThold = obj["no_speech_thold"].toDouble();
-
-        param.vad                 = obj["vad"].toBool(false);
-        param.vadModelPath        = obj["vad_model_path"].toString("");
-        auto vadObj               = obj["vad_params"].toObject();
-        param.vadParams.threshold = vadObj["threshold"].toDouble();
-        param.vadParams.minSpeechDurMs =
-            vadObj["min_speech_duration_ms"].toInt();
-        param.vadParams.minSilenceDurMs =
-            vadObj["min_silence_duration_ms"].toInt();
-        param.vadParams.maxSpeechDurS =
-            vadObj["max_speech_duration_s"].toDouble();
-        param.vadParams.speechPadMs    = vadObj["speech_pad_ms"].toInt();
-        param.vadParams.samplesOverlap = vadObj["samples_overlap"].toDouble();
-
-        // mute control
-        param.minAudioBufferSize = obj["min_audio_buffer_size"].toInt();
-        param.maxAudioBufferSize = obj["max_audio_buffer_size"].toInt();
-        param.minNewSampleSize   = obj["min_new_sample_size"].toInt();
-
+        Config::AsrParam param;
+        auto             obj = m_asrArr[i].toObject();
+        _convert(param, obj);
         params.append(param);
     }
     return params;
 }
 
-void Config::setAudioTranslatorParams(QVector<Config::TranslatorParam> &params)
+void Config::setAsrParams(QVector<Config::AsrParam> &params)
 {
-    QJsonArray arr;
+    m_asrArr = QJsonArray();
     for(auto param : params)
     {
         QJsonObject obj;
-        obj["id"] = param.id;
-
-        // full param
-        obj["n_threads"]      = param.nThreads;
-        obj["n_max_text_ctx"] = param.nMaxTextCtx;
-        obj["offset_ms"]      = param.offsetMs;
-        obj["duration_ms"]    = param.durationMs;
-
-        obj["translate"]       = param.translate;
-        obj["detect_language"] = param.detectLanguage;
-        obj["language"]        = param.language;
-
-        obj["no_ctx"]               = param.noCtx;
-        obj["no_timestamps"]        = param.noTimestamps;
-        obj["single_segment"]       = param.singleSegment;
-        obj["print_special"]        = param.printSpecial;
-        obj["print_progress"]       = param.printProgress;
-        obj["print_realtime"]       = param.printRealtime;
-        obj["print_timestamps"]     = param.printTimestamps;
-        obj["carry_initial_prompt"] = param.carryInitialPrompt;
-        obj["initial_prompt"]       = param.initialPrompt;
-        obj["suppress_regex"]       = param.suppressRegex;
-        obj["suppress_blank"]       = param.suppressBlank;
-        obj["suppress_nst"]         = param.suppressNst;
-
-        obj["temperature"]     = QString::number(param.temperature, 'f', 1);
-        obj["temperature_inc"] = QString::number(param.temperatureInc, 'f', 1);
-
-        obj["max_initial_ts"]  = QString::number(param.maxInitialTs, 'f', 1);
-        obj["length_penalty"]  = QString::number(param.lengthPenalty, 'f', 1);
-        obj["entropy_thold"]   = QString::number(param.entropyThold, 'f', 1);
-        obj["logprob_thold"]   = QString::number(param.logprobThold, 'f', 1);
-        obj["no_speech_thold"] = QString::number(param.noSpeechThold, 'f', 1);
-
-        obj["vad"]            = param.vad;
-        obj["vad_model_path"] = param.vadModelPath;
-        QJsonObject vadObj;
-        vadObj["threshold"] =
-            QString::number(param.vadParams.threshold, 'f', 1);
-        vadObj["min_speech_duration_ms"]  = param.vadParams.minSpeechDurMs;
-        vadObj["min_silence_duration_ms"] = param.vadParams.minSilenceDurMs;
-        vadObj["max_speech_duration_s"] =
-            QString::number(param.vadParams.maxSpeechDurS, 'f', 1);
-        vadObj["speech_pad_ms"] = param.vadParams.speechPadMs;
-        vadObj["samples_overlap"] =
-            QString::number(param.vadParams.samplesOverlap, 'f', 1);
-        obj["vad_params"] = vadObj;
-
-        // mute control
-        obj["min_audio_buffer_size"] = param.minAudioBufferSize;
-        obj["max_audio_buffer_size"] = param.maxAudioBufferSize;
-        obj["min_new_sample_size"]   = param.minNewSampleSize;
-
-        arr.append(obj);
+        _convert(obj, param);
+        m_asrArr.append(obj);
     }
 
-    m_rootObj[KEY_TRANSLATOR_CONFIG] = arr;
+    emit SignalAsrConfigUpdate();
 }
 
 QVector<Config::NetworkConfig> Config::networkConfigs()
@@ -535,6 +524,8 @@ void Config::setNetworkConfigs(QVector<Config::NetworkConfig> &configs)
         arr.append(obj);
     }
     m_rootObj[KEY_NETWORK_CONFIG] = arr;
+
+    emit SignalConfigUpdate();
 }
 
 Config::ModelConfig Config::getModelConfigById(const QString &id)
@@ -647,6 +638,8 @@ void Config::setModelConfigs(QVector<Config::ModelConfig> &configs)
 
         m_modelArr.append(obj);
     }
+
+    emit SignalModelConfigUpdate();
 }
 
 void Config::_convert(Config::ModelConfig &config, const QJsonObject &obj)
@@ -713,6 +706,112 @@ void Config::_convert(Config::ModelConfig &config, const QJsonObject &obj)
 
     // prompt
     config.prompt = obj["prompt"].toString();
+}
+
+void Config::_convert(Config::AsrParam &param, const QJsonObject &obj)
+{
+    param.id = obj["id"].toString();
+
+    // full param
+    param.nThreads    = obj["n_threads"].toInt();
+    param.nMaxTextCtx = obj["n_max_text_ctx"].toInt();
+    param.offsetMs    = obj["offset_ms"].toInt();
+    param.durationMs  = obj["duration_ms"].toInt();
+
+    param.translate      = obj["translate"].toBool(false);
+    param.detectLanguage = obj["detect_language"].toBool(true);
+    param.language       = obj["language"].toString("auto");
+
+    param.noCtx              = obj["no_ctx"].toBool(true);
+    param.noTimestamps       = obj["no_timestamps"].toBool(false);
+    param.singleSegment      = obj["single_segment"].toBool(false);
+    param.printSpecial       = obj["print_special"].toBool(false);
+    param.printProgress      = obj["print_progress"].toBool(false);
+    param.printRealtime      = obj["print_realtime"].toBool(false);
+    param.printTimestamps    = obj["print_timestamps"].toBool(false);
+    param.carryInitialPrompt = obj["carry_initial_prompt"].toBool(false);
+    param.initialPrompt      = obj["initial_prompt"].toString("");
+    param.suppressRegex      = obj["suppress_regex"].toString("");
+    param.suppressBlank      = obj["suppress_blank"].toBool(true);
+    param.suppressNst        = obj["suppress_nst"].toBool(false);
+
+    param.temperature    = obj["temperature"].toDouble();
+    param.temperatureInc = obj["temperature_inc"].toDouble();
+
+    param.maxInitialTs  = obj["max_initial_ts"].toDouble();
+    param.lengthPenalty = obj["length_penalty"].toDouble();
+    param.entropyThold  = obj["entropy_thold"].toDouble();
+    param.logprobThold  = obj["logprob_thold"].toDouble();
+    param.noSpeechThold = obj["no_speech_thold"].toDouble();
+
+    param.vad                       = obj["vad"].toBool(false);
+    param.vadModelPath              = obj["vad_model_path"].toString("");
+    auto vadObj                     = obj["vad_params"].toObject();
+    param.vadParams.threshold       = vadObj["threshold"].toDouble();
+    param.vadParams.minSpeechDurMs  = vadObj["min_speech_duration_ms"].toInt();
+    param.vadParams.minSilenceDurMs = vadObj["min_silence_duration_ms"].toInt();
+    param.vadParams.maxSpeechDurS  = vadObj["max_speech_duration_s"].toDouble();
+    param.vadParams.speechPadMs    = vadObj["speech_pad_ms"].toInt();
+    param.vadParams.samplesOverlap = vadObj["samples_overlap"].toDouble();
+
+    // mute control
+    param.minAudioBufferSize = obj["min_audio_buffer_size"].toInt();
+    param.maxAudioBufferSize = obj["max_audio_buffer_size"].toInt();
+    param.minNewSampleSize   = obj["min_new_sample_size"].toInt();
+}
+
+void Config::_convert(QJsonObject &obj, const Config::AsrParam &param)
+{
+    // full param
+    obj["id"]             = param.id;
+    obj["n_threads"]      = param.nThreads;
+    obj["n_max_text_ctx"] = param.nMaxTextCtx;
+    obj["offset_ms"]      = param.offsetMs;
+    obj["duration_ms"]    = param.durationMs;
+
+    obj["translate"]       = param.translate;
+    obj["detect_language"] = param.detectLanguage;
+    obj["language"]        = param.language;
+
+    obj["no_ctx"]               = param.noCtx;
+    obj["no_timestamps"]        = param.noTimestamps;
+    obj["single_segment"]       = param.singleSegment;
+    obj["print_special"]        = param.printSpecial;
+    obj["print_progress"]       = param.printProgress;
+    obj["print_realtime"]       = param.printRealtime;
+    obj["print_timestamps"]     = param.printTimestamps;
+    obj["carry_initial_prompt"] = param.carryInitialPrompt;
+    obj["initial_prompt"]       = param.initialPrompt;
+    obj["suppress_regex"]       = param.suppressRegex;
+    obj["suppress_blank"]       = param.suppressBlank;
+    obj["suppress_nst"]         = param.suppressNst;
+
+    obj["temperature"]     = QString::number(param.temperature, 'f', 1);
+    obj["temperature_inc"] = QString::number(param.temperatureInc, 'f', 1);
+
+    obj["max_initial_ts"]  = QString::number(param.maxInitialTs, 'f', 1);
+    obj["length_penalty"]  = QString::number(param.lengthPenalty, 'f', 1);
+    obj["entropy_thold"]   = QString::number(param.entropyThold, 'f', 1);
+    obj["logprob_thold"]   = QString::number(param.logprobThold, 'f', 1);
+    obj["no_speech_thold"] = QString::number(param.noSpeechThold, 'f', 1);
+
+    obj["vad"]            = param.vad;
+    obj["vad_model_path"] = param.vadModelPath;
+    QJsonObject vadObj;
+    vadObj["threshold"] = QString::number(param.vadParams.threshold, 'f', 1);
+    vadObj["min_speech_duration_ms"]  = param.vadParams.minSpeechDurMs;
+    vadObj["min_silence_duration_ms"] = param.vadParams.minSilenceDurMs;
+    vadObj["max_speech_duration_s"] =
+        QString::number(param.vadParams.maxSpeechDurS, 'f', 1);
+    vadObj["speech_pad_ms"] = param.vadParams.speechPadMs;
+    vadObj["samples_overlap"] =
+        QString::number(param.vadParams.samplesOverlap, 'f', 1);
+    obj["vad_params"] = vadObj;
+
+    // mute control
+    obj["min_audio_buffer_size"] = param.minAudioBufferSize;
+    obj["max_audio_buffer_size"] = param.maxAudioBufferSize;
+    obj["min_new_sample_size"]   = param.minNewSampleSize;
 }
 
 QString Config::getDefaultIndexPath()
@@ -803,4 +902,6 @@ void Config::setMemoryConfigs(QVector<Config::MemoryConfig> &configs)
         obj["encoding"]           = config.encoding;
         m_memoryArr.append(obj);
     }
+
+    emit SignalMemoryConfigUpdate();
 }

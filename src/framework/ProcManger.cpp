@@ -34,7 +34,7 @@ ProcManager::~ProcManager()
 
 void ProcManager::init()
 {
-    if(!Config::Instance().isCoreRun())
+    if(!Config::instance()->isCoreRun())
     {
         qDebug() << "Core process is disabled in config.";
         return;
@@ -62,10 +62,10 @@ void ProcManager::init()
     // for macos working directory is not current dir
     m_pCore->setWorkingDirectory(QCoreApplication::applicationDirPath());
 
-    QString           program   = Config::getCoreFile();
+    QString           program   = Config::getCoreExeFilePath();
     const QStringList arguments = {QStringLiteral("run"),
                                    QStringLiteral("--config"),
-                                   Config::getCoreConfig()};
+                                   Config::getCoreConfigFilePath()};
 
     m_pCore->start(program, arguments);
     qDebug() << program << arguments;

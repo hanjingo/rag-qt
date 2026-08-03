@@ -245,7 +245,7 @@ void HomePageWidget::_slotSessionCtlBtnGroupClicked(int id)
     {
         case 0: { // add session
             qDebug() << "Add session button clicked.";
-            auto             confs = Config::Instance().modelConfigs();
+            auto             confs = Config::instance()->modelConfigs();
             QVector<QString> models;
             for(const auto &conf : confs)
                 models.append(conf.name);

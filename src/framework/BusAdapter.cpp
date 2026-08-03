@@ -201,7 +201,7 @@ void BusAdapter::_slotQueryFromBus(const int64_t         sessionId,
 {
     qDebug() << "Received Bus Query signal from Bus. sessionId: " << sessionId
              << ", query: " << query;
-    auto conf          = Config::Instance().getModelConfigById(info.id);
+    auto conf          = Config::instance()->getModelConfigById(info.id);
     conf.pipeline      = info.pipeline;
     conf.hash          = info.hash;
     conf.ctxWindowSize = info.ctxWindowSize;
@@ -256,9 +256,9 @@ void BusAdapter::_slotAudioTranslate(const qint64      sessionId,
     qDebug() << "Receive Bus Audio Translate signal from Bus. session_id: "
              << sessionId << ", translatorId: " << translatorId;
 
-    auto param = Config::Instance().getAudioTranslatorParamById(translatorId);
+    auto param = Config::instance()->getAsrParamById(translatorId);
     if(param.id.isEmpty())
-        param = Config::Instance().getDefaultAudioTranslatorParam();
+        param = Config::instance()->getDefaultAsrParam();
 
     GrpcClient::Instance()->Recognize(sessionId,
                                       Account::Instance()->Id(),

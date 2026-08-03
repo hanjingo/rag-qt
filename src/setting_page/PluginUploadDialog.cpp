@@ -271,7 +271,7 @@ bool PluginUploadDialog::_parsePackedFile(Bus::Plugin   &conf,
     conf.hash = QString(SHA256::hashFile(packedFilePath).toHex());
 
     // unpack to temp folder
-    QString tmpPath = Config::getPluginFilePath() + "/"
+    QString tmpPath = Config::instance()->getPluginFilePath() + "/"
                       + QString::number(hj::uuid::gen_u64());
     Zipper  zipper;
     if(!zipper.unZip(tmpPath, packedFilePath))

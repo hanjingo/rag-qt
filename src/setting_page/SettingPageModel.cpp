@@ -38,8 +38,8 @@ SettingPageModel::SettingPageModel(QWidget *parent)
 {
     ui->setupUi(this);
 
-    _initUI();
     _initConnections();
+    _initUI();
 }
 
 SettingPageModel::~SettingPageModel()
@@ -132,8 +132,6 @@ void SettingPageModel::_initUI()
     ui->tbviewModel->setSelectionBehavior(QAbstractItemView::SelectRows);
     _refreshModelTable(true);
 
-    auto confs = Config::Instance().modelConfigs();
-    _addModels(confs, "Staged");
     _retranslate();
 }
 
@@ -158,6 +156,11 @@ void SettingPageModel::_initConnections()
             &GrpcClient::SignalLoginResp,
             this,
             &SettingPageModel::_slotLoginResp);
+
+    connect(Config::instance(),
+            &Config::SignalModelConfigUpdate,
+            this,
+            &SettingPageModel::_slotModelConfigUpdate);
 }
 
 void SettingPageModel::_refreshModelTable(bool clearFirst)
@@ -191,6 +194,14 @@ void SettingPageModel::_refreshModelTable(bool clearFirst)
     ui->tbviewModel->hideColumn(8);  // hide hash column
     ui->tbviewModel->hideColumn(10); // hide stop words column
     ui->tbviewModel->hideColumn(11); // hide prompt column
+}
+
+void SettingPageModel::_clearModels()
+{
+    if(m_pLLMListModel == nullptr)
+        return;
+
+    m_pLLMListModel->clear();
 }
 
 void SettingPageModel::_addModels(const QVector<Config::ModelConfig> &configs,
@@ -228,37 +239,7 @@ void SettingPageModel::_addModels(const QVector<Config::ModelConfig> &configs,
     }
 
     // notify bus
-    auto busModelInfos = _GetBusModelInfos();
-    emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
-}
-
-void SettingPageModel::_delModels(const QVector<QString> &hashs)
-{
-    if(m_pLLMListModel == nullptr)
-        return;
-
-    for(int i = m_pLLMListModel->rowCount() - 1; i >= 0; i--)
-    {
-        QStandardItem *pIdItem = m_pLLMListModel->item(i, 0);
-        if(pIdItem == nullptr)
-            continue;
-
-        auto hash = pIdItem->text();
-        if(hashs.contains(hash))
-            m_pLLMListModel->removeRow(i);
-    }
-
-    // save to config file
-    auto confs = Config::Instance().modelConfigs();
-    for(auto itr = confs.begin(); itr != confs.end(); ++itr)
-    {
-        if(hashs.contains(itr->hash))
-            itr = confs.erase(itr);
-    }
-    Config::Instance().setModelConfigs(confs);
-
-    // notify bus
-    auto busModelInfos = _GetBusModelInfos();
+    auto busModelInfos = _getBusModelInfos();
     emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(busModelInfos);
 }
 
@@ -353,26 +334,13 @@ void SettingPageModel::_setModels(const QVector<Config::ModelConfig> &configs,
             pTagItem->setText(tag);
     }
 
-    // save to config file
-    auto confs = Config::Instance().modelConfigs();
-    for(int i = 0; i < confs.size(); i++)
-    {
-        for(auto item : configs)
-        {
-            if(confs[i].id != item.id)
-                continue;
-
-            confs[i] = item;
-        }
-    }
-    Config::Instance().setModelConfigs(confs);
-
-    auto infos = _GetBusModelInfos();
+    // notify bus
+    auto infos = _getBusModelInfos();
     emit BusAdapter::Instance() -> SignalModelInfoUpdateNtf(infos);
 }
 
 QVector<Bus::ModelInfo>
-SettingPageModel::_GetBusModelInfos(const QVector<int> &rows)
+SettingPageModel::_getBusModelInfos(const QVector<int> &rows)
 {
     QVector<Bus::ModelInfo> ret;
     if(m_pLLMListModel == nullptr)
@@ -425,8 +393,8 @@ void SettingPageModel::_filterModelTable(const QString &filterText)
 
 void SettingPageModel::_saveModelConfigs()
 {
-    auto infos = _GetBusModelInfos();
-    auto confs = Config::Instance().modelConfigs();
+    auto infos = _getBusModelInfos();
+    auto confs = Config::instance()->modelConfigs();
     for(int i = 0; i < confs.size(); ++i)
     {
         for(auto info : infos)
@@ -448,12 +416,13 @@ void SettingPageModel::_saveModelConfigs()
             confs[i].prompt = info.prompt;
         }
     }
-    Config::Instance().setModelConfigs(confs);
-    Config::Instance().saveModel(Config::getModelConfigFilePath());
-    QMessageBox::information(this,
-                             tr("Save Successful"),
-                             tr("Model config exported to file: %1")
-                                 .arg(Config::getModelConfigFilePath()));
+    Config::instance()->setModelConfigs(confs);
+    Config::instance()->saveModel(Config::instance()->getModelConfigFilePath());
+    QMessageBox::information(
+        this,
+        tr("Save Successful"),
+        tr("Model config exported to file: %1")
+            .arg(Config::instance()->getModelConfigFilePath()));
 }
 
 void SettingPageModel::_importModelConfigs()
@@ -465,8 +434,8 @@ void SettingPageModel::_importModelConfigs()
                                      "",
                                      tr("Model Config Files (*.json)"));
 
-    Config::Instance().loadModel(filePath);
-    auto confs = Config::Instance().modelConfigs();
+    Config::instance()->loadModel(filePath);
+    auto confs = Config::instance()->modelConfigs();
     _addModels(confs, "Staged");
 }
 
@@ -492,7 +461,7 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
             Config::ModelConfig conf;
             if(!rows.empty())
             {
-                auto infos = _GetBusModelInfos(rows);
+                auto infos = _getBusModelInfos(rows);
                 if(!infos.empty())
                 {
                     auto info      = infos.at(0);
@@ -517,12 +486,10 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
             conf                     = dlg.GetConfig();
             if(result == QDialog::Accepted)
             {
-                _addModels({conf}, "Unstaged");
-
-                // save to config file
-                auto confs = Config::Instance().modelConfigs();
+                // save to global config
+                auto confs = Config::instance()->modelConfigs();
                 confs.append(conf);
-                Config::Instance().setModelConfigs(confs);
+                Config::instance()->setModelConfigs(confs);
             }
         }
         break;
@@ -530,54 +497,64 @@ void SettingPageModel::_slotModelCtlBtnGroupClicked(int id)
         {
             qDebug() << "Delete model button clicked";
             std::sort(rows.begin(), rows.end(), std::greater<int>());
-            foreach(int row, rows)
-                m_pLLMListModel->removeRow(row);
+            auto infos = _getBusModelInfos(rows);
+            if(rows.isEmpty() || infos.isEmpty())
+            {
+                QMessageBox::warning(
+                    this,
+                    tr("No Model Selected"),
+                    tr("Please select at least one model to configure."));
+                return;
+            }
+            QVector<QString> ids;
+            for(auto info : infos)
+                ids.append(info.id);
+
+            auto confs = Config::instance()->modelConfigs();
+            for(auto itr = confs.begin(); itr != confs.end(); ++itr)
+            {
+                if(ids.contains(itr->id))
+                    itr = confs.erase(itr);
+            }
+            Config::instance()->setModelConfigs(confs);
         }
         break;
         case 2: // setting
         {
             qDebug() << "Model setting button clicked";
-            if(rows.isEmpty())
+            auto infos = _getBusModelInfos(rows);
+            if(rows.isEmpty() || infos.isEmpty())
             {
-                QMessageBox::warning(this,
-                                     tr("No Model Selected"),
-                                     tr("Please select a model to configure."));
+                QMessageBox::warning(
+                    this,
+                    tr("No Model Selected"),
+                    tr("Please select at least one model to configure."));
                 return;
             }
-            auto infos = _GetBusModelInfos(rows);
-            if(infos.isEmpty())
-            {
-                QMessageBox::warning(this,
-                                     tr("No Model Configed"),
-                                     tr("Please select a model to configure."));
-                return;
-            }
-            auto id = infos.at(0).id;
+            QVector<QString> ids;
+            for(auto info : infos)
+                ids.append(info.id);
 
-            // get model conf info
-            auto                confs = Config::Instance().modelConfigs();
-            Config::ModelConfig conf;
-            for(auto item : confs)
-            {
-                if(item.id != id)
-                    continue;
-
-                conf = item;
-            }
+            auto              id   = ids.first();
+            auto              conf = Config::instance()->getModelConfigById(id);
             ModelConfigDialog dlg(conf, this);
             auto              result = dlg.exec();
             if(result != QDialog::Accepted)
                 return;
 
-            conf = dlg.GetConfig();
-            QVector<Config::ModelConfig> newConfs;
-            for(auto item : infos)
+            // update model conf info to global config
+            conf       = dlg.GetConfig();
+            auto confs = Config::instance()->modelConfigs();
+            for(auto item : confs)
             {
-                Config::ModelConfig newConf = conf;
-                newConf.id                  = item.id;
-                newConfs.append(newConf);
+                if(!ids.contains(item.id))
+                    continue;
+
+                id      = item.id;
+                item    = conf;
+                item.id = id; // do not set id value
             }
-            _setModels(newConfs, "Staged");
+            Config::instance()->setModelConfigs(confs);
         }
         break;
         case 3: // save
@@ -604,4 +581,14 @@ void SettingPageModel::_slotLoginResp(const int      errorCode,
                                       const QString &lastLoginTime,
                                       const bool     isForceUpdate)
 {
+    // TODO
+}
+
+void SettingPageModel::_slotModelConfigUpdate()
+{
+    qDebug() << "Model config update signal received.";
+    auto confs = Config::instance()->modelConfigs();
+
+    _clearModels();
+    _addModels(confs, "Staged");
 }

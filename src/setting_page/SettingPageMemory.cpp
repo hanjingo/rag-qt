@@ -33,8 +33,8 @@ SettingPageMemory::SettingPageMemory(QWidget *parent)
 {
     ui->setupUi(this);
 
-    _initUI();
     _initConnections();
+    _initUI();
 }
 
 SettingPageMemory::~SettingPageMemory()
@@ -87,7 +87,7 @@ void SettingPageMemory::_initUI()
     ui->tbviewMem->setSelectionBehavior(QAbstractItemView::SelectRows);
     _refreshMemTable(true);
 
-    auto confs = Config::Instance().memoryConfigs();
+    auto confs = Config::instance()->memoryConfigs();
     _addMemorys(confs, "Staged");
     _retranslate();
 }
@@ -117,6 +117,11 @@ void SettingPageMemory::_initConnections()
             &GrpcClient::SignalStopEmbeddingResp,
             this,
             &SettingPageMemory::_slotEmbeddingStopResp);
+
+    connect(Config::instance(),
+            &Config::SignalMemoryConfigUpdate,
+            this,
+            &SettingPageMemory::_slotMemoryConfigUpdate);
 }
 
 void SettingPageMemory::_refreshMemTable(bool clearFirst)
@@ -135,6 +140,14 @@ void SettingPageMemory::_refreshMemTable(bool clearFirst)
     m_pMemListModel->setHeaderData(3, Qt::Horizontal, tr("Origin File Path"));
     m_pMemListModel->setHeaderData(4, Qt::Horizontal, tr("Dimension"));
     m_pMemListModel->setHeaderData(5, Qt::Horizontal, tr("Flag"));
+}
+
+void SettingPageMemory::_clearMemorys()
+{
+    if(m_pMemListModel == nullptr)
+        return;
+
+    m_pMemListModel->clear();
 }
 
 void SettingPageMemory::_addMemorys(
@@ -186,15 +199,6 @@ void SettingPageMemory::_delMemorys(const QVector<QString> &hashs)
         if(hashs.contains(hash))
             m_pMemListModel->removeRow(i);
     }
-
-    // save to config file
-    auto confs = Config::Instance().memoryConfigs();
-    for(auto itr = confs.begin(); itr != confs.end(); ++itr)
-    {
-        if(hashs.contains(itr->indexFilePath))
-            itr = confs.erase(itr);
-    }
-    Config::Instance().setMemoryConfigs(confs);
 
     // notify bus
     auto busModelInfos = GetBusMemoryInfos();
@@ -258,20 +262,6 @@ void SettingPageMemory::_setMemorys(
             pFlagItem->setText(tag);
     }
 
-    // save to config file
-    auto confs = Config::Instance().memoryConfigs();
-    for(int i = 0; i < confs.size(); i++)
-    {
-        for(auto item : configs)
-        {
-            if(confs[i].id != item.id)
-                continue;
-
-            confs[i] = item;
-        }
-    }
-    Config::Instance().setMemoryConfigs(confs);
-
     // notify bus
     auto busModelInfos = GetBusMemoryInfos();
     emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(busModelInfos);
@@ -326,9 +316,9 @@ void SettingPageMemory::_slotMemCtlBtnGroupClicked(int id)
             if(result == QDialog::Accepted)
             {
                 conf       = dlg->GetConfig();
-                auto confs = Config::Instance().memoryConfigs();
+                auto confs = Config::instance()->memoryConfigs();
                 confs.append(conf);
-                Config::Instance().setMemoryConfigs(confs);
+                Config::instance()->setMemoryConfigs(confs);
 
                 _addMemorys({conf}, "Unstaged");
             }
@@ -362,8 +352,13 @@ void SettingPageMemory::_slotMemCtlBtnGroupClicked(int id)
                     tr("Please select a memory to configure."));
                 return;
             }
-            auto id   = infos.first().id;
-            auto conf = Config::Instance().getMemoryConfigById(id);
+
+            QVector<QString> ids;
+            for(auto info : infos)
+                ids.append(info.id);
+
+            auto id   = ids.first();
+            auto conf = Config::instance()->getMemoryConfigById(id);
             if(conf.id.isEmpty())
             {
                 QMessageBox::warning(
@@ -377,15 +372,18 @@ void SettingPageMemory::_slotMemCtlBtnGroupClicked(int id)
             auto                result = dlg->exec();
             if(result == QDialog::Accepted)
             {
-                conf = dlg->GetConfig();
-                QVector<Config::MemoryConfig> newConfs;
-                for(auto item : infos)
+                conf       = dlg->GetConfig();
+                auto confs = Config::instance()->memoryConfigs();
+                for(auto &item : confs)
                 {
-                    Config::MemoryConfig newConf = conf;
-                    newConf.id                   = item.id;
-                    newConfs.append(newConf);
+                    if(!ids.contains(item.id))
+                        continue;
+
+                    auto tmpId = item.id;
+                    item       = conf;
+                    item.id    = tmpId;
                 }
-                _setMemorys(newConfs, "Staged");
+                Config::instance()->setMemoryConfigs(confs);
             }
             delete dlg;
         }
@@ -417,7 +415,7 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
                 return true;
 
             auto suffix = info.suffix().toLower();
-            auto types  = Config::Instance().getSupportedDocTypes();
+            auto types  = Config::instance()->getSupportedDocTypes();
             if(types.contains(suffix))
             {
                 files.append(info.absoluteFilePath());
@@ -608,6 +606,14 @@ void SettingPageMemory::_slotEmbeddingStopResp(const int     errorCode,
     qDebug() << "Embedding stop response success, taskId: " << taskId;
 }
 
+void SettingPageMemory::_slotMemoryConfigUpdate()
+{
+    qDebug() << "Memory config updated, refreshing memory table.";
+    auto confs = Config::instance()->memoryConfigs();
+    _clearMemorys();
+    _addMemorys(confs, "Staged");
+}
+
 QVector<Bus::MemoryInfo> SettingPageMemory::GetBusMemoryInfos()
 {
     QVector<Bus::MemoryInfo> ret;
@@ -651,7 +657,7 @@ SettingPageMemory::_getMemoryInfos(const QVector<int> &rows)
             continue;
 
         auto                 id   = m_pMemListModel->item(i, 0)->text();
-        Config::MemoryConfig conf = Config::Instance().getMemoryConfigById(id);
+        Config::MemoryConfig conf = Config::instance()->getMemoryConfigById(id);
 
         conf.indexFilePath  = m_pMemListModel->item(i, 1)->text();
         conf.metaFilePath   = m_pMemListModel->item(i, 2)->text();
@@ -666,7 +672,7 @@ SettingPageMemory::_getMemoryInfos(const QVector<int> &rows)
 void SettingPageMemory::_saveMemoryConfigs()
 {
     auto infos = _getMemoryInfos({});
-    auto confs = Config::Instance().memoryConfigs();
+    auto confs = Config::instance()->memoryConfigs();
     for(int i = 0; i < confs.size(); ++i)
     {
         for(auto info : infos)
@@ -680,12 +686,14 @@ void SettingPageMemory::_saveMemoryConfigs()
             confs[i].dimension      = info.dimension;
         }
     }
-    Config::Instance().setMemoryConfigs(confs);
-    Config::Instance().saveMemory(Config::getMemoryConfigFilePath());
-    QMessageBox::information(this,
-                             tr("Save Successful"),
-                             tr("Memory config exported to file: %1")
-                                 .arg(Config::getMemoryConfigFilePath()));
+    Config::instance()->setMemoryConfigs(confs);
+    Config::instance()->saveMemory(
+        Config::instance()->getMemoryConfigFilePath());
+    QMessageBox::information(
+        this,
+        tr("Save Successful"),
+        tr("Memory config exported to file: %1")
+            .arg(Config::instance()->getMemoryConfigFilePath()));
 }
 
 void SettingPageMemory::_importMemoryConfigs()
@@ -697,8 +705,8 @@ void SettingPageMemory::_importMemoryConfigs()
                                      "",
                                      tr("Memory Config Files (*.json)"));
 
-    Config::Instance().loadMemory(filePath);
-    auto confs = Config::Instance().memoryConfigs();
+    Config::instance()->loadMemory(filePath);
+    auto confs = Config::instance()->memoryConfigs();
     _addMemorys(confs, "Staged");
 }
 

@@ -481,8 +481,8 @@ void SettingPageHistory::_retranslate()
     ui->btnImport->setText(tr("Import"));
     ui->btnSearch->setText(tr("Search"));
 
-    ui->lblChatDate->setText(tr("Start Date:"));
-    ui->lblChatDateTo->setText(tr("End Date:"));
+    ui->lblChatDate->setText(tr("Chat Date:"));
+    // ui->lblChatDateTo->setText(tr("End Date:"));
 
     _refreshHistoryTable();
 }

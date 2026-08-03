@@ -168,12 +168,8 @@
         <translation>Search</translation>
     </message>
     <message>
-        <source>Start Date:</source>
-        <translation>Start Date:</translation>
-    </message>
-    <message>
-        <source>End Date:</source>
-        <translation>End Date:</translation>
+        <source>Chat Date:</source>
+        <translation>Chat Date:</translation>
     </message>
     <message>
         <source>Date Time</source>
@@ -356,6 +352,44 @@
         <source>Initial Prompt</source>
         <translation>Initial Prompt</translation>
     </message>
+
+    <message>
+        <source>Voice Activity Detection</source>
+        <translation>Voice Activity Detection</translation>
+    </message>
+    <message>
+        <source>Enable</source>
+        <translation>Enable</translation>
+    </message>
+    <message>
+        <source>Model Path</source>
+        <translation>Model Path</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Threshold</translation>
+    </message>
+    <message>
+        <source>Min Speech Dur Ms</source>
+        <translation>Min Speech Dur Ms</translation>
+    </message>
+    <message>
+        <source>Min Silence Dur Ms</source>
+        <translation>Min Silence Dur Ms</translation>
+    </message>
+    <message>
+        <source>Max Speech Dur S</source>
+        <translation>Max Speech Dur S</translation>
+    </message>
+    <message>
+        <source>Speech Pad Ms</source>
+        <translation>Speech Pad Ms</translation>
+    </message>
+    <message>
+        <source>Samples Overlap</source>
+        <translation>Samples Overlap</translation>
+    </message>
+
     <message>
         <source>Buffer Control</source>
         <translation>Buffer Control</translation>

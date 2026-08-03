@@ -37,26 +37,25 @@ class SettingPageModel : public QWidget
   private slots:
     void _slotEditFilterTextChanged(const QString &content);
     void _slotModelCtlBtnGroupClicked(int id);
-
     void _slotLoginResp(const int      errorCode,
                         const int64_t  userId,
                         const QString &auth,
                         const QString &account,
                         const QString &lastLoginTime,
                         const bool     isForceUpdate);
+    void _slotModelConfigUpdate();
 
   private:
     void _initUI();
     void _initConnections();
     void _retranslate();
-
+    void _clearModels();
     void _addModels(const QVector<Config::ModelConfig> &configs,
                     const QString                      &tag = "Staged");
-    void _delModels(const QVector<QString> &hashs);
     void _setModels(const QVector<Config::ModelConfig> &configs,
                     const QString                      &tag = "Staged");
 
-    QVector<Bus::ModelInfo> _GetBusModelInfos(const QVector<int> &rows = {});
+    QVector<Bus::ModelInfo> _getBusModelInfos(const QVector<int> &rows = {});
     void                    _saveModelConfigs();
     void                    _importModelConfigs();
     void                    _refreshModelTable(bool clearFirst = false);

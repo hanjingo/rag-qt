@@ -104,7 +104,7 @@ void PluginConfigDialog::_slotBtnUnPackClicked()
         return;
     }
 
-    QString destDir = Config::getPluginFilePath();
+    QString destDir = Config::instance()->getPluginFilePath();
     Zipper  zipper;
     if(!zipper.unZip(destDir, packPath))
     {

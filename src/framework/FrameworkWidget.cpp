@@ -31,6 +31,7 @@
 #include "AudioMgr.h"
 #include "Config.h"
 #include "Upgrade.h"
+#include "Global.h"
 
 FrameworkWidget *FrameworkWidget::m_stFrameworkWidgetInst = nullptr;
 
@@ -430,21 +431,21 @@ void FrameworkWidget::_slotComboLangCurrentChanged(int iIndex)
         {
             qDebug() << "Switching to Chinese.";
             m_pTranslator->load(":/languages/zh_CN");
-            emit Bus::Instance() -> SignalLanguageSwitch("zh_CN");
+            emit Bus::Instance() -> SignalLanguageSwitch(LANG_ZH_CN);
         }
         break;
         case 1: // English
         {
             qDebug() << "Switching to English.";
             m_pTranslator->load(":/languages/en_UK");
-            emit Bus::Instance() -> SignalLanguageSwitch("en_UK");
+            emit Bus::Instance() -> SignalLanguageSwitch(LANG_EN_UK);
         }
         break;
         case 2: // German
         {
             qDebug() << "Switching to German.";
             m_pTranslator->load(":/languages/de_DE");
-            emit Bus::Instance() -> SignalLanguageSwitch("de_DE");
+            emit Bus::Instance() -> SignalLanguageSwitch(LANG_DE_DE);
         }
         break;
         default:
@@ -482,7 +483,7 @@ void FrameworkWidget::_slotPluginLoaded(PluginInterface *plugin,
     emit BusAdapter::Instance() -> SignalMemoryInfoUpdateNtf(memInfos);
 
     // update audio param
-    auto params = Config::Instance().getBusAudioParams();
+    auto params = Config::instance()->getBusAudioParams();
     emit BusAdapter::Instance() -> SignalAudioParamUpdateNtf(params);
     if(wgt)
     {
@@ -552,7 +553,7 @@ void FrameworkWidget::_initProcMgr()
 void FrameworkWidget::_initPluginMgr()
 {
     // scan plugins in the "plugins" directory relative to the executable
-    QDir dir = Config::Instance().getPluginFilePath();
+    QDir dir = Config::instance()->getPluginFilePath();
     if(!dir.exists())
     {
         // create the plugins directory if it doesn't exist
@@ -786,7 +787,7 @@ void FrameworkWidget::_initTimer()
 
 void FrameworkWidget::_initServer()
 {
-    auto confs = Config::Instance().networkConfigs();
+    auto confs = Config::instance()->networkConfigs();
     for(const auto &conf : confs)
     {
         if(!conf.isEnable)

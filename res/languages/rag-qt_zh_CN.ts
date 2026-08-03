@@ -168,12 +168,8 @@
         <translation>搜索</translation>
     </message>
     <message>
-        <source>Start Date:</source>
-        <translation>开始日期：</translation>
-    </message>
-    <message>
-        <source>End Date:</source>
-        <translation>结束日期：</translation>
+        <source>Chat Date:</source>
+        <translation>聊天日期：</translation>
     </message>
     <message>
         <source>Date Time</source>
@@ -354,6 +350,42 @@
     <message>
         <source>Initial Prompt</source>
         <translation>初始提示</translation>
+    </message>
+        <message>
+        <source>Voice Activity Detection</source>
+        <translation>静音抑制</translation>
+    </message>
+    <message>
+        <source>Enable</source>
+        <translation>启用</translation>
+    </message>
+    <message>
+        <source>Model Path</source>
+        <translation>模型路径</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>阈值</translation>
+    </message>
+    <message>
+        <source>Min Speech Dur Ms</source>
+        <translation>最小语音持续时间（毫秒）</translation>
+    </message>
+    <message>
+        <source>Min Silence Dur Ms</source>
+        <translation>最小静音持续时间（毫秒）</translation>
+    </message>
+    <message>
+        <source>Max Speech Dur S</source>
+        <translation>最大语音持续时间（秒）</translation>
+    </message>
+    <message>
+        <source>Speech Pad Ms</source>
+        <translation>语音填充（毫秒）</translation>
+    </message>
+    <message>
+        <source>Samples Overlap</source>
+        <translation>样本重叠</translation>
     </message>
     <message>
         <source>Buffer Control</source>

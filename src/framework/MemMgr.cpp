@@ -162,7 +162,7 @@ void MemMgr::retrieve(const std::string &question,
     m_mapTasks[task.id] = task;
     m_mu.unlock();
 
-    auto conf = Config::Instance().getMemoryConfigById(task.memoryId);
+    auto conf = Config::instance()->getMemoryConfigById(task.memoryId);
     GrpcClient::Instance()->Embedding(task.id,
                                       Account::Instance()->Id(),
                                       Account::Instance()->Auth(),
@@ -220,7 +220,7 @@ void MemMgr::SlotEmbeddingResp(const int         errorCode,
                                           Account::Instance()->Id(),
                                           Account::Instance()->Auth());
 
-    auto conf = Config::Instance().getMemoryConfigById(memoryId);
+    auto conf = Config::instance()->getMemoryConfigById(memoryId);
     if(conf.id.isEmpty())
     {
         qDebug() << "Memory config not found for memoryId: " << memoryId;
@@ -256,7 +256,7 @@ void MemMgr::_init()
             &MemMgr::SlotEmbeddingResp);
 
     // Initialization code here
-    auto confs = Config::Instance().memoryConfigs();
+    auto confs = Config::instance()->memoryConfigs();
     for(auto conf : confs)
     {
         auto memoryId      = conf.id.toStdString();

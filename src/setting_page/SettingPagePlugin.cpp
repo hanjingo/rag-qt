@@ -252,7 +252,7 @@ void SettingPagePlugin::_slotGetPluginInfoResp(
 void SettingPagePlugin::_upload(const QString &filePath)
 {
     qDebug() << "SettingPagePlugin::_slotUpload with filePath: " << filePath;
-    auto urls = Config::Instance().getPluginUploadUrls();
+    auto urls = Config::instance()->getPluginUploadUrls();
     if(urls.isEmpty())
     {
         qDebug() << "No plugin upload URL configured.";

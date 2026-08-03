@@ -5,6 +5,9 @@
 #include <QWidget>
 #include <QStandardItemModel>
 
+#include "../framework/Global.h"
+#include "../framework/Config.h"
+
 namespace Ui
 {
 class SettingPageHardware;
@@ -32,20 +35,20 @@ class SettingPageHardware : public QWidget
   private slots:
     void _slotComboAudioTranslatorCurrentChanged(int iIndex);
     void _slotBtnSaveClicked();
-    void _slotBtnAddClicked();
+    void _slotAsrConfigUpdate();
 
   private:
     void _initUI();
     void _initConnections();
     void _retranslate();
 
-    void _switchAudioConfig(const QString &id);
     void _addAudioConfig(const QString &id);
-    void _save();
+
+    void _set(const Config::AsrParam &param);
+    void _get(Config::AsrParam &param);
 
   private:
-    Ui::SettingPageHardware    *ui;
-    static SettingPageHardware *m_stInstance;
+    Ui::SettingPageHardware *ui;
 };
 
 #endif // SETTINGPAGEHARDWARE_H

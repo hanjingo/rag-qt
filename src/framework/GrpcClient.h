@@ -50,12 +50,12 @@ class GrpcClient : public QObject
                         int64_t        msg_id = -1,
                         int            limit  = 10);
 
-    void Recognize(const int64_t                  session_id,
-                   const int64_t                  user_id,
-                   const QString                 &auth,
-                   const QByteArray              &data,
-                   const Config::TranslatorParam &params,
-                   const QString                 &translatorId);
+    void Recognize(const int64_t           session_id,
+                   const int64_t           user_id,
+                   const QString          &auth,
+                   const QByteArray       &data,
+                   const Config::AsrParam &params,
+                   const QString          &translatorId);
 
     void RecognizeStop(const int64_t  session_id,
                        const int64_t  user_id,

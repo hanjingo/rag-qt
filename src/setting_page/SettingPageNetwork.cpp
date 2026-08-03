@@ -162,13 +162,13 @@ void SettingPageNetwork::_initConnections()
 void SettingPageNetwork::_saveConfigFiles()
 {
     auto confs = GetNetworkConfigs();
-    Config::Instance().setNetworkConfigs(confs);
-    Config::Instance().save(Config::getConfigFilePath());
+    Config::instance()->setNetworkConfigs(confs);
+    Config::instance()->save(Config::getConfigFilePath());
 }
 
 void SettingPageNetwork::_loadConfigFiles()
 {
-    auto confs = Config::Instance().networkConfigs();
+    auto confs = Config::instance()->networkConfigs();
     for(int i = 0; i < confs.size(); ++i)
     {
         const auto &config   = confs[i];

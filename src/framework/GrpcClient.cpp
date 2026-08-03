@@ -332,12 +332,12 @@ void GrpcClient::StopAnswer(const int64_t  session_id,
                                   session_id);
 }
 
-void GrpcClient::Recognize(const int64_t                  session_id,
-                           const int64_t                  user_id,
-                           const QString                 &auth,
-                           const QByteArray              &data,
-                           const Config::TranslatorParam &params,
-                           const QString                 &translatorId)
+void GrpcClient::Recognize(const int64_t           session_id,
+                           const int64_t           user_id,
+                           const QString          &auth,
+                           const QByteArray       &data,
+                           const Config::AsrParam &params,
+                           const QString          &translatorId)
 {
     if(!m_pChannel || !m_bIsConnected.load())
     {

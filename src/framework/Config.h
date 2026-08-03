@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <atomic>
 #include <QObject>
 #include <QVector>
 #include <QJsonArray>
@@ -23,7 +24,7 @@ class Config : public QObject
         float samplesOverlap  = 0.1;
     };
 
-    struct TranslatorParam
+    struct AsrParam
     {
         QString id;
 
@@ -149,21 +150,29 @@ class Config : public QObject
     };
 
   public:
-    static Config &Instance();
-
-    static QString getCoreFile();
-    static QString getCoreConfig();
-    static QString getPluginFilePath();
+    static Config *instance()
+    {
+        static Config inst;
+        return &inst;
+    }
     static QString getConfigFilePath();
-    static QString getModelConfigFilePath();
-    static QString getMemoryConfigFilePath();
+    static QString getCoreExeFilePath();
+    static QString getCoreConfigFilePath();
 
+    QString getPluginFilePath();
+    QString getModelConfigFilePath();
+    QString getMemoryConfigFilePath();
+    QString getAsrConfigFilePath();
+
+    bool         init();
     bool         load(const QString &filepath);
     bool         loadModel(const QString &filepath);
     bool         loadMemory(const QString &filepath);
+    bool         loadAsr(const QString &filepath);
     bool         save(const QString &filepath);
     bool         saveModel(const QString &filepath);
     bool         saveMemory(const QString &filepath);
+    bool         saveAsr(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
     bool             isCoreRun();
@@ -171,11 +180,11 @@ class Config : public QObject
     QVector<QString> getAppUpgradeUrls();
     QVector<QString> getPluginUploadUrls();
 
-    QVector<Bus::AudioParam> getBusAudioParams();
-    Config::TranslatorParam  getDefaultAudioTranslatorParam();
-    Config::TranslatorParam  getAudioTranslatorParamById(const QString &id);
-    QVector<Config::TranslatorParam> audioTranslatorParams();
-    void setAudioTranslatorParams(QVector<Config::TranslatorParam> &parmas);
+    QVector<Bus::AudioParam>  getBusAudioParams();
+    Config::AsrParam          getDefaultAsrParam();
+    Config::AsrParam          getAsrParamById(const QString &id);
+    QVector<Config::AsrParam> getAsrParams();
+    void                      setAsrParams(QVector<Config::AsrParam> &parmas);
 
     QVector<Config::NetworkConfig> networkConfigs();
     void setNetworkConfigs(QVector<Config::NetworkConfig> &configs);
@@ -189,16 +198,27 @@ class Config : public QObject
     QVector<Config::MemoryConfig> memoryConfigs();
     void setMemoryConfigs(QVector<Config::MemoryConfig> &configs);
 
+  signals:
+    void SignalConfigUpdate();
+    void SignalAsrConfigUpdate();
+    void SignalModelConfigUpdate();
+    void SignalMemoryConfigUpdate();
+
   private:
     explicit Config(QObject *parent = nullptr);
     ~Config();
 
     void _convert(Config::ModelConfig &config, const QJsonObject &obj);
+    void _convert(Config::AsrParam &config, const QJsonObject &obj);
+    void _convert(QJsonObject &obj, const Config::AsrParam &config);
 
   private:
+    std::atomic<bool> m_inited;
+
     QJsonObject m_rootObj;
     QJsonArray  m_modelArr;
     QJsonArray  m_memoryArr;
+    QJsonArray  m_asrArr;
 
     QSet<QString> m_supportedDocTypes;
 };

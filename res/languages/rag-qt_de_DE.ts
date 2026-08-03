@@ -168,12 +168,8 @@
         <translation>Suchen</translation>
     </message>
     <message>
-        <source>Start Date:</source>
-        <translation>Startdatum:</translation>
-    </message>
-    <message>
-        <source>End Date:</source>
-        <translation>Enddatum:</translation>
+        <source>Chat Date:</source>
+        <translation>Chat-Datum:</translation>
     </message>
     <message>
         <source>Date Time</source>
@@ -354,6 +350,42 @@
     <message>
         <source>Initial Prompt</source>
         <translation>Initiale Eingabe</translation>
+    </message>
+    <message>
+        <source>Voice Activity Detection</source>
+        <translation>Spracherkennung</translation>
+    </message>
+    <message>
+        <source>Enable</source>
+        <translation>Aktivieren</translation>
+    </message>
+    <message>
+        <source>Model Path</source>
+        <translation>Modellpfad</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Schwelle</translation>
+    </message>
+    <message>
+        <source>Min Speech Dur Ms</source>
+        <translation>Minimale Sprachdauer (ms)</translation>
+    </message>
+    <message>
+        <source>Min Silence Dur Ms</source>
+        <translation>Minimale Stille-Dauer (ms)</translation>
+    </message>
+    <message>
+        <source>Max Speech Dur S</source>
+        <translation>Maximale Sprachdauer (s)</translation>
+    </message>
+    <message>
+        <source>Speech Pad Ms</source>
+        <translation>Sprachpuffer (ms)</translation>
+    </message>
+    <message>
+        <source>Samples Overlap</source>
+        <translation>Überlappung der Proben</translation>
     </message>
     <message>
         <source>Buffer Control</source>

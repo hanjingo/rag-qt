@@ -21,6 +21,9 @@ int main(int argc, char *argv[])
     FrameworkWidget::Instance()->hide();
     LoginWidget::Instance()->hide();
 
+    // init config
+    Config::instance()->init();
+
     // loading splash screen
     SplashScreen splash;
     splash.show();
@@ -29,7 +32,7 @@ int main(int argc, char *argv[])
 
     // init proc manager
     QString output;
-    if(Config::Instance().isCoreRun())
+    if(Config::instance()->isCoreRun())
     {
         FrameworkWidget::Instance()->InitCore();
         for(int i = 0; i <= 50 && splash.getProgress() < 50; i++)

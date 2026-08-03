@@ -48,6 +48,7 @@ class SettingPageMemory : public QWidget
     void _initConnections();
     void _retranslate();
 
+    void _clearMemorys();
     void _addMemorys(const QVector<Config::MemoryConfig> &configs,
                      const QString                       &tag = "Staged");
     void _delMemorys(const QVector<QString> &hashs);
@@ -63,6 +64,7 @@ class SettingPageMemory : public QWidget
                             const int64_t     chunkId,
                             const QByteArray &vectorIndexs);
     void _slotEmbeddingStopResp(const int errorCode, const int64_t taskId);
+    void _slotMemoryConfigUpdate();
 
   private:
     void _filteMemTable(const QString &filterText);

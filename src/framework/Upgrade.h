@@ -24,7 +24,7 @@ class Upgrade : public QObject
 
     QString GetUpgradeAddr()
     {
-        QVector<QString> urls = Config::Instance().getAppUpgradeUrls();
+        QVector<QString> urls = Config::instance()->getAppUpgradeUrls();
         QString          addr;
         if(!urls.isEmpty())
             addr = urls.first();
