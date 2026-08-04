@@ -22,6 +22,7 @@
 SettingPageNetwork::SettingPageNetwork(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SettingPageNetwork)
+    , m_pTimer(new QTimer(this))
     , m_pNetConfigCkGroup(new QButtonGroup(this))
 {
     ui->setupUi(this);
@@ -30,6 +31,8 @@ SettingPageNetwork::SettingPageNetwork(QWidget *parent)
     _initConnections();
     _initUI();
     _retranslate();
+
+    m_pTimer->start(3000);
 }
 
 SettingPageNetwork::~SettingPageNetwork()
@@ -145,6 +148,8 @@ void SettingPageNetwork::_initConnections()
             &QButtonGroup::idClicked,
             this,
             &SettingPageNetwork::_slotNetConfigCkGroupClicked);
+
+    connect(m_pTimer, SIGNAL(timeout()), this, SLOT(_slotHeartbeatTimeout()));
 }
 
 void SettingPageNetwork::_saveConfigFiles()
@@ -221,10 +226,10 @@ void SettingPageNetwork::_testNetwork()
                 });
 
         cli.Connect(config.ip + ":" + QString::number(config.port));
-        auto now = QDateTime::currentMSecsSinceEpoch();
-        cli.Heartbeat(now);
-        qDebug() << "Client " << i << " heartbeat to " << config.ip << ":"
-                 << config.port << " finished.";
+        // auto now = QDateTime::currentMSecsSinceEpoch();
+        // cli.Heartbeat(now);
+        // qDebug() << "Client " << i << " heartbeat to " << config.ip << ":"
+        //          << config.port << " finished.";
     }
 }
 
@@ -233,4 +238,16 @@ void SettingPageNetwork::_resetDelayValues()
     ui->lblCoreServDelay->setText("N/A");
     ui->lblCoreServDelayBackup1->setText("N/A");
     ui->lblCoreServDelayBackup2->setText("N/A");
+}
+
+void SettingPageNetwork::_slotHeartbeatTimeout()
+{
+    if(!GrpcClient::instance()->IsConnected())
+    {
+        qDebug() << "gRPC client is not connected. Skipping heartbeat.";
+        return;
+    }
+
+    auto now = QDateTime::currentMSecsSinceEpoch();
+    GrpcClient::instance()->Heartbeat(now);
 }

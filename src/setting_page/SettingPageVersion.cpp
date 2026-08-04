@@ -3,6 +3,8 @@
 #include <QAction>
 #include <QMessageBox>
 
+#include "StyleMgr.h"
+
 #include "Error.h"
 
 #include "SettingPageVersion.h"
@@ -16,6 +18,7 @@ SettingPageVersion::SettingPageVersion(QWidget *parent)
 
     _initConnections();
     _initUI();
+    _retranslate();
 }
 
 SettingPageVersion::~SettingPageVersion()
@@ -24,7 +27,21 @@ SettingPageVersion::~SettingPageVersion()
 
 void SettingPageVersion::_initUI()
 {
-    _retranslate();
+    // Keep the page/container transparent and only show the login panel card.
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    setStyleSheet("QWidget#LoginPage{background: transparent;}"
+                  "QWidget#wgtLogin{background: transparent;}");
+
+    ui->lblLogo->setPixmap(QPixmap(":/icons/logo"));
+    ui->lblTitle->setStyleSheet(StyleMgr::ParseFile(":/styles/title_label"));
+
+    ui->lblEmailTitle->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/note_label"));
+    ui->lblEmail->setStyleSheet(StyleMgr::ParseFile(":/styles/note_label"));
+
+    ui->lblVersionTitle->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/note_label"));
+    ui->lblVersion->setStyleSheet(StyleMgr::ParseFile(":/styles/note_label"));
 }
 
 void SettingPageVersion::_retranslate()

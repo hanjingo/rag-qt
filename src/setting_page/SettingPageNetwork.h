@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPointer>
+#include <QTimer>
 
 #include "Config.h"
 
@@ -41,6 +42,7 @@ class SettingPageNetwork : public QWidget
     void _slotBtnSaveClicked();
     void _slotBtnNetTestClicked();
     void _slotNetConfigCkGroupClicked(int id);
+    void _slotHeartbeatTimeout();
 
   private:
     void _initUI();
@@ -54,6 +56,7 @@ class SettingPageNetwork : public QWidget
   private:
     Ui::SettingPageNetwork *ui;
 
+    QTimer       *m_pTimer;
     QButtonGroup *m_pNetConfigCkGroup;
     int           m_lastConfigCkboxId = -1;
 };

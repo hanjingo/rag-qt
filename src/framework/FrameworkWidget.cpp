@@ -50,6 +50,7 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_StyledBackground, true);
+    setMouseTracking(true);
 
     _initConnections();
     _initAppBar();
@@ -110,6 +111,13 @@ void FrameworkWidget::mousePressEvent(QMouseEvent *event)
             m_pressGeometry  = geometry();
             event->accept();
             return;
+        } else
+        {
+            m_isDragging     = true;
+            m_pressGlobalPos = event->globalPosition().toPoint();
+            m_pressGeometry  = geometry();
+            event->accept();
+            return;
         }
     }
 
@@ -154,21 +162,42 @@ void FrameworkWidget::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    _updateResizeCursor(
-        _hitTestResizeRegion(event->globalPosition().toPoint()));
+    if(m_isDragging)
+    {
+        const QPoint delta =
+            event->globalPosition().toPoint() - m_pressGlobalPos;
+        QRect newGeom = m_pressGeometry;
+        newGeom.moveTopLeft(newGeom.topLeft() + delta);
+        setGeometry(newGeom);
+        event->accept();
+        return;
+    }
+
+    int region = _hitTestResizeRegion(event->globalPosition().toPoint());
+    _updateResizeCursor(region);
     QWidget::mouseMoveEvent(event);
 }
 
 void FrameworkWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton && m_isResizing)
+    if(event->button() == Qt::LeftButton)
     {
-        m_isResizing   = false;
-        m_resizeRegion = ResizeNone;
-        _updateResizeCursor(
-            _hitTestResizeRegion(event->globalPosition().toPoint()));
-        event->accept();
-        return;
+        if(m_isResizing)
+        {
+            m_isResizing   = false;
+            m_resizeRegion = ResizeNone;
+            _updateResizeCursor(
+                _hitTestResizeRegion(event->globalPosition().toPoint()));
+            event->accept();
+            return;
+        }
+
+        if(m_isDragging)
+        {
+            m_isDragging = false;
+            event->accept();
+            return;
+        }
     }
 
     QWidget::mouseReleaseEvent(event);
@@ -177,7 +206,10 @@ void FrameworkWidget::mouseReleaseEvent(QMouseEvent *event)
 void FrameworkWidget::leaveEvent(QEvent *event)
 {
     if(!m_isResizing)
+    {
         unsetCursor();
+        m_resizeRegion = ResizeNone;
+    }
 
     QWidget::leaveEvent(event);
 }
@@ -397,6 +429,13 @@ void FrameworkWidget::_slotGrpcConnected(const QString &address)
 void FrameworkWidget::_slotGrpcConnectFailed(const QString &address)
 {
     qDebug() << "Fail to Connect gRPC server at " << address;
+    ui->lblNetStatus->setText(
+        tr("%1\n%2").arg(address).arg(tr("Disconnected")));
+}
+
+void FrameworkWidget::_slotGrpcDisconnected(const QString &address)
+{
+    qDebug() << "gRPC server disconnected at " << address;
     ui->lblNetStatus->setText(
         tr("%1\n%2").arg(address).arg(tr("Disconnected")));
 }
@@ -709,6 +748,11 @@ void FrameworkWidget::_initConnections()
             &GrpcClient::signalGrpcConnectFailed,
             this,
             &FrameworkWidget::_slotGrpcConnectFailed);
+
+    connect(m_pGrpcClient,
+            &GrpcClient::signalGrpcDisconnected,
+            this,
+            &FrameworkWidget::_slotGrpcDisconnected);
 
     connect(m_pGrpcClient,
             &GrpcClient::signalLoginResp,

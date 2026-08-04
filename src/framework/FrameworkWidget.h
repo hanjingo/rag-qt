@@ -81,6 +81,7 @@ class FrameworkWidget : public QWidget
     void _slotUpdateRealTime();
     void _slotGrpcConnected(const QString &address);
     void _slotGrpcConnectFailed(const QString &address);
+    void _slotGrpcDisconnected(const QString &address);
     void _slotComboLangCurrentChanged(int iIndex);
     void _slotSwitchAccount();
 
@@ -138,6 +139,7 @@ class FrameworkWidget : public QWidget
     bool m_isAudioEnable = true;
 
     bool   m_isResizing   = false;
+    bool   m_isDragging   = false;
     int    m_resizeRegion = ResizeNone;
     QPoint m_pressGlobalPos;
     QRect  m_pressGeometry;

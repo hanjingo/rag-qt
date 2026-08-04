@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QThread>
+#include <QStyleFactory>
 
 #include "SplashScreen.h"
 #include "LoginWidget.h"
