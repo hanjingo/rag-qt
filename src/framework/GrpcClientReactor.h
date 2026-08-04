@@ -11,10 +11,11 @@
 class QueryReactor : public grpc::ClientReadReactor<GrpcLibraryV1::QueryResp>
 {
   public:
-    QueryReactor(GrpcClient *client, int64_t id)
+    QueryReactor(QPointer<GrpcClient> client, int64_t id)
         : m_client(client)
         , m_id(id)
     {
+        qDebug() << "QueryReactor created for id:" << id;
     }
 
     void OnReadDone(bool ok) override;
@@ -24,8 +25,8 @@ class QueryReactor : public grpc::ClientReadReactor<GrpcLibraryV1::QueryResp>
     grpc::ClientContext      m_context;
 
   private:
-    GrpcClient *m_client;
-    int64_t     m_id;
+    QPointer<GrpcClient> m_client;
+    int64_t              m_id;
 };
 
 // async recognize reactor
@@ -35,7 +36,7 @@ class RecognizeReactor
       public std::enable_shared_from_this<RecognizeReactor>
 {
   public:
-    RecognizeReactor(GrpcClient *client, int64_t sessionId);
+    RecognizeReactor(QPointer<GrpcClient> client, int64_t sessionId);
     ~RecognizeReactor();
 
     void OnReadDone(bool ok) override;
@@ -57,8 +58,8 @@ class RecognizeReactor
     void _pull();
 
   private:
-    int64_t     m_sessionId;
-    GrpcClient *m_client;
+    int64_t              m_sessionId;
+    QPointer<GrpcClient> m_client;
 
     hj::channel<GrpcLibraryV1::RecognizeReq> m_writeCh;
 
@@ -73,7 +74,7 @@ class EmbeddingReactor
       public std::enable_shared_from_this<EmbeddingReactor>
 {
   public:
-    EmbeddingReactor(GrpcClient *client, int64_t taskId);
+    EmbeddingReactor(QPointer<GrpcClient> client, int64_t taskId);
     ~EmbeddingReactor();
 
     void OnReadDone(bool ok) override;
@@ -95,8 +96,8 @@ class EmbeddingReactor
     void _pull();
 
   private:
-    int64_t     m_taskId;
-    GrpcClient *m_client;
+    int64_t              m_taskId;
+    QPointer<GrpcClient> m_client;
 
     hj::channel<GrpcLibraryV1::EmbeddingReq> m_writeCh;
 

@@ -41,10 +41,10 @@ HomePageWidget::HomePageWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    _initConnections();
     _initPluginsArea();
     _initHistoryArea();
     _retranslate();
-    _initConnections();
 }
 
 HomePageWidget::~HomePageWidget()
@@ -532,22 +532,22 @@ void HomePageWidget::_addSessions(const QVector<Bus::Session> &sessions)
     int n_row = m_pHistoryModel->rowCount();
     for(int i = 0; i < sessions.size(); i++)
     {
-        const auto &item = sessions.at(i);
+        const auto &sess = sessions.at(i);
 
         // ID
         auto *idItem = new QStandardItem;
-        idItem->setData(QVariant::fromValue<qlonglong>(item.id),
+        idItem->setData(QVariant::fromValue<qlonglong>(sess.id),
                         Qt::DisplayRole);
         idItem->setFlags(idItem->flags() & ~Qt::ItemIsEditable); // uneditable
         m_pHistoryModel->setItem(n_row, 0, idItem);
 
         // TimeStamp
-        auto *tmItem = new QStandardItem(item.timestamp);
+        auto *tmItem = new QStandardItem(sess.timestamp);
         tmItem->setFlags(tmItem->flags() & ~Qt::ItemIsEditable);
         m_pHistoryModel->setItem(n_row, 1, tmItem);
 
         // Title
-        m_pHistoryModel->setItem(n_row, 2, new QStandardItem(item.title));
+        m_pHistoryModel->setItem(n_row, 2, new QStandardItem(sess.title));
         n_row++;
     }
 }

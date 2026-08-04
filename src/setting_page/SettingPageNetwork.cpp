@@ -27,8 +27,8 @@ SettingPageNetwork::SettingPageNetwork(QWidget *parent)
     ui->setupUi(this);
 
     m_lastConfigCkboxId = 0;
-    _initUI();
     _initConnections();
+    _initUI();
     _retranslate();
 }
 

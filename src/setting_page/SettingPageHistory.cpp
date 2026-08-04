@@ -66,10 +66,10 @@ void SettingPageHistory::_initConnections()
             this,
             &SettingPageHistory::_slotGetMessageInfoResp);
 
-    connect(ui->tbviewCatalog->selectionModel(),
-            &QItemSelectionModel::currentChanged,
+    connect(ui->tbviewCatalog,
+            &QTableView::clicked,
             this,
-            &SettingPageHistory::_slotTbviewCurrentChanged);
+            &SettingPageHistory::_slotTbviewClicked);
 
     connect(ui->btnDelete,
             &QPushButton::clicked,
@@ -137,7 +137,7 @@ void SettingPageHistory::_slotDelSessionResp(const int               errorCode,
         if(pIdItem == nullptr)
             continue;
 
-        int64_t id = pIdItem->data(Qt::DisplayRole).toLongLong();
+        int64_t id = pIdItem->data(Qt::DisplayRole).value<qint64>();
         if(ids.contains(id))
         {
             qDebug() << "delete session id = " << id;
@@ -165,7 +165,7 @@ void SettingPageHistory::_slotGetMessageInfoResp(
         if(pItem == nullptr)
             continue;
 
-        int64_t        session_id   = pItem->data(Qt::DisplayRole).toLongLong();
+        qint64 session_id = pItem->data(Qt::DisplayRole).value<qint64>();
         QStandardItem *pContentItem = m_pHistoryModel->item(i, 3);
         if(pContentItem == nullptr)
         {
@@ -200,10 +200,8 @@ void SettingPageHistory::_slotGetMessageInfoResp(
     _refreshChatBrowser(true);
 }
 
-void SettingPageHistory::_slotTbviewCurrentChanged(const QModelIndex &curr,
-                                                   const QModelIndex &prev)
+void SettingPageHistory::_slotTbviewClicked(const QModelIndex &curr)
 {
-    Q_UNUSED(prev);
     if(!curr.isValid())
         return;
 
@@ -213,7 +211,7 @@ void SettingPageHistory::_slotTbviewCurrentChanged(const QModelIndex &curr,
         return;
 
     _refreshChatBrowser(true);
-    int64_t sessionId = pIdItem->data(Qt::DisplayRole).toLongLong();
+    qint64 sessionId = pIdItem->data(Qt::DisplayRole).value<qint64>();
     qDebug() << "Session selected, id: " << sessionId;
     GrpcClient::instance()->GetMessageInfo(sessionId,
                                            Account::instance()->id(),
@@ -237,7 +235,7 @@ void SettingPageHistory::_slotBtnDelSessionClicked()
         if(pIdItem == nullptr)
             continue;
 
-        int64_t sessionId = pIdItem->data(Qt::DisplayRole).toLongLong();
+        qint64 sessionId = pIdItem->data(Qt::DisplayRole).value<qint64>();
         sessionIds.append(sessionId);
     }
 
@@ -286,10 +284,11 @@ void SettingPageHistory::_slotBtnExportSessionClicked()
            || pContentItem == nullptr || pUserIdItem == nullptr)
             continue;
 
-        const int64_t sessionId = pIdItem->data(Qt::DisplayRole).toLongLong();
+        const qint64 sessionId = pIdItem->data(Qt::DisplayRole).value<qint64>();
         const QString timestamp = pTmItem->data(Qt::DisplayRole).toString();
         const QString title     = pTitleItem->data(Qt::DisplayRole).toString();
-        const int64_t userId = pUserIdItem->data(Qt::DisplayRole).toLongLong();
+        const qint64  userId =
+            pUserIdItem->data(Qt::DisplayRole).value<qint64>();
         const QJsonArray content =
             pContentItem->data(Qt::UserRole).toJsonArray();
         qDebug() << "export row" << row << ":"
@@ -506,7 +505,12 @@ void SettingPageHistory::_addSessions(const QVector<Bus::Session> &sessions)
         m_pHistoryModel->setItem(n_row, 3, contentItem);
 
         // user id
-        m_pHistoryModel->setItem(n_row, 4, new QStandardItem(item.userId));
+        auto *userIdItem = new QStandardItem;
+        userIdItem->setData(QVariant::fromValue<qlonglong>(item.userId),
+                            Qt::DisplayRole);
+        userIdItem->setFlags(userIdItem->flags()
+                             & ~Qt::ItemIsEditable); // uneditable
+        m_pHistoryModel->setItem(n_row, 4, userIdItem);
 
         n_row++;
     }
@@ -523,7 +527,7 @@ void SettingPageHistory::_addMessages(const QVector<Bus::MessageInfo> &messages)
         if(pItem == nullptr)
             continue;
 
-        int64_t        session_id   = pItem->data(Qt::DisplayRole).toLongLong();
+        qint64 session_id = pItem->data(Qt::DisplayRole).value<qint64>();
         QStandardItem *pContentItem = m_pHistoryModel->item(i, 3);
         if(pContentItem == nullptr)
         {

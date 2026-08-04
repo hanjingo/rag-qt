@@ -15,9 +15,9 @@ ModelConfigDialog::ModelConfigDialog(const Config::ModelConfig &conf,
 {
     ui->setupUi(this);
 
+    _initConnections();
     _initUI();
     _retranslate();
-    _initConnections();
 }
 
 ModelConfigDialog::~ModelConfigDialog()

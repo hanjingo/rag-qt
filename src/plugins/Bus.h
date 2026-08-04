@@ -110,11 +110,13 @@ class Bus : public QObject
     void signalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
     void signalQuery(const int64_t         sessionId,
+                     const int64_t         msgId,
                      const QString        &query,
                      const QString        &model,
                      const Bus::ModelInfo &infos);
     void signalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
+                         const int64_t  msgId,
                          const QString &content,
                          const bool     isFinished);
 

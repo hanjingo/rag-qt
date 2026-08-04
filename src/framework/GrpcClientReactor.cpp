@@ -14,13 +14,14 @@ void QueryReactor::OnReadDone(bool ok)
         auto id         = m_id;
         auto content    = QString::fromStdString(m_resp.content());
         auto isFinished = m_resp.is_finished();
+        auto msgId      = m_resp.msg_id();
         qDebug() << "Async Received Query response, error_code:" << ec
-                 << ", id:" << id << ", content:" << content
-                 << ", is_finished:" << isFinished;
+                 << ", session id:" << id << ", msg id:" << msgId
+                 << ", content:" << content << ", is_finished:" << isFinished;
 
-        TimedQueue::instance().enqueue([ec, id, content, isFinished]() {
+        TimedQueue::instance().enqueue([ec, id, msgId, content, isFinished]() {
             emit GrpcClient::instance()
-                -> signalQueryResp(ec, id, content, isFinished);
+                -> signalQueryResp(ec, id, msgId, content, isFinished);
         });
 
         StartRead(&m_resp);
@@ -37,6 +38,7 @@ void QueryReactor::OnDone(const grpc::Status &status)
         emit m_client->signalQueryResp(
             ErrorCode::ERR_SERVER_DISCONNECTED,
             m_id,
+            -1,
             QString::fromStdString(status.error_message()),
             true);
     }
@@ -45,7 +47,8 @@ void QueryReactor::OnDone(const grpc::Status &status)
 }
 
 // ----------------------------------- RecognizeReactor ----------------------------
-RecognizeReactor::RecognizeReactor(GrpcClient *client, int64_t sessionId)
+RecognizeReactor::RecognizeReactor(QPointer<GrpcClient> client,
+                                   int64_t              sessionId)
     : m_client(client)
     , m_sessionId(sessionId)
     , m_writeCh(10)
@@ -190,7 +193,7 @@ void RecognizeReactor::OnConnectionLost()
 }
 
 // ----------------------------------- EmbeddingReactor ----------------------------
-EmbeddingReactor::EmbeddingReactor(GrpcClient *client, int64_t taskId)
+EmbeddingReactor::EmbeddingReactor(QPointer<GrpcClient> client, int64_t taskId)
     : m_client(client)
     , m_taskId(taskId)
     , m_writeCh(10)

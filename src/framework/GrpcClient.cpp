@@ -20,6 +20,7 @@ GrpcClient::GrpcClient(QObject *parent)
     , m_pChannel(nullptr)
 {
     TimedQueue::instance().start(10);
+    qDebug() << "GrpcClient created";
 }
 
 GrpcClient::~GrpcClient()
@@ -205,7 +206,8 @@ void GrpcClient::RegAccount(const QString &username, const QString &password)
 }
 
 void GrpcClient::Query(const int64_t              id,
-                       const int64_t              user_id,
+                       const int64_t              msgId,
+                       const int64_t              userId,
                        const QString             &auth,
                        const QString             &content,
                        const QString             &model,
@@ -213,7 +215,11 @@ void GrpcClient::Query(const int64_t              id,
 {
     if(!m_pChannel)
     {
-        emit signalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED, id, "", true);
+        emit signalQueryResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                             id,
+                             -1,
+                             "",
+                             true);
         return;
     }
 
@@ -223,7 +229,8 @@ void GrpcClient::Query(const int64_t              id,
     // Prepare the request
     GrpcLibraryV1::QueryReq req;
     req.set_id(id);
-    req.set_user_id(user_id);
+    req.set_msg_id(msgId);
+    req.set_user_id(userId);
     req.set_auth(auth.toStdString());
     req.set_content(content.toStdString());
     req.set_model(model.toStdString());

@@ -44,8 +44,7 @@ class SettingPageHistory : public QWidget
     void _slotGetMessageInfoResp(const int                        errorCode,
                                  const QVector<Bus::MessageInfo> &messages);
 
-    void _slotTbviewCurrentChanged(const QModelIndex &curr,
-                                   const QModelIndex &prev);
+    void _slotTbviewClicked(const QModelIndex &curr);
 
     void _slotBtnDelSessionClicked();
 

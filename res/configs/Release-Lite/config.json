@@ -1,5 +1,5 @@
 {
-    "core_run": true,
+    "core_run": false,
     "model_config": "configs/models.json",
     "memory_config": "configs/memorys.json",
     "asr_config": "configs/asr.json",
@@ -12,12 +12,12 @@
     "networks": [
         {
             "ip": "127.0.0.1",
-            "isEnable": true,
+            "isEnable": false,
             "port": 50051
         },
         {
             "ip": "www.hango.fun",
-            "isEnable": false,
+            "isEnable": true,
             "port": 50051
         }
     ]

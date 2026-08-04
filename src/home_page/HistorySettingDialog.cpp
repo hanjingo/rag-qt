@@ -9,9 +9,9 @@ HistorySettingDialog::HistorySettingDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
+    _initConnections();
     _retranslate();
     _initUI();
-    _initConnections();
 }
 
 HistorySettingDialog::~HistorySettingDialog()

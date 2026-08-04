@@ -186,12 +186,13 @@ void BusAdapter::_slotDelSessionFromBus(const QVector<int64_t> &ids)
 }
 
 void BusAdapter::_slotQueryFromBus(const int64_t         sessionId,
+                                   const int64_t         msgId,
                                    const QString        &query,
                                    const QString        &model,
                                    const Bus::ModelInfo &info)
 {
     qDebug() << "Received Bus Query signal from Bus. sessionId: " << sessionId
-             << ", query: " << query;
+             << ", msgId: " << msgId << ", query: " << query;
     auto conf          = Config::instance()->getModelConfigById(info.id);
     conf.pipeline      = info.pipeline;
     conf.hash          = info.hash;
@@ -199,6 +200,7 @@ void BusAdapter::_slotQueryFromBus(const int64_t         sessionId,
     conf.stopWords     = info.stopWords;
     conf.prompt        = info.prompt;
     GrpcClient::instance()->Query(sessionId,
+                                  msgId,
                                   Account::instance()->id(),
                                   Account::instance()->auth(),
                                   query,

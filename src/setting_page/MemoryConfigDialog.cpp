@@ -18,9 +18,9 @@ MemoryConfigDialog::MemoryConfigDialog(const Config::MemoryConfig &conf,
 {
     ui->setupUi(this);
 
+    _initConnections();
     _initUI();
     _retranslate();
-    _initConnections();
 }
 
 MemoryConfigDialog::~MemoryConfigDialog()

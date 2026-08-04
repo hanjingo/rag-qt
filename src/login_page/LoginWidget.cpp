@@ -18,8 +18,8 @@ LoginWidget::LoginWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    _initUI();
     _initConnections();
+    _initUI();
     _retranslate();
 }
 

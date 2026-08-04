@@ -11,9 +11,9 @@ NewSessionDialog::NewSessionDialog(const QVector<QString> &models,
 {
     ui->setupUi(this);
 
-    _retranslate();
-    _initUI();
     _initConnections();
+    _initUI();
+    _retranslate();
 }
 
 NewSessionDialog::~NewSessionDialog()

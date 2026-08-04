@@ -41,7 +41,8 @@ class GrpcClient : public QObject
     void RegAccount(const QString &username, const QString &password);
 
     void Query(const int64_t              id,
-               const int64_t              user_id,
+               const int64_t              msgId,
+               const int64_t              userId,
                const QString             &auth,
                const QString             &content,
                const QString             &model,
@@ -123,6 +124,7 @@ class GrpcClient : public QObject
 
     void signalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
+                         const int64_t  msgId,
                          const QString &content,
                          const bool     isFinished);
     void signalStopAnswerResp(const int64_t errorCode, const int64_t sessionId);

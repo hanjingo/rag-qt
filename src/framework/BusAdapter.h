@@ -36,6 +36,7 @@ class BusAdapter : public QObject
                                 const QString &model);
     void _slotGetSessionFromBus(const int64_t sessionId, int limit);
     void _slotQueryFromBus(const int64_t         sessionId,
+                           const int64_t         msgId,
                            const QString        &query,
                            const QString        &model,
                            const Bus::ModelInfo &config);
