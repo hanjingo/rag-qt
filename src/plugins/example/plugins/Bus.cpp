@@ -1,9 +1,9 @@
 #include "Bus.h"
 
-Bus *Bus::instance()
+QPointer<Bus> Bus::instance()
 {
-    static Bus instance;
-    return &instance;
+    static QPointer<Bus> inst = new Bus();
+    return inst;
 }
 
 void Bus::version(int8_t &major, int8_t &minor, int8_t &patch)

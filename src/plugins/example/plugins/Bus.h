@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QAudioFormat>
 #include <QJsonObject>
+#include <QPointer>
 
 #define BUS_VERSION_MAJOR 0
 #define BUS_VERSION_MINOR 0
@@ -68,6 +69,9 @@ class Bus : public QObject
         QString version;
         QString timestamp;
         qint32  platform;
+
+        // external file path, used for staging plugin info before loading
+        QString filePath;
     };
 
     struct AudioParam
@@ -79,8 +83,8 @@ class Bus : public QObject
     };
 
   public:
-    static Bus *instance();
-    static void version(int8_t &major, int8_t &minor, int8_t &patch);
+    static QPointer<Bus> instance();
+    static void          version(int8_t &major, int8_t &minor, int8_t &patch);
 
   signals:
     void signalPong();
@@ -106,11 +110,13 @@ class Bus : public QObject
     void signalDelSessionResp(const int errorCode, const QVector<int64_t> &ids);
 
     void signalQuery(const int64_t         sessionId,
+                     const int64_t         msgId,
                      const QString        &query,
                      const QString        &model,
                      const Bus::ModelInfo &infos);
     void signalQueryResp(const int      errorCode,
                          const int64_t  sessionId,
+                         const int64_t  msgId,
                          const QString &content,
                          const bool     isFinished);
 

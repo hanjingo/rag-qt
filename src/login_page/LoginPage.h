@@ -42,10 +42,11 @@ class LoginPage : public QWidget
     void _slotBtnLogoutClicked();
 
   private:
-    void _initUI();
-    void _initConnections();
-    void _retranslate();
-    bool _validateInput(const QString &username, const QString &password);
+    void    _initUI();
+    void    _initConnections();
+    void    _retranslate();
+    bool    _validateInput(const QString &username, const QString &password);
+    QString _encryptPassword(const QString &password);
 
   protected:
     explicit LoginPage(QWidget *parent = nullptr);

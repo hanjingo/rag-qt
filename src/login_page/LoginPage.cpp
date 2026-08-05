@@ -6,6 +6,7 @@
 #include <QRegularExpressionValidator>
 
 #include <hj/crypto/sha.hpp>
+#include <hj/crypto/base64.hpp>
 
 #include "StyleMgr.h"
 
@@ -29,17 +30,7 @@ void LoginPage::Login()
 {
     QString username = ui->editAccount->text();
     QString password = ui->editPassword->text();
-
-    emit signalLogin(username, password);
-
-    // std::string encryptedPasswd;
-    // if(hj::sha::encode(encryptedPasswd,
-    //                    password.toStdString(),
-    //                    hj::sha::algorithm::sha512)
-    //    != hj::sha::error_code::ok)
-    //     return;
-
-    // emit signalLogin(username, QString::fromStdString(encryptedPasswd));
+    emit    signalLogin(username, _encryptPassword(password));
 }
 
 void LoginPage::changeEvent(QEvent *event)
@@ -57,7 +48,7 @@ void LoginPage::_slotBtnLoginClicked()
 {
     QString username = ui->editAccount->text();
     QString password = ui->editPassword->text();
-    emit    signalLogin(username, password);
+    emit    signalLogin(username, _encryptPassword(password));
 }
 
 void LoginPage::_slotBtnRegisterClicked()
@@ -68,16 +59,7 @@ void LoginPage::_slotBtnRegisterClicked()
     if(!_validateInput(username, password))
         return;
 
-    emit signalRegister(username, password);
-
-    // std::string encryptedPasswd;
-    // if(hj::sha::encode(encryptedPasswd,
-    //                    password.toStdString(),
-    //                    hj::sha::algorithm::sha512)
-    //    != hj::sha::error_code::ok)
-    //     return;
-
-    // emit signalRegister(username, QString::fromStdString(encryptedPasswd));
+    emit signalRegister(username, _encryptPassword(password));
 }
 
 void LoginPage::_slotBtnLogoutClicked()
@@ -183,4 +165,19 @@ bool LoginPage::_validateInput(const QString &username, const QString &password)
     }
 
     return true;
+}
+
+QString LoginPage::_encryptPassword(const QString &password)
+{
+    std::string sha256Hash;
+    if(hj::sha::encode(sha256Hash,
+                       password.toStdString(),
+                       hj::sha::algorithm::sha512)
+       != hj::sha::error_code::ok)
+        return QString();
+
+    std::string base64EncodedHash;
+    hj::base64::encode(base64EncodedHash, sha256Hash);
+
+    return QString::fromStdString(base64EncodedHash);
 }
