@@ -24,7 +24,7 @@ class Bus : public QObject
         QString timestamp;
     };
 
-    struct MessageInfo
+    struct ChatMessage
     {
         qint64  id;
         qint64  sessionId;
@@ -123,11 +123,11 @@ class Bus : public QObject
     void signalStopAnswer(const int64_t sessionId);
     void signalStopAnswerResp(const int64_t errorCode, const int64_t sessionId);
 
-    void signalGetMessageInfo(const int64_t msgId,
+    void signalGetChatMessage(const int64_t msgId,
                               const int64_t sessionId,
                               int           limit);
-    void signalGetMessageInfoResp(const int                        errorCode,
-                                  const QVector<Bus::MessageInfo> &messages);
+    void signalGetChatMessageResp(const int                        errorCode,
+                                  const QVector<Bus::ChatMessage> &messages);
 
     void signalAudioCaptureStart(const QAudioFormat &format,
                                  const QByteArray   &devId);

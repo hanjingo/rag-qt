@@ -605,16 +605,16 @@ void GrpcClient::EmbeddingStop(const int64_t  task_id,
                                      task_id);
 }
 
-void GrpcClient::GetMessageInfo(const int64_t  session_id,
+void GrpcClient::GetChatMessage(const int64_t  session_id,
                                 const int64_t  user_id,
                                 const QString &auth,
                                 int64_t        msg_id,
                                 int            limit)
 {
-    QVector<Bus::MessageInfo> ret;
+    QVector<Bus::ChatMessage> ret;
     if(!m_pChannel)
     {
-        emit signalGetMessageInfoResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
+        emit signalGetChatMessageResp(ErrorCode::ERR_SERVER_DISCONNECTED, ret);
         return;
     }
 
@@ -622,7 +622,7 @@ void GrpcClient::GetMessageInfo(const int64_t  session_id,
     auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibraryV1::GetMessageInfoReq req;
+    GrpcLibraryV1::GetChatMessageReq req;
     req.set_id(msg_id);
     req.set_session_id(session_id);
     req.set_limit(limit);
@@ -630,27 +630,27 @@ void GrpcClient::GetMessageInfo(const int64_t  session_id,
     req.set_auth(auth.toStdString());
 
     // Prepare the response and context
-    GrpcLibraryV1::GetMessageInfoResp resp;
+    GrpcLibraryV1::GetChatMessageResp resp;
     grpc::ClientContext               context;
 
     // Make the RPC call
-    grpc::Status status = stub->GetMessageInfo(&context, req, &resp);
+    grpc::Status status = stub->GetChatMessage(&context, req, &resp);
 
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit signalGetMessageInfoResp(ec, ret);
+        emit signalGetChatMessageResp(ec, ret);
         return;
     }
 
     for(int i = 0; i < resp.messages_size(); i++)
     {
         const auto      &msg = resp.messages(i);
-        Bus::MessageInfo item;
+        Bus::ChatMessage item;
         _convert(item, msg);
         ret.append(item);
     }
-    emit signalGetMessageInfoResp(resp.error_code(), ret);
+    emit signalGetChatMessageResp(resp.error_code(), ret);
 }
 
 void GrpcClient::GetSession(const int64_t  id,
@@ -996,8 +996,8 @@ void GrpcClient::_convert(Bus::Plugin &dst, const ::GrpcLibraryV1::Plugin &src)
     dst.platform  = src.platform();
 }
 
-void GrpcClient::_convert(::GrpcLibraryV1::MessageInfo &dst,
-                          const Bus::MessageInfo       &src)
+void GrpcClient::_convert(::GrpcLibraryV1::ChatMessage &dst,
+                          const Bus::ChatMessage       &src)
 {
     dst.set_id(src.id);
     dst.set_session_id(src.sessionId);
@@ -1007,8 +1007,8 @@ void GrpcClient::_convert(::GrpcLibraryV1::MessageInfo &dst,
     dst.set_timestamp(src.timestamp.toStdString());
 }
 
-void GrpcClient::_convert(Bus::MessageInfo                   &dst,
-                          const ::GrpcLibraryV1::MessageInfo &src)
+void GrpcClient::_convert(Bus::ChatMessage                   &dst,
+                          const ::GrpcLibraryV1::ChatMessage &src)
 {
     dst.id            = src.id();
     dst.sessionId     = src.session_id();

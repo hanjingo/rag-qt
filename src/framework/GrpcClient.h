@@ -50,7 +50,7 @@ class GrpcClient : public QObject
     void StopAnswer(const int64_t  session_id,
                     const int64_t  user_id,
                     const QString &auth);
-    void GetMessageInfo(const int64_t  session_id,
+    void GetChatMessage(const int64_t  session_id,
                         const int64_t  user_id,
                         const QString &auth,
                         int64_t        msg_id = -1,
@@ -128,8 +128,8 @@ class GrpcClient : public QObject
                          const QString &content,
                          const bool     isFinished);
     void signalStopAnswerResp(const int64_t errorCode, const int64_t sessionId);
-    void signalGetMessageInfoResp(const int                        errorCode,
-                                  const QVector<Bus::MessageInfo> &messages);
+    void signalGetChatMessageResp(const int                        errorCode,
+                                  const QVector<Bus::ChatMessage> &messages);
 
     void signalRecognizeResp(const int      errorCode,
                              const QString &transcript,
@@ -168,10 +168,10 @@ class GrpcClient : public QObject
     void _convert(Bus::Session &dst, const ::GrpcLibraryV1::Session &src);
     void _convert(::GrpcLibraryV1::Plugin &dst, const Bus::Plugin &src);
     void _convert(Bus::Plugin &dst, const ::GrpcLibraryV1::Plugin &src);
-    void _convert(::GrpcLibraryV1::MessageInfo &dst,
-                  const Bus::MessageInfo       &src);
-    void _convert(Bus::MessageInfo                   &dst,
-                  const ::GrpcLibraryV1::MessageInfo &src);
+    void _convert(::GrpcLibraryV1::ChatMessage &dst,
+                  const Bus::ChatMessage       &src);
+    void _convert(Bus::ChatMessage                   &dst,
+                  const ::GrpcLibraryV1::ChatMessage &src);
 
   private:
     hj::grpc_channel *m_pChannel;

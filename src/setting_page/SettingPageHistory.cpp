@@ -62,9 +62,9 @@ void SettingPageHistory::_initConnections()
             &SettingPageHistory::_slotDelSessionResp);
 
     connect(GrpcClient::instance(),
-            &GrpcClient::signalGetMessageInfoResp,
+            &GrpcClient::signalGetChatMessageResp,
             this,
-            &SettingPageHistory::_slotGetMessageInfoResp);
+            &SettingPageHistory::_slotGetChatMessageResp);
 
     connect(ui->tbviewCatalog,
             &QTableView::clicked,
@@ -148,14 +148,14 @@ void SettingPageHistory::_slotDelSessionResp(const int               errorCode,
     _refreshChatBrowser(true);
 }
 
-void SettingPageHistory::_slotGetMessageInfoResp(
-    const int errorCode, const QVector<Bus::MessageInfo> &messages)
+void SettingPageHistory::_slotGetChatMessageResp(
+    const int errorCode, const QVector<Bus::ChatMessage> &messages)
 {
     qDebug() << "SettingPageHistory: Get message info response received with "
              << messages.size() << " items.";
     if(errorCode != ErrorCode::OK)
     {
-        qDebug() << "Error in GetMessageInfoResp: " << errorCode;
+        qDebug() << "Error in GetChatMessageResp: " << errorCode;
         return;
     }
 
@@ -213,7 +213,7 @@ void SettingPageHistory::_slotTbviewClicked(const QModelIndex &curr)
     _refreshChatBrowser(true);
     qint64 sessionId = pIdItem->data(Qt::DisplayRole).value<qint64>();
     qDebug() << "Session selected, id: " << sessionId;
-    GrpcClient::instance()->GetMessageInfo(sessionId,
+    GrpcClient::instance()->GetChatMessage(sessionId,
                                            Account::instance()->id(),
                                            Account::instance()->auth(),
                                            -1,
@@ -516,7 +516,7 @@ void SettingPageHistory::_addSessions(const QVector<Bus::Session> &sessions)
     }
 }
 
-void SettingPageHistory::_addMessages(const QVector<Bus::MessageInfo> &messages)
+void SettingPageHistory::_addMessages(const QVector<Bus::ChatMessage> &messages)
 {
     if(m_pHistoryModel == nullptr)
         return;

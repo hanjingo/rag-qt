@@ -60,9 +60,9 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::signalDelSessionResp);
 
     connect(GrpcClient::instance(),
-            &GrpcClient::signalGetMessageInfoResp,
+            &GrpcClient::signalGetChatMessageResp,
             Bus::instance(),
-            &Bus::signalGetMessageInfoResp);
+            &Bus::signalGetChatMessageResp);
 
     connect(GrpcClient::instance(),
             &GrpcClient::signalRecognizeResp,
@@ -119,9 +119,9 @@ BusAdapter::BusAdapter(QObject *parent)
             &BusAdapter::_slotNewSessionFromBus);
 
     connect(Bus::instance(),
-            &Bus::signalGetMessageInfo,
+            &Bus::signalGetChatMessage,
             this,
-            &BusAdapter::_slotGetMessageInfoFromBus);
+            &BusAdapter::_slotGetChatMessageFromBus);
 
     connect(Bus::instance(),
             &Bus::signalRecognize,
@@ -228,14 +228,14 @@ void BusAdapter::_slotGetSessionFromBus(const int64_t id, int limit)
                                        limit);
 }
 
-void BusAdapter::_slotGetMessageInfoFromBus(const int64_t msgId,
+void BusAdapter::_slotGetChatMessageFromBus(const int64_t msgId,
                                             const int64_t sessionId,
                                             int           limit)
 {
-    qDebug() << "Received Bus GetMessageInfo signal from Bus. sessionId: "
+    qDebug() << "Received Bus GetChatMessage signal from Bus. sessionId: "
              << sessionId << ", user_id: " << Account::instance()->id()
              << ", msg_id: " << msgId << ", limit: " << limit;
-    GrpcClient::instance()->GetMessageInfo(sessionId,
+    GrpcClient::instance()->GetChatMessage(sessionId,
                                            Account::instance()->id(),
                                            Account::instance()->auth(),
                                            msgId,
