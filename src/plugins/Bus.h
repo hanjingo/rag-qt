@@ -150,7 +150,7 @@ class Bus : public QObject
     void signalStopRecognizeResp(const int errorCode, const qint64 sessionId);
 
     void signalUpload(const QString &filePath);
-    void signalUploadResp(const int errorCode, const QString &filePath);
+    void signalUploadResp(const int errorCode, const QString &hash);
 
     void signalRetrieve(const QString &question,
                         const int      topK,

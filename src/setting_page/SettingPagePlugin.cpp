@@ -1,5 +1,7 @@
 ﻿#include <libqt/io/file.h>
 
+#include <hj/encoding/fmt.hpp>
+
 #include <QTimer>
 #include <QMessageBox>
 
@@ -63,6 +65,11 @@ void SettingPagePlugin::_initConnections()
             &GrpcClient::signalGetPluginInfoResp,
             this,
             &SettingPagePlugin::_slotGetPluginInfoResp);
+
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalUploadResp,
+            this,
+            &SettingPagePlugin::_slotUploadResp);
 
     connect(m_pPluginCtlBtnGroup,
             &QButtonGroup::idClicked,
@@ -164,7 +171,7 @@ void SettingPagePlugin::_slotPluginCtlBtnClicked(int id)
                     tr("Packed file path is empty, cannot upload plugin."));
                 return;
             }
-            _upload(packedFilePath);
+            _upload(packedFilePath, conf);
         }
         break;
         default:
@@ -245,7 +252,44 @@ void SettingPagePlugin::_slotGetPluginInfoResp(
     }
 }
 
-void SettingPagePlugin::_upload(const QString &filePath)
+void SettingPagePlugin::_slotUploadResp(const int      errorCode,
+                                        const QString &hash)
+{
+    qDebug() << "SettingPagePlugin::_slotUploadResp with errorCode:"
+             << errorCode << ", hash:" << hash;
+    if(errorCode != 0)
+        return;
+
+    if(m_uploadingPlugin.hash == hash)
+    {
+        // publish
+        ::GrpcLibraryV1::Plugin info;
+        info.set_hash(m_uploadingPlugin.hash.toStdString());
+        info.set_name(m_uploadingPlugin.name.toStdString());
+        info.set_desc(m_uploadingPlugin.desc.toStdString());
+        info.set_publisher(m_uploadingPlugin.publisher.toStdString());
+        info.set_version(m_uploadingPlugin.version.toStdString());
+        info.set_timestamp(m_uploadingPlugin.timestamp.toStdString());
+        info.set_platform(m_uploadingPlugin.platform);
+        std::string msg = info.SerializeAsString();
+        msg = hj::format("{}{}{}", TOPIC_PLUGIN_PUB, TOPIC_SEPARATOR, msg);
+        GrpcClient::instance()->Publish(
+            Account::instance()->id(),
+            Account::instance()->auth(),
+            QVector<QString>(QString::fromStdString(msg)));
+        qDebug() << "Plugin uploaded and published with hash: "
+                 << m_uploadingPlugin.hash
+                 << ", name: " << m_uploadingPlugin.name
+                 << ", desc: " << m_uploadingPlugin.desc
+                 << ", publisher: " << m_uploadingPlugin.publisher
+                 << ", version: " << m_uploadingPlugin.version
+                 << ", timestamp: " << m_uploadingPlugin.timestamp
+                 << ", platform: " << m_uploadingPlugin.platform;
+    }
+}
+
+void SettingPagePlugin::_upload(const QString     &filePath,
+                                const Bus::Plugin &conf)
 {
     qDebug() << "SettingPagePlugin::_slotUpload with filePath: " << filePath;
     auto urls = Config::instance()->getPluginUploadUrls();
@@ -269,17 +313,46 @@ void SettingPagePlugin::_upload(const QString &filePath)
         return;
     }
 
+    m_uploadingPlugin = conf;
     connect(uploader,
             &Uploader::signalUploadFinished,
             this,
-            [uploader](bool           success,
-                       const QString &filePath,
-                       const QString &response) {
+            [uploader, conf, url](bool           success,
+                                  const QString &filePath,
+                                  const QString &response) {
                 SettingPagePlugin::instance()->erase(uploader);
 
                 if(success)
                 {
                     qDebug() << "Upload successful, response: " << response;
+                    QString       downloadUrl;
+                    QJsonDocument doc =
+                        QJsonDocument::fromJson(response.toUtf8());
+                    if(!doc.isNull() && doc.isObject())
+                    {
+                        QJsonObject jsonObj = doc.object();
+                        QJsonArray  arr     = jsonObj["files"].toArray();
+                        for(auto item : arr)
+                        {
+                            if(item.isObject()
+                               && item.toObject().contains("download_url"))
+                                downloadUrl =
+                                    item.toObject()["download_url"].toString();
+                        }
+                    }
+
+                    // notify server
+                    GrpcClient::instance()->Upload(conf.hash,
+                                                   Account::instance()->id(),
+                                                   Account::instance()->auth(),
+                                                   downloadUrl,
+                                                   File::fileSizeKB(filePath));
+                    qDebug()
+                        << "notify server upload file filePath:" << filePath
+                        << ", downloadUrl:" << downloadUrl
+                        << ", hash:" << conf.hash;
+
+                    // show message box
                     QMessageBox::information(
                         SettingPagePlugin::instance(),
                         QObject::tr("Upload Successful"),

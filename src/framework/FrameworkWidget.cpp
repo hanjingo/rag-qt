@@ -276,6 +276,10 @@ void FrameworkWidget::_slotLoginResp(const int      errorCode,
     // switch to home page after login
     ui->listWidgetAppBar->setCurrentRow(0);
 
+    // subscribe rag-core publish msg
+    QVector<QString> topics{TOPIC_RAG_CORE};
+    GrpcClient::instance()->Subscribe(user_id, auth, topics);
+
     // query plugin info after login in
     GrpcClient::instance()->GetPluginInfo();
 

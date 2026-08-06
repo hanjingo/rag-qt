@@ -914,7 +914,7 @@ void GrpcClient::Upload(const QString &hash,
 {
     if(!m_pChannel)
     {
-        emit signalUploadResp(ErrorCode::ERR_SERVER_DISCONNECTED, addr);
+        emit signalUploadResp(ErrorCode::ERR_SERVER_DISCONNECTED, hash);
         return;
     }
 
@@ -939,11 +939,113 @@ void GrpcClient::Upload(const QString &hash,
     if(!status.ok())
     {
         auto ec = status.error_code();
-        emit signalUploadResp(ec, addr);
+        emit signalUploadResp(ec, hash);
         return;
     }
 
-    emit signalUploadResp(resp.error_code(), addr);
+    emit signalUploadResp(resp.error_code(), hash);
+}
+
+void GrpcClient::Publish(const int64_t           user_id,
+                         const QString          &auth,
+                         const QVector<QString> &msgs)
+{
+    if(!m_pChannel)
+    {
+        emit signalPublishResp(ErrorCode::ERR_SERVER_DISCONNECTED);
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibraryV1::PublishReq req;
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+    for(const auto &msg : msgs)
+        req.add_msgs(msg.toStdString());
+
+    // Prepare the response and context
+    GrpcLibraryV1::PublishResp resp;
+    grpc::ClientContext        context;
+
+    // Make the RPC call
+    grpc::Status status = stub->Publish(&context, req, &resp);
+
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit signalPublishResp(ec);
+        return;
+    }
+
+    emit signalPublishResp(resp.error_code());
+}
+
+void GrpcClient::Subscribe(const int64_t           user_id,
+                           const QString          &auth,
+                           const QVector<QString> &topics)
+{
+    if(!m_pChannel)
+    {
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibraryV1::SubscribeReq req;
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+    for(const auto &topic : topics)
+        req.add_topics(topic.toStdString());
+
+    // Prepare the response and context
+    GrpcLibraryV1::PubMessage pubMsg;
+    grpc::ClientContext       context;
+
+    SubscribeReactor *reactor = new SubscribeReactor(this, user_id);
+    stub->async()->Subscribe(&reactor->m_context, &req, reactor);
+    reactor->StartCall();
+    reactor->StartRead(&reactor->m_pubMsg);
+}
+
+void GrpcClient::UnSubscribe(const int64_t           user_id,
+                             const QString          &auth,
+                             const QVector<QString> &topics)
+{
+    if(!m_pChannel)
+    {
+        emit signalUnSubscribeResp(ErrorCode::ERR_SERVER_DISCONNECTED, {});
+        return;
+    }
+
+    // Create a stub for the gRPC service
+    auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
+
+    // Prepare the request
+    GrpcLibraryV1::UnSubscribeReq req;
+    req.set_user_id(user_id);
+    req.set_auth(auth.toStdString());
+    for(const auto &topic : topics)
+        req.add_topics(topic.toStdString());
+
+    // Prepare the response and context
+    GrpcLibraryV1::UnSubscribeResp resp;
+    grpc::ClientContext            context;
+
+    // Make the RPC call
+    grpc::Status status = stub->UnSubscribe(&context, req, &resp);
+    if(!status.ok())
+    {
+        auto ec = status.error_code();
+        emit signalUnSubscribeResp(ec, {});
+        return;
+    }
+
+    emit signalUnSubscribeResp(resp.error_code(), topics);
 }
 
 void GrpcClient::OnConnectionLost()
@@ -957,7 +1059,8 @@ void GrpcClient::OnConnectionLost()
     }
 }
 
-void _convert(::GrpcLibraryV1::Session &dst, const Bus::Session &src)
+void GrpcClient::_convert(::GrpcLibraryV1::Session &dst,
+                          const Bus::Session       &src)
 {
     dst.set_id(src.id);
     dst.set_user_id(src.userId);

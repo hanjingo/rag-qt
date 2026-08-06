@@ -352,3 +352,49 @@ void EmbeddingReactor::OnConnectionLost()
     {
     }
 }
+
+// ----------------------------------- EmbeddingReactor ----------------------------
+
+void SubscribeReactor::OnReadDone(bool ok)
+{
+    if(ok)
+    {
+        auto payload = QString::fromStdString(m_pubMsg.payload());
+        auto parts   = payload.split(TOPIC_SEPARATOR, Qt::SkipEmptyParts);
+        if(parts.size() < 2)
+        {
+            qWarning()
+                << "Invalid payload format, expected 'topic|content', got:"
+                << payload;
+            StartRead(&m_pubMsg);
+            return;
+        }
+
+        QString topic   = parts[0];
+        QString content = parts[1];
+        qDebug() << "Async Received PubMessage for user_id:" << m_user_id
+                 << ", topic:" << topic << ", content:" << content;
+
+        TimedQueue::instance().enqueue([topic, content]() {
+            emit GrpcClient::instance() -> signalPubMessageNtf(topic, content);
+        });
+
+        StartRead(&m_pubMsg);
+    }
+}
+
+void SubscribeReactor::OnDone(const grpc::Status &status)
+{
+    qDebug() << "Async Query stream finished for user_id:" << m_user_id << " Status ok? "
+             << status.ok();
+
+    if(!status.ok())
+    {
+        qWarning() << "Subscribe stream finished with error for user_id:"
+                   << m_user_id << ", error:" << status.error_message().c_str();
+    }
+
+    delete this;
+}
+
+// ----------------------------------- RecognizeReactor ----------------------------

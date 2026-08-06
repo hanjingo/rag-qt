@@ -53,6 +53,7 @@ class SettingPagePlugin : public QWidget
                              const QString &pluginName);
     void _slotGetPluginInfoResp(const int                   errorCode,
                                 const QVector<Bus::Plugin> &plugins);
+    void _slotUploadResp(const int errorCode, const QString &hash);
 
     void _slotPluginCtlBtnClicked(int id);
     void _slotEditFilterTextChanged(const QString &content);
@@ -66,7 +67,7 @@ class SettingPagePlugin : public QWidget
     void _delPlugins(const QVector<QString> &names);
     void _filtePluginTable(const QString &filterText);
     Bus::Plugin _findStagedPlugin(const QString &name, const QString &version);
-    void        _upload(const QString &filePath);
+    void        _upload(const QString &filePath, const Bus::Plugin &conf);
 
   private:
     Ui::SettingPagePlugin *ui;
@@ -75,6 +76,8 @@ class SettingPagePlugin : public QWidget
     QStandardItemModel  *m_pPluginListModel;
     QSet<Uploader *>     m_pUploaders;
     QVector<Bus::Plugin> m_stagedPlugins;
+
+    Bus::Plugin m_uploadingPlugin;
 };
 
 #endif // SettingPagePlugin_H

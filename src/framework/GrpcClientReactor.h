@@ -106,4 +106,27 @@ class EmbeddingReactor
     std::atomic<bool> m_isDone{false};
 };
 
+// async subscribe reactor
+class SubscribeReactor
+    : public grpc::ClientReadReactor<GrpcLibraryV1::PubMessage>
+{
+  public:
+    SubscribeReactor(QPointer<GrpcClient> client, int64_t user_id)
+        : m_client(client)
+        , m_user_id(user_id)
+    {
+        qDebug() << "SubscribeReactor created for user_id:" << user_id;
+    }
+
+    void OnReadDone(bool ok) override;
+    void OnDone(const grpc::Status &status) override;
+
+    GrpcLibraryV1::PubMessage m_pubMsg;
+    grpc::ClientContext       m_context;
+
+  private:
+    QPointer<GrpcClient> m_client;
+    int64_t              m_user_id;
+};
+
 #endif // GRPCCLIENTREACTOR_H

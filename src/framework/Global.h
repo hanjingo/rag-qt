@@ -32,4 +32,8 @@ static constexpr const char *KEY_ASR_CONFIG        = "asr_config";
 static constexpr const char *KEY_NETWORK_CONFIG    = "networks";
 static constexpr const char *KEY_TRANSLATOR_CONFIG = "audio translators";
 
+static constexpr const char *TOPIC_SEPARATOR  = "|";
+static constexpr const char *TOPIC_RAG_CORE   = "topic-rag-core";
+static constexpr const char *TOPIC_PLUGIN_PUB = "topic-plugin-pub";
+
 #endif // GLOBAL_H

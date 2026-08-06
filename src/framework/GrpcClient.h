@@ -109,6 +109,19 @@ class GrpcClient : public QObject
                 const QString &addr,
                 const int64_t  size_kb);
 
+    void Publish(const int64_t           user_id,
+                 const QString          &auth,
+                 const QVector<QString> &msgs);
+
+    void Subscribe(const int64_t           user_id,
+                   const QString          &auth,
+                   const QVector<QString> &topics);
+
+    void UnSubscribe(const int64_t           user_id,
+                     const QString          &auth,
+                     const QVector<QString> &topics);
+
+
   signals:
     void signalGrpcConnected(const QString &address);
     void signalGrpcConnectFailed(const QString &address);
@@ -159,6 +172,13 @@ class GrpcClient : public QObject
                             const QString &addr,
                             const int64_t  size_kb);
     void signalUploadResp(const int errorCode, const QString &hash);
+
+    void signalPublishResp(const int errorCode);
+
+    void signalPubMessageNtf(const QString &topic, const QString &content);
+
+    void signalUnSubscribeResp(const int               errorCode,
+                               const QVector<QString> &unsubscribedTopics);
 
   public slots:
     void OnConnectionLost();

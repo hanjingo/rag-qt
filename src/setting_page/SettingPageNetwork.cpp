@@ -76,7 +76,7 @@ QVector<Config::NetworkConfig> SettingPageNetwork::GetNetworkConfigs()
 
 void SettingPageNetwork::_slotPong(const int64_t timestamp)
 {
-    qDebug() << "Pong received with timestamp:" << timestamp;
+    // qDebug() << "Pong received with timestamp:" << timestamp;
     auto ms = QDateTime::currentMSecsSinceEpoch();
     ui->lblCoreServDelay->setText(QString::number(ms - timestamp));
 }
