@@ -1,0 +1,36 @@
+QSpinBox {
+    border: 1.5px solid #CFD8DC;
+    border-radius: 4px;
+    padding: 4px;
+    min-height: 20px;
+    font-family: "Consolas", "微软雅黑";
+    font-size: 14px;
+}
+
+/* 上按钮 */
+QSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 18px;
+    border-left: 1px solid #CFD8DC;
+    border-bottom: 0.5px solid #CFD8DC;
+    background-color: #F5F5F5;
+}
+
+QSpinBox::up-button:hover {
+    background-color: #E0E0E0;
+}
+
+/* 下按钮 */
+QSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 18px;
+    border-left: 1px solid #CFD8DC;
+    border-top: 0.5px solid #CFD8DC;
+    background-color: #F5F5F5;
+}
+
+QSpinBox::down-button:hover {
+    background-color: #E0E0E0;
+}

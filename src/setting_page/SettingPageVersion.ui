@@ -48,14 +48,14 @@ border-radius: 6px;}</string>
          <widget class="QLabel" name="lblLogo">
           <property name="minimumSize">
            <size>
-            <width>75</width>
-            <height>75</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>75</width>
-            <height>75</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="autoFillBackground">
@@ -121,7 +121,7 @@ border-radius: 6px;}</string>
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>1</height>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -208,7 +208,7 @@ text-align: center;
 }</string>
           </property>
           <property name="text">
-           <string>V1.0.0.1</string>
+           <string>V0.0.1</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>

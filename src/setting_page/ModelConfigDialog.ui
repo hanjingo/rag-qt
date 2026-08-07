@@ -47,13 +47,13 @@
             <widget class="QLabel" name="lblCreateTime">
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -95,13 +95,13 @@
             <widget class="QLabel" name="lblApiKey_2">
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -143,13 +143,13 @@
             <widget class="QLabel" name="lblID">
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -191,13 +191,13 @@
             <widget class="QLabel" name="lblPublisher">
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -239,13 +239,13 @@
             <widget class="QLabel" name="lblName">
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -282,7 +282,7 @@
           <widget class="QLabel" name="lblTitleBase">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -306,13 +306,13 @@
             <widget class="QLabel" name="lblApiKey">
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -354,13 +354,13 @@
             <widget class="QLabel" name="lblAddr">
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -395,7 +395,7 @@
             <widget class="QPushButton" name="btnModelAddr">
              <property name="maximumSize">
               <size>
-               <width>35</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -415,13 +415,13 @@
             <widget class="QLabel" name="lblPipeline">
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -460,13 +460,13 @@
               <widget class="QLabel" name="lblPrice">
                <property name="minimumSize">
                 <size>
-                 <width>100</width>
+                 <width>0</width>
                  <height>0</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>100</width>
+                 <width>16777215</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -501,7 +501,7 @@
               <widget class="QLabel" name="lblPriceUnit">
                <property name="minimumSize">
                 <size>
-                 <width>100</width>
+                 <width>0</width>
                  <height>0</height>
                 </size>
                </property>
@@ -549,7 +549,7 @@
           <widget class="QLabel" name="lblNumSeqMax">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -568,7 +568,7 @@
           <widget class="QLabel" name="lblNumBatch">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -587,7 +587,7 @@
           <widget class="QLabel" name="lblNumThreadsBatch">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -606,7 +606,7 @@
           <widget class="QLabel" name="lblNumThreads">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -625,7 +625,7 @@
           <widget class="QLabel" name="lblYarnAttnFactor">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -644,7 +644,7 @@
           <widget class="QLabel" name="lblYarnBetaFast">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -663,7 +663,7 @@
           <widget class="QLabel" name="lblContextTitle">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -682,7 +682,7 @@
           <widget class="QLabel" name="lblNumUBatch">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -701,7 +701,7 @@
           <widget class="QLabel" name="lblNumContext">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -768,7 +768,7 @@
           <widget class="QLabel" name="lblYarnBetaSlow">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -851,7 +851,7 @@
           <widget class="QLabel" name="lblRopeFreqScale">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -886,7 +886,7 @@
           <widget class="QLabel" name="lblYarnOrigContext">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -905,7 +905,7 @@
           <widget class="QLabel" name="lblDefragThold">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -972,7 +972,7 @@
           <widget class="QLabel" name="lblYarnExtFactor">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1023,7 +1023,7 @@
           <widget class="QLabel" name="lblRopeFreqBase">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1093,7 +1093,7 @@
           <widget class="QLabel" name="lblSamplingTitle">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1112,7 +1112,7 @@
           <widget class="QLabel" name="lblPenaltyLastN">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1147,7 +1147,7 @@
           <widget class="QLabel" name="lblMinP">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1182,7 +1182,7 @@
           <widget class="QLabel" name="lblTopPMinKeep">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1217,7 +1217,7 @@
           <widget class="QLabel" name="lblMinPMinKeep">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1252,7 +1252,7 @@
           <widget class="QLabel" name="lblTopP">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1287,7 +1287,7 @@
           <widget class="QLabel" name="lblTemperatureDelta">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1306,7 +1306,7 @@
           <widget class="QLabel" name="lblPenaltyPresent">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1325,7 +1325,7 @@
           <widget class="QLabel" name="lblPenaltyFreq">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1344,7 +1344,7 @@
           <widget class="QLabel" name="lblTemperatureExt">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1395,7 +1395,7 @@
           <widget class="QLabel" name="lblPenaltyRepeat">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1462,7 +1462,7 @@
           <widget class="QLabel" name="lblTemperature">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1497,7 +1497,7 @@
           <widget class="QLabel" name="lblTopK">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1532,7 +1532,7 @@
           <widget class="QLabel" name="lblTemperatureExponent">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1567,7 +1567,7 @@
           <widget class="QLabel" name="lblSeed">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1627,7 +1627,7 @@
           <widget class="QLabel" name="lblWindowSize">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1646,7 +1646,7 @@
           <widget class="QLabel" name="lblControlTitle">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1665,7 +1665,7 @@
           <widget class="QLabel" name="lblStopWords">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>

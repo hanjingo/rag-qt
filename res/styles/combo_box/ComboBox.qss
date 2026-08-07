@@ -6,6 +6,8 @@ QComboBox {
     background-color: transparent; 
 
     padding-left: 4px; 
+
+    qproperty-iconSize: 30px 30px;
 }
 
 QComboBox::drop-down {

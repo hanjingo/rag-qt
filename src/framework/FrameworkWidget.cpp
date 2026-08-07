@@ -52,6 +52,8 @@ FrameworkWidget::FrameworkWidget(QWidget *parent)
     setAttribute(Qt::WA_StyledBackground, true);
     setMouseTracking(true);
 
+    QCoreApplication::instance()->installEventFilter(this);
+
     _initConnections();
     _initAppBar();
     _initControlBar();
@@ -113,11 +115,16 @@ void FrameworkWidget::mousePressEvent(QMouseEvent *event)
             return;
         } else
         {
-            m_isDragging     = true;
-            m_pressGlobalPos = event->globalPosition().toPoint();
-            m_pressGeometry  = geometry();
-            event->accept();
-            return;
+            QPoint menuBarPos =
+                ui->menuBar->mapFromGlobal(event->globalPosition().toPoint());
+            if(ui->menuBar->rect().contains(menuBarPos))
+            {
+                m_isDragging     = true;
+                m_pressGlobalPos = event->globalPosition().toPoint();
+                m_pressGeometry  = geometry();
+                event->accept();
+                return;
+            }
         }
     }
 
@@ -141,7 +148,8 @@ void FrameworkWidget::mouseMoveEvent(QMouseEvent *event)
         if(m_resizeRegion & ResizeBottom)
             newGeom.setBottom(newGeom.bottom() + delta.y());
 
-        const QSize min = minimumSize();
+        //const QSize min = minimumSize();
+        const QSize min = minimumSize().expandedTo(minimumSizeHint());
         if(newGeom.width() < min.width())
         {
             if(m_resizeRegion & ResizeLeft)
@@ -220,6 +228,21 @@ void FrameworkWidget::changeEvent(QEvent *event)
     {
         ui->retranslateUi(this);
     }
+}
+
+bool FrameworkWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    if(event->type() == QEvent::MouseMove)
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        if(!m_isResizing && !m_isDragging)
+        {
+            int region =
+                _hitTestResizeRegion(mouseEvent->globalPosition().toPoint());
+            _updateResizeCursor(region);
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 void FrameworkWidget::_slotLogin(const QString &username,
@@ -702,6 +725,8 @@ void FrameworkWidget::_initStackedWidget()
     ui->stackedWidget->addWidget(m_pSettingPageWgtInst);
 
     ui->stackedWidget->setCurrentIndex(0);
+
+    ui->btnUser->setStyleSheet(StyleMgr::ParseFile(":/styles/headimg_btn"));
 }
 
 void FrameworkWidget::_initConnections()
@@ -832,7 +857,6 @@ void FrameworkWidget::_initServer()
 void FrameworkWidget::_initLanguage()
 {
     ui->comboLang->setStyleSheet(StyleMgr::ParseFile(":/styles/combo_box"));
-    ui->comboLang->setIconSize(QSize(24, 24));
 
     // get local language
     QString localLang = System::instance()->LocalLang();

@@ -1,0 +1,11 @@
+QToolButton{
+    background: rgba(70, 184, 244, 0.40);
+    border-radius: 36px;
+    color: rgb(255, 255, 255);
+    font-family: "微软雅黑";
+
+    min-width: 72px;
+    max-width: 72px;
+    min-height: 72px;
+    max-height: 72px;
+}

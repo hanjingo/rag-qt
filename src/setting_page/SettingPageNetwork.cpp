@@ -110,12 +110,43 @@ void SettingPageNetwork::_slotNetConfigCkGroupClicked(int id)
     emit this->signalSwitchAccount();
 }
 
+void SettingPageNetwork::_slotHeartbeatTimeout()
+{
+    if(!GrpcClient::instance()->IsConnected())
+    {
+        qDebug() << "gRPC client is not connected. Skipping heartbeat.";
+        return;
+    }
+
+    auto now = QDateTime::currentMSecsSinceEpoch();
+    GrpcClient::instance()->Heartbeat(now);
+}
+
+void SettingPageNetwork::_slotConfigUpdate()
+{
+    qDebug()
+        << "Configuration update signal received. Reloading network configs.";
+    _loadConfigFiles();
+}
+
 void SettingPageNetwork::_initUI()
 {
-    _loadConfigFiles();
-
     ui->btnSave->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
     ui->btnNetTest->setStyleSheet(StyleMgr::ParseFile(":/styles/push_button"));
+
+    ui->editCoreServIP->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/ip_line_edit"));
+    ui->editCoreServIPBackup1->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/ip_line_edit"));
+    ui->editCoreServIPBackup2->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/ip_line_edit"));
+
+    ui->editCoreServPort->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/port_line_edit"));
+    ui->editCoreServPortBackup1->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/port_line_edit"));
+    ui->editCoreServPortBackup2->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/port_line_edit"));
 
     m_pNetConfigCkGroup->addButton(ui->ckCoreEnable, 0);
     m_pNetConfigCkGroup->addButton(ui->ckCoreEnableBackup1, 1);
@@ -148,6 +179,11 @@ void SettingPageNetwork::_initConnections()
             &QButtonGroup::idClicked,
             this,
             &SettingPageNetwork::_slotNetConfigCkGroupClicked);
+
+    connect(Config::instance(),
+            &Config::signalConfigUpdate,
+            this,
+            &SettingPageNetwork::_slotConfigUpdate);
 
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(_slotHeartbeatTimeout()));
 }
@@ -238,16 +274,4 @@ void SettingPageNetwork::_resetDelayValues()
     ui->lblCoreServDelay->setText("N/A");
     ui->lblCoreServDelayBackup1->setText("N/A");
     ui->lblCoreServDelayBackup2->setText("N/A");
-}
-
-void SettingPageNetwork::_slotHeartbeatTimeout()
-{
-    if(!GrpcClient::instance()->IsConnected())
-    {
-        qDebug() << "gRPC client is not connected. Skipping heartbeat.";
-        return;
-    }
-
-    auto now = QDateTime::currentMSecsSinceEpoch();
-    GrpcClient::instance()->Heartbeat(now);
 }

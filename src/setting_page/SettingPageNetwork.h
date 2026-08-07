@@ -43,6 +43,7 @@ class SettingPageNetwork : public QWidget
     void _slotBtnNetTestClicked();
     void _slotNetConfigCkGroupClicked(int id);
     void _slotHeartbeatTimeout();
+    void _slotConfigUpdate();
 
   private:
     void _initUI();

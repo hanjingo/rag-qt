@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
+    <width>1105</width>
     <height>757</height>
    </rect>
   </property>
@@ -25,18 +25,33 @@
   <property name="styleSheet">
    <string notr="true">QWidget#FrameworkWidget{background-color:#7B8DA3;}</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" rowspan="2">
-    <widget class="QWidget" name="DockWidget" native="true">
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>3</number>
+   </property>
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="dockWidget" native="true">
      <property name="minimumSize">
       <size>
-       <width>72</width>
+       <width>75</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>72</width>
+       <width>75</width>
        <height>16777215</height>
       </size>
      </property>
@@ -48,32 +63,29 @@ border-bottom-left-radius:0px;
 border-bottom-right-radius:8px;}</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="spacing">
-       <number>15</number>
-      </property>
       <property name="leftMargin">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="topMargin">
        <number>15</number>
       </property>
       <property name="rightMargin">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>1</number>
       </property>
       <item>
        <widget class="QListWidget" name="listWidgetAppBar">
         <property name="minimumSize">
          <size>
-          <width>72</width>
+          <width>0</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>72</width>
+          <width>16777215</width>
           <height>16777215</height>
          </size>
         </property>
@@ -84,16 +96,10 @@ border-bottom-right-radius:8px;}</string>
       </item>
       <item>
        <widget class="QToolButton" name="btnUser">
-        <property name="minimumSize">
-         <size>
-          <width>72</width>
-          <height>72</height>
-         </size>
-        </property>
         <property name="maximumSize">
          <size>
-          <width>72</width>
-          <height>72</height>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="font">
@@ -103,8 +109,7 @@ border-bottom-right-radius:8px;}</string>
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QToolButton{background:rgba(70,184,244,0.40);
-border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;;}</string>
+         <string notr="true"/>
         </property>
         <property name="text">
          <string/>
@@ -130,257 +135,222 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
      </layout>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QWidget" name="widget" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QLabel" name="lblNotice">
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>WELCOME!!!</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>411</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboLang">
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
+   <item>
+    <layout class="QVBoxLayout" name="rightWgt">
+     <item>
+      <widget class="QWidget" name="menuBar" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../res/res.qrc">
-           <normaloff>:/icons/flag_cn</normaloff>:/icons/flag_cn</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../res/res.qrc">
-           <normaloff>:/icons/flag_en</normaloff>:/icons/flag_en</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../res/res.qrc">
-           <normaloff>:/icons/flag_ge</normaloff>:/icons/flag_ge</iconset>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnMinimize">
-        <property name="focusPolicy">
-         <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res/res.qrc">
-          <normaloff>:/icons/minimize</normaloff>:/icons/minimize</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnAudio">
-        <property name="focusPolicy">
-         <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res/res.qrc">
-          <normaloff>:/icons/microphone_enable</normaloff>
-          <normalon>:/icons/microphone_disable</normalon>:/icons/microphone_enable</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnSelectScreen">
-        <property name="focusPolicy">
-         <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res/res.qrc">
-          <normaloff>:/icons/select_screen</normaloff>:/icons/select_screen</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnSwitch">
-        <property name="focusPolicy">
-         <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../res/res.qrc">
-          <normaloff>:/icons/logout</normaloff>:/icons/logout</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnExit">
-        <property name="focusPolicy">
-         <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/icons/quit_usual</normalon>
-         </iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>45</width>
-          <height>45</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="lblNetStatus">
-        <property name="minimumSize">
-         <size>
-          <width>150</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLabel#label_2{color: rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;;font:16px;}</string>
-        </property>
-        <property name="text">
-         <string>Disconnected</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignmentFlag::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QLabel" name="lblDate">
+         <widget class="QLabel" name="lblNotice">
           <property name="minimumSize">
            <size>
-            <width>120</width>
-            <height>20</height>
+            <width>0</width>
+            <height>0</height>
            </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>120</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-            <italic>false</italic>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LayoutDirection::RightToLeft</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QLabel#lbl_Date{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
           </property>
           <property name="text">
-           <string>2021-11-03</string>
+           <string>WELCOME!!!</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>411</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboLang">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>45</width>
+            <height>45</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../res/res.qrc">
+             <normaloff>:/icons/flag_cn</normaloff>:/icons/flag_cn</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../res/res.qrc">
+             <normaloff>:/icons/flag_en</normaloff>:/icons/flag_en</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../res/res.qrc">
+             <normaloff>:/icons/flag_ge</normaloff>:/icons/flag_ge</iconset>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMinimize">
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../res/res.qrc">
+            <normaloff>:/icons/minimize</normaloff>:/icons/minimize</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>45</width>
+            <height>45</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnAudio">
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../res/res.qrc">
+            <normaloff>:/icons/microphone_enable</normaloff>
+            <normalon>:/icons/microphone_disable</normalon>:/icons/microphone_enable</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>45</width>
+            <height>45</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnSelectScreen">
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../res/res.qrc">
+            <normaloff>:/icons/select_screen</normaloff>:/icons/select_screen</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>45</width>
+            <height>45</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnSwitch">
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../res/res.qrc">
+            <normaloff>:/icons/logout</normaloff>:/icons/logout</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>45</width>
+            <height>45</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnExit">
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normalon>:/icons/quit_usual</normalon>
+           </iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>45</width>
+            <height>45</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lblNetStatus">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QLabel#label_2{color: rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;;font:16px;}</string>
+          </property>
+          <property name="text">
+           <string>Disconnected</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -388,66 +358,112 @@ border-radius:36px;color:rgb(255, 255, 255);font-family:&quot;微软雅黑&quot;
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lblTime">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="lblDate">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>微软雅黑</family>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LayoutDirection::RightToLeft</enum>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QLabel#lbl_Date{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
+            </property>
+            <property name="text">
+             <string>2021-11-03</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignmentFlag::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblTime">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>微软雅黑</family>
+              <italic>false</italic>
+              <bold>false</bold>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QLabel#lbl_Time{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
+            </property>
+            <property name="text">
+             <string>11:16:12</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignmentFlag::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QWidget" name="gapWgt" native="true">
           <property name="minimumSize">
            <size>
-            <width>120</width>
-            <height>25</height>
+            <width>15</width>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>120</width>
-            <height>25</height>
+            <width>15</width>
+            <height>16777215</height>
            </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-            <italic>false</italic>
-            <bold>false</bold>
-            <kerning>true</kerning>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QLabel#lbl_Time{font-family:&quot;微软雅黑&quot;;font:16px;color:#2D3238;}</string>
-          </property>
-          <property name="text">
-           <string>11:16:12</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignCenter</set>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QWidget" name="topWidget" native="true">
-     <property name="styleSheet">
-      <string notr="true">QWidget#widget{border-image:url(:/NewImg/interTittle.svg);}</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout"/>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="3">
-    <widget class="QStackedWidget" name="stackedWidget">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="currentIndex">
-      <number>-1</number>
-     </property>
-    </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QStackedWidget" name="stackedWidget">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="currentIndex">
+        <number>-1</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
-  <zorder>topWidget</zorder>
   <zorder>stackedWidget</zorder>
-  <zorder>DockWidget</zorder>
-  <zorder>widget</zorder>
+  <zorder>dockWidget</zorder>
+  <zorder>menuBar</zorder>
  </widget>
  <resources>
   <include location="../../res/res.qrc"/>

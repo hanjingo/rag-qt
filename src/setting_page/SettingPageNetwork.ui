@@ -27,13 +27,13 @@ border-bottom-right-radius:15px;}</string>
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>24</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>24</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="text">
@@ -42,9 +42,15 @@ border-bottom-right-radius:15px;}</string>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
       <widget class="QCheckBox" name="ckCoreEnable">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -53,18 +59,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1">
       <widget class="QLabel" name="lblCoreServIP">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -81,18 +87,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="2">
       <widget class="QLineEdit" name="editCoreServIP">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -115,18 +121,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="3">
       <widget class="QLabel" name="lblCoreServPort">
        <property name="minimumSize">
         <size>
-         <width>50</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -143,18 +149,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="4">
       <widget class="QLineEdit" name="editCoreServPort">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -180,31 +186,37 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="5">
       <spacer name="horizontalSpacer">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>395</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item>
+     <item row="0" column="6">
       <widget class="QLabel" name="lblCoreServDelay">
        <property name="minimumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="sizeIncrement">
@@ -227,18 +239,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="7">
       <widget class="QLabel" name="lblCoreServDelayUnit">
        <property name="minimumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -255,29 +267,31 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
+     <item row="1" column="0">
       <widget class="QCheckBox" name="ckCoreEnableBackup1">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="1">
       <widget class="QLabel" name="lblCoreServIPBackup1">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -294,18 +308,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="2">
       <widget class="QLineEdit" name="editCoreServIPBackup1">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -325,18 +339,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="3">
       <widget class="QLabel" name="lblCoreServPortBackup1">
        <property name="minimumSize">
         <size>
-         <width>50</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -353,18 +367,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="4">
       <widget class="QLineEdit" name="editCoreServPortBackup1">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -387,31 +401,37 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="5">
       <spacer name="horizontalSpacer_2">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>43</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item>
+     <item row="1" column="6">
       <widget class="QLabel" name="lblCoreServDelayBackup1">
        <property name="minimumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="sizeIncrement">
@@ -434,18 +454,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="7">
       <widget class="QLabel" name="lblCoreServDelayBackup1Unit">
        <property name="minimumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -462,29 +482,31 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
+     <item row="2" column="0">
       <widget class="QCheckBox" name="ckCoreEnableBackup2">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="1">
       <widget class="QLabel" name="lblCoreServIPBackup2">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -501,18 +523,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="2">
       <widget class="QLineEdit" name="editCoreServIPBackup2">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -532,18 +554,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="3">
       <widget class="QLabel" name="lblCoreServPortBackup2">
        <property name="minimumSize">
         <size>
-         <width>50</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -560,18 +582,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="4">
       <widget class="QLineEdit" name="editCoreServPortBackup2">
        <property name="minimumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -594,31 +616,37 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="5">
       <spacer name="horizontalSpacer_3">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>43</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item>
+     <item row="2" column="6">
       <widget class="QLabel" name="lblCoreServDelayBackup2">
        <property name="minimumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="sizeIncrement">
@@ -641,18 +669,18 @@ border-bottom-right-radius:15px;}</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="7">
       <widget class="QLabel" name="lblCoreServDelayBackup2Unit">
        <property name="minimumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>103</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -673,6 +701,12 @@ border-bottom-right-radius:15px;}</string>
    </item>
    <item>
     <spacer name="verticalSpacer">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="orientation">
       <enum>Qt::Orientation::Vertical</enum>
      </property>
@@ -687,17 +721,30 @@ border-bottom-right-radius:15px;}</string>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnNetTest">
        <property name="minimumSize">
         <size>
-         <width>100</width>
-         <height>45</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>132</width>
-         <height>54</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -715,14 +762,14 @@ border-bottom-right-radius:15px;}</string>
       <widget class="QPushButton" name="btnSave">
        <property name="minimumSize">
         <size>
-         <width>100</width>
-         <height>45</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>132</width>
-         <height>54</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -735,6 +782,19 @@ border-bottom-right-radius:15px;}</string>
         <bool>true</bool>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

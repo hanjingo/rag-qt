@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>694</width>
+    <width>616</width>
     <height>583</height>
    </rect>
   </property>
@@ -45,15 +45,9 @@
            </property>
            <item>
             <widget class="QLabel" name="lblMetaFilePath">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -88,7 +82,7 @@
             <widget class="QPushButton" name="btnMetaFilePath">
              <property name="maximumSize">
               <size>
-               <width>35</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -103,7 +97,7 @@
           <widget class="QLabel" name="lblTitle">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -125,15 +119,9 @@
            </property>
            <item>
             <widget class="QLabel" name="lblIndexFilePath">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -168,7 +156,7 @@
             <widget class="QPushButton" name="btnIndexFilePath">
              <property name="maximumSize">
               <size>
-               <width>35</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -186,15 +174,9 @@
            </property>
            <item>
             <widget class="QLabel" name="lblOriginFilePath">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -229,7 +211,7 @@
             <widget class="QPushButton" name="btnOriginFilePath">
              <property name="maximumSize">
               <size>
-               <width>35</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -247,15 +229,9 @@
            </property>
            <item>
             <widget class="QLabel" name="lblId">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -317,15 +293,9 @@
            </property>
            <item>
             <widget class="QLabel" name="lblDimension">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -358,15 +328,9 @@
            </item>
            <item>
             <widget class="QLabel" name="lblChunkSize">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -399,15 +363,9 @@
            </item>
            <item>
             <widget class="QLabel" name="lblOverlap">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -447,15 +405,9 @@
            </property>
            <item>
             <widget class="QLabel" name="lblEncoding">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -530,12 +482,6 @@
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="lblTitleChunkParams">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
            <property name="font">
             <font>
              <italic>false</italic>
@@ -558,12 +504,6 @@
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
           <widget class="QLabel" name="lblTitleProgress">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
            <property name="font">
             <font>
              <italic>false</italic>

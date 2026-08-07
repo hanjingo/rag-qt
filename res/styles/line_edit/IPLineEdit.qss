@@ -1,0 +1,48 @@
+QLineEdit {
+    /* 尺寸与边框 */
+    min-height: 36px;
+    max-height: 36px;
+    border: 1.5px solid #CFD8DC;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    
+    /* 文本与字体 */
+    color: #2C3E50;
+    /* IP/域名推荐使用等宽字体（Monospace/Consolas），对齐效果更好 */
+    font-family: "Consolas", "Courier New", "微软雅黑", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+
+    /* 内边距：左侧留出空间可放网络图标，右侧留出内边距 */
+    padding-left: 12px;
+    padding-right: 12px;
+
+    /* 选中文本的颜色 */
+    selection-background-color: #008273;
+    selection-color: #FFFFFF;
+}
+
+/* 悬停状态（Hover） */
+QLineEdit:hover {
+    border-color: #90A4AE;
+    background-color: #FAFAFA;
+}
+
+/* 获取焦点状态（Focus - 输入中） */
+QLineEdit:focus {
+    border: 2px solid #008273; /* 使用您先前设定的主题色 #008273 */
+    background-color: #FFFFFF;
+}
+
+/* 禁用状态（Disabled） */
+QLineEdit:disabled {
+    border: 1px solid #E0E0E0;
+    background-color: #F5F5F5;
+    color: #B0BEC5;
+}
+
+/* 占位符文本样式（Placeholder） */
+QLineEdit[text=""] {
+    color: #90A4AE;
+    font-style: italic;
+}

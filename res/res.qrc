@@ -85,6 +85,8 @@
         <file alias="title_label">styles/label/TitleLabel.qss</file>
 
         <file alias="line_edit">styles/line_edit/LineEdit.qss</file>
+        <file alias="ip_line_edit">styles/line_edit/IPLineEdit.qss</file>
+        <file alias="port_line_edit">styles/line_edit/PortLineEdit.qss</file>
         <file alias="routine_line_edit">styles/line_edit/RoutineLineEdit.qss</file>
         <file alias="passwd_line_edit">styles/line_edit/PasswdLineEdit.qss</file>
 
@@ -98,11 +100,14 @@
 
         <file alias="scroll_bar">styles/scroll_bar/ScrollBar.qss</file>
 
+        <file alias="double_spin_box">styles/spin_box/DoubleSpinBox.qss</file>
+
         <file alias="tab_widget">styles/tab_widget/TabWidget.qss</file>
 
         <file alias="data_table_view">styles/table_view/DataTableView.qss</file>
 
         <file alias="plugin_btn">styles/tool_button/PluginBtn.qss</file>
+        <file alias="headimg_btn">styles/tool_button/HeadImgBtn.qss</file>
 
         <file alias="transparent_widget">styles/widget/TransparentWidget.qss</file>
     </qresource>

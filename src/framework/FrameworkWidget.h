@@ -61,6 +61,7 @@ class FrameworkWidget : public QWidget
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void changeEvent(QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
   private slots:
     void _slotLogin(const QString &username, const QString &password);

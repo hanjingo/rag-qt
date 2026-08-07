@@ -53,6 +53,29 @@ void SettingPageHardware::_initUI()
 
     // not allowed to edit the model path
     ui->editVADModelPath->setDisabled(true);
+
+    // init asr param config page
+    ui->spinNoSpeechThreshold->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+    ui->spinLogProbThreshold->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+    ui->spinEntropyThreshold->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+    ui->spinLengthPenalty->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+    ui->spinMaxInitTs->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+    ui->spinTemperatureInc->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+    ui->spinTemperature->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+
+    ui->spinVADThreshold->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+    ui->spinVADMaxSpeechDurS->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
+    ui->spinVADSamplesOverlap->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/double_spin_box"));
 }
 
 void SettingPageHardware::_initConnections()
@@ -206,12 +229,12 @@ void SettingPageHardware::_slotAsrConfigUpdate()
 void SettingPageHardware::_slotVADEnabled(bool isEnabled)
 {
     // ui->editVADModelPath->setEnabled(isEnabled);
-    ui->editVADThreshold->setEnabled(isEnabled);
+    ui->spinVADThreshold->setEnabled(isEnabled);
     ui->editVADMinSpeechDurMs->setEnabled(isEnabled);
     ui->editVADMinSilenceDurMs->setEnabled(isEnabled);
-    ui->editVADMaxSpeechDurS->setEnabled(isEnabled);
+    ui->spinVADMaxSpeechDurS->setEnabled(isEnabled);
     ui->editVADSpeechPadMs->setEnabled(isEnabled);
-    ui->editVADSamplesOverlap->setEnabled(isEnabled);
+    ui->spinVADSamplesOverlap->setEnabled(isEnabled);
 }
 
 void SettingPageHardware::_addAudioConfig(const QString &id)
@@ -266,32 +289,25 @@ void SettingPageHardware::_set(const Config::AsrParam &conf)
     ui->ckSuppressBlank->setChecked(conf.suppressBlank);
     ui->ckSuppressNst->setChecked(conf.suppressNst);
     ui->editSuppressRegex->setText(conf.suppressRegex);
-    ui->editTemperature->setText(QString::number(conf.temperature, 'f', 1));
-    ui->editTemperatureInc->setText(
-        QString::number(conf.temperatureInc, 'f', 1));
-    ui->editMaxInitTs->setText(QString::number(conf.maxInitialTs, 'f', 1));
-    ui->editLengthPenalty->setText(QString::number(conf.lengthPenalty, 'f', 1));
-    ui->editEntropyThreshold->setText(
-        QString::number(conf.entropyThold, 'f', 1));
-    ui->editLogProbThreshold->setText(
-        QString::number(conf.logprobThold, 'f', 1));
-    ui->editNoSpeechThreshold->setText(
-        QString::number(conf.noSpeechThold, 'f', 1));
+    ui->spinTemperature->setValue(conf.temperature);
+    ui->spinTemperatureInc->setValue(conf.temperatureInc);
+    ui->spinMaxInitTs->setValue(conf.maxInitialTs);
+    ui->spinLengthPenalty->setValue(conf.lengthPenalty);
+    ui->spinEntropyThreshold->setValue(conf.entropyThold);
+    ui->spinLogProbThreshold->setValue(conf.logprobThold);
+    ui->spinNoSpeechThreshold->setValue(conf.noSpeechThold);
 
     ui->ckVADEnable->setChecked(conf.vad);
     ui->editVADModelPath->setText(conf.vadModelPath);
-    ui->editVADThreshold->setText(
-        QString::number(conf.vadParams.threshold, 'f', 1));
+    ui->spinVADThreshold->setValue(conf.vadParams.threshold);
     ui->editVADMinSpeechDurMs->setText(
         QString::number(conf.vadParams.minSpeechDurMs));
     ui->editVADMinSilenceDurMs->setText(
         QString::number(conf.vadParams.minSilenceDurMs));
-    ui->editVADMaxSpeechDurS->setText(
-        QString::number(conf.vadParams.maxSpeechDurS, 'f', 1));
+    ui->spinVADMaxSpeechDurS->setValue(conf.vadParams.maxSpeechDurS);
     ui->editVADSpeechPadMs->setText(
         QString::number(conf.vadParams.speechPadMs));
-    ui->editVADSamplesOverlap->setText(
-        QString::number(conf.vadParams.samplesOverlap, 'f', 1));
+    ui->spinVADSamplesOverlap->setValue(conf.vadParams.samplesOverlap);
 
     ui->editMinNewSampleSize->setText(QString::number(conf.minNewSampleSize));
     ui->editMinAudioBufferSize->setText(
@@ -322,24 +338,23 @@ void SettingPageHardware::_get(Config::AsrParam &param)
     param.suppressBlank      = ui->ckSuppressBlank->isChecked();
     param.suppressNst        = ui->ckSuppressNst->isChecked();
     param.suppressRegex      = ui->editSuppressRegex->text();
-    param.temperature        = ui->editTemperature->text().toFloat();
-    param.temperatureInc     = ui->editTemperatureInc->text().toFloat();
-    param.maxInitialTs       = ui->editMaxInitTs->text().toFloat();
-    param.lengthPenalty      = ui->editLengthPenalty->text().toFloat();
-    param.entropyThold       = ui->editEntropyThreshold->text().toFloat();
-    param.logprobThold       = ui->editLogProbThreshold->text().toFloat();
-    param.noSpeechThold      = ui->editNoSpeechThreshold->text().toFloat();
+    param.temperature        = ui->spinTemperature->value();
+    param.temperatureInc     = ui->spinTemperatureInc->value();
+    param.maxInitialTs       = ui->spinMaxInitTs->value();
+    param.lengthPenalty      = ui->spinLengthPenalty->value();
+    param.entropyThold       = ui->spinEntropyThreshold->value();
+    param.logprobThold       = ui->spinLogProbThreshold->value();
+    param.noSpeechThold      = ui->spinNoSpeechThreshold->value();
 
     param.vad                      = ui->ckVADEnable->isChecked();
     param.vadModelPath             = ui->editVADModelPath->text();
-    param.vadParams.threshold      = ui->editVADThreshold->text().toFloat();
+    param.vadParams.threshold      = ui->spinVADThreshold->value();
     param.vadParams.minSpeechDurMs = ui->editVADMinSpeechDurMs->text().toInt();
     param.vadParams.minSilenceDurMs =
         ui->editVADMinSilenceDurMs->text().toInt();
-    param.vadParams.maxSpeechDurS = ui->editVADMaxSpeechDurS->text().toFloat();
-    param.vadParams.speechPadMs   = ui->editVADSpeechPadMs->text().toInt();
-    param.vadParams.samplesOverlap =
-        ui->editVADSamplesOverlap->text().toFloat();
+    param.vadParams.maxSpeechDurS  = ui->spinVADMaxSpeechDurS->value();
+    param.vadParams.speechPadMs    = ui->editVADSpeechPadMs->text().toInt();
+    param.vadParams.samplesOverlap = ui->spinVADSamplesOverlap->value();
 
     param.minNewSampleSize   = ui->editMinNewSampleSize->text().toInt();
     param.minAudioBufferSize = ui->editMinAudioBufferSize->text().toInt();

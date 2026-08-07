@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1248</width>
-    <height>736</height>
+    <height>747</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -25,9 +25,15 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QListWidget" name="listWidgetCatalog">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
-       <width>200</width>
+       <width>16777215</width>
        <height>16777215</height>
       </size>
      </property>
@@ -46,6 +52,12 @@
      </property>
      <item>
       <widget class="QStackedWidget" name="stackPage">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <widget class="QWidget" name="pageAudio">
         <layout class="QGridLayout" name="gridLayout_4">
          <property name="leftMargin">
@@ -65,6 +77,12 @@
          </property>
          <item row="0" column="0">
           <widget class="QWidget" name="wgtAudio" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="styleSheet">
             <string notr="true">background-color:#C1CCD6;</string>
            </property>
@@ -87,7 +105,7 @@
                <widget class="QLabel" name="lblAudioTranslatorTitle">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>0</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -106,14 +124,20 @@
                <widget class="QComboBox" name="comboAudioTranslator">
                 <property name="minimumSize">
                  <size>
-                  <width>300</width>
-                  <height>25</height>
+                  <width>0</width>
+                  <height>0</height>
                  </size>
                 </property>
                </widget>
               </item>
               <item>
                <spacer name="horizontalSpacer">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
@@ -129,15 +153,21 @@
             </item>
             <item>
              <widget class="QWidget" name="wgtFullParam" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="styleSheet">
                <string notr="true">background-color:#C1CCD6;</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_3">
-               <item row="10" column="0">
-                <widget class="QLabel" name="lblNoSpeechThreshold">
+               <item row="0" column="0">
+                <widget class="QLabel" name="lblFullParamTitle">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -148,106 +178,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>No Speech Threshold</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="2">
-                <widget class="QLabel" name="lblDurMs">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Duration Milliseconds</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QCheckBox" name="ckTranslate">
-                 <property name="text">
-                  <string>Translate</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="8" column="0">
-                <widget class="QLabel" name="lblTemperature">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Temperature</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="2">
-                <widget class="QLabel" name="lblEntropyThreshold">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Entropy Threshold</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QLabel" name="lblMaxTextCtx">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Max Text Context</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="8" column="5">
-                <widget class="QLineEdit" name="editMaxInitTs">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string>0.0-1.0</string>
+                  <string>Full Param</string>
                  </property>
                 </widget>
                </item>
@@ -255,7 +186,7 @@
                 <widget class="QLabel" name="lblThreadsNum">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -270,99 +201,14 @@
                  </property>
                 </widget>
                </item>
-               <item row="8" column="2">
-                <widget class="QLabel" name="lblTemperatureInc">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Temperature Increment</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="1">
-                <widget class="QLineEdit" name="editLengthPenalty">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string>0.0-1.0</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="0">
-                <widget class="QCheckBox" name="ckPrintSpecial">
-                 <property name="text">
-                  <string>Print Special</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="8" column="4">
-                <widget class="QLabel" name="lblMaxInitTs">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Max Initial Ts</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QCheckBox" name="ckNoCtx">
-                 <property name="text">
-                  <string>No Context</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="8" column="1">
-                <widget class="QLineEdit" name="editTemperature">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string>0.0-1.0</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QCheckBox" name="ckDetectLanguage">
-                 <property name="text">
-                  <string>Detect Language</string>
-                 </property>
-                </widget>
-               </item>
                <item row="1" column="1">
                 <widget class="QLineEdit" name="editThreadsNum">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <italic>false</italic>
@@ -380,34 +226,11 @@
                  </property>
                 </widget>
                </item>
-               <item row="9" column="3">
-                <widget class="QLineEdit" name="editEntropyThreshold">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string>0.0-1.0</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="2">
-                <widget class="QCheckBox" name="ckPrintRealTime">
-                 <property name="text">
-                  <string>Print Real Time</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="2">
-                <widget class="QLabel" name="lblLanguage">
+               <item row="1" column="2">
+                <widget class="QLabel" name="lblMaxTextCtx">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -418,28 +241,18 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Language</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="1">
-                <widget class="QLineEdit" name="editNoSpeechThreshold">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string>0.0-1.0</string>
+                  <string>Max Text Context</string>
                  </property>
                 </widget>
                </item>
                <item row="1" column="3">
                 <widget class="QLineEdit" name="editMaxTextCtx">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <italic>false</italic>
@@ -457,72 +270,11 @@
                  </property>
                 </widget>
                </item>
-               <item row="8" column="3">
-                <widget class="QLineEdit" name="editTemperatureInc">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string>0.0-1.0</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="1">
-                <widget class="QCheckBox" name="ckPrintProgress">
-                 <property name="text">
-                  <string>Print Progress</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="0">
-                <widget class="QLabel" name="lblLengthPenalty">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Length Penalty</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="lblFullParamTitle">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Full Param</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
+               <item row="1" column="4">
                 <widget class="QLabel" name="lblOffsetMs">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -537,24 +289,14 @@
                  </property>
                 </widget>
                </item>
-               <item row="9" column="5">
-                <widget class="QLineEdit" name="editLogProbThreshold">
-                 <property name="font">
-                  <font>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="placeholderText">
-                  <string>0.0-1.0</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
+               <item row="1" column="5">
                 <widget class="QLineEdit" name="editOffsetMs">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <italic>false</italic>
@@ -569,8 +311,33 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="3">
+               <item row="1" column="6">
+                <widget class="QLabel" name="lblDurMs">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Duration Milliseconds</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="7">
                 <widget class="QLineEdit" name="editDurMs">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <italic>false</italic>
@@ -588,8 +355,59 @@
                  </property>
                 </widget>
                </item>
-               <item row="3" column="3">
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="ckTranslate">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Translate</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="ckDetectLanguage">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Detect Language</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QLabel" name="lblLanguage">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Language</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="3">
                 <widget class="QComboBox" name="comboLanguage">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <item>
                   <property name="text">
                    <string>auto</string>
@@ -607,25 +425,262 @@
                  </item>
                 </widget>
                </item>
-               <item row="4" column="2">
-                <widget class="QCheckBox" name="ckSingleSegment">
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="ckNoCtx">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="text">
-                  <string>Single Segment</string>
+                  <string>No Context</string>
                  </property>
                 </widget>
                </item>
-               <item row="4" column="1">
+               <item row="3" column="1">
                 <widget class="QCheckBox" name="ckNoTimestamps">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>No Timestamps</string>
                  </property>
                 </widget>
                </item>
-               <item row="9" column="4">
+               <item row="3" column="2">
+                <widget class="QCheckBox" name="ckSingleSegment">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Single Segment</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QCheckBox" name="ckPrintSpecial">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Print Special</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QCheckBox" name="ckPrintProgress">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Print Progress</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="2">
+                <widget class="QCheckBox" name="ckPrintRealTime">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Print Real Time</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="3">
+                <widget class="QCheckBox" name="ckPrintTimeStamp">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Print Time Stamps</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="lblTemperature">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Temperature</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QDoubleSpinBox" name="spinTemperature">
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="2">
+                <widget class="QLabel" name="lblTemperatureInc">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Temperature Increment</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="3">
+                <widget class="QDoubleSpinBox" name="spinTemperatureInc">
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="4">
+                <widget class="QLabel" name="lblMaxInitTs">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max Initial Ts</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="5">
+                <widget class="QDoubleSpinBox" name="spinMaxInitTs">
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QLabel" name="lblLengthPenalty">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Length Penalty</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="QDoubleSpinBox" name="spinLengthPenalty">
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="2">
+                <widget class="QLabel" name="lblEntropyThreshold">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Entropy Threshold</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="3">
+                <widget class="QDoubleSpinBox" name="spinEntropyThreshold">
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="4">
                 <widget class="QLabel" name="lblLogProbThreshold">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -640,10 +695,48 @@
                  </property>
                 </widget>
                </item>
-               <item row="5" column="3">
-                <widget class="QCheckBox" name="ckPrintTimeStamp">
+               <item row="6" column="5">
+                <widget class="QDoubleSpinBox" name="spinLogProbThreshold">
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="6">
+                <widget class="QLabel" name="lblNoSpeechThreshold">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
-                  <string>Print Time Stamps</string>
+                  <string>No Speech Threshold</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="7">
+                <widget class="QDoubleSpinBox" name="spinNoSpeechThreshold">
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -652,15 +745,75 @@
             </item>
             <item>
              <widget class="QWidget" name="wgtMuteControl_2" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="styleSheet">
                <string notr="true">background-color:#C1CCD6;</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <item>
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="1" column="1" colspan="2">
+                <widget class="QCheckBox" name="ckSuppressNst">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Suppress Nst</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QLabel" name="lblSuppressRegex">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Suppress Regex</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="3" colspan="2">
+                <widget class="QLineEdit" name="editInitPrompt">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
                 <widget class="QLabel" name="lblNoiseControlTitle">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -675,127 +828,84 @@
                  </property>
                 </widget>
                </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_6">
-                 <item>
-                  <widget class="QCheckBox" name="ckSuppressBlank">
-                   <property name="text">
-                    <string>Suppress Blank</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="ckSuppressNst">
-                   <property name="text">
-                    <string>Suppress Nst</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Orientation::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
+               <item row="1" column="4">
+                <widget class="QLineEdit" name="editSuppressRegex">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="placeholderText">
+                  <string/>
+                 </property>
+                </widget>
                </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_4">
-                 <item>
-                  <widget class="QLabel" name="lblSuppressRegex">
-                   <property name="minimumSize">
-                    <size>
-                     <width>100</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Suppress Regex</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="editSuppressRegex">
-                   <property name="font">
-                    <font>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
+               <item row="2" column="0" colspan="2">
                 <widget class="QCheckBox" name="ckCarryInitPrompt">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>Carry Initial Prompt</string>
                  </property>
                 </widget>
                </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_5">
-                 <item>
-                  <widget class="QLabel" name="lblInitPrompt">
-                   <property name="minimumSize">
-                    <size>
-                     <width>100</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Initial Prompt</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="editInitPrompt">
-                   <property name="font">
-                    <font>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
+               <item row="2" column="2">
+                <widget class="QLabel" name="lblInitPrompt">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Initial Prompt</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="ckSuppressBlank">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Suppress Blank</string>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
             </item>
             <item>
              <widget class="QWidget" name="wgtFullParam_2" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="styleSheet">
                <string notr="true">background-color:#C1CCD6;</string>
               </property>
@@ -804,7 +914,7 @@
                 <widget class="QLabel" name="lblVADTitle">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -823,6 +933,12 @@
                 <layout class="QHBoxLayout" name="horizontalLayout_2">
                  <item>
                   <widget class="QCheckBox" name="ckVADEnable">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>Enable</string>
                    </property>
@@ -832,7 +948,7 @@
                   <widget class="QLabel" name="lblVADModelPath">
                    <property name="minimumSize">
                     <size>
-                     <width>100</width>
+                     <width>0</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -849,6 +965,12 @@
                  </item>
                  <item>
                   <widget class="QLineEdit" name="editVADModelPath">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="font">
                     <font>
                      <italic>false</italic>
@@ -869,6 +991,12 @@
                 <layout class="QGridLayout" name="gridLayout_2">
                  <item row="0" column="5">
                   <widget class="QLineEdit" name="editVADMinSilenceDurMs">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="font">
                     <font>
                      <italic>false</italic>
@@ -887,7 +1015,7 @@
                   <widget class="QLabel" name="lblVADThreshold">
                    <property name="minimumSize">
                     <size>
-                     <width>100</width>
+                     <width>0</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -906,7 +1034,7 @@
                   <widget class="QLabel" name="lblVADMinSpeechDurMs">
                    <property name="minimumSize">
                     <size>
-                     <width>100</width>
+                     <width>0</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -925,7 +1053,7 @@
                   <widget class="QLabel" name="lblVADMinSilenceDurMs">
                    <property name="minimumSize">
                     <size>
-                     <width>100</width>
+                     <width>0</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -942,6 +1070,12 @@
                  </item>
                  <item row="0" column="3">
                   <widget class="QLineEdit" name="editVADMinSpeechDurMs">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="font">
                     <font>
                      <italic>false</italic>
@@ -956,43 +1090,11 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="1">
-                  <widget class="QLineEdit" name="editVADThreshold">
-                   <property name="font">
-                    <font>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>0.0-1.0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="5">
-                  <widget class="QLineEdit" name="editVADSamplesOverlap">
-                   <property name="font">
-                    <font>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>0.0-1.0</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="1" column="4">
                   <widget class="QLabel" name="lblVADSamplesOverlap">
                    <property name="minimumSize">
                     <size>
-                     <width>100</width>
+                     <width>0</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -1009,6 +1111,12 @@
                  </item>
                  <item row="1" column="3">
                   <widget class="QLineEdit" name="editVADSpeechPadMs">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="font">
                     <font>
                      <italic>false</italic>
@@ -1027,7 +1135,7 @@
                   <widget class="QLabel" name="lblVADSpeechPadMs">
                    <property name="minimumSize">
                     <size>
-                     <width>100</width>
+                     <width>0</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -1046,7 +1154,7 @@
                   <widget class="QLabel" name="lblVADMaxSpeechDurS">
                    <property name="minimumSize">
                     <size>
-                     <width>100</width>
+                     <width>0</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -1061,19 +1169,42 @@
                    </property>
                   </widget>
                  </item>
+                 <item row="1" column="5">
+                  <widget class="QDoubleSpinBox" name="spinVADSamplesOverlap">
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.100000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="1" column="1">
-                  <widget class="QLineEdit" name="editVADMaxSpeechDurS">
-                   <property name="font">
-                    <font>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
+                  <widget class="QDoubleSpinBox" name="spinVADMaxSpeechDurS">
+                   <property name="decimals">
+                    <number>1</number>
                    </property>
-                   <property name="text">
-                    <string/>
+                   <property name="maximum">
+                    <double>100.000000000000000</double>
                    </property>
-                   <property name="placeholderText">
-                    <string>0.0-100.0</string>
+                   <property name="singleStep">
+                    <double>0.100000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QDoubleSpinBox" name="spinVADThreshold">
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.100000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -1084,12 +1215,24 @@
             </item>
             <item>
              <widget class="QWidget" name="wgtMuteControl" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="styleSheet">
                <string notr="true">background-color:#C1CCD6;</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_5">
                <item row="1" column="3">
                 <widget class="QLineEdit" name="editMinAudioBufferSize">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <italic>false</italic>
@@ -1108,7 +1251,7 @@
                 <widget class="QLabel" name="lblMinAudioBufferSize">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -1125,6 +1268,12 @@
                </item>
                <item row="1" column="1">
                 <widget class="QLineEdit" name="editMinNewSampleSize">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <italic>false</italic>
@@ -1143,7 +1292,7 @@
                 <widget class="QLabel" name="lblMaxAudioBufferSize">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -1162,7 +1311,7 @@
                 <widget class="QLabel" name="lblBufferControlTitle">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -1181,7 +1330,7 @@
                 <widget class="QLabel" name="lblMinNewSampleSize">
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
+                   <width>0</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -1198,6 +1347,12 @@
                </item>
                <item row="1" column="5">
                 <widget class="QLineEdit" name="editMaxAudioBufferSize">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <italic>false</italic>
@@ -1217,6 +1372,12 @@
             </item>
             <item>
              <spacer name="verticalSpacer">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="orientation">
                <enum>Qt::Orientation::Vertical</enum>
               </property>
@@ -1241,7 +1402,7 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>50</height>
+         <height>0</height>
         </size>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1262,6 +1423,12 @@
         </property>
         <item>
          <spacer name="horizontalSpacer_2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>
           </property>
@@ -1277,8 +1444,8 @@
          <widget class="QPushButton" name="btnSave">
           <property name="minimumSize">
            <size>
-            <width>100</width>
-            <height>45</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="text">

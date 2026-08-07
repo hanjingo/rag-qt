@@ -1,0 +1,54 @@
+/* -----------------------------------------------------------
+ * QLineEdit 基础样式 - 端口号（Port）输入框
+ * ----------------------------------------------------------- */
+QLineEdit {
+    /* 尺寸限制：端口号通常为 1~5 位数字，适当限制宽度 */
+    min-width: 90px;
+    max-width: 120px;
+    min-height: 36px;
+    max-height: 36px;
+
+    /* 边框与圆角 */
+    border: 1.5px solid #CFD8DC;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+
+    /* 文本与字体：使用等宽字体确保数字对齐美观 */
+    color: #2C3E50;
+    font-family: "Consolas", "Segoe UI", "微软雅黑", sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+
+    /* 内边距 */
+    padding-left: 8px;
+    padding-right: 8px;
+
+    /* 选中背景色与字体色 */
+    selection-background-color: #008273;
+    selection-color: #FFFFFF;
+}
+
+/* 鼠标悬停状态（Hover） */
+QLineEdit:hover {
+    border-color: #90A4AE;
+    background-color: #FAFAFA;
+}
+
+/* 获取焦点状态（Focus - 输入中） */
+QLineEdit:focus {
+    border: 2px solid #008273; /* 延续统一的主题颜色 */
+    background-color: #FFFFFF;
+}
+
+/* 禁用状态（Disabled） */
+QLineEdit:disabled {
+    border: 1px solid #E0E0E0;
+    background-color: #F5F5F5;
+    color: #B0BEC5;
+}
+
+/* 占位符颜色 */
+QLineEdit::placeholder {
+    color: #B0BEC5;
+    font-weight: normal;
+}

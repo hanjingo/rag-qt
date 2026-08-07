@@ -45,7 +45,7 @@
          <widget class="QPushButton" name="btnPackAddr">
           <property name="maximumSize">
            <size>
-            <width>35</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -81,7 +81,7 @@
          <widget class="QPushButton" name="btnDllPath">
           <property name="maximumSize">
            <size>
-            <width>35</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -117,7 +117,7 @@
          <widget class="QPushButton" name="btnIconPath">
           <property name="maximumSize">
            <size>
-            <width>35</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -151,7 +151,7 @@
          <widget class="QLineEdit" name="editVersionMajor">
           <property name="maximumSize">
            <size>
-            <width>50</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -168,7 +168,7 @@
          <widget class="QLineEdit" name="editVersionMinor">
           <property name="maximumSize">
            <size>
-            <width>50</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -185,7 +185,7 @@
          <widget class="QLineEdit" name="editVersionPatch">
           <property name="maximumSize">
            <size>
-            <width>50</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -216,7 +216,7 @@
          <widget class="QComboBox" name="comboPlatform">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>0</width>
             <height>0</height>
            </size>
           </property>
@@ -305,7 +305,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>100</height>
+            <height>0</height>
            </size>
           </property>
          </widget>

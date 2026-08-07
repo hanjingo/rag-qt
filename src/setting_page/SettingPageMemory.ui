@@ -25,20 +25,27 @@ border-bottom-right-radius:15px;}</string>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLineEdit" name="editFilter"/>
+      <widget class="QLineEdit" name="editFilter">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="btnAdd">
        <property name="minimumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="text">
@@ -60,14 +67,14 @@ border-bottom-right-radius:15px;}</string>
       <widget class="QPushButton" name="btnDel">
        <property name="minimumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="text">
@@ -90,14 +97,14 @@ border-bottom-right-radius:15px;}</string>
       <widget class="QPushButton" name="btnSetting">
        <property name="minimumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="text">
@@ -120,14 +127,14 @@ border-bottom-right-radius:15px;}</string>
       <widget class="QPushButton" name="btnSave">
        <property name="minimumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="text">
@@ -150,14 +157,14 @@ border-bottom-right-radius:15px;}</string>
       <widget class="QPushButton" name="btnImport">
        <property name="minimumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="text">
@@ -182,8 +189,8 @@ border-bottom-right-radius:15px;}</string>
     <widget class="QTableView" name="tbviewMem">
      <property name="minimumSize">
       <size>
-       <width>10</width>
-       <height>10</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
      <property name="autoFillBackground">
