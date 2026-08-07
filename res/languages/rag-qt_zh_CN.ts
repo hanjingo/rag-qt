@@ -50,7 +50,7 @@
 </context>
 
 <context>
-    <name>FrameworkWidget</name>
+    <name>MainPageWidget</name>
     <message>
         <source>Disconnected</source>
         <translation>未连接</translation>

@@ -7,7 +7,7 @@
 #include "ui_LoginPage.h"
 
 QT_BEGIN_NAMESPACE
-class FrameworkWidget;
+class MainPageWidget;
 QT_END_NAMESPACE
 
 namespace Ui

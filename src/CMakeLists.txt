@@ -4,7 +4,7 @@
 add_subdirectory(splash_page)
 add_subdirectory(login_page)
 add_subdirectory(framework)
-add_subdirectory(home_page)
+add_subdirectory(main_page)
 add_subdirectory(setting_page)
 
 add_subdirectory(plugins)

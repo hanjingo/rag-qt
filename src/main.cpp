@@ -4,7 +4,7 @@
 
 #include "SplashScreen.h"
 #include "LoginWidget.h"
-#include "FrameworkWidget.h"
+#include "MainPageWidget.h"
 #include "Config.h"
 #include "System.h"
 #include "Crash.h"
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     hj::crash_handler::instance()->set_local_path(absPath.toStdString());
 
     // show login page, hide framework page
-    FrameworkWidget::instance()->hide();
+    MainPageWidget::instance()->hide();
     LoginWidget::instance()->hide();
 
     // init config
@@ -35,11 +35,11 @@ int main(int argc, char *argv[])
     QString output;
     if(Config::instance()->isCoreRun())
     {
-        FrameworkWidget::instance()->InitCore();
+        MainPageWidget::instance()->InitCore();
         for(int i = 0; i <= 50 && splash.getProgress() < 50; i++)
         {
             splash.setProgress(i);
-            output = FrameworkWidget::instance()->ReadAllStandardOutput();
+            output = MainPageWidget::instance()->ReadAllStandardOutput();
             splash.appendLog(output);
             if(output.contains("init core service finish"))
             {
@@ -55,14 +55,14 @@ int main(int argc, char *argv[])
     }
 
     // init network
-    FrameworkWidget::instance()->InitNetwork();
+    MainPageWidget::instance()->InitNetwork();
     for(int i = splash.getProgress(); i <= 100 && splash.getProgress() < 100;
         i++)
     {
         splash.setProgress(i);
-        output = FrameworkWidget::instance()->ReadAllStandardOutput();
+        output = MainPageWidget::instance()->ReadAllStandardOutput();
         splash.appendLog(output);
-        if(FrameworkWidget::instance()->IsConnectedToCoreService())
+        if(MainPageWidget::instance()->IsConnectedToCoreService())
         {
             splash.setProgress(100);
             break;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     splash.close();
 
     // start login
-    FrameworkWidget::instance()->hide();
+    MainPageWidget::instance()->hide();
     LoginWidget::instance()->show();
 
     return a.exec();
