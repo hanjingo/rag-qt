@@ -144,9 +144,12 @@ void SettingPageHardware::_retranslate()
 void SettingPageHardware::_slotComboAudioTranslatorCurrentChanged(int iIndex)
 {
     qDebug() << "Audio translator combo box current index changed: " << iIndex;
+    if(iIndex < 0 || iIndex >= ui->comboAudioTranslator->count())
+        return;
+
     auto id   = ui->comboAudioTranslator->itemText(iIndex);
     auto conf = Config::instance()->getAsrParamById(id);
-    if(conf.id != id)
+    if(conf.id == "" || conf.id != id)
         return;
 
     _set(conf);
@@ -170,7 +173,8 @@ void SettingPageHardware::_slotBtnSaveClicked()
                 _get(confs[i]);
             }
             Config::instance()->setAsrParams(confs);
-            Config::instance()->save(Config::getConfigFilePath());
+            Config::instance()->saveAsr(
+                Config::instance()->getAsrConfigFilePath());
         }
         break;
         case 1: // GPU
@@ -186,12 +190,17 @@ void SettingPageHardware::_slotAsrConfigUpdate()
     // update asr config
     qDebug() << "_slotAsrConfigUpdate";
     ui->comboAudioTranslator->clear();
-    auto confs = Config::instance()->getAsrParams();
-    for(auto conf : confs)
+    auto ids = Config::instance()->getAsrIds();
+    for(auto id : ids)
     {
-        ui->comboAudioTranslator->addItem(conf.id);
+        ui->comboAudioTranslator->addItem(id);
     }
-    ui->comboAudioTranslator->setCurrentIndex(0);
+
+    auto currIndex = ui->comboAudioTranslator->currentIndex();
+    if(currIndex >= 0 && currIndex < ids.size())
+        ui->comboAudioTranslator->setCurrentIndex(currIndex);
+    else
+        ui->comboAudioTranslator->setCurrentIndex(0);
 }
 
 void SettingPageHardware::_slotVADEnabled(bool isEnabled)
@@ -255,7 +264,7 @@ void SettingPageHardware::_set(const Config::AsrParam &conf)
     ui->ckCarryInitPrompt->setChecked(conf.carryInitialPrompt);
     ui->editInitPrompt->setText(conf.initialPrompt);
     ui->ckSuppressBlank->setChecked(conf.suppressBlank);
-    ui->ckSuppressNst->setChecked(conf.suppressBlank);
+    ui->ckSuppressNst->setChecked(conf.suppressNst);
     ui->editSuppressRegex->setText(conf.suppressRegex);
     ui->editTemperature->setText(QString::number(conf.temperature, 'f', 1));
     ui->editTemperatureInc->setText(
@@ -296,6 +305,8 @@ void SettingPageHardware::_get(Config::AsrParam &param)
     param.id                 = ui->comboAudioTranslator->currentText();
     param.nThreads           = ui->editThreadsNum->text().toInt();
     param.nMaxTextCtx        = ui->editMaxTextCtx->text().toInt();
+    param.offsetMs           = ui->editOffsetMs->text().toInt();
+    param.durationMs         = ui->editDurMs->text().toInt();
     param.translate          = ui->ckTranslate->isChecked();
     param.detectLanguage     = ui->ckDetectLanguage->isChecked();
     param.language           = ui->comboLanguage->currentText();

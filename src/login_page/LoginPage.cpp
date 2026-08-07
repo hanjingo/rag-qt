@@ -55,9 +55,12 @@ void LoginPage::_slotBtnRegisterClicked()
 {
     QString username = ui->editAccount->text();
     QString password = ui->editPassword->text();
+
+#ifndef DEBUG
     // TODO: Add validation for username and password before emitting the signal.
     if(!_validateInput(username, password))
         return;
+#endif
 
     emit signalRegister(username, _encryptPassword(password));
 }

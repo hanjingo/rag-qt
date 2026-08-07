@@ -473,6 +473,18 @@ QVector<Config::AsrParam> Config::getAsrParams()
     return params;
 }
 
+QVector<QString> Config::getAsrIds()
+{
+    QVector<QString> ids;
+    for(const auto &asr : m_asrArr)
+    {
+        auto obj = asr.toObject();
+        if(obj.contains("id"))
+            ids.append(obj["id"].toString());
+    }
+    return ids;
+}
+
 void Config::setAsrParams(QVector<Config::AsrParam> &params)
 {
     m_asrArr = QJsonArray();
@@ -481,6 +493,8 @@ void Config::setAsrParams(QVector<Config::AsrParam> &params)
         QJsonObject obj;
         _convert(obj, param);
         m_asrArr.append(obj);
+        qDebug() << "convert asr param to JSON:"
+                 << QJsonDocument(obj).toJson(QJsonDocument::Indented);
     }
 
     emit signalAsrConfigUpdate();
@@ -735,29 +749,33 @@ void Config::_convert(Config::AsrParam &param, const QJsonObject &obj)
     param.suppressBlank      = obj["suppress_blank"].toBool(true);
     param.suppressNst        = obj["suppress_nst"].toBool(false);
 
-    param.temperature    = obj["temperature"].toDouble();
-    param.temperatureInc = obj["temperature_inc"].toDouble();
+    param.temperature    = obj["temperature"].toString().toDouble();
+    param.temperatureInc = obj["temperature_inc"].toString().toDouble();
 
-    param.maxInitialTs  = obj["max_initial_ts"].toDouble();
-    param.lengthPenalty = obj["length_penalty"].toDouble();
-    param.entropyThold  = obj["entropy_thold"].toDouble();
-    param.logprobThold  = obj["logprob_thold"].toDouble();
-    param.noSpeechThold = obj["no_speech_thold"].toDouble();
+    param.maxInitialTs  = obj["max_initial_ts"].toString().toDouble();
+    param.lengthPenalty = obj["length_penalty"].toString().toDouble();
+    param.entropyThold  = obj["entropy_thold"].toString().toDouble();
+    param.logprobThold  = obj["logprob_thold"].toString().toDouble();
+    param.noSpeechThold = obj["no_speech_thold"].toString().toDouble();
 
     param.vad                       = obj["vad"].toBool(false);
     param.vadModelPath              = obj["vad_model_path"].toString("");
     auto vadObj                     = obj["vad_params"].toObject();
-    param.vadParams.threshold       = vadObj["threshold"].toDouble();
+    param.vadParams.threshold       = vadObj["threshold"].toString().toDouble();
     param.vadParams.minSpeechDurMs  = vadObj["min_speech_duration_ms"].toInt();
     param.vadParams.minSilenceDurMs = vadObj["min_silence_duration_ms"].toInt();
-    param.vadParams.maxSpeechDurS  = vadObj["max_speech_duration_s"].toDouble();
-    param.vadParams.speechPadMs    = vadObj["speech_pad_ms"].toInt();
-    param.vadParams.samplesOverlap = vadObj["samples_overlap"].toDouble();
+    param.vadParams.maxSpeechDurS =
+        vadObj["max_speech_duration_s"].toString().toDouble();
+    param.vadParams.speechPadMs = vadObj["speech_pad_ms"].toInt();
+    param.vadParams.samplesOverlap =
+        vadObj["samples_overlap"].toString().toDouble();
 
     // mute control
     param.minAudioBufferSize = obj["min_audio_buffer_size"].toInt();
     param.maxAudioBufferSize = obj["max_audio_buffer_size"].toInt();
     param.minNewSampleSize   = obj["min_new_sample_size"].toInt();
+    qDebug() << "convert asr param from JSON:"
+             << QJsonDocument(obj).toJson(QJsonDocument::Indented);
 }
 
 void Config::_convert(QJsonObject &obj, const Config::AsrParam &param)

@@ -185,6 +185,7 @@ class Config : public QObject
     Config::AsrParam          getDefaultAsrParam();
     Config::AsrParam          getAsrParamById(const QString &id);
     QVector<Config::AsrParam> getAsrParams();
+    QVector<QString>          getAsrIds();
     void                      setAsrParams(QVector<Config::AsrParam> &parmas);
 
     QVector<Config::NetworkConfig> networkConfigs();
