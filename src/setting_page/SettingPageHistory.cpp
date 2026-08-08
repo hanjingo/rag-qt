@@ -90,6 +90,11 @@ void SettingPageHistory::_initConnections()
             &QPushButton::clicked,
             this,
             &SettingPageHistory::_slotBtnSearchClicked);
+
+    connect(ui->btnCatalogCtl,
+            &QPushButton::clicked,
+            this,
+            &SettingPageHistory::_slotBtnCatalogCtlClicked);
 }
 
 void SettingPageHistory::_slotNewSessionResp(const int           errorCode,
@@ -425,6 +430,20 @@ void SettingPageHistory::_slotBtnSearchClicked()
     }
 }
 
+void SettingPageHistory::_slotBtnCatalogCtlClicked()
+{
+    qDebug() << "Catalog control button clicked.";
+    if(ui->tbviewCatalog->isVisible())
+    {
+        ui->tbviewCatalog->setVisible(false);
+        ui->btnCatalogCtl->setText(">>");
+    } else
+    {
+        ui->tbviewCatalog->setVisible(true);
+        ui->btnCatalogCtl->setText("<<");
+    }
+}
+
 void SettingPageHistory::_initUI()
 {
     // init buttons
@@ -447,6 +466,9 @@ void SettingPageHistory::_initUI()
     ui->tbviewCatalog->setVisible(true);
     ui->tbviewCatalog->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->tbviewCatalog->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    ui->btnCatalogCtl->setStyleSheet(
+        StyleMgr::ParseFile(":/styles/catalog_ctl_btn"));
 
     // init chat browser
     ui->txtBrowserChat->setFocusPolicy(Qt::NoFocus);

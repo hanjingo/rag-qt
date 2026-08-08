@@ -108,6 +108,7 @@
 
         <file alias="plugin_btn">styles/tool_button/PluginBtn.qss</file>
         <file alias="headimg_btn">styles/tool_button/HeadImgBtn.qss</file>
+        <file alias="catalog_ctl_btn">styles/tool_button/CatalogCtlBtn.qss</file>
 
         <file alias="transparent_widget">styles/widget/TransparentWidget.qss</file>
     </qresource>

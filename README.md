@@ -77,3 +77,17 @@ Windows (PowerShell):
 cd build/release-lite
 cpack -C Release -G NSIS
 ```
+
+## Bug
+
+### Qt library lost
+
+if report "Can't find Qt*.dll" error; run:
+
+windows:
+
+```sh
+# open Qt 6.9.3(MSVC 2022 64-bit) terminal; input:
+cd your rag-qt.exe path
+windeployqt rag-qt.exe
+```

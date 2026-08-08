@@ -54,6 +54,8 @@ class SettingPageHistory : public QWidget
 
     void _slotBtnSearchClicked();
 
+    void _slotBtnCatalogCtlClicked();
+
   private:
     void _initUI();
     void _initConnections();

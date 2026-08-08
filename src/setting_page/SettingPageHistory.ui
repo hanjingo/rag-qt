@@ -196,32 +196,15 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_Right">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>24</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
+      <widget class="QToolButton" name="btnCatalogCtl">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
        <property name="text">
-        <string>&gt;&gt;</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignCenter</set>
+        <string>&lt;&lt;</string>
        </property>
       </widget>
      </item>
