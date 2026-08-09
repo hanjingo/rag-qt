@@ -40,6 +40,18 @@ SettingPageMemory::~SettingPageMemory()
 {
 }
 
+void SettingPageMemory::changeEvent(QEvent *event)
+{
+    QWidget::changeEvent(event);
+
+    if(event->type() == QEvent::LanguageChange)
+    {
+        qDebug() << "SettingPageMemory language change event received.";
+        ui->retranslateUi(this);
+        _retranslate();
+    }
+}
+
 void SettingPageMemory::_initUI()
 {
     // init filter edit
@@ -89,6 +101,7 @@ void SettingPageMemory::_initUI()
 
 void SettingPageMemory::_retranslate()
 {
+    _refreshMemTable();
 }
 
 void SettingPageMemory::_initConnections()

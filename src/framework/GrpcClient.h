@@ -33,12 +33,13 @@ class GrpcClient : public QObject
     void RemoveRecognizeReactor(int64_t sessionId);
     void RemoveEmbeddingReactor(int64_t taskId);
 
-    bool IsConnected() const { return m_bIsConnected.load(); }
-    void Connect(const QString &address);
-    void Heartbeat(const int64_t timestamp);
-    void Login(const QString &username, const QString &password);
-    void Logout(const int64_t user_id, const QString &auth);
-    void RegAccount(const QString &username, const QString &password);
+    QString Addr() { return m_strAddress; }
+    bool    IsConnected() const { return m_bIsConnected.load(); }
+    void    Connect(const QString &address);
+    void    Heartbeat(const int64_t timestamp);
+    void    Login(const QString &username, const QString &password);
+    void    Logout(const int64_t user_id, const QString &auth);
+    void    RegAccount(const QString &username, const QString &password);
 
     void Query(const int64_t              id,
                const int64_t              msgId,

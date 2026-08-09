@@ -227,6 +227,7 @@ void MainPageWidget::changeEvent(QEvent *event)
     if(event->type() == QEvent::LanguageChange)
     {
         ui->retranslateUi(this);
+        _retranslate();
     }
 }
 
@@ -921,6 +922,20 @@ void MainPageWidget::_switchAccount()
 
     m_pLoginWgtInst->show();
     this->hide();
+}
+
+void MainPageWidget::_retranslate()
+{
+    auto address = GrpcClient::instance()->Addr();
+    if(GrpcClient::instance()->IsConnected())
+    {
+        ui->lblNetStatus->setText(
+            tr("%1\n%2").arg(address).arg(tr("Connected")));
+    } else
+    {
+        ui->lblNetStatus->setText(
+            tr("%1\n%2").arg(address).arg(tr("Disconnected")));
+    }
 }
 
 void MainPageWidget::_addAppBarItem(const QString &text,

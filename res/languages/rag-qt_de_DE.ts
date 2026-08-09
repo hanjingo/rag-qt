@@ -238,6 +238,74 @@
 </context>
 
 <context>
+    <name>SettingPagePlugin</name>
+    <message>
+        <source>Name</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>Version</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>Zeitstempel</translation>
+    </message>
+    <message>
+        <source>Platform</source>
+        <translation>Plattform</translation>
+    </message>
+    <message>
+        <source>Publisher</source>
+        <translation>Verleger</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hash</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Adresse</translation>
+    </message>
+    <message>
+        <source>Desc</source>
+        <translation>Beschreibung</translation>
+    </message>
+    <message>
+        <source>Tag</source>
+        <translation>Tag</translation>
+    </message>
+</context>
+
+<context>
+    <name>SettingPageMemory</name>
+    <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Index File Path</source>
+        <translation>Index-Dateipfad</translation>
+    </message>
+    <message>
+        <source>Meta File Path</source>
+        <translation>Meta-Dateipfad</translation>
+    </message>
+    <message>
+        <source>Origin File Path</source>
+        <translation>Ursprungsdateipfad</translation>
+    </message>
+    <message>
+        <source>Dimension</source>
+        <translation>Dimension</translation>
+    </message>
+    <message>
+        <source>Flag</source>
+        <translation>Flag</translation>
+    </message>
+</context>
+
+<context>
     <name>SettingPageHardware</name>
     <message>
         <source>Audio Translator</source>

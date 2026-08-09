@@ -127,6 +127,8 @@ class MainPageWidget : public QWidget
     void _exit();
     void _switchAccount();
 
+    void _retranslate();
+
     void
     _addAppBarItem(const QString &text, const QString &iconPath, int index);
 

@@ -182,6 +182,74 @@
 </context>
 
 <context>
+    <name>SettingPagePlugin</name>
+    <message>
+        <source>Name</source>
+        <translation>插件名</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>版本</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>时间戳</translation>
+    </message>
+    <message>
+        <source>Platform</source>
+        <translation>平台</translation>
+    </message>
+    <message>
+        <source>Publisher</source>
+        <translation>发布者</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>哈希</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>地址</translation>
+    </message>
+    <message>
+        <source>Desc</source>
+        <translation>描述</translation>
+    </message>
+    <message>
+        <source>Tag</source>
+        <translation>标签</translation>
+    </message>
+</context>
+
+<context>
+    <name>SettingPageMemory</name>
+    <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Index File Path</source>
+        <translation>索引文件路径</translation>
+    </message>
+    <message>
+        <source>Meta File Path</source>
+        <translation>元数据文件路径</translation>
+    </message>
+    <message>
+        <source>Origin File Path</source>
+        <translation>原始文件路径</translation>
+    </message>
+    <message>
+        <source>Dimension</source>
+        <translation>维度</translation>
+    </message>
+    <message>
+        <source>Flag</source>
+        <translation>标志</translation>
+    </message>
+</context>
+
+<context>
     <name>SettingPageModel</name>
     <message>
         <source>ID</source>

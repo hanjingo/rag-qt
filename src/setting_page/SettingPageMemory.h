@@ -45,6 +45,8 @@ class SettingPageMemory : public QWidget
     explicit SettingPageMemory(QWidget *parent = nullptr);
     ~SettingPageMemory();
 
+    void changeEvent(QEvent *event) override;
+
     void _initUI();
     void _initConnections();
     void _retranslate();
