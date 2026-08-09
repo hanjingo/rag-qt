@@ -1,6 +1,9 @@
 #include <QDebug>
 #include <QCoreApplication>
 
+#include <QVector>
+#include <QJsonObject>
+
 #include <libqt/io/file.h>
 
 #include "BusAdapter.h"
@@ -27,11 +30,6 @@ BusAdapter::BusAdapter(QObject *parent)
             &BusAdapter::signalAudioParamUpdateNtf,
             Bus::instance(),
             &Bus::signalAudioParamUpdateNtf);
-
-    connect(this,
-            &BusAdapter::signalRetrieveResp,
-            Bus::instance(),
-            &Bus::signalRetrieveResp);
 
     connect(GrpcClient::instance(),
             &GrpcClient::signalQueryResp,
@@ -94,6 +92,21 @@ BusAdapter::BusAdapter(QObject *parent)
             Bus::instance(),
             &Bus::signalAudioCaptureStopped);
 
+    connect(MemMgr::instance(),
+            &MemMgr::signalEmbeddingProgress,
+            this,
+            &BusAdapter::_slotEmbeddingProgress);
+
+    connect(MemMgr::instance(),
+            &MemMgr::signalEmbeddingFinished,
+            this,
+            &BusAdapter::_slotEmbeddingFinished);
+
+    connect(MemMgr::instance(),
+            &MemMgr::signalRetrieveFinished,
+            this,
+            &BusAdapter::_slotRetrieveFinished);
+
     // from plugin
     connect(Bus::instance(), &Bus::signalPong, this, &BusAdapter::_slotPong);
 
@@ -142,6 +155,11 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::signalRetrieve,
             this,
             &BusAdapter::_slotRetrieveFromBus);
+
+    connect(Bus::instance(),
+            &Bus::signalEmbedding,
+            this,
+            &BusAdapter::_slotEmbeddingFromBus);
 
     connect(Bus::instance(),
             &Bus::signalAudioCaptureStart,
@@ -296,7 +314,86 @@ void BusAdapter::_slotRetrieveFromBus(const QString &question,
     qDebug() << "Receive Bus Retrieve signal from Bus. question: " << question
              << ", topK: " << topK << ", memoryId: " << memoryId;
 
-    MemMgr::instance()->retrieve(question.toStdString(),
-                                 topK,
-                                 memoryId.toStdString());
+    m_currRetrieveTaskId =
+        MemMgr::instance()->asyncRetrieve(question, topK, memoryId);
+}
+
+void BusAdapter::_slotEmbeddingFromBus(const QStringList &files,
+                                       const QString     &memoryId)
+{
+    qDebug() << "Receive Bus Embedding signal from Bus. memoryId: " << memoryId
+             << ", files:";
+    for(auto file : files)
+        qDebug() << file;
+
+    auto conf       = Config::instance()->getMemoryConfigById(memoryId);
+    m_currEmbTaskId = MemMgr::instance()->asyncEmbedding(files, conf);
+}
+
+void BusAdapter::_slotEmbeddingProgress(const int64_t     taskId,
+                                        const int64_t     chunkId,
+                                        const QString    &memoryId,
+                                        const int         totalChunkNum,
+                                        const int         finishedChunkNum,
+                                        const QByteArray &vectorIndexs)
+{
+    if(taskId != m_currEmbTaskId)
+        return;
+
+    auto conf = Config::instance()->getMemoryConfigById(memoryId);
+    // add embedding to storage
+    std::vector<uint8_t> embeddings(vectorIndexs.begin(), vectorIndexs.end());
+    if(!MemMgr::instance()->add(memoryId.toStdString(),
+                                std::move(embeddings),
+                                conf.dimension,
+                                chunkId))
+    {
+        qDebug() << "BusAdapter::_slotEmbeddingProgress Failed to add "
+                    "embedding index for chunkId "
+                 << chunkId;
+        return;
+    }
+
+    qDebug() << "add embedding index for chunkId " << chunkId;
+}
+
+void BusAdapter::_slotEmbeddingFinished(const int      errorCode,
+                                        const int64_t  taskId,
+                                        const QString &memoryId)
+{
+    qDebug() << "Receive MemMgr Embedding Finished signal. errorCode:"
+             << errorCode << ", taskId:" << taskId
+             << ", currEmbeddingTaskId:" << m_currEmbTaskId;
+    if(taskId != m_currEmbTaskId)
+        return;
+
+    m_currEmbTaskId = -1;
+    // save embedding file
+    auto conf = Config::instance()->getMemoryConfigById(memoryId);
+    MemMgr::instance()->save(memoryId.toStdString(),
+                             conf.indexFilePath.toStdString(),
+                             conf.metaFilePath.toStdString());
+
+    // notify bus
+    emit Bus::instance() -> signalEmbeddingResp(errorCode);
+}
+
+void BusAdapter::_slotRetrieveFinished(const int             errorCode,
+                                       const int64_t         taskId,
+                                       const QString        &text,
+                                       const int             topK,
+                                       const QString        &memoryId,
+                                       QVector<QJsonObject> &memorys)
+{
+    qDebug() << "Receive MemMgr Retrieve Finished signal. errorCode:"
+             << errorCode << ", taskId:" << taskId
+             << ", currRetrieveTaskId:" << m_currRetrieveTaskId << ", memorys:";
+    for(auto mem : memorys)
+        qDebug() << QString::fromUtf8(QJsonDocument(mem).toJson());
+    if(taskId != m_currRetrieveTaskId)
+        return;
+
+    m_currRetrieveTaskId = -1;
+    emit Bus::instance()
+        -> signalRetrieveResp(errorCode, text, topK, memoryId, memorys);
 }

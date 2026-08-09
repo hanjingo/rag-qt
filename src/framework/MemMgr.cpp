@@ -7,7 +7,6 @@
 
 #include "GrpcClient.h"
 #include "Account.h"
-#include "BusAdapter.h"
 #include "Error.h"
 
 bool MemMgr::add(const std::string     &memoryId,
@@ -126,6 +125,30 @@ bool MemMgr::save(const std::string &memoryId,
         return false;
     }
 
+    QFileInfo indexFile(QString::fromStdString(indexFilePath));
+    auto      indexDir = indexFile.absoluteDir();
+    if(!indexDir.exists())
+    {
+        if(!indexDir.mkpath("."))
+        {
+            qWarning() << "Failed to create index directory:"
+                       << indexDir.absolutePath();
+            return false;
+        }
+    }
+
+    QFileInfo metaFile(QString::fromStdString(metaFilePath));
+    QDir      metaDir = metaFile.absoluteDir();
+    if(!metaDir.exists())
+    {
+        if(!metaDir.mkpath("."))
+        {
+            qWarning() << "Failed to create meta directory:"
+                       << metaDir.absolutePath();
+            return false;
+        }
+    }
+
     auto &index = m_mapIndexes[memoryId];
     if(!index.save(indexFilePath.c_str()))
     {
@@ -142,35 +165,150 @@ bool MemMgr::save(const std::string &memoryId,
     return true;
 }
 
-void MemMgr::retrieve(const std::string &question,
-                      const int          topK,
-                      const std::string &memoryId)
+int64_t MemMgr::asyncRetrieve(const QString &text,
+                              const int      topK,
+                              const QString &memoryId)
 {
     // Implementation goes here
     // 1. embedding question
     // 2. retrieve from memoryId
     // 3. index results to meta file
     // 4. return results
-
-    RetrieveTask task;
-    task.id       = std::abs(static_cast<int64_t>(hj::uuid::gen_u64()));
-    task.question = QString::fromStdString(question);
-    task.topK     = topK;
-    task.memoryId = QString::fromStdString(memoryId);
-
-    m_mu.lock();
-    m_mapTasks[task.id] = task;
-    m_mu.unlock();
-
-    auto conf = Config::instance()->getMemoryConfigById(task.memoryId);
-    GrpcClient::instance()->Embedding(task.id,
+    auto conf   = Config::instance()->getMemoryConfigById(memoryId);
+    auto taskId = std::abs(static_cast<int64_t>(hj::uuid::gen_u64()));
+    _addEmbeddingTask(taskId, 1, conf.id);
+    _addRetrieveTask(taskId, text, topK, conf.id);
+    GrpcClient::instance()->Embedding(taskId,
                                       Account::instance()->id(),
                                       Account::instance()->auth(),
-                                      1,
-                                      task.question.toUtf8(),
                                       0,
-                                      task.question.size() - 1,
+                                      text.toUtf8(),
+                                      0,
+                                      text.size() - 1,
                                       conf);
+    qDebug() << "MemMgr::asyncRetrieve with taskId:" << taskId
+             << ", topK:" << topK;
+    return taskId;
+}
+
+int64_t MemMgr::asyncEmbedding(const QStringList          &files,
+                               const Config::MemoryConfig &conf)
+{
+    int64_t     taskId = std::abs(static_cast<int64_t>(hj::uuid::gen_u64()));
+    FileChunker chunker;
+    auto        chunkCount = chunker.chunkFiles(
+        files,
+        conf.chunkSize,
+        [this, taskId, conf](FileChunker::Chunk &chunk) -> qint64 {
+            if(chunk.id == 0 && chunk.startPos == 0)
+            {
+                // first chunk, set param (no data)
+                qDebug() << "file: " << chunk.filePathName
+                         << " first chunk, add Embedding task";
+                _addEmbeddingTask(taskId, -1, conf.id);
+                GrpcClient::instance()->Embedding(taskId,
+                                                  Account::instance()->id(),
+                                                  Account::instance()->auth(),
+                                                  chunk.id,
+                                                  chunk.data,
+                                                  chunk.startPos,
+                                                  chunk.startPos + chunk.offset,
+                                                  conf);
+            }
+
+            // calculate next chunk start position and offset
+            qint64 startPos = chunk.startPos + chunk.offset - conf.overlap;
+            if(startPos <= chunk.startPos)
+                startPos = chunk.startPos + chunk.offset; // ensure progress
+
+            auto    totalLength = File::fileSize(chunk.filePathName);
+            qint64  endPos      = qMin(startPos + chunk.offset, totalLength);
+            QString text        = QString::fromUtf8(chunk.data);
+            int     textSize    = text.size();
+            if(conf.respectParagraphs && textSize > 0)
+            {
+                qint64 newEndPos =
+                    startPos + File::findParagraphBoundary(text, 0, textSize);
+                if(newEndPos < endPos && newEndPos > startPos)
+                    endPos = newEndPos;
+            }
+
+            if(conf.respectSentences && textSize > 0)
+            {
+                qint64 newEndPos =
+                    startPos + File::findSentenceBoundary(text, 0, textSize);
+                if(newEndPos < endPos && newEndPos > startPos)
+                    endPos = newEndPos;
+            }
+
+            chunk.startPos = startPos;
+            chunk.offset   = endPos - startPos;
+            chunk.id       = static_cast<int64_t>(hj::uuid::gen_u64());
+            qDebug() << "Generated chunk: index=" << chunk.id
+                     << ", startPos=" << chunk.startPos
+                     << ", offset=" << chunk.offset
+                     << ", dataSize=" << chunk.data.size();
+
+            if(chunk.data.isEmpty() || chunk.offset <= 0)
+            {
+                qDebug() << "Chunk data is empty or offset is non-positive, "
+                            "skipping.";
+                return false;
+            }
+
+            // build meta file
+            auto memoryId = conf.id;
+            add(memoryId.toStdString(), chunk);
+
+            // send chunk
+            qDebug() << "send chunk data with id:" << chunk.id
+                     << ", startPos:" << chunk.startPos;
+            GrpcClient::instance()->Embedding(taskId,
+                                              Account::instance()->id(),
+                                              Account::instance()->auth(),
+                                              chunk.id,
+                                              chunk.data,
+                                              chunk.startPos,
+                                              chunk.startPos + chunk.offset);
+            return true;
+        });
+
+    qDebug() << "MemMgr::asyncEmbedding with taskId:" << taskId;
+    _setEmbeddingChunkNum(taskId, chunkCount);
+    return taskId;
+}
+
+int64_t MemMgr::asyncEmbedding(const int64_t               taskId,
+                               const FileChunker::Chunk   &chunk,
+                               const Config::MemoryConfig &conf)
+{
+    m_mu.lock();
+    if(m_mapEmbeddingTasks.find(taskId) == m_mapEmbeddingTasks.end())
+        _addEmbeddingTask(taskId, -1, conf.id);
+    m_mu.unlock();
+
+    GrpcClient::instance()->Embedding(taskId,
+                                      Account::instance()->id(),
+                                      Account::instance()->auth(),
+                                      chunk.id,
+                                      chunk.data,
+                                      chunk.startPos,
+                                      chunk.startPos + chunk.offset,
+                                      conf);
+    qDebug() << "MemMgr::asyncEmbedding with taskId:" << taskId;
+    return taskId;
+}
+
+void MemMgr::stopEmbedding(const int64_t taskId)
+{
+    m_mu.lock();
+    if(m_mapEmbeddingTasks.find(taskId) != m_mapEmbeddingTasks.end())
+    {
+        GrpcClient::instance()->EmbeddingStop(taskId,
+                                              Account::instance()->id(),
+                                              Account::instance()->auth());
+    }
+    m_mu.unlock();
 }
 
 void MemMgr::slotEmbeddingResp(const int         errorCode,
@@ -178,84 +316,93 @@ void MemMgr::slotEmbeddingResp(const int         errorCode,
                                const int64_t     chunkId,
                                const QByteArray &vectorIndexs)
 {
+    qDebug() << "slotEmbeddingResp get taskId:" << taskId
+             << ", vectorIndexs.size():" << vectorIndexs.size();
     std::lock_guard<std::mutex> guard(m_mu);
-    if(m_mapTasks.find(taskId) == m_mapTasks.end())
+    if(m_mapEmbeddingTasks.find(taskId) == m_mapEmbeddingTasks.end())
     {
+        // qDebug() << "embedding task:" << taskId << " not exist!";
         return;
     }
 
-    qDebug() << "slotEmbeddingResp get taskId:" << taskId
-             << ", vectorIndexs.size():" << vectorIndexs.size();
-    RetrieveTask task     = m_mapTasks[taskId];
-    auto         question = task.question;
-    auto         topK     = task.topK;
-    auto         memoryId = task.memoryId;
     if(errorCode != 0)
     {
-        qDebug() << "Embedding response error, code: " << errorCode;
-        // notify bus
-        emit BusAdapter::instance()
-            -> signalRetrieveResp(errorCode, question, topK, memoryId, {});
-
-        // remove record
-        m_mapTasks.erase(taskId);
-
+        qWarning() << "Embedding response error, code: " << errorCode;
         // stop embedding for this task
         GrpcClient::instance()->EmbeddingStop(taskId,
                                               Account::instance()->id(),
                                               Account::instance()->auth());
-        return;
     }
 
-    if(chunkId == 0)
+    // skip param setting resp
+    if(chunkId == 0 && vectorIndexs.isEmpty())
     {
         qDebug() << "Embedding response set param, skip.";
         return;
     }
 
-    // remove record first
-    m_mapTasks.erase(taskId);
-    // stop embedding for this task first
+    // add record
+    _addEmbeddedChunk(taskId, chunkId, vectorIndexs);
+    if(!_isEmbeddingFinished(taskId))
+    {
+        qDebug() << "retrieve not finished, continue.";
+        return;
+    }
+
+    // handle retrieve task
+    if(m_mapRetrieveTasks.find(taskId) != m_mapRetrieveTasks.end())
+    {
+        RetrieveTask task     = m_mapRetrieveTasks[taskId];
+        auto         text     = task.text;
+        auto         topK     = task.topK;
+        auto         memoryId = task.memoryId;
+        auto         conf   = Config::instance()->getMemoryConfigById(memoryId);
+        auto         chunks = _retrieve(vectorIndexs, topK, conf);
+
+        QVector<QJsonObject> memorys;
+        for(auto chunk : chunks)
+        {
+            QJsonObject obj;
+            convert(obj, chunk);
+            memorys.append(obj);
+        }
+
+        qDebug() << "send retrieve finished state with taskId:" << taskId;
+        emit signalRetrieveFinished(OK, taskId, text, topK, memoryId, memorys);
+    }
+
+    // handle embedding task
+    if(m_mapEmbeddingTasks.find(taskId) != m_mapEmbeddingTasks.end())
+    {
+        auto memoryId = m_mapEmbeddingTasks[taskId].memoryId;
+        qDebug() << "send embedding finished state with taskId:" << taskId;
+        emit signalEmbeddingFinished(OK, taskId, memoryId);
+    }
+
+    // stop embedding for this task
     GrpcClient::instance()->EmbeddingStop(taskId,
                                           Account::instance()->id(),
                                           Account::instance()->auth());
+}
 
-    auto conf = Config::instance()->getMemoryConfigById(memoryId);
-    if(conf.id.isEmpty())
+void MemMgr::signalStopEmbeddingResp(const int errorCode, const int64_t taskId)
+{
+    if(errorCode != 0)
     {
-        qDebug() << "Memory config not found for memoryId: " << memoryId;
+        qWarning() << "Fail to stop embedding with errorCode:" << errorCode;
         return;
     }
 
-    auto                 dimension = conf.dimension;
-    std::vector<uint8_t> buffer(vectorIndexs.begin(), vectorIndexs.end());
-    std::vector<float>   vectors;
-    if(!convert(vectors, std::move(buffer), dimension))
-    {
-        qDebug() << "Failed to convert embedding data to float vectors.";
-        return;
-    }
-    QVector<FileChunker::Chunk> chunks =
-        _retrieve(vectors, topK, memoryId.toStdString());
-    QVector<QJsonObject> memorys;
-    for(auto chunk : chunks)
-    {
-        QJsonObject obj;
-        convert(obj, chunk);
-        memorys.append(obj);
-    }
-    emit BusAdapter::instance()
-        -> signalRetrieveResp(OK, task.question, topK, memoryId, memorys);
+    _removeEmbeddingTask(taskId);
+    _removeRetrieveTask(taskId);
 }
 
 void MemMgr::_init()
 {
-    connect(GrpcClient::instance(),
-            &GrpcClient::signalEmbeddingResp,
-            this,
-            &MemMgr::slotEmbeddingResp);
+    // init connections
+    _initConnections();
 
-    // Initialization code here
+    // Initialization memory file
     auto confs = Config::instance()->memoryConfigs();
     for(auto conf : confs)
     {
@@ -268,6 +415,36 @@ void MemMgr::_init()
             continue;
         }
     }
+}
+
+void MemMgr::_initConnections()
+{
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalEmbeddingResp,
+            this,
+            &MemMgr::slotEmbeddingResp);
+
+    connect(GrpcClient::instance(),
+            &GrpcClient::signalStopEmbeddingResp,
+            this,
+            &MemMgr::signalStopEmbeddingResp);
+}
+
+QVector<FileChunker::Chunk> MemMgr::_retrieve(const QByteArray &embeddings,
+                                              const int         topK,
+                                              const Config::MemoryConfig &conf)
+{
+    QVector<FileChunker::Chunk> chunks;
+    auto                        dimension = conf.dimension;
+    std::vector<uint8_t>        buffer(embeddings.begin(), embeddings.end());
+    std::vector<float>          vectors;
+    if(!convert(vectors, std::move(buffer), dimension))
+    {
+        qDebug() << "Failed to convert embedding data to float vectors.";
+        return chunks;
+    }
+
+    return _retrieve(vectors, topK, conf.id.toStdString());
 }
 
 QVector<FileChunker::Chunk>
@@ -310,6 +487,16 @@ MemMgr::_retrieve(const std::vector<float> embeddings,
     return results;
 }
 
+bool MemMgr::_isEmbeddingFinished(const int64_t taskId)
+{
+    auto itr = m_mapEmbeddingTasks.find(taskId);
+    if(itr == m_mapEmbeddingTasks.end())
+        return true;
+
+    return itr->second.totalChunkNum != -1
+           && itr->second.finishedChunkIds.size() >= itr->second.totalChunkNum;
+}
+
 bool MemMgr::convert(FileChunker::Chunk &dst, const QJsonObject &src)
 {
     dst.id           = src.value("chunk_id").toString().toLongLong();
@@ -348,4 +535,72 @@ bool MemMgr::convert(std::vector<float>    &dst,
         return false;
 
     return true;
+}
+
+void MemMgr::_addEmbeddingTask(const int64_t  taskId,
+                               const int      totalChunkNum,
+                               const QString &memoryId)
+{
+    if(m_mapEmbeddingTasks.find(taskId) != m_mapEmbeddingTasks.end())
+        return;
+
+    EmbeddingTask task;
+    task.id            = taskId;
+    task.totalChunkNum = totalChunkNum;
+    task.memoryId      = memoryId;
+
+    m_mapEmbeddingTasks[taskId] = task;
+}
+
+void MemMgr::_addRetrieveTask(const int64_t  taskId,
+                              const QString &text,
+                              const int      topK,
+                              const QString &memoryId)
+{
+    if(m_mapRetrieveTasks.find(taskId) != m_mapRetrieveTasks.end())
+        return;
+
+    RetrieveTask task;
+    task.id       = taskId;
+    task.text     = text;
+    task.topK     = topK;
+    task.memoryId = memoryId;
+
+    m_mapRetrieveTasks[taskId] = task;
+}
+
+void MemMgr::_removeEmbeddingTask(const int64_t taskId)
+{
+    m_mapEmbeddingTasks.erase(taskId);
+}
+
+void MemMgr::_removeRetrieveTask(const int64_t taskId)
+{
+    m_mapRetrieveTasks.erase(taskId);
+}
+
+void MemMgr::_addEmbeddedChunk(const int64_t     taskId,
+                               const int64_t     chunkId,
+                               const QByteArray &vectorIndexs)
+{
+    if(m_mapEmbeddingTasks.find(taskId) == m_mapEmbeddingTasks.end())
+        return;
+
+    m_mapEmbeddingTasks[taskId].finishedChunkIds.insert(chunkId);
+    emit signalEmbeddingProgress(
+        taskId,
+        chunkId,
+        m_mapEmbeddingTasks[taskId].memoryId,
+        m_mapEmbeddingTasks[taskId].totalChunkNum,
+        m_mapEmbeddingTasks[taskId].finishedChunkIds.size(),
+        vectorIndexs);
+}
+
+void MemMgr::_setEmbeddingChunkNum(const int64_t taskId,
+                                   const int     totalChunkNum)
+{
+    if(m_mapEmbeddingTasks.find(taskId) == m_mapEmbeddingTasks.end())
+        return;
+
+    m_mapEmbeddingTasks[taskId].totalChunkNum = totalChunkNum;
 }

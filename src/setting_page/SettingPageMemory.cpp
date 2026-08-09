@@ -29,7 +29,6 @@ SettingPageMemory::SettingPageMemory(QWidget *parent)
     , ui(new Ui::SettingPageMemory)
     , m_pMemCtlBtnGroup(new QButtonGroup(this))
     , m_pMemListModel(nullptr)
-    , m_mapTaskChunkIds()
 {
     ui->setupUi(this);
 
@@ -104,20 +103,15 @@ void SettingPageMemory::_initConnections()
             this,
             &SettingPageMemory::_slotMemCtlBtnGroupClicked);
 
-    connect(GrpcClient::instance(),
-            &GrpcClient::signalEmbeddingResp,
-            this,
-            &SettingPageMemory::_slotEmbeddingResp);
-
-    connect(GrpcClient::instance(),
-            &GrpcClient::signalStopEmbeddingResp,
-            this,
-            &SettingPageMemory::_slotEmbeddingStopResp);
-
     connect(Config::instance(),
             &Config::signalMemoryConfigUpdate,
             this,
             &SettingPageMemory::_slotMemoryConfigUpdate);
+
+    connect(MemMgr::instance(),
+            &MemMgr::signalEmbeddingProgress,
+            this,
+            &SettingPageMemory::_slotEmbeddingProgress);
 }
 
 void SettingPageMemory::_refreshMemTable(bool clearFirst)
@@ -421,185 +415,15 @@ void SettingPageMemory::_slotGenerateMemory(const Config::MemoryConfig &conf)
         },
         true);
 
-    int64_t     taskId = std::abs(static_cast<int64_t>(hj::uuid::gen_u64()));
-    FileChunker chunker;
-    auto        chunkCount = chunker.chunkFiles(
-        files,
-        conf.chunkSize,
-        [this, taskId, conf](FileChunker::Chunk &chunk) -> qint64 {
-            if(chunk.id == 0 && chunk.startPos == 0)
-            {
-                chunk.id = static_cast<int64_t>(hj::uuid::gen_u64());
-                _setChunkProcessState(taskId, -1, false);
-                _setTaskConfig(taskId, conf);
-                // send chunk
-                GrpcClient::instance()->Embedding(taskId,
-                                                  Account::instance()->id(),
-                                                  Account::instance()->auth(),
-                                                  chunk.id,
-                                                  chunk.data,
-                                                  chunk.startPos,
-                                                  chunk.startPos + chunk.offset,
-                                                  conf);
-                return true;
-            }
-
-            // calculate next chunk start position and offset
-            qint64 startPos = chunk.startPos + chunk.offset - conf.overlap;
-            if(startPos <= chunk.startPos)
-                startPos = chunk.startPos + chunk.offset; // ensure progress
-
-            auto   totalLength = File::fileSize(chunk.filePathName);
-            qint64 endPos      = qMin(startPos + chunk.offset, totalLength);
-            if(conf.respectParagraphs)
-            {
-                qint64 newEndPos =
-                    startPos
-                    + File::findParagraphBoundary(QString::fromUtf8(chunk.data),
-                                                  0,
-                                                  chunk.data.size());
-                if(newEndPos < endPos && newEndPos > startPos)
-                    endPos = newEndPos;
-            }
-
-            if(conf.respectSentences)
-            {
-                qint64 newEndPos =
-                    startPos
-                    + File::findSentenceBoundary(QString::fromUtf8(chunk.data),
-                                                 0,
-                                                 chunk.data.size());
-                if(newEndPos < endPos && newEndPos > startPos)
-                    endPos = newEndPos;
-            }
-
-            chunk.startPos = startPos;
-            chunk.offset   = endPos - startPos;
-            chunk.data     = chunk.data.mid(0, chunk.offset);
-            chunk.id       = static_cast<int64_t>(hj::uuid::gen_u64());
-            qDebug() << "Generated chunk: index=" << chunk.id
-                     << ", startPos=" << chunk.startPos
-                     << ", offset=" << chunk.offset
-                     << ", dataSize=" << chunk.data.size();
-
-            if(chunk.data.isEmpty() || chunk.offset <= 0)
-            {
-                qDebug() << "Chunk data is empty or offset is non-positive, "
-                            "skipping.";
-                return false;
-            }
-
-            _setChunkProcessState(taskId, chunk.id, false);
-            // build meta file
-            auto memoryId = conf.id;
-            MemMgr::instance()->add(memoryId.toStdString(), chunk);
-
-            // send chunk
-            GrpcClient::instance()->Embedding(taskId,
-                                              Account::instance()->id(),
-                                              Account::instance()->auth(),
-                                              chunk.id,
-                                              chunk.data,
-                                              chunk.startPos,
-                                              chunk.startPos + chunk.offset);
-            return true;
-        });
-
-    qDebug() << "Generated " << chunkCount << " chunks from origin file.";
-    if(chunkCount < 1)
+    if(files.size() < 1)
     {
         QMessageBox::warning(this,
                              tr("Warning"),
                              tr("No chunks were created from the file."));
         return;
     }
-}
 
-void SettingPageMemory::_slotEmbeddingResp(const int         errorCode,
-                                           const int64_t     taskId,
-                                           const int64_t     chunkId,
-                                           const QByteArray &vectorIndexs)
-{
-    if(errorCode != 0)
-    {
-        qDebug() << "Embedding response error, code: " << errorCode;
-        QMessageBox::warning(
-            this,
-            tr("Embedding Error"),
-            tr("Failed to generate embeddings. Error code: %1").arg(errorCode));
-        return;
-    }
-
-    if(vectorIndexs.isEmpty())
-    {
-        qDebug() << "Empty embedding data for taskId:" << taskId
-                 << ", chunkId:" << chunkId;
-        _setChunkProcessState(taskId, chunkId, true);
-        return;
-    }
-
-    auto conf = _getTaskConfig(taskId);
-    if(conf.id.isEmpty())
-    {
-        qDebug() << "Task config not found for taskId: " << taskId;
-        return;
-    }
-
-    auto                 memoryId = conf.id;
-    std::vector<uint8_t> embeddings(vectorIndexs.begin(), vectorIndexs.end());
-    if(!MemMgr::instance()->add(memoryId.toStdString(),
-                                std::move(embeddings),
-                                conf.dimension,
-                                chunkId))
-    {
-        qDebug() << "Failed to add embedding index for chunkId " << chunkId;
-        _setChunkProcessState(taskId, chunkId, true);
-        return;
-    }
-    qDebug() << "Embedding index " << chunkId << " saved";
-
-    // combine all chunk index files into one index file if all chunks are processed
-    if(_isHadTask(taskId))
-    {
-        qDebug() << "Received embedding response for taskId: " << taskId
-                 << ", chunkId: " << chunkId << ", remove record from map.";
-        _setChunkProcessState(taskId, chunkId, true);
-        if(_isChunkProcessed(taskId, -1))
-        {
-            qDebug() << "All chunks for taskId " << taskId
-                     << " have been processed. stop it.";
-
-            // remove task record from map
-            _removeTaskRecord(taskId);
-
-            // stop embedding for this task
-            GrpcClient::instance()->EmbeddingStop(taskId,
-                                                  Account::instance()->id(),
-                                                  Account::instance()->auth());
-
-            // save index and meta files
-            MemMgr::instance()->save(memoryId.toStdString(),
-                                     conf.indexFilePath.toStdString(),
-                                     conf.metaFilePath.toStdString());
-        }
-    };
-}
-
-void SettingPageMemory::_slotEmbeddingStopResp(const int     errorCode,
-                                               const int64_t taskId)
-{
-    if(errorCode != 0)
-    {
-        qDebug() << "Embedding stop response error, code: " << errorCode;
-        QMessageBox::warning(
-            this,
-            tr("Embedding Stop Error"),
-            tr("Failed to stop embedding process. Error code: %1")
-                .arg(errorCode));
-        return;
-    }
-
-    qDebug() << "Embedding stop response success, taskId: " << taskId;
+    m_currTaskId = MemMgr::instance()->asyncEmbedding(files, conf);
 }
 
 void SettingPageMemory::_slotMemoryConfigUpdate()
@@ -608,6 +432,50 @@ void SettingPageMemory::_slotMemoryConfigUpdate()
     auto confs = Config::instance()->memoryConfigs();
     _clearMemorys();
     _addMemorys(confs, "Staged");
+}
+
+void SettingPageMemory::_slotEmbeddingProgress(const int64_t  taskId,
+                                               const int64_t  chunkId,
+                                               const QString &memoryId,
+                                               const int      totalChunkNum,
+                                               const int      finishedChunkNum,
+                                               const QByteArray &vectorIndexs)
+{
+    qDebug() << "SettingPageMemory::_slotEmbeddingProgress with taskId:"
+             << taskId << ", memoryId:" << memoryId
+             << ", totalChunkNum:" << totalChunkNum
+             << ", finishedChunkNum:" << finishedChunkNum
+             << ", vectorIndexs.size():" << vectorIndexs.size()
+             << ", m_currTaskId:" << m_currTaskId;
+    if(taskId != m_currTaskId)
+        return;
+
+    auto conf = Config::instance()->getMemoryConfigById(memoryId);
+    // add embedding to storage
+    std::vector<uint8_t> embeddings(vectorIndexs.begin(), vectorIndexs.end());
+    if(!MemMgr::instance()->add(memoryId.toStdString(),
+                                std::move(embeddings),
+                                conf.dimension,
+                                chunkId))
+    {
+        qDebug() << "Failed to add embedding index for chunkId " << chunkId;
+        QMessageBox::warning(
+            this,
+            tr("Warning"),
+            tr("Failed to add embedding index for chunkId %1").arg(chunkId));
+        return;
+    }
+
+    // check if finished
+    if(finishedChunkNum >= totalChunkNum)
+    {
+        MemMgr::instance()->save(memoryId.toStdString(),
+                                 conf.indexFilePath.toStdString(),
+                                 conf.metaFilePath.toStdString());
+        m_currTaskId = -1;
+    }
+
+    emit signalEmbeddingProgressUpdate(conf, finishedChunkNum, totalChunkNum);
 }
 
 QVector<Bus::MemoryInfo> SettingPageMemory::GetBusMemoryInfos()
@@ -704,128 +572,6 @@ void SettingPageMemory::_importMemoryConfigs()
     Config::instance()->loadMemory(filePath);
     auto confs = Config::instance()->memoryConfigs();
     _addMemorys(confs, "Staged");
-}
-
-bool SettingPageMemory::_setChunkProcessState(const int64_t taskId,
-                                              const int64_t chunkId,
-                                              const bool    isProcessed)
-{
-    QMutexLocker locker(&m_mu);
-    if(!m_mapTaskChunkIds.contains(taskId))
-        m_mapTaskChunkIds[taskId] = QMap<int64_t, bool>();
-
-    if(chunkId == -1)
-    {
-        // If chunkId is -1, we are setting the overall task state
-        // If isProcessed is true, we mark all chunks as processed
-        // If isProcessed is false, we mark all chunks as not processed
-        for(auto it = m_mapTaskChunkIds[taskId].begin();
-            it != m_mapTaskChunkIds[taskId].end();
-            ++it)
-        {
-            it.value() = isProcessed;
-        }
-    } else
-    {
-        m_mapTaskChunkIds[taskId][chunkId] = isProcessed;
-    }
-
-    // count the number of processed chunks for this task
-    if(isProcessed)
-    {
-        int processedCount = 0;
-        for(auto it = m_mapTaskChunkIds[taskId].begin();
-            it != m_mapTaskChunkIds[taskId].end();
-            ++it)
-        {
-            if(it.value())
-                processedCount++;
-        }
-
-        if(m_mapTaskConfigs.contains(taskId))
-        {
-            auto conf = m_mapTaskConfigs[taskId];
-            emit signalEmbeddingProgressUpdate(
-                conf,
-                processedCount,
-                m_mapTaskChunkIds[taskId].size());
-        }
-        qDebug() << "TaskId: " << taskId
-                 << ", Processed Chunks: " << processedCount
-                 << ", Total Chunks: " << m_mapTaskChunkIds[taskId].size();
-    }
-    return true;
-}
-
-bool SettingPageMemory::_isChunkProcessed(const int64_t taskId,
-                                          const int64_t chunkId)
-{
-    QMutexLocker locker(&m_mu);
-    if(!m_mapTaskChunkIds.contains(taskId))
-        return false;
-
-    if(chunkId == -1)
-    {
-        for(auto it = m_mapTaskChunkIds[taskId].begin();
-            it != m_mapTaskChunkIds[taskId].end();
-            ++it)
-        {
-            if(!it.value())
-                return false;
-        }
-        return true;
-    }
-
-    if(!m_mapTaskChunkIds[taskId].contains(chunkId))
-        return false;
-
-    return m_mapTaskChunkIds[taskId][chunkId];
-}
-
-QVector<int64_t> SettingPageMemory::_getChunkIdsForTask(const int64_t taskId)
-{
-    QMutexLocker     locker(&m_mu);
-    QVector<int64_t> chunkIds;
-    if(!m_mapTaskChunkIds.contains(taskId))
-        return chunkIds;
-
-    for(auto it = m_mapTaskChunkIds[taskId].begin();
-        it != m_mapTaskChunkIds[taskId].end();
-        ++it)
-    {
-        chunkIds.append(it.key());
-    }
-    return chunkIds;
-}
-
-bool SettingPageMemory::_isHadTask(const int64_t taskId)
-{
-    QMutexLocker locker(&m_mu);
-    return m_mapTaskChunkIds.contains(taskId);
-}
-
-bool SettingPageMemory::_setTaskConfig(const int64_t               taskId,
-                                       const Config::MemoryConfig &conf)
-{
-    QMutexLocker locker(&m_mu);
-    m_mapTaskConfigs[taskId] = conf;
-    return true;
-}
-
-Config::MemoryConfig SettingPageMemory::_getTaskConfig(const int64_t taskId)
-{
-    QMutexLocker locker(&m_mu);
-    if(m_mapTaskConfigs.contains(taskId))
-        return m_mapTaskConfigs[taskId];
-
-    return Config::MemoryConfig();
-}
-
-void SettingPageMemory::_removeTaskRecord(const int64_t taskId)
-{
-    QMutexLocker locker(&m_mu);
-    m_mapTaskChunkIds.remove(taskId);
-    m_mapTaskConfigs.remove(taskId);
 }
 
 MemoryConfigDialog *

@@ -29,8 +29,8 @@ class MemoryConfigDialog : public QDialog
 
   public slots:
     void slotEmbeddingProgressUpdate(const Config::MemoryConfig &conf,
-                                     const int64_t finishedChunkNum,
-                                     const int64_t totalChunkNum);
+                                     const int finishedChunkNum,
+                                     const int totalChunkNum);
 
   private slots:
     void _slotBtnIndexFilePathClicked();

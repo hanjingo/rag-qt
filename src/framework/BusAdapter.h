@@ -22,11 +22,6 @@ class BusAdapter : public QObject
     void signalModelInfoUpdateNtf(const QVector<Bus::ModelInfo> &configs);
     void signalMemoryInfoUpdateNtf(const QVector<Bus::MemoryInfo> &configs);
     void signalAudioParamUpdateNtf(const QVector<Bus::AudioParam> &params);
-    void signalRetrieveResp(const int                   errorCode,
-                            const QString              &question,
-                            const int                   topK,
-                            const QString              &memoryId,
-                            const QVector<QJsonObject> &memorys);
 
   private slots:
     // for BUS signals
@@ -53,10 +48,32 @@ class BusAdapter : public QObject
     void _slotRetrieveFromBus(const QString &question,
                               const int      topK,
                               const QString &memoryId);
+    void _slotEmbeddingFromBus(const QStringList &files,
+                               const QString     &memoryId);
+
+    // for framework signals:
+    void _slotEmbeddingProgress(const int64_t     taskId,
+                                const int64_t     chunkId,
+                                const QString    &memoryId,
+                                const int         totalChunkNum,
+                                const int         finishedChunkNum,
+                                const QByteArray &vectorIndexs);
+    void _slotEmbeddingFinished(const int      errorCode,
+                                const int64_t  taskId,
+                                const QString &memoryId);
+    void _slotRetrieveFinished(const int             errorCode,
+                               const int64_t         taskId,
+                               const QString        &text,
+                               const int             topK,
+                               const QString        &memoryId,
+                               QVector<QJsonObject> &memorys);
 
   private:
     explicit BusAdapter(QObject *parent = nullptr);
     ~BusAdapter();
+
+    int64_t m_currRetrieveTaskId = -1;
+    int64_t m_currEmbTaskId      = -1;
 };
 
 #endif // BUSADAPTER_H

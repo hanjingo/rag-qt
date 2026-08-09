@@ -38,8 +38,8 @@ class SettingPageMemory : public QWidget
 
   signals:
     void signalEmbeddingProgressUpdate(const Config::MemoryConfig &conf,
-                                       const int64_t finishedChunkNum,
-                                       const int64_t totalChunkNum);
+                                       const int finishedChunkNum,
+                                       const int totalChunkNum);
 
   protected:
     explicit SettingPageMemory(QWidget *parent = nullptr);
@@ -60,12 +60,14 @@ class SettingPageMemory : public QWidget
     void _slotEditFilterTextChanged(const QString &content);
     void _slotMemCtlBtnGroupClicked(int id);
     void _slotGenerateMemory(const Config::MemoryConfig &conf);
-    void _slotEmbeddingResp(const int         errorCode,
-                            const int64_t     taskId,
-                            const int64_t     chunkId,
-                            const QByteArray &vectorIndexs);
-    void _slotEmbeddingStopResp(const int errorCode, const int64_t taskId);
     void _slotMemoryConfigUpdate();
+
+    void _slotEmbeddingProgress(const int64_t     taskId,
+                                const int64_t     chunkId,
+                                const QString    &memoryId,
+                                const int         totalChunkNum,
+                                const int         finishedChunkNum,
+                                const QByteArray &vectorIndexs);
 
   private:
     void _filteMemTable(const QString &filterText);
@@ -77,15 +79,7 @@ class SettingPageMemory : public QWidget
     void _saveMemoryConfigs();
     void _importMemoryConfigs();
 
-    bool _setChunkProcessState(const int64_t taskId,
-                               const int64_t chunkId,
-                               const bool    isProcessed);
-    bool _isChunkProcessed(const int64_t taskId, const int64_t chunkId = -1);
-    QVector<int64_t> _getChunkIdsForTask(const int64_t taskId);
-    bool             _isHadTask(const int64_t taskId);
-    bool _setTaskConfig(const int64_t taskId, const Config::MemoryConfig &conf);
-    Config::MemoryConfig _getTaskConfig(const int64_t taskId);
-    void                 _removeTaskRecord(const int64_t taskId);
+    void _removeTaskRecord(const int64_t taskId);
 
     MemoryConfigDialog *
     _createMemoryConfigDialog(const Config::MemoryConfig &conf);
@@ -97,10 +91,7 @@ class SettingPageMemory : public QWidget
 
     QStandardItemModel *m_pMemListModel;
 
-    // key: taskId, value: chunkIds
-    QMutex                              m_mu;
-    QMap<int64_t, QMap<int64_t, bool>>  m_mapTaskChunkIds;
-    QMap<int64_t, Config::MemoryConfig> m_mapTaskConfigs;
+    int64_t m_currTaskId = -1;
 };
 
 #endif // SETTINGPAGEMEMORY_H

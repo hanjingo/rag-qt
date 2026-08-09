@@ -832,11 +832,6 @@ void Config::_convert(QJsonObject &obj, const Config::AsrParam &param)
     obj["min_new_sample_size"]   = param.minNewSampleSize;
 }
 
-QString Config::getDefaultIndexPath()
-{
-    return m_rootObj.value("default_index_path").toString();
-}
-
 Config::MemoryConfig Config::getMemoryConfigById(const QString &id)
 {
     Config::MemoryConfig conf;

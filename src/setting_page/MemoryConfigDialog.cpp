@@ -176,8 +176,8 @@ void MemoryConfigDialog::_slotBtnCancelClicked()
 
 void MemoryConfigDialog::slotEmbeddingProgressUpdate(
     const Config::MemoryConfig &conf,
-    const int64_t               finishedChunkNum,
-    const int64_t               totalChunkNum)
+    const int                   finishedChunkNum,
+    const int                   totalChunkNum)
 {
     if(conf.id != m_conf.id)
         return;

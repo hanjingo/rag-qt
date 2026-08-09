@@ -195,7 +195,6 @@ class Config : public QObject
     QVector<Config::ModelConfig> modelConfigs();
     void setModelConfigs(QVector<Config::ModelConfig> &configs);
 
-    QString                       getDefaultIndexPath();
     Config::MemoryConfig          getMemoryConfigById(const QString &id);
     QVector<Config::MemoryConfig> memoryConfigs();
     void setMemoryConfigs(QVector<Config::MemoryConfig> &configs);

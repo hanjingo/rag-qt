@@ -161,6 +161,9 @@ class Bus : public QObject
                             const QString              &memoryId,
                             const QVector<QJsonObject> &memorys);
 
+    void signalEmbedding(const QStringList &files, const QString &memoryId);
+    void signalEmbeddingResp(const int errorCode);
+
   private:
     explicit Bus(QObject *parent = nullptr)
         : QObject(parent) {};
