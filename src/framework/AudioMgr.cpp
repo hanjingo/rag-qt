@@ -95,25 +95,30 @@ qint64 AudioMgr::startCapture(const QAudioFormat &format,
         return -1;
     }
 
-    if(!dev.isFormatSupported(format))
+    QAudioFormat realFormat = format;
+#ifdef Q_OS_MAC
+    // use preferred format on macOS to avoid "Audio device not found" error
+    realFormat = dev.preferredFormat();
+#endif
+    if(!dev.isFormatSupported(realFormat))
     {
         qDebug() << "Do not support this format";
         return -1;
     }
 
-    auto       src      = new QAudioSource(dev, format, this);
+    auto       src      = new QAudioSource(dev, realFormat, this);
     auto       receiver = new AudioStreamReceiver(this);
     qint64     id = static_cast<qint64>(reinterpret_cast<std::uintptr_t>(src));
     QByteArray realDevId = dev.id();
     connect(receiver,
             &AudioStreamReceiver::signalAudioCaptured,
             this,
-            [this, id, realDevId](const QByteArray &data) {
+            [this, id, realDevId, realFormat](const QByteArray &data) {
+                // qDebug() << "Audio:" << " captured data:" << data;
                 if(!isEnabled(realDevId))
                     return;
 
-                // qDebug() << "Audio:" << " captured data:" << data;
-                emit signalAudioCaptured(id, data);
+                emit signalAudioCaptured(id, realFormat, data);
             });
 
     src->start(receiver);

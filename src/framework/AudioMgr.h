@@ -37,7 +37,9 @@ class AudioMgr : public QObject
     void signalAudioDeviceEnabled(const QVector<QByteArray> &devIds);
     void signalAudioDeviceDisable(const QVector<QByteArray> &devIds);
     void signalAudioCaptureStarted(const qint64 id, const QByteArray &devId);
-    void signalAudioCaptured(const qint64 id, const QByteArray &data);
+    void signalAudioCaptured(const qint64        id,
+                             const QAudioFormat &format,
+                             const QByteArray   &data);
     void signalAudioCaptureStopped(const qint64 id);
 
   public slots:

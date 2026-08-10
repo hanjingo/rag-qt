@@ -133,7 +133,9 @@ class Bus : public QObject
                                  const QByteArray   &devId);
     void signalAudioCaptureStarted(const qint64 id, const QByteArray &devId);
 
-    void signalAudioCaptured(const qint64 id, const QByteArray &data);
+    void signalAudioCaptured(const qint64        id,
+                             const QAudioFormat &format,
+                             const QByteArray   &data);
 
     void signalAudioCaptureStop(const qint64 id);
     void signalAudioCaptureStopped(const qint64 id);

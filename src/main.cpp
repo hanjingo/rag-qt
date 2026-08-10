@@ -12,6 +12,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QCoreApplication::setApplicationName("rag-qt");
 
     // init crash reporter
     hj::crash_handler::instance()->set_dump_callback(crashCallback);

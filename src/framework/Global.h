@@ -8,6 +8,7 @@
 static constexpr const char *TIMESTAMP_FMT = "yyyy-MM-dd hh:mm:ss";
 static constexpr const char *DATE_FMT      = "yyyy-MM-dd";
 
+static constexpr const char *CONFIG_DIR  = "configs";
 static constexpr const char *CONFIG_FILE = "configs/config.json";
 #ifdef Q_OS_WIN
 static constexpr const char *RAG_CORE = "rag-core.exe";
