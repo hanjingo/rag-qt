@@ -133,7 +133,9 @@ class Bus : public QObject
                                  const QByteArray   &devId);
     void signalAudioCaptureStarted(const qint64 id, const QByteArray &devId);
 
-    void signalAudioCaptured(const qint64 id, const QByteArray &data);
+    void signalAudioCaptured(const qint64        id,
+                             const QAudioFormat &format,
+                             const QByteArray   &data);
 
     void signalAudioCaptureStop(const qint64 id);
     void signalAudioCaptureStopped(const qint64 id);
@@ -150,7 +152,7 @@ class Bus : public QObject
     void signalStopRecognizeResp(const int errorCode, const qint64 sessionId);
 
     void signalUpload(const QString &filePath);
-    void signalUploadResp(const int errorCode, const QString &filePath);
+    void signalUploadResp(const int errorCode, const QString &hash);
 
     void signalRetrieve(const QString &question,
                         const int      topK,
@@ -160,6 +162,9 @@ class Bus : public QObject
                             const int                   topK,
                             const QString              &memoryId,
                             const QVector<QJsonObject> &memorys);
+
+    void signalEmbedding(const QStringList &files, const QString &memoryId);
+    void signalEmbeddingResp(const int errorCode);
 
   private:
     explicit Bus(QObject *parent = nullptr)
