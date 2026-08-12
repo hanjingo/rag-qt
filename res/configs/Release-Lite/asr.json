@@ -6,7 +6,7 @@
         "entropy_thold": "3.0",
         "id": "ggml/ggml-large-v3-turbo",
         "initial_prompt": "",
-        "language": "en",
+        "language": "auto",
         "length_penalty": "-1.0",
         "logprob_thold": "-2.0",
         "max_initial_ts": "1.0",

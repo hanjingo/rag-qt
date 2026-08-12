@@ -176,6 +176,9 @@ class Config : public QObject
     bool         saveAsr(const QString &filepath);
     QJsonObject &rootObj() { return m_rootObj; }
 
+    // bool migrate(const QString &oldFilePath, const QString &newFilePath);
+    void envCompat();
+
     bool             isCoreRun();
     QSet<QString>    getSupportedDocTypes();
     QVector<QString> getAppUpgradeUrls();

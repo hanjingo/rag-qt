@@ -1,10 +1,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#ifndef RAG_QT_VERSION
-#define RAG_QT_VERSION "0.0.1"
-#endif
-
 static constexpr const char *TIMESTAMP_FMT = "yyyy-MM-dd hh:mm:ss";
 static constexpr const char *DATE_FMT      = "yyyy-MM-dd";
 

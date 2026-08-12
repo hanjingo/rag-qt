@@ -11,6 +11,7 @@
 #include <QCoreApplication>
 
 #include "Global.h"
+#include "System.h"
 #include "BusAdapter.h"
 
 Config::Config(QObject *parent)
@@ -179,6 +180,7 @@ bool Config::init()
         return false;
     }
 
+    envCompat();
     return true;
 }
 
@@ -372,6 +374,29 @@ bool Config::saveAsr(const QString &filepath)
     out << doc.toJson(QJsonDocument::Indented);
     saveFile.close();
     return true;
+}
+
+void Config::envCompat()
+{
+    // // suit language to system language
+    // QString localLang = System::instance()->LocalLang();
+    // QString lang      = "auto";
+    // if(localLang.startsWith("zh"))
+    //     lang = "zh";
+    // else if(localLang.startsWith("en"))
+    //     lang = "en";
+    // else if(localLang.startsWith("de"))
+    //     lang = "de";
+    // else
+    //     lang = "auto";
+    // for(int i = 0; i < m_asrArr.size(); ++i)
+    // {
+    //     auto obj = m_asrArr[i].toObject();
+    //     if(obj.contains("language"))
+    //         obj["language"] = lang;
+
+    //     m_asrArr[i] = obj;
+    // }
 }
 
 bool Config::isCoreRun()

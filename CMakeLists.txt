@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.16)
 # ----------------------------------------------------------------------------
 # Project
 # ----------------------------------------------------------------------------
-project(rag-qt VERSION 0.0.1 LANGUAGES C CXX)
+set(RAG_QT_VERSION "0.0.1")
+
+project(rag-qt VERSION ${RAG_QT_VERSION} LANGUAGES C CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -327,6 +329,11 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Multimedia
     
     ${hj_LIBRARIES}
+)
+
+# Compile definitions
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    RAG_QT_VERSION="${RAG_QT_VERSION}"
 )
 
 # Include directories
