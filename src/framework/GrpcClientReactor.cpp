@@ -46,33 +46,36 @@ void QueryReactor::OnDone(const grpc::Status &status)
     delete this;
 }
 
-// ----------------------------------- RecognizeReactor ----------------------------
-RecognizeReactor::RecognizeReactor(QPointer<GrpcClient> client,
-                                   int64_t              sessionId)
+// ----------------------------------- RecognizeAudioReactor ----------------------------
+RecognizeAudioReactor::RecognizeAudioReactor(QPointer<GrpcClient> client,
+                                             int64_t              sessionId)
     : m_client(client)
     , m_sessionId(sessionId)
     , m_writeCh(10)
     , m_isWriting(false)
     , m_isDone(false)
 {
-    qDebug() << "RecognizeReactor created for session_id:" << sessionId;
+    qDebug() << "RecognizeAudioReactor created for session_id:" << sessionId;
 }
 
-RecognizeReactor::~RecognizeReactor()
+RecognizeAudioReactor::~RecognizeAudioReactor()
 {
-    qDebug() << "RecognizeReactor destroyed for session_id:" << m_sessionId;
+    qDebug() << "RecognizeAudioReactor destroyed for session_id:"
+             << m_sessionId;
 }
 
-void RecognizeReactor::SendRequest(const GrpcLibraryV1::RecognizeReq &req)
+void RecognizeAudioReactor::SendRequest(
+    const GrpcLibraryV1::RecognizeAudioReq &req)
 {
     if(m_isDone.load())
     {
         qWarning() << "Cannot send request, stream is done for session_id:"
                    << req.session_id();
-        emit m_client->signalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                           "Server disconnected",
-                                           true,
-                                           0.0);
+        emit m_client->signalRecognizeAudioResp(
+            ErrorCode::ERR_SERVER_DISCONNECTED,
+            "Server disconnected",
+            true,
+            0.0);
         return;
     }
 
@@ -80,7 +83,7 @@ void RecognizeReactor::SendRequest(const GrpcLibraryV1::RecognizeReq &req)
     _flush();
 }
 
-void RecognizeReactor::_flush()
+void RecognizeAudioReactor::_flush()
 {
     if(m_isDone.load())
         return;
@@ -88,7 +91,7 @@ void RecognizeReactor::_flush()
     if(m_isWriting.load())
         return;
 
-    GrpcLibraryV1::RecognizeReq req;
+    GrpcLibraryV1::RecognizeAudioReq req;
     if(!m_writeCh.try_dequeue(req))
         return;
 
@@ -100,7 +103,7 @@ void RecognizeReactor::_flush()
     StartWrite(&req);
 }
 
-void RecognizeReactor::_pull()
+void RecognizeAudioReactor::_pull()
 {
     if(m_isDone.load())
         return;
@@ -116,7 +119,7 @@ void RecognizeReactor::_pull()
 
     TimedQueue::instance().enqueue([ec, transcript, isFinished, confidence]() {
         emit GrpcClient::instance()
-            -> signalRecognizeResp(ec, transcript, isFinished, confidence);
+            -> signalRecognizeAudioResp(ec, transcript, isFinished, confidence);
     });
 
     if(!isFinished && !m_isDone.load())
@@ -128,7 +131,7 @@ void RecognizeReactor::_pull()
     }
 }
 
-void RecognizeReactor::OnWriteDone(bool ok)
+void RecognizeAudioReactor::OnWriteDone(bool ok)
 {
     m_isWriting.store(false);
 
@@ -138,10 +141,11 @@ void RecognizeReactor::OnWriteDone(bool ok)
                    << ", cancelling";
         m_isDone.store(true);
 
-        emit m_client->signalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                           "Write failed - connection lost",
-                                           true,
-                                           0.0);
+        emit m_client->signalRecognizeAudioResp(
+            ErrorCode::ERR_SERVER_DISCONNECTED,
+            "Write failed - connection lost",
+            true,
+            0.0);
         m_client->RemoveRecognizeReactor(GetSessionId());
         return;
     }
@@ -149,7 +153,7 @@ void RecognizeReactor::OnWriteDone(bool ok)
     _flush();
 }
 
-void RecognizeReactor::OnReadDone(bool ok)
+void RecognizeAudioReactor::OnReadDone(bool ok)
 {
     if(!ok)
     {
@@ -162,19 +166,20 @@ void RecognizeReactor::OnReadDone(bool ok)
     _pull();
 }
 
-void RecognizeReactor::OnDone(const grpc::Status &status)
+void RecognizeAudioReactor::OnDone(const grpc::Status &status)
 {
-    qDebug() << "Recognize stream finished for session_id:" << m_sessionId
+    qDebug() << "RecognizeAudio stream finished for session_id:" << m_sessionId
              << "status ok?" << status.ok()
              << "error:" << status.error_message().c_str();
 
     if(!status.ok())
     {
         QString errorMsg = QString::fromStdString(status.error_message());
-        emit m_client->signalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                           errorMsg,
-                                           true,
-                                           0.0);
+        emit    m_client->signalRecognizeAudioResp(
+            ErrorCode::ERR_SERVER_DISCONNECTED,
+            errorMsg,
+            true,
+            0.0);
     }
 
     m_isDone.store(true);
@@ -182,11 +187,11 @@ void RecognizeReactor::OnDone(const grpc::Status &status)
     m_client->RemoveRecognizeReactor(GetSessionId());
 }
 
-void RecognizeReactor::OnConnectionLost()
+void RecognizeAudioReactor::OnConnectionLost()
 {
     m_isDone.store(true);
     m_isWriting.store(false);
-    GrpcLibraryV1::RecognizeReq req;
+    GrpcLibraryV1::RecognizeAudioReq req;
     while(m_writeCh.try_dequeue(req))
     {
     }
@@ -385,8 +390,8 @@ void SubscribeReactor::OnReadDone(bool ok)
 
 void SubscribeReactor::OnDone(const grpc::Status &status)
 {
-    qDebug() << "Async Query stream finished for user_id:" << m_user_id << " Status ok? "
-             << status.ok();
+    qDebug() << "Async Query stream finished for user_id:" << m_user_id
+             << " Status ok? " << status.ok();
 
     if(!status.ok())
     {
@@ -397,4 +402,4 @@ void SubscribeReactor::OnDone(const grpc::Status &status)
     delete this;
 }
 
-// ----------------------------------- RecognizeReactor ----------------------------
+// ----------------------------------- SubscribeReactor ----------------------------

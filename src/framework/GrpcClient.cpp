@@ -10,7 +10,7 @@
 #include "GrpcClientReactor.h"
 #include "System.h"
 
-static std::unordered_map<int64_t, std::shared_ptr<RecognizeReactor>>
+static std::unordered_map<int64_t, std::shared_ptr<RecognizeAudioReactor>>
     m_recognizeReactors;
 static std::unordered_map<int64_t, std::shared_ptr<EmbeddingReactor>>
     m_embeddingRectors;
@@ -331,38 +331,38 @@ void GrpcClient::StopAnswer(const int64_t  session_id,
                                   session_id);
 }
 
-void GrpcClient::Recognize(const int64_t           session_id,
-                           const int64_t           user_id,
-                           const QString          &auth,
-                           const QByteArray       &data,
-                           const Config::AsrParam &params,
-                           const QString          &translatorId)
+void GrpcClient::RecognizeAudio(const int64_t           session_id,
+                                const int64_t           user_id,
+                                const QString          &auth,
+                                const QByteArray       &data,
+                                const Config::AsrParam &params,
+                                const QString          &translatorId)
 {
     if(!m_pChannel || !m_bIsConnected.load())
     {
-        emit signalRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                 QString("Server disconnected"),
-                                 true,
-                                 0.0);
+        emit signalRecognizeAudioResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                      QString("Server disconnected"),
+                                      true,
+                                      0.0);
         return;
     }
 
     // get or make reactor
-    std::shared_ptr<RecognizeReactor> reactor;
-    auto                              it = m_recognizeReactors.find(session_id);
+    std::shared_ptr<RecognizeAudioReactor> reactor;
+    auto it = m_recognizeReactors.find(session_id);
     if(it == m_recognizeReactors.end())
     {
-        reactor = std::make_shared<RecognizeReactor>(this, session_id);
+        reactor = std::make_shared<RecognizeAudioReactor>(this, session_id);
         m_recognizeReactors[session_id] = reactor;
 
-        // first call Recognize to start the reactor
+        // first call RecognizeAudio to start the reactor
         auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
-        stub->async()->Recognize(&reactor->m_context, reactor.get());
+        stub->async()->RecognizeAudio(&reactor->m_context, reactor.get());
         reactor->StartCall();
         reactor->StartRead(&reactor->m_resp);
 
-        // first call Recognize to send the config
-        GrpcLibraryV1::RecognitionParam param;
+        // first call RecognizeAudio to send the config
+        GrpcLibraryV1::RecognizeAudioParam param;
         param.set_n_threads(params.nThreads);
         param.set_n_max_text_ctx(params.nMaxTextCtx);
         param.set_offset_ms(params.offsetMs);
@@ -402,50 +402,48 @@ void GrpcClient::Recognize(const int64_t           session_id,
             params.vadParams.speechPadMs);
         param.mutable_vad_params()->set_samples_overlap(
             params.vadParams.samplesOverlap);
-        qDebug() << "Recognize called with params(session_id:" << session_id
-                 << ", user_id:" << user_id << ", translatorId:" << translatorId
-                 << ", data.size():" << data.size()
-                 << ", params: nThreads=" << params.nThreads
-                 << ", nMaxTextCtx=" << params.nMaxTextCtx
-                 << ", offsetMs=" << params.offsetMs
-                 << ", durationMs=" << params.durationMs
-                 << ", translate=" << params.translate
-                 << ", detectLanguage=" << params.detectLanguage
-                 << ", language=" << params.language
-                 << ", noCtx=" << params.noCtx
-                 << ", noTimestamps=" << params.noTimestamps
-                 << ", singleSegment=" << params.singleSegment
-                 << ", printSpecial=" << params.printSpecial
-                 << ", printProgress=" << params.printProgress
-                 << ", printRealtime=" << params.printRealtime
-                 << ", printTimestamps=" << params.printTimestamps
-                 << ", carryInitialPrompt=" << params.carryInitialPrompt
-                 << ", initialPrompt=" << params.initialPrompt
-                 << ", suppressRegex=" << params.suppressRegex
-                 << ", suppressBlank=" << params.suppressBlank
-                 << ", suppressNst=" << params.suppressNst
-                 << ", temperature=" << params.temperature
-                 << ", temperatureInc=" << params.temperatureInc
-                 << ", maxInitialTs=" << params.maxInitialTs
-                 << ", lengthPenalty=" << params.lengthPenalty
-                 << ", entropyThold=" << params.entropyThold
-                 << ", logprobThold=" << params.logprobThold
-                 << ", noSpeechThold=" << params.noSpeechThold
-                 << ", vad=" << params.vad
-                 << ", vadModelPath=" << params.vadModelPath
-                 << ", vadParams.threshold=" << params.vadParams.threshold
-                 << ", vadParams.minSpeechDurMs="
-                 << params.vadParams.minSpeechDurMs
-                 << ", vadParams.minSilenceDurMs="
-                 << params.vadParams.minSilenceDurMs
-                 << ", vadParams.maxSpeechDurS="
-                 << params.vadParams.maxSpeechDurS
-                 << ", vadParams.speechPadMs=" << params.vadParams.speechPadMs
-                 << ", vadParams.samplesOverlap="
-                 << params.vadParams.samplesOverlap << ")";
+        qDebug()
+            << "RecognizeAudio called with params(session_id:" << session_id
+            << ", user_id:" << user_id << ", translatorId:" << translatorId
+            << ", data.size():" << data.size()
+            << ", params: nThreads=" << params.nThreads
+            << ", nMaxTextCtx=" << params.nMaxTextCtx
+            << ", offsetMs=" << params.offsetMs
+            << ", durationMs=" << params.durationMs
+            << ", translate=" << params.translate
+            << ", detectLanguage=" << params.detectLanguage
+            << ", language=" << params.language << ", noCtx=" << params.noCtx
+            << ", noTimestamps=" << params.noTimestamps
+            << ", singleSegment=" << params.singleSegment
+            << ", printSpecial=" << params.printSpecial
+            << ", printProgress=" << params.printProgress
+            << ", printRealtime=" << params.printRealtime
+            << ", printTimestamps=" << params.printTimestamps
+            << ", carryInitialPrompt=" << params.carryInitialPrompt
+            << ", initialPrompt=" << params.initialPrompt
+            << ", suppressRegex=" << params.suppressRegex
+            << ", suppressBlank=" << params.suppressBlank
+            << ", suppressNst=" << params.suppressNst
+            << ", temperature=" << params.temperature
+            << ", temperatureInc=" << params.temperatureInc
+            << ", maxInitialTs=" << params.maxInitialTs
+            << ", lengthPenalty=" << params.lengthPenalty
+            << ", entropyThold=" << params.entropyThold
+            << ", logprobThold=" << params.logprobThold
+            << ", noSpeechThold=" << params.noSpeechThold
+            << ", vad=" << params.vad
+            << ", vadModelPath=" << params.vadModelPath
+            << ", vadParams.threshold=" << params.vadParams.threshold
+            << ", vadParams.minSpeechDurMs=" << params.vadParams.minSpeechDurMs
+            << ", vadParams.minSilenceDurMs="
+            << params.vadParams.minSilenceDurMs
+            << ", vadParams.maxSpeechDurS=" << params.vadParams.maxSpeechDurS
+            << ", vadParams.speechPadMs=" << params.vadParams.speechPadMs
+            << ", vadParams.samplesOverlap=" << params.vadParams.samplesOverlap
+            << ")";
 
         // send config
-        GrpcLibraryV1::RecognizeReq configReq;
+        GrpcLibraryV1::RecognizeAudioReq configReq;
         configReq.set_ctx_id(translatorId.toStdString());
         configReq.set_session_id(session_id);
         configReq.mutable_param()->CopyFrom(param);
@@ -458,7 +456,7 @@ void GrpcClient::Recognize(const int64_t           session_id,
     // send audio data
     if(!data.isEmpty())
     {
-        GrpcLibraryV1::RecognizeReq audioReq;
+        GrpcLibraryV1::RecognizeAudioReq audioReq;
         audioReq.set_ctx_id(translatorId.toStdString());
         audioReq.set_session_id(session_id);
         audioReq.set_audio_chunk(data.data(), data.size());
@@ -468,14 +466,14 @@ void GrpcClient::Recognize(const int64_t           session_id,
     qDebug() << "Starting recognition with param:";
 }
 
-void GrpcClient::RecognizeStop(const int64_t  session_id,
-                               const int64_t  user_id,
-                               const QString &auth)
+void GrpcClient::StopRecognizeAudio(const int64_t  session_id,
+                                    const int64_t  user_id,
+                                    const QString &auth)
 {
     if(!m_pChannel)
     {
-        emit signalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                     session_id);
+        emit signalStopRecognizeAudioResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                          session_id);
         return;
     }
 
@@ -483,23 +481,23 @@ void GrpcClient::RecognizeStop(const int64_t  session_id,
     auto stub = GrpcLibraryV1::GrpcService::NewStub(m_pChannel->get());
 
     // Prepare the request
-    GrpcLibraryV1::StopRecognizeReq req;
+    GrpcLibraryV1::StopRecognizeAudioReq req;
     req.set_session_id(session_id);
     req.set_user_id(user_id);
     req.set_auth(auth.toStdString());
 
     // Prepare the response and context
-    GrpcLibraryV1::StopRecognizeResp resp;
-    grpc::ClientContext              context;
+    GrpcLibraryV1::StopRecognizeAudioResp resp;
+    grpc::ClientContext                   context;
 
     // Make the RPC call
-    grpc::Status status = stub->StopRecognize(&context, req, &resp);
+    grpc::Status status = stub->StopRecognizeAudio(&context, req, &resp);
 
     if(status.ok())
-        emit signalStopRecognizeResp(resp.error_code(), session_id);
+        emit signalStopRecognizeAudioResp(resp.error_code(), session_id);
     else
-        emit signalStopRecognizeResp(ErrorCode::ERR_SERVER_DISCONNECTED,
-                                     session_id);
+        emit signalStopRecognizeAudioResp(ErrorCode::ERR_SERVER_DISCONNECTED,
+                                          session_id);
 }
 
 void GrpcClient::Embedding(const int64_t               task_id,

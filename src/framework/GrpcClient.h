@@ -14,7 +14,7 @@
 #include "Global.h"
 #include "Config.h"
 
-class RecognizeReactor;
+class RecognizeAudioReactor;
 
 class GrpcClient : public QObject
 {
@@ -57,16 +57,16 @@ class GrpcClient : public QObject
                         int64_t        msg_id = -1,
                         int            limit  = 10);
 
-    void Recognize(const int64_t           session_id,
-                   const int64_t           user_id,
-                   const QString          &auth,
-                   const QByteArray       &data,
-                   const Config::AsrParam &params,
-                   const QString          &translatorId);
+    void RecognizeAudio(const int64_t           session_id,
+                        const int64_t           user_id,
+                        const QString          &auth,
+                        const QByteArray       &data,
+                        const Config::AsrParam &params,
+                        const QString          &translatorId);
 
-    void RecognizeStop(const int64_t  session_id,
-                       const int64_t  user_id,
-                       const QString &auth);
+    void StopRecognizeAudio(const int64_t  session_id,
+                            const int64_t  user_id,
+                            const QString &auth);
 
     void Embedding(const int64_t               task_id,
                    const int64_t               user_id,
@@ -145,11 +145,12 @@ class GrpcClient : public QObject
     void signalGetChatMessageResp(const int                        errorCode,
                                   const QVector<Bus::ChatMessage> &messages);
 
-    void signalRecognizeResp(const int      errorCode,
-                             const QString &transcript,
-                             const bool     isFinished,
-                             const double   confidence);
-    void signalStopRecognizeResp(const int errorCode, const int64_t sessionId);
+    void signalRecognizeAudioResp(const int      errorCode,
+                                  const QString &transcript,
+                                  const bool     isFinished,
+                                  const double   confidence);
+    void signalStopRecognizeAudioResp(const int     errorCode,
+                                      const int64_t sessionId);
 
     void signalEmbeddingResp(const int         errorCode,
                              const int64_t     taskId,

@@ -29,15 +29,15 @@ class QueryReactor : public grpc::ClientReadReactor<GrpcLibraryV1::QueryResp>
     int64_t              m_id;
 };
 
-// async recognize reactor
-class RecognizeReactor
-    : public grpc::ClientBidiReactor<GrpcLibraryV1::RecognizeReq,
-                                     GrpcLibraryV1::RecognizeResp>,
-      public std::enable_shared_from_this<RecognizeReactor>
+// async recognize audio reactor
+class RecognizeAudioReactor
+    : public grpc::ClientBidiReactor<GrpcLibraryV1::RecognizeAudioReq,
+                                     GrpcLibraryV1::RecognizeAudioResp>,
+      public std::enable_shared_from_this<RecognizeAudioReactor>
 {
   public:
-    RecognizeReactor(QPointer<GrpcClient> client, int64_t sessionId);
-    ~RecognizeReactor();
+    RecognizeAudioReactor(QPointer<GrpcClient> client, int64_t sessionId);
+    ~RecognizeAudioReactor();
 
     void OnReadDone(bool ok) override;
     void OnWriteDone(bool ok) override;
@@ -45,13 +45,13 @@ class RecognizeReactor
 
     void OnConnectionLost();
 
-    void SendRequest(const GrpcLibraryV1::RecognizeReq &req);
+    void SendRequest(const GrpcLibraryV1::RecognizeAudioReq &req);
 
     int64_t GetSessionId() const { return m_sessionId; }
     bool    IsDone() const { return m_isDone.load(); }
 
-    grpc::ClientContext          m_context;
-    GrpcLibraryV1::RecognizeResp m_resp;
+    grpc::ClientContext               m_context;
+    GrpcLibraryV1::RecognizeAudioResp m_resp;
 
   private:
     void _flush();
@@ -61,7 +61,7 @@ class RecognizeReactor
     int64_t              m_sessionId;
     QPointer<GrpcClient> m_client;
 
-    hj::channel<GrpcLibraryV1::RecognizeReq> m_writeCh;
+    hj::channel<GrpcLibraryV1::RecognizeAudioReq> m_writeCh;
 
     std::atomic<bool> m_isWriting{false};
     std::atomic<bool> m_isDone{false};

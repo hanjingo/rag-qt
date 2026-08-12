@@ -140,16 +140,17 @@ class Bus : public QObject
     void signalAudioCaptureStop(const qint64 id);
     void signalAudioCaptureStopped(const qint64 id);
 
-    void signalRecognize(const qint64      sessionId,
-                         const QByteArray &src,
-                         const QString    &translatorId);
-    void signalRecognizeResp(const int      errorCode,
-                             const QString &transcript,
-                             const bool     isFinished,
-                             const double   confidence);
+    void signalRecognizeAudio(const qint64      sessionId,
+                              const QByteArray &src,
+                              const QString    &translatorId);
+    void signalRecognizeAudioResp(const int      errorCode,
+                                  const QString &transcript,
+                                  const bool     isFinished,
+                                  const double   confidence);
 
-    void signalStopRecognize(const qint64 sessionId);
-    void signalStopRecognizeResp(const int errorCode, const qint64 sessionId);
+    void signalStopRecognizeAudio(const qint64 sessionId);
+    void signalStopRecognizeAudioResp(const int    errorCode,
+                                      const qint64 sessionId);
 
     void signalUpload(const QString &filePath);
     void signalUploadResp(const int errorCode, const QString &hash);

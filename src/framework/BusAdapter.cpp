@@ -63,14 +63,14 @@ BusAdapter::BusAdapter(QObject *parent)
             &Bus::signalGetChatMessageResp);
 
     connect(GrpcClient::instance(),
-            &GrpcClient::signalRecognizeResp,
+            &GrpcClient::signalRecognizeAudioResp,
             Bus::instance(),
-            &Bus::signalRecognizeResp);
+            &Bus::signalRecognizeAudioResp);
 
     connect(GrpcClient::instance(),
-            &GrpcClient::signalStopRecognizeResp,
+            &GrpcClient::signalStopRecognizeAudioResp,
             Bus::instance(),
-            &Bus::signalStopRecognizeResp);
+            &Bus::signalStopRecognizeAudioResp);
 
     connect(GrpcClient::instance(),
             &GrpcClient::signalUploadResp,
@@ -137,12 +137,12 @@ BusAdapter::BusAdapter(QObject *parent)
             &BusAdapter::_slotGetChatMessageFromBus);
 
     connect(Bus::instance(),
-            &Bus::signalRecognize,
+            &Bus::signalRecognizeAudio,
             this,
             &BusAdapter::_slotAudioTranslate);
 
     connect(Bus::instance(),
-            &Bus::signalStopRecognize,
+            &Bus::signalStopRecognizeAudio,
             this,
             &BusAdapter::_slotAudioStopTranslate);
 
@@ -271,12 +271,12 @@ void BusAdapter::_slotAudioTranslate(const qint64      sessionId,
     if(param.id.isEmpty())
         param = Config::instance()->getDefaultAsrParam();
 
-    GrpcClient::instance()->Recognize(sessionId,
-                                      Account::instance()->id(),
-                                      Account::instance()->auth(),
-                                      src,
-                                      param,
-                                      param.id);
+    GrpcClient::instance()->RecognizeAudio(sessionId,
+                                           Account::instance()->id(),
+                                           Account::instance()->auth(),
+                                           src,
+                                           param,
+                                           param.id);
 }
 
 void BusAdapter::_slotAudioStopTranslate(const qint64 sessionId)
@@ -284,9 +284,9 @@ void BusAdapter::_slotAudioStopTranslate(const qint64 sessionId)
     qDebug() << "Receive Bus Audio Stop Translate signal from Bus. session_id: "
              << sessionId;
 
-    GrpcClient::instance()->RecognizeStop(sessionId,
-                                          Account::instance()->id(),
-                                          Account::instance()->auth());
+    GrpcClient::instance()->StopRecognizeAudio(sessionId,
+                                               Account::instance()->id(),
+                                               Account::instance()->auth());
 }
 
 void BusAdapter::_slotUploadFromBus(const QString &filePath)
