@@ -23,7 +23,7 @@ void Account::clear()
     ui->lblAccount->setText("");
 }
 
-void Account::setId(int32_t id)
+void Account::setId(int64_t id)
 {
     m_id = id;
 }

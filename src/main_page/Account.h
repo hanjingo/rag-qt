@@ -27,12 +27,12 @@ class Account : public QDialog
     void clear();
     bool isValid() const { return m_id > 0 && !m_auth.isEmpty(); }
 
-    void setId(int32_t id);
+    void setId(int64_t id);
     void setName(const QString &name);
     void setAuth(const QString &auth);
     void setLastLoginTime(const QString &lastLoginTime);
 
-    int32_t id() const { return m_id; }
+    int64_t id() const { return m_id; }
     QString name() const { return m_name; }
     QString auth() const { return m_auth; }
     QString lastLoginTime() const { return m_lastLoginTime; }
@@ -40,7 +40,7 @@ class Account : public QDialog
   private:
     Ui::AccountDialog *ui;
 
-    int32_t m_id;
+    int64_t m_id;
     QString m_name;
     QString m_auth;
     QString m_lastLoginTime;
