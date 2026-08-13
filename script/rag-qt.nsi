@@ -55,8 +55,7 @@ VIAddVersionKey "LegalCopyright" "Copyright (C) ${APP_PUBLISHER}"
 Section "Install" SEC_MAIN
 	SetOutPath "$INSTDIR"
 
-	; Copy Release runtime recursively, skip debug/test, transient files, and log/tmp directories.
-	; Note: log and tmp directories are excluded from packaging but will be created at install time.
+	; Copy Release runtime recursively, excluding data directories from bulk copy so we can handle them conditionally.
 	File /r \
 		/x "*.ilk" \
 		/x "*.pdb" \
@@ -65,13 +64,31 @@ Section "Install" SEC_MAIN
 		/x "*.lib" \
 		/x "default*.log" \
 		/x "rag-core_test.exe" \
+		/x "configs" \
+		/x "configs\*" \
+		/x "models" \
+		/x "models\*" \
+		/x "plugins" \
+		/x "plugins\*" \
 		/x "log" \
 		/x "log\*" \
 		/x "tmp" \
 		/x "tmp\*" \
 		"${SOURCE_DIR}\*"
 
-	; Ensure data folders exist even if excluded from source package.
+	; Conditional installation for subdirectories: if already exists, skip; otherwise copy from package.
+	IfFileExists "$INSTDIR\configs" +2
+	File /r "${SOURCE_DIR}\configs"
+
+	IfFileExists "$INSTDIR\models" +2
+	File /r "${SOURCE_DIR}\models"
+
+	IfFileExists "$INSTDIR\plugins" +2
+	File /r "${SOURCE_DIR}\plugins"
+
+	; Ensure log directory exists
+	IfFileExists "$INSTDIR\log" +2
+	CreateDirectory "$INSTDIR\log"
 
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
 
@@ -105,7 +122,9 @@ Section "Uninstall"
 		StrCmp $1 "." next
 		StrCmp $1 ".." next
 		StrCmp $1 "configs" next
+		StrCmp $1 "models" next
 		StrCmp $1 "log" next
+		StrCmp $1 "plugins" next
 		IfFileExists "$INSTDIR\$1\*.*" 0 next
 		RMDir /r "$INSTDIR\$1"
 	next:
@@ -125,5 +144,5 @@ FunctionEnd
 
 Function un.onUninstSuccess
 	HideWindow
-	MessageBox MB_ICONINFORMATION|MB_OK "${APP_NAME} was successfully removed. (configs and log directories preserved)"
+	MessageBox MB_ICONINFORMATION|MB_OK "${APP_NAME} was successfully removed. (configs, models, log and plugins directories preserved)"
 FunctionEnd
