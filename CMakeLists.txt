@@ -111,8 +111,8 @@ elseif(APPLE)
     set(RUNTIME_OUTPUT_DIRECTORY "${APP_MACOS_PATH}")
     
     set(RESOURCE_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}")
-    set(CONFIG_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}/configs") # 变更此行，配合代码中的 configs/ 前缀
-    set(PLUGIN_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}/plugins") # for our plugins
+    set(CONFIG_OUTPUT_DIRECTORY "${APP_RESOURCES_PATH}/configs")
+    set(PLUGIN_OUTPUT_DIRECTORY "${APP_PLUGINS_PATH}/plugins")
     
 elseif(UNIX)
     # Linux: Standard FHS-like layout with prefix
@@ -268,7 +268,7 @@ if(NOT BUILD_RELEASE_LITE)
 
     if(APPLE)
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${ORIGINAL_RUNTIME_DIR}")
-        set(EXECUTABLE_OUTPUT_PATH "${APP_MACOS_PATH}" CACHE STRING "" FORCE) # 主轴保留指向
+        set(EXECUTABLE_OUTPUT_PATH "${APP_MACOS_PATH}" CACHE STRING "" FORCE)
         
         unset(RAG_CORE_CONFIG_OUTPUT_DIRECTORY CACHE)
 
@@ -361,7 +361,6 @@ if(APPLE)
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/res/Info.plist.in
     )
 
-    # icon file
     add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.icns"
@@ -404,7 +403,7 @@ else()
 endif()
 
 # ----------------------------------------------------------------------------
-# Copy Resource Files (translations, etc.)
+# Copy Resource Files
 # ----------------------------------------------------------------------------
 add_custom_target(copy_resources ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${RESOURCE_OUTPUT_DIRECTORY}/languages"
@@ -477,7 +476,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT ANDROID)
 
             mac_deploy(${CMAKE_PROJECT_NAME} ${hj_LIBRARIES})
 
-            # signup
             add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
                 COMMAND codesign --force --deep --sign - "${APP_MACOS_PATH}/../.."
                 COMMENT "Fixing Apple Silicon code signature"
@@ -518,7 +516,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}")
-set(CPACK_PACKAGE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/packages")
+set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/bin/packages")
 set(CPACK_VERBATIM_VARIABLES YES)
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
@@ -526,7 +524,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 endif()
 
 if(APPLE)
-    set(CPACK_GENERATOR "DragNDrop")
+    set(CPACK_GENERATOR "DragNDrop;PKG")
     
     set(CPACK_MONOLITHIC_INSTALL OFF)
     set(CPACK_COMPONENTS_ALL Applications)
@@ -534,13 +532,41 @@ if(APPLE)
     set(CPACK_DMG_SKIP_RPATH OFF) 
 
     set(CPACK_DMG_VOLUME_NAME "${CMAKE_PROJECT_NAME} ${PROJECT_VERSION}")
-    set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-macOS")
+    if(BUILD_RELEASE_LITE)
+        set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-lite-${PROJECT_VERSION}-mac-arm64")
+    else()
+        set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-mac-arm64")
+    endif()
     set(CPACK_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.icns")
         set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo.icns")
     endif()
 
     set(CPACK_DMG_DS_STORE_SETTINGS "")
+
+    file(WRITE "${CMAKE_BINARY_DIR}/mac_scripts/postinstall"
+"#!/bin/sh
+APP_RESOURCES=\"/Applications/${CMAKE_PROJECT_NAME}.app/Contents/Resources\"
+
+if [ -d \"$APP_RESOURCES\" ]; then
+    if [ ! -d \"$APP_RESOURCES/configs\" ] && [ -d \"$APP_RESOURCES/configs.default\" ]; then
+        cp -R \"$APP_RESOURCES/configs.default\" \"$APP_RESOURCES/configs\"
+    fi
+    if [ ! -d \"$APP_RESOURCES/models\" ] && [ -d \"$APP_RESOURCES/models.default\" ]; then
+        cp -R \"$APP_RESOURCES/models.default\" \"$APP_RESOURCES/models\"
+    fi
+    if [ ! -d \"$APP_RESOURCES/plugins\" ] && [ -d \"$APP_RESOURCES/plugins.default\" ]; then
+        cp -R \"$APP_RESOURCES/plugins.default\" \"$APP_RESOURCES/plugins\"
+    fi
+    if [ ! -d \"$APP_RESOURCES/log\" ]; then
+        mkdir -p \"$APP_RESOURCES/log\"
+    fi
+fi
+exit 0
+"
+    )
+    execute_process(COMMAND chmod +x "${CMAKE_BINARY_DIR}/mac_scripts/postinstall")
+    set(CPACK_POSTFLIGHT_SCRIPT "${CMAKE_BINARY_DIR}/mac_scripts/postinstall")
 
 elseif(WIN32)
     set(CPACK_GENERATOR "NSIS")
@@ -552,16 +578,34 @@ elseif(WIN32)
         set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-lite-${PROJECT_VERSION}-setup")
     else()
         set(ABS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin/Release")
-        set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
+        set(CPACK_NSIS_INSTALL_ROOT "C:")
         set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-setup")
     endif()
     
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}")
     set(CPACK_COMPONENTS_ALL Applications)
     set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_BINARY_DIR};${CMAKE_PROJECT_NAME};ALL;/")
+    
     install(DIRECTORY "${ABS_SOURCE_DIR}/" 
             DESTINATION "."
             COMPONENT Applications
+            PATTERN "*.ilk" EXCLUDE
+            PATTERN "*.pdb" EXCLUDE
+            PATTERN "*.dmp" EXCLUDE
+            PATTERN "*.exp" EXCLUDE
+            PATTERN "*.lib" EXCLUDE
+            PATTERN "default*.log" EXCLUDE
+            PATTERN "rag-core_test.exe" EXCLUDE
+            PATTERN "configs" EXCLUDE
+            PATTERN "configs/*" EXCLUDE
+            PATTERN "models" EXCLUDE
+            PATTERN "models/*" EXCLUDE
+            PATTERN "plugins" EXCLUDE
+            PATTERN "plugins/*" EXCLUDE
+            PATTERN "log" EXCLUDE
+            PATTERN "log/*" EXCLUDE
+            PATTERN "tmp" EXCLUDE
+            PATTERN "tmp/*" EXCLUDE
     )
 
     set(CPACK_NSIS_DISPLAY_NAME "${CMAKE_PROJECT_NAME}")
@@ -585,12 +629,28 @@ elseif(WIN32)
         "Delete '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk'"
     )
 
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+        IfFileExists '$INSTDIR\\\\configs' +2
+        File /r '${ABS_SOURCE_DIR}\\\\configs'
+
+        IfFileExists '$INSTDIR\\\\models' +2
+        File /r '${ABS_SOURCE_DIR}\\\\models'
+
+        IfFileExists '$INSTDIR\\\\plugins' +2
+        File /r '${ABS_SOURCE_DIR}\\\\plugins'
+
+        IfFileExists '$INSTDIR\\\\log' +2
+        CreateDirectory '$INSTDIR\\\\log'
+    ")
+
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
         Delete '$DESKTOP\\\\${CMAKE_PROJECT_NAME}.lnk'
         Delete '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\${CMAKE_PROJECT_NAME}.lnk'
         Delete '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}\\\\Uninstall ${CMAKE_PROJECT_NAME}.lnk'
         RMDir '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}'
+        
         Delete '$INSTDIR\\\\Uninstall.exe'
+        Delete '$INSTDIR\\\\*.*'
         
         FindFirst $0 $1 '$INSTDIR\\\\*'
         loop:
@@ -598,9 +658,9 @@ elseif(WIN32)
             StrCmp $1 '.' next
             StrCmp $1 '..' next
             StrCmp $1 'configs' next
-            StrCmp $1 'log' next
-            StrCmp $1 'crash' next
             StrCmp $1 'models' next
+            StrCmp $1 'log' next
+            StrCmp $1 'plugins' next
             
             IfFileExists '$INSTDIR\\\\$1\\\\*.*' 0 is_file
                 RMDir /r '$INSTDIR\\\\$1'
@@ -615,7 +675,7 @@ elseif(WIN32)
             
         RMDir '$INSTDIR'
         
-        MessageBox MB_ICONINFORMATION|MB_OK '${CMAKE_PROJECT_NAME} was successfully removed. (User data, configs, models and log directories preserved)'
+        MessageBox MB_ICONINFORMATION|MB_OK '${CMAKE_PROJECT_NAME} was successfully removed. (configs, models, log and plugins directories preserved)'
 
         Quit
     ")
@@ -624,7 +684,11 @@ elseif(WIN32)
 
 elseif(UNIX)
     set(CPACK_GENERATOR "DEB;TGZ")
-    set(CPACK_DEBIAN_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+    if(BUILD_RELEASE_LITE)
+        set(CPACK_DEBIAN_PACKAGE_NAME "${CMAKE_PROJECT_NAME}-lite-${PROJECT_VERSION}-ubuntu")
+    else()
+        set(CPACK_DEBIAN_PACKAGE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-ubuntu")
+    endif()
     set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "hehehunanchina@live.com")
     set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "RAG Qt Application")
@@ -632,6 +696,43 @@ elseif(UNIX)
     set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libstdc++6, qt6-base, qt6-gui, qt6-widgets")
     set(CPACK_PACKAGE_EXECUTABLES "${CMAKE_PROJECT_NAME}" "${CMAKE_PROJECT_NAME}")
+
+    file(WRITE "${CMAKE_BINARY_DIR}/debian_scripts/postinst"
+"#!/bin/sh
+set -e
+INSTALL_DIR=\"/opt/${CMAKE_PROJECT_NAME}\"
+
+if [ -d \"$INSTALL_DIR\" ]; then
+    if [ ! -d \"$INSTALL_DIR/configs\" ] && [ -d \"$INSTALL_DIR/configs.default\" ]; then
+        cp -r \"$INSTALL_DIR/configs.default\" \"$INSTALL_DIR/configs\"
+    fi
+    if [ ! -d \"$INSTALL_DIR/models\" ] && [ -d \"$INSTALL_DIR/models.default\" ]; then
+        cp -r \"$INSTALL_DIR/models.default\" \"$INSTALL_DIR/models\"
+    fi
+    if [ ! -d \"$INSTALL_DIR/plugins\" ] && [ -d \"$INSTALL_DIR/plugins.default\" ]; then
+        cp -r \"$INSTALL_DIR/plugins.default\" \"$INSTALL_DIR/plugins\"
+    fi
+    if [ ! -d \"$INSTALL_DIR/log\" ]; then
+        mkdir -p \"$INSTALL_DIR/log\"
+    fi
+fi
+exit 0
+"
+    )
+
+    file(WRITE "${CMAKE_BINARY_DIR}/debian_scripts/prerm"
+"#!/bin/sh
+set -e
+exit 0
+"
+    )
+
+    execute_process(COMMAND chmod +x "${CMAKE_BINARY_DIR}/debian_scripts/postinst")
+    execute_process(COMMAND chmod +x "${CMAKE_BINARY_DIR}/debian_scripts/prerm")
+
+    set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA 
+        "${CMAKE_BINARY_DIR}/debian_scripts/postinst;${CMAKE_BINARY_DIR}/debian_scripts/prerm"
+    )
 endif()
 
 include(CPack)

@@ -4,12 +4,14 @@ on:
   push:
     tags:
       - 'v*'
+
   workflow_dispatch:
     inputs:
       version:
         description: 'Version to release (e.g., v1.0.0)'
         required: true
         type: string
+
       prerelease:
         description: 'Mark as prerelease'
         required: false
@@ -22,253 +24,717 @@ env:
   PROJECT_NAME: rag-qt
 
 jobs:
-  # ================================ Create Release ================================
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
 
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      package_name: ${{ steps.version.outputs.package_name }}
+  # ============================================================================
+  # Build & Pack - Linux x64
+  # ============================================================================
+  build-and-pack-linux:
+    name: Build and Pack (Linux x64)
+    runs-on: ubuntu-22.04
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-    - name: Extract version information
-      id: version
-      run: |
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-          VERSION="${{ github.event.inputs.version }}"
-          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
-            echo "Invalid version format. Expected format: v1.2.3"
+      - name: Setup virtual display
+        run: |
+          export DISPLAY=:99.0
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          echo "DISPLAY=:99.0" >> "$GITHUB_ENV"
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.3'
+          arch: 'linux_gcc_64'
+          cache: true
+          modules: 'qtmultimedia'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            build-essential \
+            ninja-build \
+            libgl1-mesa-dev \
+            libxcb-util-dev \
+            libxcb-icccm4-dev \
+            libxcb-image0-dev \
+            libxcb-keysyms1-dev \
+            libxcb-randr0-dev \
+            libxcb-render-util0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxcb-xinerama0-dev \
+            libxcb-xkb-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libx11-xcb-dev \
+            autoconf \
+            autoconf-archive \
+            automake \
+            libtool \
+            libomp-dev \
+            xvfb
+
+      - name: Setup vcpkg
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "=== Setting up vcpkg ==="
+
+          git clone \
+            https://github.com/Microsoft/vcpkg.git \
+            tools/vcpkg \
+            --depth=1
+
+          chmod +x tools/vcpkg/bootstrap-vcpkg.sh
+          ./tools/vcpkg/bootstrap-vcpkg.sh
+
+          echo "VCPKG_ROOT=${{ github.workspace }}/tools/vcpkg" >> "$GITHUB_ENV"
+          echo "${{ github.workspace }}/tools/vcpkg" >> "$GITHUB_PATH"
+
+          echo "vcpkg setup completed"
+          ./tools/vcpkg/vcpkg version
+
+      - name: Configure CMake
+        shell: bash
+        env:
+          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+        run: |
+          set -euo pipefail
+
+          echo "=== Running CMake configuration ==="
+
+          VCPKG_FEATURES="ggml,whisper-cpp"
+          echo "CUDA disabled for Linux release build"
+
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DBUILD_RELEASE_LITE=OFF \
+            -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES" \
+            -DOpenMP_CXX_FLAGS="-fopenmp" \
+            -DOpenMP_C_FLAGS="-fopenmp" \
+            -DCMAKE_CXX_FLAGS="-Wno-deprecated-declarations -Wno-deprecated" \
+            -DCMAKE_C_FLAGS="-Wno-deprecated-declarations -Wno-deprecated"
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          JOBS=$(nproc)
+
+          if [ "$JOBS" -lt 1 ]; then
+            JOBS=1
+          fi
+
+          cmake --build build \
+            --config Release \
+            --parallel "$JOBS"
+
+      - name: Package with CPack
+        working-directory: build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cpack -G "DEB;TGZ" --config CPackConfig.cmake || \
+          cpack -G "DEB;TGZ"
+
+      - name: Verify Linux packages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ ! -d "build/bin/packages" ]; then
+            echo "ERROR: build/bin/packages does not exist"
             exit 1
           fi
-        else
-          VERSION="${{ github.ref_name }}"
-        fi
-        
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "package_name=${{ env.PROJECT_NAME }}-source-$VERSION" >> $GITHUB_OUTPUT
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "Using version: $VERSION"
 
-    - name: Create comprehensive source package
-      run: |
-        echo "=== Creating comprehensive source package ==="
-        
-        PACKAGE_NAME="${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}"
-        mkdir -p dist
-        
-        # Create detailed exclusion list
-        cat > .package_exclude << 'EOF'
-        # Build artifacts
-        build/*
-        # Exclude packaging output directories to avoid including archives into themselves
-        dist
-        dist/*
-        packages
-        packages/*
-        tools/vcpkg/buildtrees/*
-        tools/vcpkg/packages/*
-        tools/vcpkg/downloads/*
-        tools/vcpkg/installed/*
-        
-        # IDE and editor files
-        .vscode/settings.json
-        .idea/*
-        *.swp
-        *.swo
-        *~
-        
-        # System files
-        .DS_Store
-        Thumbs.db
-        desktop.ini
-        
-        # Logs and temporary files
-        *.log
-        *.tmp
-        *.temp
-        
-        # Python cache
-        __pycache__/*
-        *.pyc
-        *.pyo
-        .pytest_cache/*
-        
-        # Version control
-        .git/*
-        .gitmodules
-        
-        # CI cache
-        .github/workflows/cache/*
-        EOF
-        
-        # Create source tarball with proper structure
-        echo "Creating source archive: ${PACKAGE_NAME}.tar.gz"
-        tar --exclude-from=.package_exclude \
-            -czf "dist/${PACKAGE_NAME}.tar.gz" \
-            --transform "s,^,${PACKAGE_NAME}/," \
+          echo "=== Linux packages ==="
+          find build/bin/packages -maxdepth 1 -type f -print
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-linux-x64
+          path: build/bin/packages/*
+          if-no-files-found: error
+
+
+  # ============================================================================
+  # Build & Pack - macOS ARM64
+  # ============================================================================
+  build-and-pack-macos:
+    name: Build and Pack (macOS ARM64)
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install Metal toolchain
+        shell: bash
+        run: |
+          echo "=== Installing Metal toolchain ==="
+
+          sudo xcodebuild -downloadPlatform macOS || true
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.3'
+          arch: 'clang_64'
+          cache: true
+          modules: 'qtmultimedia'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          brew install \
+            cmake \
+            ninja \
+            autoconf \
+            automake \
+            autoconf-archive \
+            libtool \
+            unixodbc \
+            libomp || true
+
+          brew unlink automake autoconf libtool 2>/dev/null || true
+
+          brew link \
+            --force \
+            --overwrite \
+            automake \
+            autoconf \
+            autoconf-archive \
+            libtool || true
+
+      - name: Setup vcpkg
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "=== Setting up vcpkg ==="
+
+          git clone \
+            https://github.com/Microsoft/vcpkg.git \
+            tools/vcpkg \
+            --depth=1
+
+          chmod +x tools/vcpkg/bootstrap-vcpkg.sh
+          ./tools/vcpkg/bootstrap-vcpkg.sh
+
+          echo "VCPKG_ROOT=${{ github.workspace }}/tools/vcpkg" >> "$GITHUB_ENV"
+          echo "${{ github.workspace }}/tools/vcpkg" >> "$GITHUB_PATH"
+
+          echo "vcpkg setup completed"
+          ./tools/vcpkg/vcpkg version
+
+      - name: Create vcpkg triplet for macOS ARM64
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "=== Creating custom vcpkg triplet ==="
+
+          mkdir -p tools/vcpkg/triplets/community
+
+          BREW_PREFIX=$(brew --prefix)
+
+          cat > tools/vcpkg/triplets/community/arm64-osx-relaxed.cmake << EOF
+          set(VCPKG_TARGET_ARCHITECTURE arm64)
+          set(VCPKG_CRT_LINKAGE dynamic)
+          set(VCPKG_LIBRARY_LINKAGE static)
+          set(VCPKG_CMAKE_SYSTEM_NAME Darwin)
+          set(VCPKG_OSX_DEPLOYMENT_TARGET "11.0")
+
+          set(VCPKG_OSX_ARCHITECTURES arm64)
+
+          set(VCPKG_CXX_FLAGS "-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option")
+          set(VCPKG_C_FLAGS "-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option")
+          set(VCPKG_LINKER_FLAGS "-L${BREW_PREFIX}/opt/libomp/lib -Wl,-rpath,${BREW_PREFIX}/opt/libomp/lib")
+
+          list(APPEND VCPKG_CMAKE_CONFIGURE_OPTIONS
+            "-DOpenMP_ROOT=${BREW_PREFIX}/opt/libomp"
+            "-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp"
+            "-DOpenMP_CXX_FLAGS=-Xpreprocessor -fopenmp"
+            "-DOpenMP_C_LIB_NAMES=omp"
+            "-DOpenMP_CXX_LIB_NAMES=omp"
+            "-DOpenMP_omp_LIBRARY=${BREW_PREFIX}/opt/libomp/lib/libomp.dylib"
+          )
+          EOF
+
+          echo "Custom triplet created:"
+          cat tools/vcpkg/triplets/community/arm64-osx-relaxed.cmake
+
+      - name: Configure CMake
+        shell: bash
+        env:
+          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+        run: |
+          set -euo pipefail
+
+          echo "=== Running CMake configuration ==="
+
+          BREW_PREFIX=$(brew --prefix)
+          SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
+
+          VCPKG_FEATURES=""
+
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_C_COMPILER=/usr/bin/clang \
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+            -DCMAKE_OSX_SYSROOT="$SDKROOT" \
+            -DCMAKE_CXX_FLAGS="-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option" \
+            -DCMAKE_C_FLAGS="-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option" \
+            -DCMAKE_EXE_LINKER_FLAGS="-L${BREW_PREFIX}/opt/libomp/lib -Wl,-rpath,${BREW_PREFIX}/opt/libomp/lib" \
+            -DOpenMP_ROOT="$BREW_PREFIX/opt/libomp" \
+            -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I$BREW_PREFIX/opt/libomp/include" \
+            -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I$BREW_PREFIX/opt/libomp/include" \
+            -DOpenMP_C_LIB_NAMES="omp" \
+            -DOpenMP_CXX_LIB_NAMES="omp" \
+            -DOpenMP_omp_LIBRARY="$BREW_PREFIX/opt/libomp/lib/libomp.dylib" \
+            -DVCPKG_TARGET_TRIPLET=arm64-osx-relaxed \
+            -DBUILD_RELEASE_LITE=OFF \
+            -DVCPKG_OVERLAY_TRIPLETS="${{ github.workspace }}/tools/vcpkg/triplets/community" \
+            -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES" \
+            -DVCPKG_FEATURE_FLAGS="versions,manifests,registries"
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          NPROC=$(sysctl -n hw.ncpu)
+
+          if [ "$NPROC" -lt 1 ]; then
+            NPROC=1
+          fi
+
+          cmake --build build \
+            --config Release \
+            --parallel "$NPROC"
+
+      - name: Package with CPack
+        working-directory: build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cpack -G "DragNDrop" --config CPackConfig.cmake || \
+          cpack -G "DragNDrop"
+
+      - name: Verify macOS packages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ ! -d "build/bin/packages" ]; then
+            echo "ERROR: build/bin/packages does not exist"
+            exit 1
+          fi
+
+          echo "=== macOS packages ==="
+          find build/bin/packages -maxdepth 1 -type f -print
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-macos-arm64
+          path: build/bin/packages/*
+          if-no-files-found: error
+
+
+  # ============================================================================
+  # Build & Pack - Windows x64
+  # ============================================================================
+  build-and-pack-windows:
+    name: Build and Pack (Windows x64)
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.3'
+          arch: 'win64_msvc2022_64'
+          cache: true
+          modules: 'qtmultimedia'
+
+      - name: Setup vcpkg
+        shell: pwsh
+        run: |
+          Write-Host "=== Setting up vcpkg ==="
+
+          git clone `
+            https://github.com/Microsoft/vcpkg.git `
+            tools/vcpkg `
+            --depth=1
+
+          Push-Location tools/vcpkg
+
+          cmd /c "bootstrap-vcpkg.bat"
+
+          Pop-Location
+
+          $vcpkgRoot = Join-Path "${{ github.workspace }}" "tools\vcpkg"
+
+          "VCPKG_ROOT=$vcpkgRoot" | Out-File `
+            -FilePath $env:GITHUB_ENV `
+            -Append `
+            -Encoding utf8
+
+          $vcpkgRoot | Out-File `
+            -FilePath $env:GITHUB_PATH `
+            -Append `
+            -Encoding utf8
+
+          Write-Host "vcpkg setup completed"
+
+          $vcpkgExe = Join-Path $vcpkgRoot "vcpkg.exe"
+
+          if (-not (Test-Path $vcpkgExe)) {
+            Write-Error "vcpkg.exe was not found at $vcpkgExe"
+            exit 1
+          }
+
+          & $vcpkgExe version
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          Write-Host "=== Running CMake configuration ==="
+
+          $vcpkgRoot = $env:VCPKG_ROOT
+
+          if (-not $vcpkgRoot) {
+            $vcpkgRoot = Join-Path "${{ github.workspace }}" "tools\vcpkg"
+          }
+
+          $toolchainFile = Join-Path `
+            $vcpkgRoot `
+            "scripts\buildsystems\vcpkg.cmake"
+
+          Write-Host "VCPKG_ROOT: $vcpkgRoot"
+          Write-Host "Toolchain file: $toolchainFile"
+
+          if (-not (Test-Path $toolchainFile)) {
+            Write-Error "vcpkg toolchain file does not exist: $toolchainFile"
+            exit 1
+          }
+
+          # Windows release build intentionally disables CUDA.
+          $VCPKG_FEATURES = "ggml,whisper-cpp"
+
+          Write-Host "CUDA disabled for Windows release build"
+          Write-Host "VCPKG_FEATURES: $VCPKG_FEATURES"
+
+          cmake -B build `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="$toolchainFile" `
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
+            -DBUILD_RELEASE_LITE=OFF `
+            -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES"
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $jobs = [System.Environment]::ProcessorCount
+
+          if ($jobs -lt 1) {
+            $jobs = 1
+          }
+
+          Write-Host "Building with $jobs parallel jobs"
+
+          cmake --build build `
+            --config Release `
+            --parallel $jobs
+
+      - name: Package with CPack
+        working-directory: build
+        shell: pwsh
+        run: |
+          cpack -G "NSIS" --config CPackConfig.cmake
+
+      - name: Verify Windows packages
+        shell: pwsh
+        run: |
+          $packageDir = Join-Path "${{ github.workspace }}" "build\bin\packages"
+
+          if (-not (Test-Path $packageDir)) {
+            Write-Error "Package directory does not exist: $packageDir"
+            exit 1
+          }
+
+          Write-Host "=== Windows packages ==="
+
+          Get-ChildItem `
+            -Path $packageDir `
+            -File |
+            Format-Table Name, Length
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-windows-x64
+          path: build/bin/packages/*
+          if-no-files-found: error
+
+
+  # ============================================================================
+  # Create GitHub Release
+  # ============================================================================
+  release:
+    name: Create Release
+
+    needs:
+      - build-and-pack-linux
+      - build-and-pack-macos
+      - build-and-pack-windows
+
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Extract version information
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${{ github.ref_name }}"
+          fi
+
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "ERROR: Invalid version format: $VERSION"
+            echo "Expected format: v1.2.3 or v1.2.3-rc.1"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "package_name=${PROJECT_NAME}-source-${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+          echo "Using version: $VERSION"
+
+      - name: Create source package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PACKAGE_NAME="${PROJECT_NAME}-source-${VERSION}"
+
+          mkdir -p dist
+          mkdir -p "source-package/${PACKAGE_NAME}"
+
+          cat > .package_exclude << 'EOF'
+          build
+          build/*
+          dist
+          dist/*
+          source-package
+          source-package/*
+          packages
+          packages/*
+          tools/vcpkg/buildtrees/*
+          tools/vcpkg/packages/*
+          tools/vcpkg/downloads/*
+          tools/vcpkg/installed/*
+          .vscode/settings.json
+          .idea/*
+          *.swp
+          *.swo
+          *~
+          .DS_Store
+          Thumbs.db
+          desktop.ini
+          *.log
+          *.tmp
+          *.temp
+          __pycache__/*
+          *.pyc
+          *.pyo
+          .pytest_cache/*
+          .git/*
+          .gitmodules
+          .github/workflows/cache/*
+          EOF
+
+          echo "=== Creating source tree ==="
+
+          tar \
+            --exclude-from=.package_exclude \
             --exclude=".package_exclude" \
-            * .[^.]* 2>/dev/null || \
-        tar --exclude-from=.package_exclude \
+            -cf - \
+            . | tar -xf - -C "source-package/${PACKAGE_NAME}"
+
+          echo "=== Creating source tarball ==="
+
+          tar \
+            -C source-package \
             -czf "dist/${PACKAGE_NAME}.tar.gz" \
-            --transform "s,^,${PACKAGE_NAME}/," \
-            --exclude=".package_exclude" \
-            *
-        
-        # Create ZIP archive
-        echo "Creating ZIP archive: ${PACKAGE_NAME}.zip"
-        zip -r "dist/${PACKAGE_NAME}.zip" . \
-            -x@.package_exclude \
-            -x ".package_exclude" \
-            > /dev/null 2>&1 || true
-        
-        # Create package info file
-        cat > "dist/${PACKAGE_NAME}.info" << EOF
-        Package: ${{ env.PROJECT_NAME }}
-        Version: ${{ env.VERSION }}
-        Architecture: source
-        Maintainer: ${{ github.repository_owner }}
-        Description: RAG-Qt - Qt-based RAG (Retrieval-Augmented Generation) desktop application
-        Homepage: https://github.com/${{ github.repository }}
-        Source: https://github.com/${{ github.repository }}/archive/${{ env.VERSION }}.tar.gz
-        License: See LICENSE file
-        Build-Date: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-        Commit: ${{ github.sha }}
-        EOF
-        
-        # Generate checksums and metadata
-        cd dist
-        echo "Generating checksums..."
-        sha256sum "${PACKAGE_NAME}.tar.gz" > "${PACKAGE_NAME}.tar.gz.sha256"
-        sha256sum "${PACKAGE_NAME}.zip" > "${PACKAGE_NAME}.zip.sha256"
-        md5sum "${PACKAGE_NAME}.tar.gz" > "${PACKAGE_NAME}.tar.gz.md5"
-        md5sum "${PACKAGE_NAME}.zip" > "${PACKAGE_NAME}.zip.md5"
-        
-        # Create manifest file
-        cat > "${PACKAGE_NAME}.manifest" << EOF
-        {
-          "name": "${{ env.PROJECT_NAME }}-source",
-          "version": "${{ env.VERSION }}",
-          "description": "RAG-Qt - Qt-based RAG desktop application",
-          "repository": "${{ github.repository }}",
-          "commit": "${{ github.sha }}",
-          "build_date": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-          "packages": [
-            {
-              "file": "${PACKAGE_NAME}.tar.gz",
-              "format": "tar.gz",
-              "size": $(stat -c%s "${PACKAGE_NAME}.tar.gz" 2>/dev/null || echo 0),
-              "sha256": "$(cat ${PACKAGE_NAME}.tar.gz.sha256 | cut -d' ' -f1)"
-            },
-            {
-              "file": "${PACKAGE_NAME}.zip",
-              "format": "zip",
-              "size": $(stat -c%s "${PACKAGE_NAME}.zip" 2>/dev/null || echo 0),
-              "sha256": "$(cat ${PACKAGE_NAME}.zip.sha256 | cut -d' ' -f1)"
-            }
-          ]
-        }
-        EOF
-        
-        # Display package information
-        echo "=== Package Information ==="
-        ls -lh
-        echo "Total package size:"
-        du -sh .
-        echo "=========================="
+            "${PACKAGE_NAME}"
 
-    - name: Upload to GitHub Container Registry
-      run: |
-        echo "=== Uploading to GitHub Container Registry ==="
-        
-        # Login to GitHub Container Registry
-        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-        
-        cd dist
-        PACKAGE_NAME="${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}"
-        
-        # Create a simple container with the source package
-        cat > Dockerfile << EOF
-        FROM scratch
-        COPY ${PACKAGE_NAME}.tar.gz /
-        COPY ${PACKAGE_NAME}.zip /
-        COPY ${PACKAGE_NAME}.manifest /
-        COPY ${PACKAGE_NAME}.info /
-        COPY ${PACKAGE_NAME}.*.sha256 /
-        COPY ${PACKAGE_NAME}.*.md5 /
-        EOF
-        
-        # Build and push container
-        IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-source:${{ env.VERSION }}"
-        IMAGE_TAG_LATEST="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-source:latest"
-        
-        docker build -t "$IMAGE_TAG" .
-        docker tag "$IMAGE_TAG" "$IMAGE_TAG_LATEST"
-        
-        docker push "$IMAGE_TAG"
-        docker push "$IMAGE_TAG_LATEST"
-        
-        echo "Uploaded to: $IMAGE_TAG"
+          echo "=== Creating source zip ==="
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.VERSION }}
-        name: RAG-Qt ${{ env.VERSION }}
-        files: |
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.*.sha256
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.*.md5
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.manifest
-          dist/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.info
-        body: |
-          ## RAG-Qt ${{ env.VERSION }}
-          
-          This release contains the complete source code for RAG-Qt, a Qt-based desktop application for Retrieval-Augmented Generation.
-          
-          ### 📦 Source Code Packages
-          
-          | Package | Description | Size |
-          |---------|-------------|------|
-          | `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz` | Source archive (tar.gz format, recommended for Linux/macOS) | ![Size](https://img.shields.io/github/size/${{ github.repository }}/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz) |
-          | `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip` | Source archive (ZIP format, recommended for Windows) | ![Size](https://img.shields.io/github/size/${{ github.repository }}/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip) |
-          
-          ### 🔐 Verification
-          
-          SHA256 and MD5 checksums are provided for package verification:
-          - `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz.sha256`
-          - `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip.sha256`
-          - `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz.md5`
-          - `${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.zip.md5`
-          
-          ### 📋 Package Information
-          
-          - **Version**: ${{ env.VERSION }}
-          - **Commit**: [`${{ github.sha }}`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
-          - **Build Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          - **Container Registry**: `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-source:${{ env.VERSION }}`
-          
-          ### 📖 Usage
-          
-          #### Download and Extract
-          
-          ```bash
-          # Using wget (Linux/macOS)
-          wget https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz
-          tar -xzf ${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}.tar.gz
-          cd ${{ env.PROJECT_NAME }}-source-${{ env.VERSION }}
-          
-          # Using GitHub Container Registry
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-source:${{ env.VERSION }}
+          (
+            cd source-package
+            zip -r "../dist/${PACKAGE_NAME}.zip" "${PACKAGE_NAME}" \
+              -x "${PACKAGE_NAME}/.git/*" \
+              -x "${PACKAGE_NAME}/build/*"
+          )
+
+          echo "=== Generating SHA256 checksums ==="
+
+          cd dist
+
+          sha256sum \
+            "${PACKAGE_NAME}.tar.gz" \
+            > "${PACKAGE_NAME}.tar.gz.sha256"
+
+          sha256sum \
+            "${PACKAGE_NAME}.zip" \
+            > "${PACKAGE_NAME}.zip.sha256"
+
+          echo "=== Source packages ==="
+          ls -lh
+
+      - name: Download all platform packages
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded-packages
+
+      - name: Organise artifacts for release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p dist-final
+
+          # Source packages
+          cp dist/* dist-final/
+
+          # Linux
+          find downloaded-packages/packages-linux-x64 \
+            -type f \
+            \( \
+              -name "*.deb" \
+              -o -name "*.tar.gz" \
+              -o -name "*.tgz" \
+            \) \
+            -exec cp {} dist-final/ \;
+
+          # macOS
+          find downloaded-packages/packages-macos-arm64 \
+            -type f \
+            \( \
+              -name "*.dmg" \
+            \) \
+            -exec cp {} dist-final/ \;
+
+          # Windows
+          find downloaded-packages/packages-windows-x64 \
+            -type f \
+            \( \
+              -name "*.exe" \
+            \) \
+            -exec cp {} dist-final/ \;
+
+          echo "=== Final release artifacts ==="
+
+          find dist-final \
+            -maxdepth 1 \
+            -type f \
+            -printf '%f\n' |
+            sort
+
+          echo
+          echo "=== Artifact sizes ==="
+
+          ls -lh dist-final/
+
+      - name: Verify release artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! find dist-final -maxdepth 1 -type f | grep -q .; then
+            echo "ERROR: No release artifacts found"
+            exit 1
+          fi
+
+          echo "Release artifacts verified successfully."
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: RAG-Qt ${{ env.VERSION }}
+          prerelease: ${{ inputs.prerelease || false }}
+          generate_release_notes: true
+          files: |
+            dist-final/*
+          body: |
+            ## RAG-Qt ${{ env.VERSION }}
+
+            This release contains the compiled executables,
+            installers, and source packages for RAG-Qt.
+
+            ### 📦 Binaries & Installers
+
+            - **Windows (x64)**: `.exe` installer (NSIS)
+            - **macOS (ARM64)**: `.dmg` disk image
+            - **Linux (x64)**: `.deb` and `.tar.gz` packages
+
+            ### 📦 Source Code
+
+            - Source code archive (`.tar.gz`)
+            - Source code archive (`.zip`)
+            - SHA256 checksums
+
+            ### 🔐 Checksums
+
+            SHA256 checksum files are included alongside
+            the corresponding source archives.
