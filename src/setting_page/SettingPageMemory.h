@@ -9,7 +9,7 @@
 #include <QMutex>
 #include <QPointer>
 
-#include "Config.h"
+#include "../framework/Global.h"
 #include "MemoryConfigDialog.h"
 
 QT_BEGIN_NAMESPACE

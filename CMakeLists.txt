@@ -193,6 +193,7 @@ find_package(hj REQUIRED)
 # Include Directories
 # ----------------------------------------------------------------------------
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rd/high-jump)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/framework)
 
 # ----------------------------------------------------------------------------
 # Translations
