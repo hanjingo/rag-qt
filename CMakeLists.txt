@@ -76,14 +76,20 @@ if(WIN32)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${OUTPUT_BASE_NAME}")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${OUTPUT_BASE_NAME}/plugins")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_DIR_BASE}/${OUTPUT_BASE_NAME}")
-    
-    # Multi-configuration support
+
+    # Multi-configuration support (Visual Studio)
     if(CMAKE_CONFIGURATION_TYPES)
         foreach(CFG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
             string(TOUPPER ${CFG} CFG_UPPER)
-            set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
-            set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}/plugins")
-            set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
+            if(BUILD_RELEASE_LITE AND CFG_UPPER STREQUAL "RELEASE")
+                set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/Release-Lite")
+                set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/Release-Lite/plugins")
+                set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/Release-Lite")
+            else()
+                set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
+                set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}/plugins")
+                set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_UPPER} "${OUTPUT_DIR_BASE}/${CFG}")
+            endif()
         endforeach()
     endif()
     
@@ -581,11 +587,14 @@ elseif(WIN32)
         set(CPACK_NSIS_INSTALL_ROOT "C:")
         set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-setup")
     endif()
-    
+
+    file(MAKE_DIRECTORY "${ABS_SOURCE_DIR}/configs")
+    file(MAKE_DIRECTORY "${ABS_SOURCE_DIR}/models")
+    file(MAKE_DIRECTORY "${ABS_SOURCE_DIR}/plugins")
+    file(MAKE_DIRECTORY "${ABS_SOURCE_DIR}/log")
+
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}")
     set(CPACK_COMPONENTS_ALL Applications)
-    set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_BINARY_DIR};${CMAKE_PROJECT_NAME};ALL;/")
-    
     install(DIRECTORY "${ABS_SOURCE_DIR}/" 
             DESTINATION "."
             COMPONENT Applications
@@ -596,15 +605,7 @@ elseif(WIN32)
             PATTERN "*.lib" EXCLUDE
             PATTERN "default*.log" EXCLUDE
             PATTERN "rag-core_test.exe" EXCLUDE
-            PATTERN "configs" EXCLUDE
-            PATTERN "configs/*" EXCLUDE
-            PATTERN "models" EXCLUDE
-            PATTERN "models/*" EXCLUDE
-            PATTERN "plugins" EXCLUDE
-            PATTERN "plugins/*" EXCLUDE
-            PATTERN "log" EXCLUDE
             PATTERN "log/*" EXCLUDE
-            PATTERN "tmp" EXCLUDE
             PATTERN "tmp/*" EXCLUDE
     )
 
@@ -630,16 +631,6 @@ elseif(WIN32)
     )
 
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        IfFileExists '$INSTDIR\\\\configs' +2
-        File /r '${ABS_SOURCE_DIR}\\\\configs'
-
-        IfFileExists '$INSTDIR\\\\models' +2
-        File /r '${ABS_SOURCE_DIR}\\\\models'
-
-        IfFileExists '$INSTDIR\\\\plugins' +2
-        File /r '${ABS_SOURCE_DIR}\\\\plugins'
-
-        IfFileExists '$INSTDIR\\\\log' +2
         CreateDirectory '$INSTDIR\\\\log'
     ")
 
@@ -650,37 +641,10 @@ elseif(WIN32)
         RMDir '$SMPROGRAMS\\\\${CMAKE_PROJECT_NAME}'
         
         Delete '$INSTDIR\\\\Uninstall.exe'
-        Delete '$INSTDIR\\\\*.*'
-        
-        FindFirst $0 $1 '$INSTDIR\\\\*'
-        loop:
-            StrCmp $1 '' done
-            StrCmp $1 '.' next
-            StrCmp $1 '..' next
-            StrCmp $1 'configs' next
-            StrCmp $1 'models' next
-            StrCmp $1 'log' next
-            StrCmp $1 'plugins' next
-            
-            IfFileExists '$INSTDIR\\\\$1\\\\*.*' 0 is_file
-                RMDir /r '$INSTDIR\\\\$1'
-                Goto next
-            is_file:
-                Delete '$INSTDIR\\\\$1'
-        next:
-            FindNext $0 $1
-            Goto loop
-        done:
-            FindClose $0
-            
-        RMDir '$INSTDIR'
-        
-        MessageBox MB_ICONINFORMATION|MB_OK '${CMAKE_PROJECT_NAME} was successfully removed. (configs, models, log and plugins directories preserved)'
-
-        Quit
+        RMDir /r '$INSTDIR'
     ")
 
-    set(CPACK_NSIS_LANGUAGE "SimpChinese" "English")
+    set(CPACK_NSIS_LANGUAGE "English")
 
 elseif(UNIX)
     set(CPACK_GENERATOR "DEB;TGZ")

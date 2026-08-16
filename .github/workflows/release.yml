@@ -117,9 +117,9 @@ jobs:
           cmake -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_RELEASE_LITE=ON \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-            -DBUILD_RELEASE_LITE=OFF \
             -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES" \
             -DOpenMP_CXX_FLAGS="-fopenmp" \
             -DOpenMP_C_FLAGS="-fopenmp" \
@@ -167,7 +167,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-linux-x64
-          path: build/bin/packages/*
+          path: |
+            build/bin/packages/*.deb
+            build/bin/packages/*.tar.gz
           if-no-files-found: error
 
 
@@ -298,6 +300,7 @@ jobs:
           cmake -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_RELEASE_LITE=ON \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
@@ -315,7 +318,6 @@ jobs:
             -DOpenMP_CXX_LIB_NAMES="omp" \
             -DOpenMP_omp_LIBRARY="$BREW_PREFIX/opt/libomp/lib/libomp.dylib" \
             -DVCPKG_TARGET_TRIPLET=arm64-osx-relaxed \
-            -DBUILD_RELEASE_LITE=OFF \
             -DVCPKG_OVERLAY_TRIPLETS="${{ github.workspace }}/tools/vcpkg/triplets/community" \
             -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES" \
             -DVCPKG_FEATURE_FLAGS="versions,manifests,registries"
@@ -361,7 +363,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-macos-arm64
-          path: build/bin/packages/*
+          path: build/bin/packages/*.dmg
           if-no-files-found: error
 
 
@@ -459,9 +461,9 @@ jobs:
             -G "Visual Studio 17 2022" `
             -A x64 `
             -DCMAKE_BUILD_TYPE=Release `
+            -DBUILD_RELEASE_LITE=ON `
             -DCMAKE_TOOLCHAIN_FILE="$toolchainFile" `
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
-            -DBUILD_RELEASE_LITE=OFF `
             -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES"
 
       - name: Build
@@ -483,7 +485,30 @@ jobs:
         working-directory: build
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Continue"
+
           cpack -G "NSIS" --config CPackConfig.cmake
+
+          $log = Join-Path `
+            "${{ github.workspace }}" `
+            "build\bin\packages\_CPack_Packages\win64\NSIS\NSISOutput.log"
+
+          if (Test-Path $log) {
+              Get-Content $log
+          }
+          else {
+              Write-Host "NSISOutput.log was not found"
+          }
+
+          $nsi = Join-Path `
+            "${{ github.workspace }}" `
+            "build\bin\packages\_CPack_Packages\win64\NSIS\project.nsi"
+
+          if (Test-Path $nsi) {
+              Get-Content $nsi
+          }
+
+          exit $LASTEXITCODE
 
       - name: Verify Windows packages
         shell: pwsh
@@ -506,7 +531,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-windows-x64
-          path: build/bin/packages/*
+          path: build/bin/packages/*.exe
           if-no-files-found: error
 
 
