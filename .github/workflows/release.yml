@@ -26,10 +26,163 @@ env:
 jobs:
 
   # ============================================================================
-  # Build & Pack - Linux x64
+  # Build & Pack - Linux x64 (Full)
   # ============================================================================
   build-and-pack-linux:
     name: Build and Pack (Linux x64)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup virtual display
+        run: |
+          export DISPLAY=:99.0
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          echo "DISPLAY=:99.0" >> "$GITHUB_ENV"
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.3'
+          arch: 'linux_gcc_64'
+          cache: true
+          modules: 'qtmultimedia'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            build-essential \
+            ninja-build \
+            libgl1-mesa-dev \
+            libxcb-util-dev \
+            libxcb-icccm4-dev \
+            libxcb-image0-dev \
+            libxcb-keysyms1-dev \
+            libxcb-randr0-dev \
+            libxcb-render-util0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxcb-xinerama0-dev \
+            libxcb-xkb-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libx11-xcb-dev \
+            autoconf \
+            autoconf-archive \
+            automake \
+            libtool \
+            libomp-dev \
+            xvfb
+
+      - name: Setup vcpkg
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "=== Setting up vcpkg ==="
+
+          git clone \
+            https://github.com/Microsoft/vcpkg.git \
+            tools/vcpkg \
+            --depth=1
+
+          chmod +x tools/vcpkg/bootstrap-vcpkg.sh
+          ./tools/vcpkg/bootstrap-vcpkg.sh
+
+          echo "VCPKG_ROOT=${{ github.workspace }}/tools/vcpkg" >> "$GITHUB_ENV"
+          echo "${{ github.workspace }}/tools/vcpkg" >> "$GITHUB_PATH"
+
+          echo "vcpkg setup completed"
+          ./tools/vcpkg/vcpkg version
+
+      - name: Configure CMake
+        shell: bash
+        env:
+          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+        run: |
+          set -euo pipefail
+
+          echo "=== Running CMake configuration ==="
+
+          VCPKG_FEATURES="ggml,whisper-cpp"
+          echo "CUDA disabled for Linux release build"
+
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_RELEASE_LITE=OFF \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES" \
+            -DOpenMP_CXX_FLAGS="-fopenmp" \
+            -DOpenMP_C_FLAGS="-fopenmp" \
+            -DCMAKE_CXX_FLAGS="-Wno-deprecated-declarations -Wno-deprecated" \
+            -DCMAKE_C_FLAGS="-Wno-deprecated-declarations -Wno-deprecated"
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          JOBS=$(nproc)
+
+          if [ "$JOBS" -lt 1 ]; then
+            JOBS=1
+          fi
+
+          cmake --build build \
+            --config Release \
+            --parallel "$JOBS"
+
+      - name: Download models
+        working-directory: script
+        shell: bash
+        run: |
+          python3 download.py ../bin/Release/models
+
+      - name: Package with CPack
+        working-directory: build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cpack -G "DEB;TGZ" --config CPackConfig.cmake || \
+          cpack -G "DEB;TGZ"
+
+      - name: Verify Linux packages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ ! -d "build/bin/packages" ]; then
+            echo "ERROR: build/bin/packages does not exist"
+            exit 1
+          fi
+
+          echo "=== Linux packages ==="
+          find build/bin/packages -maxdepth 1 -type f -print
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-linux-x64
+          path: |
+            build/bin/packages/*.deb
+            build/bin/packages/*.tar.gz
+          if-no-files-found: error
+
+  # ============================================================================
+  # Build & Pack - Linux x64 - Lite
+  # ============================================================================
+  build-and-pack-linux-lite:
+    name: Build and Pack (Linux x64 - Lite)
     runs-on: ubuntu-22.04
 
     steps:
@@ -172,12 +325,211 @@ jobs:
             build/bin/packages/*.tar.gz
           if-no-files-found: error
 
-
   # ============================================================================
-  # Build & Pack - macOS ARM64
+  # Build & Pack - macOS ARM64 (Full)
   # ============================================================================
   build-and-pack-macos:
     name: Build and Pack (macOS ARM64)
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install Metal toolchain
+        shell: bash
+        run: |
+          echo "=== Installing Metal toolchain ==="
+
+          sudo xcodebuild -downloadPlatform macOS || true
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.3'
+          arch: 'clang_64'
+          cache: true
+          modules: 'qtmultimedia'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          brew install \
+            cmake \
+            ninja \
+            autoconf \
+            automake \
+            autoconf-archive \
+            libtool \
+            unixodbc \
+            libomp || true
+
+          brew unlink automake autoconf libtool 2>/dev/null || true
+
+          brew link \
+            --force \
+            --overwrite \
+            automake \
+            autoconf \
+            autoconf-archive \
+            libtool || true
+
+      - name: Setup vcpkg
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "=== Setting up vcpkg ==="
+
+          git clone \
+            https://github.com/Microsoft/vcpkg.git \
+            tools/vcpkg \
+            --depth=1
+
+          chmod +x tools/vcpkg/bootstrap-vcpkg.sh
+          ./tools/vcpkg/bootstrap-vcpkg.sh
+
+          echo "VCPKG_ROOT=${{ github.workspace }}/tools/vcpkg" >> "$GITHUB_ENV"
+          echo "${{ github.workspace }}/tools/vcpkg" >> "$GITHUB_PATH"
+
+          echo "vcpkg setup completed"
+          ./tools/vcpkg/vcpkg version
+
+      - name: Create vcpkg triplet for macOS ARM64
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "=== Creating custom vcpkg triplet ==="
+
+          mkdir -p tools/vcpkg/triplets/community
+
+          BREW_PREFIX=$(brew --prefix)
+
+          cat > tools/vcpkg/triplets/community/arm64-osx-relaxed.cmake << EOF
+          set(VCPKG_TARGET_ARCHITECTURE arm64)
+          set(VCPKG_CRT_LINKAGE dynamic)
+          set(VCPKG_LIBRARY_LINKAGE static)
+          set(VCPKG_CMAKE_SYSTEM_NAME Darwin)
+          set(VCPKG_OSX_DEPLOYMENT_TARGET "11.0")
+
+          set(VCPKG_OSX_ARCHITECTURES arm64)
+
+          set(VCPKG_CXX_FLAGS "-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option")
+          set(VCPKG_C_FLAGS "-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option")
+          set(VCPKG_LINKER_FLAGS "-L${BREW_PREFIX}/opt/libomp/lib -Wl,-rpath,${BREW_PREFIX}/opt/libomp/lib")
+
+          list(APPEND VCPKG_CMAKE_CONFIGURE_OPTIONS
+            "-DOpenMP_ROOT=${BREW_PREFIX}/opt/libomp"
+            "-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp"
+            "-DOpenMP_CXX_FLAGS=-Xpreprocessor -fopenmp"
+            "-DOpenMP_C_LIB_NAMES=omp"
+            "-DOpenMP_CXX_LIB_NAMES=omp"
+            "-DOpenMP_omp_LIBRARY=${BREW_PREFIX}/opt/libomp/lib/libomp.dylib"
+          )
+          EOF
+
+          echo "Custom triplet created:"
+          cat tools/vcpkg/triplets/community/arm64-osx-relaxed.cmake
+
+      - name: Configure CMake
+        shell: bash
+        env:
+          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+        run: |
+          set -euo pipefail
+
+          echo "=== Running CMake configuration ==="
+
+          BREW_PREFIX=$(brew --prefix)
+          SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
+
+          VCPKG_FEATURES=""
+
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_RELEASE_LITE=OFF \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_C_COMPILER=/usr/bin/clang \
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+            -DCMAKE_OSX_SYSROOT="$SDKROOT" \
+            -DCMAKE_CXX_FLAGS="-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option" \
+            -DCMAKE_C_FLAGS="-arch arm64 -I${BREW_PREFIX}/opt/libomp/include -Xpreprocessor -fopenmp -Wno-deprecated -Wno-deprecated-declarations -Wno-unknown-warning-option" \
+            -DCMAKE_EXE_LINKER_FLAGS="-L${BREW_PREFIX}/opt/libomp/lib -Wl,-rpath,${BREW_PREFIX}/opt/libomp/lib" \
+            -DOpenMP_ROOT="$BREW_PREFIX/opt/libomp" \
+            -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I$BREW_PREFIX/opt/libomp/include" \
+            -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I$BREW_PREFIX/opt/libomp/include" \
+            -DOpenMP_C_LIB_NAMES="omp" \
+            -DOpenMP_CXX_LIB_NAMES="omp" \
+            -DOpenMP_omp_LIBRARY="$BREW_PREFIX/opt/libomp/lib/libomp.dylib" \
+            -DVCPKG_TARGET_TRIPLET=arm64-osx-relaxed \
+            -DVCPKG_OVERLAY_TRIPLETS="${{ github.workspace }}/tools/vcpkg/triplets/community" \
+            -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES" \
+            -DVCPKG_FEATURE_FLAGS="versions,manifests,registries"
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          NPROC=$(sysctl -n hw.ncpu)
+
+          if [ "$NPROC" -lt 1 ]; then
+            NPROC=1
+          fi
+
+          cmake --build build \
+            --config Release \
+            --parallel "$NPROC"
+
+      - name: Download models
+        working-directory: script
+        shell: bash
+        run: |
+          python3 download.py ../bin/Release/rag-qt.app/Contents/Resources/models
+          python3 download.py ../bin/Release/models
+
+      - name: Package with CPack
+        working-directory: build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cpack -G "DragNDrop" --config CPackConfig.cmake || \
+          cpack -G "DragNDrop"
+
+      - name: Verify macOS packages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ ! -d "build/bin/packages" ]; then
+            echo "ERROR: build/bin/packages does not exist"
+            exit 1
+          fi
+
+          echo "=== macOS packages ==="
+          find build/bin/packages -maxdepth 1 -type f -print
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-macos-arm64
+          path: build/bin/packages/*.dmg
+          if-no-files-found: error
+
+  # ============================================================================
+  # Build & Pack - macOS ARM64 - Lite
+  # ============================================================================
+  build-and-pack-macos-lite:
+    name: Build and Pack (macOS ARM64 - Lite)
     runs-on: macos-14
 
     steps:
@@ -366,12 +718,184 @@ jobs:
           path: build/bin/packages/*.dmg
           if-no-files-found: error
 
-
   # ============================================================================
-  # Build & Pack - Windows x64
+  # Build & Pack - Windows x64 (Full)
   # ============================================================================
   build-and-pack-windows:
     name: Build and Pack (Windows x64)
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.3'
+          arch: 'win64_msvc2022_64'
+          cache: true
+          modules: 'qtmultimedia'
+
+      - name: Setup vcpkg
+        shell: pwsh
+        run: |
+          Write-Host "=== Setting up vcpkg ==="
+
+          git clone `
+            https://github.com/Microsoft/vcpkg.git `
+            tools/vcpkg `
+            --depth=1
+
+          Push-Location tools/vcpkg
+
+          cmd /c "bootstrap-vcpkg.bat"
+
+          Pop-Location
+
+          $vcpkgRoot = Join-Path "${{ github.workspace }}" "tools\vcpkg"
+
+          "VCPKG_ROOT=$vcpkgRoot" | Out-File `
+            -FilePath $env:GITHUB_ENV `
+            -Append `
+            -Encoding utf8
+
+          $vcpkgRoot | Out-File `
+            -FilePath $env:GITHUB_PATH `
+            -Append `
+            -Encoding utf8
+
+          Write-Host "vcpkg setup completed"
+
+          $vcpkgExe = Join-Path $vcpkgRoot "vcpkg.exe"
+
+          if (-not (Test-Path $vcpkgExe)) {
+            Write-Error "vcpkg.exe was not found at $vcpkgExe"
+            exit 1
+          }
+
+          & $vcpkgExe version
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          Write-Host "=== Running CMake configuration ==="
+
+          $vcpkgRoot = $env:VCPKG_ROOT
+
+          if (-not $vcpkgRoot) {
+            $vcpkgRoot = Join-Path "${{ github.workspace }}" "tools\vcpkg"
+          }
+
+          $toolchainFile = Join-Path `
+            $vcpkgRoot `
+            "scripts\buildsystems\vcpkg.cmake"
+
+          Write-Host "VCPKG_ROOT: $vcpkgRoot"
+          Write-Host "Toolchain file: $toolchainFile"
+
+          if (-not (Test-Path $toolchainFile)) {
+            Write-Error "vcpkg toolchain file does not exist: $toolchainFile"
+            exit 1
+          }
+
+          # Windows release build intentionally disables CUDA.
+          $VCPKG_FEATURES = "ggml,whisper-cpp"
+
+          Write-Host "CUDA disabled for Windows release build"
+          Write-Host "VCPKG_FEATURES: $VCPKG_FEATURES"
+
+          cmake -B build `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DBUILD_RELEASE_LITE=OFF `
+            -DCMAKE_TOOLCHAIN_FILE="$toolchainFile" `
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
+            -DVCPKG_MANIFEST_FEATURES="$VCPKG_FEATURES"
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $jobs = [System.Environment]::ProcessorCount
+
+          if ($jobs -lt 1) {
+            $jobs = 1
+          }
+
+          Write-Host "Building with $jobs parallel jobs"
+
+          cmake --build build `
+            --config Release `
+            --parallel $jobs
+
+      - name: Download models
+        working-directory: script
+        shell: pwsh
+        run: |
+          python download.py ../bin/Release/models
+
+      - name: Package with CPack
+        working-directory: build
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Continue"
+
+          cpack -G "NSIS" --config CPackConfig.cmake
+
+          $log = Join-Path `
+            "${{ github.workspace }}" `
+            "build\bin\packages\_CPack_Packages\win64\NSIS\NSISOutput.log"
+
+          if (Test-Path $log) {
+              Get-Content $log
+          }
+          else {
+              Write-Host "NSISOutput.log was not found"
+          }
+
+          $nsi = Join-Path `
+            "${{ github.workspace }}" `
+            "build\bin\packages\_CPack_Packages\win64\NSIS\project.nsi"
+
+          if (Test-Path $nsi) {
+              Get-Content $nsi
+          }
+
+          exit $LASTEXITCODE
+
+      - name: Verify Windows packages
+        shell: pwsh
+        run: |
+          $packageDir = Join-Path "${{ github.workspace }}" "build\bin\packages"
+
+          if (-not (Test-Path $packageDir)) {
+            Write-Error "Package directory does not exist: $packageDir"
+            exit 1
+          }
+
+          Write-Host "=== Windows packages ==="
+
+          Get-ChildItem `
+            -Path $packageDir `
+            -File |
+            Format-Table Name, Length
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-windows-x64
+          path: build/bin/packages/*.exe
+          if-no-files-found: error
+
+  # ============================================================================
+  # Build & Pack - Windows x64 - Lite
+  # ============================================================================
+  build-and-pack-windows-lite:
+    name: Build and Pack (Windows x64 - Lite)
     runs-on: windows-2022
 
     steps:
@@ -534,7 +1058,6 @@ jobs:
           path: build/bin/packages/*.exe
           if-no-files-found: error
 
-
   # ============================================================================
   # Create GitHub Release
   # ============================================================================
@@ -543,8 +1066,11 @@ jobs:
 
     needs:
       - build-and-pack-linux
+      - build-and-pack-linux-lite
       - build-and-pack-macos
+      - build-and-pack-macos-lite
       - build-and-pack-windows
+      - build-and-pack-windows-lite
 
     runs-on: ubuntu-22.04
 
