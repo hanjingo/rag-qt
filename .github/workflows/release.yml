@@ -319,7 +319,7 @@ jobs:
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: packages-linux-x64
+          name: packages-linux-x64-lite
           path: |
             build/bin/packages/*.deb
             build/bin/packages/*.tar.gz
@@ -714,7 +714,7 @@ jobs:
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: packages-macos-arm64
+          name: packages-macos-arm64-lite
           path: build/bin/packages/*.dmg
           if-no-files-found: error
 
@@ -1054,7 +1054,7 @@ jobs:
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: packages-windows-x64
+          name: packages-windows-x64-lite
           path: build/bin/packages/*.exe
           if-no-files-found: error
 
@@ -1215,6 +1215,16 @@ jobs:
             \) \
             -exec cp {} dist-final/ \;
 
+          # Linux-lite
+          find downloaded-packages/packages-linux-x64-lite \
+            -type f \
+            \( \
+              -name "*.deb" \
+              -o -name "*.tar.gz" \
+              -o -name "*.tgz" \
+            \) \
+            -exec cp {} dist-final/ \;
+
           # macOS
           find downloaded-packages/packages-macos-arm64 \
             -type f \
@@ -1223,8 +1233,26 @@ jobs:
             \) \
             -exec cp {} dist-final/ \;
 
+          # macOS-lite
+          find downloaded-packages/packages-macos-arm64-lite \
+            -type f \
+            \( \
+              -name "*.dmg" \
+            \) \
+            -exec cp {} dist-final/ \;
+
           # Windows
           find downloaded-packages/packages-windows-x64 \
+            -type f \
+            \( \
+              -name "*.exe" \
+            \) \
+            -exec cp {} dist-final/ \;
+
+          echo "=== Final release artifacts ==="
+
+          # Windows-lite
+          find downloaded-packages/packages-windows-x64-lite \
             -type f \
             \( \
               -name "*.exe" \
