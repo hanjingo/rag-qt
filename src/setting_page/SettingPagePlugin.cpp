@@ -1,6 +1,6 @@
 ﻿#include <libqt/io/file.h>
 
-#include <hj/encoding/fmt.hpp>
+#include <hj/str/fmt.hpp>
 
 #include <QTimer>
 #include <QMessageBox>

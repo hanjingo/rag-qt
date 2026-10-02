@@ -11,13 +11,13 @@ static const char *sentryKey = "94a9e7aba6c44ed1955167682d585bc0";
 static void        uploadMinidump(const std::string &dmpPath,
                                   const std::string &sentryKey)
 {
-    hj::crash_handler::print("uploadMinidump called, dmpPath: ");
-    hj::crash_handler::print(dmpPath.c_str());
+    hj::crash_print("uploadMinidump called, dmpPath: ");
+    hj::crash_print(dmpPath.c_str());
     std::ifstream file(dmpPath, std::ios::binary);
     if(!file.is_open())
     {
-        hj::crash_handler::print("Cannot open dump file: ");
-        hj::crash_handler::print(dmpPath.c_str());
+        hj::crash_print("Cannot open dump file: ");
+        hj::crash_print(dmpPath.c_str());
         return;
     }
 
@@ -25,11 +25,11 @@ static void        uploadMinidump(const std::string &dmpPath,
     buffer << file.rdbuf();
     std::string fileContent = buffer.str();
     file.close();
-    hj::crash_handler::print("File size: ");
-    hj::crash_handler::print(std::to_string(fileContent.size()).c_str());
+    hj::crash_print("File size: ");
+    hj::crash_print(std::to_string(fileContent.size()).c_str());
     if(fileContent.empty())
     {
-        hj::crash_handler::print("File content is empty!");
+        hj::crash_print("File content is empty!");
         return;
     }
 
@@ -39,8 +39,8 @@ static void        uploadMinidump(const std::string &dmpPath,
     {
         filename = filename.substr(pos + 1);
     }
-    hj::crash_handler::print("filename: ");
-    hj::crash_handler::print(filename.c_str());
+    hj::crash_print("filename: ");
+    hj::crash_print(filename.c_str());
 
     std::string boundary = "----WebKitFormBoundary" + std::to_string(rand())
                            + std::to_string(rand());
@@ -54,7 +54,7 @@ static void        uploadMinidump(const std::string &dmpPath,
     body += fileContent;
     body += "\r\n";
     body += "--" + boundary + "--\r\n";
-    hj::crash_handler::print("Uploading to Sentry...");
+    hj::crash_print("Uploading to Sentry...");
     try
     {
         std::string     host = "www.hango.fun";
@@ -70,24 +70,23 @@ static void        uploadMinidump(const std::string &dmpPath,
 
         if(res && res->status == 200)
         {
-            hj::crash_handler::print("Upload successful! Event ID: ");
-            hj::crash_handler::print(res->body.c_str());
+            hj::crash_print("Upload successful! Event ID: ");
+            hj::crash_print(res->body.c_str());
         } else if(res)
         {
-            hj::crash_handler::print("Upload failed. HTTP status: ");
-            hj::crash_handler::print(std::to_string(res->status).c_str());
-            hj::crash_handler::print("Response: ");
-            hj::crash_handler::print(res->body.c_str());
+            hj::crash_print("Upload failed. HTTP status: ");
+            hj::crash_print(std::to_string(res->status).c_str());
+            hj::crash_print("Response: ");
+            hj::crash_print(res->body.c_str());
         } else
         {
-            hj::crash_handler::print(
-                "Upload failed. Cannot connect to server.");
+            hj::crash_print("Upload failed. Cannot connect to server.");
         }
     }
     catch(const std::exception &e)
     {
-        hj::crash_handler::print("Upload exception: ");
-        hj::crash_handler::print(e.what());
+        hj::crash_print("Upload exception: ");
+        hj::crash_print(e.what());
     }
 }
 
@@ -99,7 +98,7 @@ static bool crashCallback(const wchar_t      *dump_path,
                           MDRawAssertionInfo *assertion,
                           bool                succeeded)
 {
-    hj::crash_handler::print("crashCallback CALLED");
+    hj::crash_print("crashCallback CALLED");
 
     std::string dumpPathStr;
     std::string minidumpIdStr;
@@ -146,16 +145,16 @@ static bool crashCallback(const wchar_t      *dump_path,
         }
     }
 
-    hj::crash_handler::print("dump_path: ");
-    hj::crash_handler::print(dumpPathStr.c_str());
-    hj::crash_handler::print("minidump_id: ");
-    hj::crash_handler::print(minidumpIdStr.c_str());
+    hj::crash_print("dump_path: ");
+    hj::crash_print(dumpPathStr.c_str());
+    hj::crash_print("minidump_id: ");
+    hj::crash_print(minidumpIdStr.c_str());
     if(!succeeded)
     {
-        hj::crash_handler::print("Crash dump failed to write.");
+        hj::crash_print("Crash dump failed to write.");
         return false;
     }
-    hj::crash_handler::print("succeed");
+    hj::crash_print("succeed");
 
     std::wstring fullPath =
         std::wstring(dump_path) + L"\\" + std::wstring(minidump_id) + L".dmp";
@@ -182,8 +181,8 @@ static bool crashCallback(const wchar_t      *dump_path,
         dmpPath = buffer.data();
     }
 
-    hj::crash_handler::print("Full path: ");
-    hj::crash_handler::print(dmpPath.c_str());
+    hj::crash_print("Full path: ");
+    hj::crash_print(dmpPath.c_str());
 
     uploadMinidump(dmpPath, sentryKey);
     return true;
@@ -195,26 +194,26 @@ static bool crashCallback(const char *dump_path,
                           void       *context,
                           bool        succeeded)
 {
-    hj::crash_handler::print("crashCallback CALLED");
+    hj::crash_print("crashCallback CALLED");
 
     std::string dumpPathStr   = dump_path ? dump_path : "";
     std::string minidumpIdStr = minidump_id ? minidump_id : "";
 
-    hj::crash_handler::print("dump_path: ");
-    hj::crash_handler::print(dumpPathStr.c_str());
-    hj::crash_handler::print("minidump_id: ");
-    hj::crash_handler::print(minidumpIdStr.c_str());
+    hj::crash_print("dump_path: ");
+    hj::crash_print(dumpPathStr.c_str());
+    hj::crash_print("minidump_id: ");
+    hj::crash_print(minidumpIdStr.c_str());
     if(!succeeded)
     {
-        hj::crash_handler::print("Crash dump failed to write.");
+        hj::crash_print("Crash dump failed to write.");
         return false;
     }
-    hj::crash_handler::print("succeed");
+    hj::crash_print("succeed");
 
     std::string dmpPath = dumpPathStr + "/" + minidumpIdStr + ".dmp";
 
-    hj::crash_handler::print("Full path: ");
-    hj::crash_handler::print(dmpPath.c_str());
+    hj::crash_print("Full path: ");
+    hj::crash_print(dmpPath.c_str());
 
     uploadMinidump(dmpPath, sentryKey);
     return true;
@@ -224,15 +223,15 @@ static bool crashCallback(const google_breakpad::MinidumpDescriptor &descriptor,
                           void                                      *context,
                           bool                                       succeeded)
 {
-    hj::crash_handler::print("crashCallback CALLED");
+    hj::crash_print("crashCallback CALLED");
     if(!succeeded)
     {
-        hj::crash_handler::print("Crash dump failed to write.");
+        hj::crash_print("Crash dump failed to write.");
         return false;
     }
     std::string dmpPath = descriptor.path();
-    hj::crash_handler::print("Full path: ");
-    hj::crash_handler::print(dmpPath.c_str());
+    hj::crash_print("Full path: ");
+    hj::crash_print(dmpPath.c_str());
 
     uploadMinidump(dmpPath, sentryKey);
     return true;

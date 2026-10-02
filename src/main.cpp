@@ -15,9 +15,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("rag-qt");
 
     // init crash reporter
-    hj::crash_handler::instance()->set_dump_callback(crashCallback);
     QString absPath = QCoreApplication::applicationDirPath() + "/crash";
-    hj::crash_handler::instance()->set_local_path(absPath.toStdString());
+    hj::crash_handler::instance().init(absPath.toStdString(), crashCallback);
 
     // show login page, hide framework page
     MainPageWidget::instance()->hide();
